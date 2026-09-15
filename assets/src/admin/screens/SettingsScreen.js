@@ -314,7 +314,7 @@ export function SettingsScreen() {
 										tone: 'warn',
 										title: 'Online payments need a gateway:',
 									},
-									'Payments are enabled, but Stripe and bKash are not connected yet. Parents will only see “pay the technician directly” or lesson packages until you add API keys below.'
+									'Payments are enabled, but Stripe and bKash are not connected yet. Customers will only see “pay the technician directly” or service plans until you add API keys below.'
 							  )
 							: null,
 						h(

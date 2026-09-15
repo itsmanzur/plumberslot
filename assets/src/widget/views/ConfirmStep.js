@@ -245,7 +245,7 @@ export function ConfirmStep( {
 					}
 				}
 
-				announce( 'Lesson booked.' );
+				announce( 'Appointment booked.' );
 				clearBookingDraft();
 				onBooked( result );
 			}
@@ -339,7 +339,7 @@ export function ConfirmStep( {
 				),
 				h( 'textarea', {
 					rows: 2,
-					placeholder: 'Anything helpful before the lesson',
+					placeholder: 'Anything helpful before the appointment',
 					value: notes,
 					onInput: ( e ) => setNotes( e.target.value ),
 				} )
@@ -391,7 +391,7 @@ export function ConfirmStep( {
 							checked: seriesOn,
 							onChange: ( e ) => setSeriesOn( e.target.checked ),
 						} ),
-						h( 'span', null, 'Repeat this lesson weekly' )
+						h( 'span', null, 'Repeat this appointment weekly' )
 					),
 					seriesOn
 						? h(
@@ -426,7 +426,7 @@ export function ConfirmStep( {
 								h(
 									'label',
 									{ class: 'ts-book__field' },
-									h( 'span', null, 'Number of lessons' ),
+									h( 'span', null, 'Number of appointments' ),
 									h( 'input', {
 										type: 'number',
 										min: 1,
@@ -551,7 +551,7 @@ function paymentReadinessNote( payments = {} ) {
 				tone: 'warn',
 				title: 'Online checkout is not connected:',
 			},
-			'Card and bKash are not set up on this site yet. Choose pay the technician directly, or use a lesson package if you have one.'
+			'Card and bKash are not set up on this site yet. Choose pay the technician directly, or use a service plan if you have one.'
 		);
 	}
 	if ( payments.enabled === false ) {
@@ -561,7 +561,7 @@ function paymentReadinessNote( payments = {} ) {
 				key: 'pay-off',
 				title: 'Online payments are off:',
 			},
-			'Pay the technician directly after booking, or use a lesson package.'
+			'Pay the technician directly after booking, or use a service plan.'
 		);
 	}
 	return null;
@@ -596,7 +596,7 @@ function buildPayOptions( payments = {}, technicianName = '' ) {
 	}
 	opts.push( {
 		id: 'package',
-		label: 'Lesson package',
+		label: 'Service Plan',
 		badge: 'Use credits',
 	} );
 	opts.push( {
@@ -677,7 +677,7 @@ function confirmLabel(
 	}
 	const amount = money( price, service?.currency || technician.currency );
 	if ( seriesOn ) {
-		return `Book ${ seriesCount } lessons · ${ amount } each`;
+		return `Book ${ seriesCount } appointments · ${ amount } each`;
 	}
 	if ( price > 0 ) {
 		return `Confirm · ${ amount }`;
