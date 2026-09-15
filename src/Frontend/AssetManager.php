@@ -21,7 +21,7 @@ final class AssetManager {
 
 	private bool $dashboard_needed = false;
 
-	private string $dashboard_view = 'parent';
+	private string $dashboard_view = 'technician';
 
 	public function register(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue' ), 20 );
@@ -38,9 +38,9 @@ final class AssetManager {
 		}
 	}
 
-	public function mark_dashboard_needed( string $view = 'parent' ): void {
+	public function mark_dashboard_needed( string $view = 'technician' ): void {
 		$this->dashboard_needed = true;
-		$this->dashboard_view   = in_array( $view, array( 'parent', 'technician' ), true ) ? $view : 'parent';
+		$this->dashboard_view   = 'technician' === $view ? $view : 'technician';
 
 		if ( did_action( 'wp_enqueue_scripts' ) ) {
 			$this->enqueue_dashboard();
@@ -105,7 +105,7 @@ final class AssetManager {
 			'nonce'        => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 			'loggedIn'     => is_user_logged_in(),
 			'loginUrl'     => wp_login_url( $current_url ),
-			'dashboardUrl' => home_url( '/parent-dashboard/' ),
+			'dashboardUrl' => home_url( '/technician-dashboard/' ),
 			'technicianDashUrl' => home_url( '/technician-dashboard/' ),
 			'bookingUrl'   => $this->booking_page_url(),
 			'view'         => $this->dashboard_view,

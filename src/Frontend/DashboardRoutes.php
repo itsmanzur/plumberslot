@@ -1,6 +1,6 @@
 <?php
 /**
- * Front-end routes for parent and technician dashboards.
+ * Front-end routes for the technician dashboard.
  *
  * @package PlumberSlot
  */
@@ -23,12 +23,11 @@ final class DashboardRoutes {
 
 	public function add_rewrites(): void {
 		add_rewrite_rule( '^technician-dashboard/?$', 'index.php?plumberslot_dash=technician', 'top' );
-		add_rewrite_rule( '^parent-dashboard/?$', 'index.php?plumberslot_dash=parent', 'top' );
 
 		$flag = (string) get_option( 'plumberslot_rewrite_version', '' );
-		if ( '5' !== $flag ) {
+		if ( '6' !== $flag ) {
 			flush_rewrite_rules( false );
-			update_option( 'plumberslot_rewrite_version', '5', false );
+			update_option( 'plumberslot_rewrite_version', '6', false );
 		}
 	}
 
@@ -44,7 +43,7 @@ final class DashboardRoutes {
 
 	public function render(): void {
 		$view = get_query_var( 'plumberslot_dash' );
-		if ( ! in_array( $view, array( 'technician', 'parent' ), true ) ) {
+		if ( 'technician' !== $view ) {
 			return;
 		}
 

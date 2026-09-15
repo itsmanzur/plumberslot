@@ -8,7 +8,7 @@ import {
 	announce,
 	navigateTo,
 } from '../../shared';
-import { ApiError, get, getBoot, post, remove } from '../api';
+import { ApiError, getBoot, post, remove } from '../api';
 import { clearBookingDraft } from '../draft';
 import { formatInZone, money } from '../lib';
 import { RAIL } from './ServiceStep';
@@ -26,10 +26,6 @@ export function ConfirmStep( {
 	const [ hold, setHold ] = useState( null );
 	const [ holdStatus, setHoldStatus ] = useState( 'idle' );
 	const [ seconds, setSeconds ] = useState( 0 );
-	const [ forChild, setForChild ] = useState( false );
-	const [ children, setChildren ] = useState( [] );
-	const [ childId, setChildId ] = useState( 0 );
-	const [ childrenStatus, setChildrenStatus ] = useState( 'loading' );
 	const [ notes, setNotes ] = useState( '' );
 	const [ payMethod, setPayMethod ] = useState( () =>
 		defaultPayMethod( boot.payments )
@@ -47,11 +43,6 @@ export function ConfirmStep( {
 
 	const price = service?.is_free_estimate ? 0 : service?.price_minor || 0;
 	const useCredit = payMethod === 'package';
-	const accountName = boot.user?.name || '';
-	const selectedChild = children.find(
-		( child ) => child.customer_id === childId
-	);
-	const customerName = selectedChild?.customer_name || '';
 
 	const payOptions = useMemo(
 		() => buildPayOptions( boot.payments, technician.display_name ),
@@ -92,34 +83,6 @@ export function ConfirmStep( {
 			}
 		}
 	};
-
-	useEffect( () => {
-		if ( ! boot.loggedIn ) {
-			setChildrenStatus( 'ready' );
-			return undefined;
-		}
-
-		let active = true;
-		get( 'relations/children' )
-			.then( ( data ) => {
-				if ( ! active ) {
-					return;
-				}
-				const items = data.items || [];
-				setChildren( items );
-				setChildId( items[ 0 ]?.customer_id || 0 );
-				setChildrenStatus( 'ready' );
-			} )
-			.catch( () => {
-				if ( active ) {
-					setChildrenStatus( 'error' );
-				}
-			} );
-
-		return () => {
-			active = false;
-		};
-	}, [ boot.loggedIn ] );
 
 	useEffect( () => {
 		holdTokenRef.current = hold?.token || '';
@@ -196,11 +159,6 @@ export function ConfirmStep( {
 			navigateTo( boot.loginUrl, { sameOrigin: true } );
 			return;
 		}
-		if ( forChild && ! childId ) {
-			announce( 'Choose a linked customer.' );
-			setError( 'Choose a linked customer to continue.' );
-			return;
-		}
 		if ( ! seriesOn && ( seconds <= 0 || ! hold?.token ) ) {
 			await acquireHold();
 			return;
@@ -209,13 +167,7 @@ export function ConfirmStep( {
 		setError( '' );
 		setSkipped( [] );
 		try {
-			const composedNotes = composeNotes( {
-				forChild,
-				customerName,
-				accountName,
-				notes,
-				payMethod,
-			} );
+			const composedNotes = composeNotes( { notes, payMethod } );
 
 			if ( seriesOn ) {
 				const result = await post( 'series', {
@@ -226,7 +178,6 @@ export function ConfirmStep( {
 					days: seriesDays,
 					count: seriesCount,
 					notes: composedNotes,
-					customer_id: forChild ? childId : undefined,
 					use_credit: useCredit,
 				} );
 				if ( ( result.skipped || [] ).length ) {
@@ -256,7 +207,6 @@ export function ConfirmStep( {
 					timezone,
 					lock_token: hold.token,
 					notes: composedNotes,
-					customer_id: forChild ? childId : undefined,
 					use_credit: useCredit,
 				} );
 
@@ -366,71 +316,6 @@ export function ConfirmStep( {
 				),
 				row( 'Total', priceLabel, true )
 			),
-			h(
-				'div',
-				{
-					key: 'who',
-					class: 'ts-book__section',
-				},
-				h(
-					'h3',
-					{ class: 'ts-book__section-title' },
-					'Who is this for?'
-				),
-				h(
-					'div',
-					{
-						class: 'ts-book__who',
-						role: 'group',
-						'aria-label': 'Who is the lesson for',
-					},
-					whoOption(
-						! forChild,
-						() => setForChild( false ),
-						'For me',
-						accountName
-							? `Booked as ${ accountName }`
-							: 'You are the customer'
-					),
-					whoOption(
-						forChild,
-						() => setForChild( true ),
-						'For my child',
-						childOptionHint( childrenStatus, children ),
-						childrenStatus !== 'ready' || ! children.length
-					)
-				)
-			),
-			forChild
-				? h(
-						'label',
-						{ key: 'child', class: 'ts-book__field' },
-						h( 'span', null, 'Linked customer' ),
-						h(
-							'select',
-							{
-								value: childId,
-								onChange: ( event ) =>
-									setChildId(
-										Number.parseInt(
-											event.target.value,
-											10
-										)
-									),
-							},
-							children.map( ( child ) =>
-								h(
-									'option',
-									{
-										key: child.customer_id,
-										value: child.customer_id,
-									},
-									child.customer_name
-								)
-							)
-						)
-				  )
-				: null,
 			h(
 				'label',
 				{ key: 'notes', class: 'ts-book__field' },
@@ -628,20 +513,8 @@ function renderHoldNotice( seriesOn, holdStatus, seconds, mm, ss ) {
 	);
 }
 
-function composeNotes( {
-	forChild,
-	customerName,
-	accountName,
-	notes,
-	payMethod,
-} ) {
+function composeNotes( { notes, payMethod } ) {
 	const lines = [];
-	if ( forChild ) {
-		lines.push( `Customer: ${ customerName.trim() }` );
-		if ( accountName ) {
-			lines.push( `Parent: ${ accountName }` );
-		}
-	}
 	if ( notes.trim() ) {
 		lines.push( notes.trim() );
 	}
@@ -720,38 +593,6 @@ function buildPayOptions( payments = {}, technicianName = '' ) {
 		badge: 'After confirm',
 	} );
 	return opts;
-}
-
-function whoOption( selected, onSelect, label, hint, disabled = false ) {
-	return h(
-		'button',
-		{
-			type: 'button',
-			class: [ 'ts-book__who-option', selected ? 'is-selected' : '' ]
-				.filter( Boolean )
-				.join( ' ' ),
-			'aria-pressed': selected ? 'true' : 'false',
-			disabled,
-			onClick: onSelect,
-		},
-		h( 'strong', null, label ),
-		h( 'span', null, hint )
-	);
-}
-
-function childOptionHint( status, children ) {
-	if ( status === 'loading' ) {
-		return 'Loading linked customers…';
-	}
-	if ( status === 'error' ) {
-		return 'Linked customers unavailable';
-	}
-	if ( ! children.length ) {
-		return 'No confirmed customer link';
-	}
-	return 1 === children.length
-		? children[ 0 ].customer_name
-		: `${ children.length } linked customers`;
 }
 
 function releaseHoldToken( token ) {

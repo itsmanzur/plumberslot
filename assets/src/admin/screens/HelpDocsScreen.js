@@ -52,11 +52,6 @@ const USP_ITEMS = [
 		text: 'Short booking holds and overlap protection keep two people from confirming the same lesson time.',
 	},
 	{
-		mark: '03',
-		title: 'Built for families, not only accounts',
-		text: 'Parents can link learners, book for a child, follow upcoming lessons and see tutor notes from one dashboard.',
-	},
-	{
 		mark: '04',
 		title: 'Free, paid or prepaid lessons',
 		text: 'Start with free or offline payment. Add packages, Stripe or bKash only when your teaching business needs them.',
@@ -135,20 +130,6 @@ const GUIDES = [
 		screen: 'plumberslot-bookings',
 	},
 	{
-		id: 'family',
-		label: 'Students & parents',
-		title: 'Keep family bookings understandable',
-		intro: 'A parent can connect a learner and book on their behalf without sharing accounts.',
-		steps: [
-			'The parent opens their dashboard and adds the learner’s WordPress email.',
-			'The learner accepts or uses the confirmed relationship created by the site.',
-			'During booking, the parent chooses “For my child”.',
-			'Upcoming lessons and available package credits appear on the family dashboard.',
-			'Tutor notes help the parent understand what was covered after each lesson.',
-		],
-		tip: 'A parent can only act for a learner with a confirmed relationship.',
-	},
-	{
 		id: 'payments',
 		label: 'Credits & payments',
 		title: 'Choose how lessons are paid for',
@@ -207,10 +188,6 @@ const FAQS = [
 	{
 		question: 'What happens if two students choose the same time?',
 		answer: 'PlumberSlot uses a short hold and database overlap protection. Only one valid booking can own the slot.',
-	},
-	{
-		question: 'Can a parent book for more than one child?',
-		answer: 'Yes. Each learner needs a confirmed parent relationship, then the parent chooses the learner during booking.',
 	},
 	{
 		question: 'Are online meetings required?',
@@ -436,7 +413,6 @@ export function HelpDocsScreen() {
 						'Paint weekly availability and add one-off time away.',
 						'Students choose a subject and an open time, then review the lesson before confirming.',
 						'Tutors manage rescheduling, cancellation, attendance, meetings and notes from Bookings.',
-						'Parents can follow family lessons and lesson credits from one dashboard.',
 					].map( ( line ) => h( 'li', { key: line }, line ) )
 				)
 			)
@@ -661,7 +637,7 @@ export function HelpDocsScreen() {
 						h(
 							'p',
 							null,
-							'Try a shorter word, such as “time”, “parent”, “meeting” or “pay”.'
+							'Try a shorter word, such as “time”, “credit”, “meeting” or “pay”.'
 						)
 				  ),
 			h(

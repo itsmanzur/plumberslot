@@ -37,7 +37,7 @@ final class Shortcode {
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( in_array( $view, array( 'parent', 'technician' ), true ) ) {
+		if ( 'technician' === $view ) {
 			return $this->render_dashboard( array( 'view' => $view ) );
 		}
 
@@ -75,15 +75,15 @@ final class Shortcode {
 	public function render_dashboard( array|string $atts = array() ): string {
 		$atts = shortcode_atts(
 			array(
-				'view' => 'parent',
+				'view' => 'technician',
 			),
 			$atts,
 			'plumberslot_dashboard'
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( ! in_array( $view, array( 'parent', 'technician' ), true ) ) {
-			$view = 'parent';
+		if ( 'technician' !== $view ) {
+			$view = 'technician';
 		}
 
 		$routes = new DashboardRoutes( $this->assets );

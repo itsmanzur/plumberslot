@@ -378,10 +378,7 @@ export function BookingsScreen() {
 												null,
 												h( PersonCell, {
 													name: row.customer,
-													context:
-														row.parent ||
-														row.payer ||
-														'',
+													context: row.payer || '',
 													initials: row.initials,
 												} )
 											),

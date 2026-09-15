@@ -43,11 +43,6 @@ const REMINDER_TOGGLES = [
 		explanation: 'And again 1 hour before, with the meeting link.',
 	},
 	{
-		key: 'copy_parent_on_all_mail',
-		label: 'Copy the parent on everything',
-		explanation: 'Confirmations, reminders, receipts and cancellations.',
-	},
-	{
 		key: 'sms_enabled',
 		label: 'Send an SMS 1 hour before',
 		explanation: 'Needs an SMS provider under Connections.',
