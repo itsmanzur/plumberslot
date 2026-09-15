@@ -16,6 +16,7 @@ export function saveBookingDraft( technicianId, draft ) {
 				serviceId: Number( draft.serviceId ) || 0,
 				start: draft.start || '',
 				timezone: draft.timezone || '',
+				address: normalizeAddress( draft.address ),
 				step: draft.step || 'confirm',
 				savedAt: Date.now(),
 			} )
@@ -23,6 +24,21 @@ export function saveBookingDraft( technicianId, draft ) {
 	} catch {
 		/* private mode */
 	}
+}
+
+/**
+ * @param {Object} [address]
+ * @return {{line1:string,line2:string,city:string,state:string,zip:string}}
+ */
+function normalizeAddress( address ) {
+	const a = address || {};
+	return {
+		line1: a.line1 || '',
+		line2: a.line2 || '',
+		city: a.city || '',
+		state: a.state || '',
+		zip: a.zip || '',
+	};
 }
 
 /**

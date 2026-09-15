@@ -33,7 +33,7 @@ export function AccountStep( {
 		h(
 			'div',
 			{ class: 'ts-book__hd' },
-			h( WizardRail, { steps: RAIL, current: 2 } )
+			h( WizardRail, { steps: RAIL, current: 3 } )
 		),
 		h(
 			'div',

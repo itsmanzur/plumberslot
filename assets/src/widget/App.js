@@ -5,6 +5,7 @@ import { get, getBoot } from './api';
 import { clearBookingDraft, readBookingDraft, saveBookingDraft } from './draft';
 import { detectTimezone } from './lib';
 import { AccountStep } from './views/AccountStep';
+import { AddressStep } from './views/AddressStep';
 import { ConfirmStep } from './views/ConfirmStep';
 import { DoneView } from './views/DoneView';
 import { PaymentReturnView } from './views/PaymentReturnView';
@@ -46,6 +47,13 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 	);
 	const [ timezone, setTimezone ] = useState( detectTimezone() );
 	const [ selectedStart, setSelectedStart ] = useState( '' );
+	const [ address, setAddress ] = useState( {
+		line1: '',
+		line2: '',
+		city: '',
+		state: '',
+		zip: '',
+	} );
 	const [ booking, setBooking ] = useState( null );
 	const [ draftRestored, setDraftRestored ] = useState( false );
 
@@ -107,7 +115,26 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 		if ( draft.timezone ) {
 			setTimezone( draft.timezone );
 		}
-		if ( boot.loggedIn ) {
+		const draftAddress = draft.address || {};
+		const addressComplete =
+			Boolean( ( draftAddress.line1 || '' ).trim() ) &&
+			Boolean( ( draftAddress.city || '' ).trim() ) &&
+			Boolean( ( draftAddress.state || '' ).trim() ) &&
+			Boolean( ( draftAddress.zip || '' ).trim() );
+		if ( draft.address ) {
+			setAddress( {
+				line1: draftAddress.line1 || '',
+				line2: draftAddress.line2 || '',
+				city: draftAddress.city || '',
+				state: draftAddress.state || '',
+				zip: draftAddress.zip || '',
+			} );
+		}
+		if ( ! addressComplete ) {
+			// Missing address: send the customer back to fill it in rather
+			// than discarding the rest of an otherwise-resumable draft.
+			setStep( 'address' );
+		} else if ( boot.loggedIn ) {
 			setStep( 'confirm' );
 			clearBookingDraft();
 			announce( 'Welcome back — confirm your lesson.' );
@@ -136,6 +163,7 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
+			address,
 			step: 'account',
 		} );
 		setStep( 'account' );
@@ -150,6 +178,7 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
+			address,
 			step: 'confirm',
 		} );
 		setStep( 'confirm' );
@@ -242,11 +271,22 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 				onTimezone: setTimezone,
 				selectedStart,
 				onSelectStart: setSelectedStart,
-				onContinue: goConfirm,
-				continueLabel: boot.loggedIn
-					? 'Continue →'
-					: 'Sign in to continue →',
+				onContinue: () => setStep( 'address' ),
+				continueLabel: 'Continue →',
 				onBack: () => setStep( 'service' ),
+			} )
+		);
+	}
+
+	if ( step === 'address' ) {
+		return h(
+			'div',
+			{ class: 'plumberslot-widget plumberslot-root' },
+			h( AddressStep, {
+				address,
+				onChange: setAddress,
+				onContinue: goConfirm,
+				onBack: () => setStep( 'time' ),
 			} )
 		);
 	}
@@ -261,7 +301,7 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 				start: selectedStart,
 				timezone,
 				loginUrl: boot.loginUrl,
-				onBack: () => setStep( 'time' ),
+				onBack: () => setStep( 'address' ),
 				onSignedIn: boot.loggedIn ? () => setStep( 'confirm' ) : null,
 			} )
 		);
@@ -275,7 +315,8 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 			service,
 			start: selectedStart,
 			timezone,
-			onBack: () => setStep( 'time' ),
+			address,
+			onBack: () => setStep( 'address' ),
 			onBooked: ( result ) => {
 				setBooking( result );
 				setStep( 'done' );

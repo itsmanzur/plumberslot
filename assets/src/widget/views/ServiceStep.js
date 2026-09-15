@@ -6,6 +6,7 @@ import { money } from '../lib';
 const RAIL = [
 	{ id: 'service', label: 'Service' },
 	{ id: 'time', label: 'Time' },
+	{ id: 'address', label: 'Address' },
 	{ id: 'confirm', label: 'Confirm' },
 ];
 

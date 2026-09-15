@@ -18,6 +18,7 @@ export function ConfirmStep( {
 	service,
 	start,
 	timezone,
+	address,
 	onBack,
 	onBooked,
 	onRetakeSlot,
@@ -179,6 +180,11 @@ export function ConfirmStep( {
 					count: seriesCount,
 					notes: composedNotes,
 					use_credit: useCredit,
+					address_line1: address?.line1 || '',
+					address_line2: address?.line2 || '',
+					address_city: address?.city || '',
+					address_state: address?.state || '',
+					address_zip: address?.zip || '',
 				} );
 				if ( ( result.skipped || [] ).length ) {
 					setSkipped( result.skipped );
@@ -208,6 +214,11 @@ export function ConfirmStep( {
 					lock_token: hold.token,
 					notes: composedNotes,
 					use_credit: useCredit,
+					address_line1: address?.line1 || '',
+					address_line2: address?.line2 || '',
+					address_city: address?.city || '',
+					address_state: address?.state || '',
+					address_zip: address?.zip || '',
 				} );
 
 				const gateway = gatewayFor( payMethod, boot.payments );
@@ -256,7 +267,7 @@ export function ConfirmStep( {
 			h(
 				'div',
 				{ class: 'ts-book__hd' },
-				h( WizardRail, { steps: RAIL, current: 2 } )
+				h( WizardRail, { steps: RAIL, current: 3 } )
 			),
 			h( 'div', { class: 'ts-book__body' }, body ),
 			h( 'footer', { class: 'ts-book__ft' }, footer )
@@ -307,6 +318,7 @@ export function ConfirmStep( {
 				'dl',
 				{ key: 'sum', class: 'ts-book__summary' },
 				row( 'Service', serviceLine || service?.name ),
+				row( 'Address', formatAddress( address ) ),
 				row( 'When', formatInZone( start, timezone ) ),
 				row(
 					'Where',
@@ -599,6 +611,21 @@ function releaseHoldToken( token ) {
 	remove( 'bookings/hold', { token }, { keepalive: true } ).catch(
 		() => undefined
 	);
+}
+
+function formatAddress( address = {} ) {
+	const streetLine = [ address.line1, address.line2 ]
+		.map( ( part ) => ( part || '' ).trim() )
+		.filter( Boolean )
+		.join( ', ' );
+	const stateZip = [ address.state, address.zip ]
+		.map( ( part ) => ( part || '' ).trim() )
+		.filter( Boolean )
+		.join( ' ' );
+	const cityLine = [ ( address.city || '' ).trim(), stateZip ]
+		.filter( Boolean )
+		.join( ', ' );
+	return [ streetLine, cityLine ].filter( Boolean ).join( ', ' ) || '—';
 }
 
 function row( label, value, isTotal = false ) {
