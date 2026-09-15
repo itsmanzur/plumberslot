@@ -14,8 +14,8 @@ describe( 'safeUrl', () => {
 	} );
 
 	test( 'normalizes relative same-origin targets', () => {
-		expect( safeUrl( '/parent-dashboard/', { base: BASE } ) ).toBe(
-			'https://example.test/parent-dashboard/'
+		expect( safeUrl( '/technician-dashboard/', { base: BASE } ) ).toBe(
+			'https://example.test/technician-dashboard/'
 		);
 	} );
 

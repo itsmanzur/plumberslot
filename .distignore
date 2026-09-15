@@ -7,9 +7,7 @@
 /.codex-tools
 /.phpunit.integration.result.cache
 /.phpunit.result.cache
-/NEXT-WORK-CHECKLIST.md
 /README.md
-/TUTORSLOT-IMPLEMENTATION-CHECKLIST.md
 /composer.json
 /composer.lock
 /dist

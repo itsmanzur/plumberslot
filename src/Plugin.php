@@ -93,7 +93,7 @@ final class Plugin {
 		/**
 		 * Fires once PlumberSlot is fully wired.
 		 *
-		 * Integrations (Tutor LMS, LearnDash, payment add-ons) should hook here.
+		 * Integrations (dispatch/CRM bridges, payment add-ons) should hook here.
 		 *
 		 * @param Container $container Service container.
 		 */

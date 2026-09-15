@@ -3,7 +3,7 @@
  * Reminder scheduling.
  *
  * Action Scheduler, not WP-Cron. WP-Cron only fires when somebody loads a page,
- * so on a quiet tutoring site the twenty-four-hour reminder simply never goes
+ * so on a quiet site the twenty-four-hour reminder simply never goes
  * out, and a missed reminder is a no-show, a refund and a one-star review.
  *
  * @package PlumberSlot

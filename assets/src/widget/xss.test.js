@@ -39,7 +39,7 @@ test( 'renders stored technician, service, and review payloads as text', () => {
 						id: 1,
 						author: PAYLOAD,
 						rating: 5,
-						role: 'Parent',
+						role: 'Customer',
 						body: PAYLOAD,
 					},
 				],

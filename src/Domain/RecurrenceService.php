@@ -2,8 +2,8 @@
 /**
  * Weekly courses: "every Monday and Wednesday at 17:00, twelve times".
  *
- * The single most common shape in tutoring, and the one no competitor models
- * in its core. A series is a first-class row, so a course can be reported on,
+ * A common shape for recurring maintenance work, and one many competitors
+ * don't model in their core. A series is a first-class row, so a course can be reported on,
  * paused or cancelled as a unit while an individual appointment still moves alone.
  *
  * @package PlumberSlot
