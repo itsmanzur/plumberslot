@@ -55,8 +55,23 @@ final class SmsChannel implements ChannelInterface {
 	}
 
 	private function message( string $event, object $booking ): string {
-		return 'reminder_1h' === $event
-			? __( 'Your lesson starts in an hour.', 'plumberslot' )
-			: __( 'Your lesson has been cancelled.', 'plumberslot' );
+		if ( 'reminder_1h' !== $event ) {
+			return __( 'Your appointment has been cancelled.', 'plumberslot' );
+		}
+
+		$address_line1 = trim( (string) ( $booking->address_line1 ?? '' ) );
+
+		if ( '' === $address_line1 ) {
+			return __( 'Your appointment starts in an hour.', 'plumberslot' );
+		}
+
+		$city  = trim( (string) ( $booking->address_city ?? '' ) );
+		$where = '' !== $city ? sprintf( '%s, %s', $address_line1, $city ) : $address_line1;
+
+		return sprintf(
+			/* translators: %s: short job-site address (street and city). */
+			__( 'Your appointment starts in an hour at %s.', 'plumberslot' ),
+			$where
+		);
 	}
 }

@@ -92,7 +92,7 @@ final class Scheduler {
 	public function run_reminder( int $booking_id, string $window ): void {
 		$booking = ( new BookingRepository() )->find( $booking_id );
 
-		// A lesson cancelled after the reminder was queued must stay quiet.
+		// An appointment cancelled after the reminder was queued must stay quiet.
 		if ( ! $booking || 'confirmed' !== $booking->status ) {
 			return;
 		}
