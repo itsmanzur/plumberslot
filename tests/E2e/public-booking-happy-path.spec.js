@@ -52,7 +52,7 @@ async function logIn( page, login, password ) {
 	] );
 }
 
-test( 'student completes the public booking flow', async ( {
+test( 'customer completes the public booking flow', async ( {
 	page,
 }, testInfo ) => {
 	testInfo.setTimeout( 90000 );
@@ -68,12 +68,12 @@ test( 'student completes the public booking flow', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponsePromise = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponsePromise = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await page.goto( seed.pagePath );
-		const tutorResponse = await tutorResponsePromise;
-		expect( tutorResponse.status() ).toBe( 200 );
+		const technicianResponse = await technicianResponsePromise;
+		expect( technicianResponse.status() ).toBe( 200 );
 
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		await expect( widget ).toBeVisible();
@@ -112,7 +112,7 @@ test( 'student completes the public booking flow', async ( {
 		).toBeVisible();
 		await expect( widget.getByText( /^Held for / ) ).toBeVisible();
 		await widget
-			.getByPlaceholder( 'Anything helpful before the lesson' )
+			.getByPlaceholder( 'Anything helpful before the appointment' )
 			.fill( 'Playwright happy-path booking.' );
 
 		const bookingResponse = page.waitForResponse(
@@ -140,7 +140,7 @@ test( 'student completes the public booking flow', async ( {
 		const database = await fixture( 'inspect', fixtureKey );
 		expect( database.bookingCount ).toBe( 1 );
 		expect( Number( database.booking.id ) ).toBe( payload.id );
-		expect( Number( database.booking.subject_id ) ).toBe( seed.subjectId );
+		expect( Number( database.booking.service_id ) ).toBe( seed.serviceId );
 		expect( database.booking.status ).toBe( 'confirmed' );
 		expect( pageErrors ).toEqual( [] );
 	} finally {

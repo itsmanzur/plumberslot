@@ -137,7 +137,7 @@ test( 'admin dashboard first meaningful render p75 stays under one second', asyn
 
 	try {
 		await installFirstRenderObserver( page );
-		await logIn( page, seed.tutorLogin, seed.password );
+		await logIn( page, seed.technicianLogin, seed.password );
 
 		const root = page.locator( '#plumberslot-admin-root' );
 		await page.goto(

@@ -10,7 +10,7 @@ const SCREENS = [
 	{ slug: 'plumberslot', title: 'Dashboard' },
 	{ slug: 'plumberslot-availability', title: 'Availability' },
 	{ slug: 'plumberslot-bookings', title: 'Bookings' },
-	{ slug: 'plumberslot-tutors', title: 'Tutors' },
+	{ slug: 'plumberslot-technicians', title: 'Technicians' },
 	{ slug: 'plumberslot-setup', title: 'Set up PlumberSlot' },
 	{ slug: 'plumberslot-settings', title: 'Settings' },
 	{
@@ -24,18 +24,18 @@ test( 'admin bundle exposes all eight reference screens', async () => {
 	const source = fs.readFileSync( distJs, 'utf8' );
 	for ( const marker of [
 		'plumberslot-availability',
-		'plumberslot-subjects',
+		'plumberslot-services',
 		'plumberslot-bookings',
-		'plumberslot-tutors',
+		'plumberslot-technicians',
 		'plumberslot-settings',
 		'plumberslot-setup',
 		'plumberslot-help',
 		'data-screen',
 		'Dashboard',
 		'Availability',
-		'Subjects',
+		'Services',
 		'Bookings',
-		'Tutors',
+		'Technicians',
 		'Settings',
 		'Teaching time, without scheduling chaos.',
 	] ) {
@@ -94,7 +94,7 @@ test( 'mobile availability keeps timetable overflow inside its card', async ( {
 						</div>
 					</div>
 				</section>
-				<aside class="ts-admin-stack ts-avail__side">Lesson defaults</aside>
+				<aside class="ts-admin-stack ts-avail__side">Appointment defaults</aside>
 			</div>
 		</main>
 	` );

@@ -1,6 +1,6 @@
 # Live E2E fixtures
 
-The booking fixture creates three reserved users, one tutor and subject, one
+The booking fixture creates three reserved users, one technician and service, one
 weekly availability row, and one temporary booking page. It removes those rows
 in a `finally` block and also clears stale fixture rows before every run.
 
@@ -12,7 +12,7 @@ $env:PLUMBERSLOT_E2E_RACE_READY='1'
 npm.cmd run test:e2e -- --project=chromium-desktop
 ```
 
-The public happy-path test drives subject selection, slot selection, hold,
+The public happy-path test drives service selection, slot selection, hold,
 confirmation, completion UI, and the persisted booking in both desktop and
 mobile projects. Each project receives isolated reserved fixture identifiers:
 
@@ -40,7 +40,7 @@ npm.cmd run test:e2e -- tests/E2e/booking-lifecycle.spec.js
 ```
 
 Onboarding coverage completes all four setup steps, verifies the completion
-screen and REST payload, and checks the resulting subject, availability,
+screen and REST payload, and checks the resulting service, availability,
 settings, booking shortcode, user meta, and audit log. Global settings changed
 by the wizard are backed up and restored after each desktop/mobile project:
 
@@ -59,7 +59,7 @@ npm.cmd run test:e2e -- tests/E2e/availability-visual.spec.js
 npm.cmd run test:e2e -- tests/E2e/availability-visual.spec.js --update-snapshots
 ```
 
-Public widget visual coverage renders the selected Subject step against
+Public widget visual coverage renders the selected Service step against
 reviewed desktop and 390px mobile PNG baselines. It dismisses the site's
 consent banner through its public control before capturing the PlumberSlot root:
 
@@ -80,18 +80,8 @@ npm.cmd run test:e2e -- tests/E2e/booking-state-visual.spec.js --workers=1
 npm.cmd run test:e2e -- tests/E2e/booking-state-visual.spec.js --workers=1 --update-snapshots
 ```
 
-Parent dashboard visual coverage seeds a confirmed child relationship, an
-upcoming credit-paid lesson with a tutor note, and an active package. It
-captures reviewed desktop and 390px mobile baselines with isolated cleanup:
-
-```powershell
-$env:PLUMBERSLOT_E2E_VISUAL_READY='1'
-npm.cmd run test:e2e -- tests/E2e/parent-dashboard-visual.spec.js --workers=1
-npm.cmd run test:e2e -- tests/E2e/parent-dashboard-visual.spec.js --workers=1 --update-snapshots
-```
-
-The 390px horizontal-overflow audit exercises Subject, Time, Confirm,
-Completion, failed-payment recovery, Parent dashboard, and Availability. It
+The 390px horizontal-overflow audit exercises Service, Time, Confirm,
+Completion, failed-payment recovery, and Availability. It
 requires both the document and PlumberSlot root to remain inside the viewport;
 the Availability timetable must scroll only inside its `.ts-tt-wrap`:
 
@@ -101,7 +91,7 @@ npm.cmd run test:e2e -- tests/E2e/horizontal-overflow.spec.js --workers=1
 ```
 
 Keyboard-only booking coverage reaches every widget control with Tab, uses
-Arrow keys in the Subject and Time listboxes, types a note, and confirms with
+Arrow keys in the Service and Time listboxes, types a note, and confirms with
 Enter. It asserts that no pointer action occurred inside the widget, that the
 completion heading receives focus, and that the confirmed database row exists:
 
@@ -111,7 +101,7 @@ npm.cmd run test:e2e -- tests/E2e/keyboard-booking.spec.js --workers=1
 ```
 
 Focus-ring coverage audits the computed keyboard-focus treatment across the
-Subject, Time, and Confirm steps. Each tested control must expose a solid,
+Service, Time, and Confirm steps. Each tested control must expose a solid,
 non-transparent outline at least 2px wide with a positive offset, even under
 the active WordPress theme's resets:
 
@@ -122,7 +112,7 @@ npm.cmd run test:e2e -- tests/E2e/focus-ring.spec.js --workers=1
 
 Reduced-motion coverage emulates `prefers-reduced-motion: reduce` and scans
 every PlumberSlot element plus its `::before` and `::after` styles in the
-Subject, loading, Time, and Confirm states. Motion delays must be zero,
+Service, loading, Time, and Confirm states. Motion delays must be zero,
 durations no more than 0.01ms, iterations at most one, and scrolling automatic:
 
 ```powershell
@@ -130,9 +120,9 @@ $env:PLUMBERSLOT_E2E_HAPPY_READY='1'
 npm.cmd run test:e2e -- tests/E2e/reduced-motion.spec.js --workers=1
 ```
 
-Bengali rendering coverage seeds Bengali tutor and subject content, checks the
+Bengali rendering coverage seeds Bengali technician and service content, checks the
 configured cross-platform font fallback, detects replacement or uniform tofu
-glyphs, and rejects clipped or overflowing text. Reviewed Subject and Confirm
+glyphs, and rejects clipped or overflowing text. Reviewed Service and Confirm
 baselines cover desktop and 390px mobile layouts:
 
 ```powershell

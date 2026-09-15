@@ -140,23 +140,23 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
-		const subjectList = widget.getByRole( 'listbox', { name: 'Subjects' } );
-		const firstSubject = subjectList.getByRole( 'option' ).first();
-		await tabTo( page, firstSubject, 'Subject option' );
-		await expectVisibleFocusRing( firstSubject, 'Subject option' );
+		const serviceList = widget.getByRole( 'listbox', { name: 'Services' } );
+		const firstService = serviceList.getByRole( 'option' ).first();
+		await tabTo( page, firstService, 'Service option' );
+		await expectVisibleFocusRing( firstService, 'Service option' );
 		await page.keyboard.press( 'ArrowRight' );
-		const selectedSubject = subjectList.locator( '[aria-selected="true"]' );
+		const selectedService = serviceList.locator( '[aria-selected="true"]' );
 		await expectVisibleFocusRing(
-			selectedSubject,
-			'Arrow-selected subject option'
+			selectedService,
+			'Arrow-selected service option'
 		);
 
 		const chooseTime = widget.getByRole( 'button', {
@@ -205,14 +205,11 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 		await page.keyboard.press( 'Enter' );
 		expect( ( await holdResponse ).status() ).toBe( 200 );
 
-		const forMe = widget.getByRole( 'button', { name: /For me/ } );
-		await tabTo( page, forMe, 'Learner choice' );
-		await expectVisibleFocusRing( forMe, 'Learner choice' );
 		const notes = widget.getByPlaceholder(
-			'Anything helpful before the lesson'
+			'Anything helpful before the appointment'
 		);
-		await tabTo( page, notes, 'Lesson note field' );
-		await expectVisibleFocusRing( notes, 'Lesson note field' );
+		await tabTo( page, notes, 'Appointment note field' );
+		await expectVisibleFocusRing( notes, 'Appointment note field' );
 		const weeklyCourse = widget.getByText( 'Book as a weekly course', {
 			exact: true,
 		} );

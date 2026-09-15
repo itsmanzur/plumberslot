@@ -140,11 +140,11 @@ test( 'public booking flow contains every state at 390px', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		await dismissConsent( page );
 
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
@@ -156,7 +156,7 @@ test( 'public booking flow contains every state at 390px', async ( {
 		await expectNoHorizontalOverflow(
 			page,
 			'.plumberslot-widget.plumberslot-root',
-			'booking subject'
+			'booking service'
 		);
 
 		await widget.getByRole( 'option', { name: /English E2E/ } ).click();
@@ -251,54 +251,6 @@ test( 'payment recovery is contained at 390px', async ( {
 	}
 } );
 
-test( 'parent dashboard is contained at 390px', async ( {
-	page,
-}, testInfo ) => {
-	const fixtureKey = prepareTest( testInfo, 'parent' );
-	const seed = await fixture( 'seed-parent-dashboard', fixtureKey );
-
-	try {
-		await logIn( page, seed.parentLogin, seed.password );
-		const responses = [
-			page.waitForResponse( ( response ) =>
-				response.url().includes( '/relations/children' )
-			),
-			page.waitForResponse(
-				( response ) =>
-					response.url().includes( '/bookings?' ) &&
-					response.url().includes( 'scope=family' )
-			),
-			page.waitForResponse( ( response ) => {
-				const url = new URL( response.url() );
-				return url.pathname.endsWith( '/plumberslot/v1/credits' );
-			} ),
-			page.waitForResponse( ( response ) =>
-				response.url().includes( '/credits/packages' )
-			),
-		];
-		await goTo( page, seed.pagePath );
-		expect(
-			( await Promise.all( responses ) ).map( ( response ) =>
-				response.status()
-			)
-		).toEqual( [ 200, 200, 200, 200 ] );
-		await dismissConsent( page );
-		const dashboard = page.locator( '.plumberslot-dashboard.plumberslot-root' );
-		await expect(
-			dashboard.getByRole( 'heading', {
-				name: "Your family's lessons",
-			} )
-		).toBeVisible();
-		await expectNoHorizontalOverflow(
-			page,
-			'.plumberslot-dashboard.plumberslot-root',
-			'parent dashboard'
-		);
-	} finally {
-		await fixture( 'cleanup', fixtureKey );
-	}
-} );
-
 test( 'availability timetable is contained at 390px', async ( {
 	page,
 }, testInfo ) => {
@@ -306,10 +258,10 @@ test( 'availability timetable is contained at 390px', async ( {
 	const seed = await fixture( 'seed-lifecycle', fixtureKey );
 
 	try {
-		await logIn( page, seed.tutorLogin, seed.password );
+		await logIn( page, seed.technicianLogin, seed.password );
 		const availabilityResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( `/availability/${ seed.tutorId }` ) &&
+				response.url().includes( `/availability/${ seed.technicianId }` ) &&
 				'GET' === response.request().method()
 		);
 		await goTo( page, '/wp-admin/admin.php?page=plumberslot-availability' );

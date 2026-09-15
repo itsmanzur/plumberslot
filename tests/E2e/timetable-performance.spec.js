@@ -78,7 +78,7 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 	const seed = await fixture( 'seed-lifecycle', fixtureKey );
 
 	try {
-		await logIn( page, seed.tutorLogin, seed.password );
+		await logIn( page, seed.technicianLogin, seed.password );
 		await page.goto( '/wp-admin/admin.php?page=plumberslot-availability' );
 
 		const root = page.locator( '#plumberslot-admin-root' );

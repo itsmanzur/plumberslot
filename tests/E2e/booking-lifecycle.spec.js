@@ -65,7 +65,7 @@ function prepareLifecycleTest( testInfo, state ) {
 }
 
 async function openManagedBooking( page, seed ) {
-	await logIn( page, seed.tutorLogin, seed.password );
+	await logIn( page, seed.technicianLogin, seed.password );
 	const bookingsResponse = page.waitForResponse(
 		( response ) =>
 			response.url().includes( '/bookings?' ) &&
@@ -112,7 +112,7 @@ test( 'manager reschedules a confirmed booking into a new open slot', async ( {
 			.getByRole( 'dialog' );
 		await expect( moveDialog ).toBeVisible();
 		await expect(
-			moveDialog.getByRole( 'heading', { name: /Move .* lesson/ } )
+			moveDialog.getByRole( 'heading', { name: /Move .* appointment/ } )
 		).toBeVisible();
 		const openSlots = moveDialog.locator( '.ts-slots button' );
 		await expect( openSlots ).toHaveCount( 3 );

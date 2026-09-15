@@ -43,13 +43,13 @@ test( 'help page shell does not overflow a 390px viewport', async ( {
 				<section class="ts-docs__hero">
 					<div class="ts-docs__hero-copy">
 						<h1>Teaching time, without scheduling chaos.</h1>
-						<p class="ts-docs__lead">A plain-English guide for tutors.</p>
+						<p class="ts-docs__lead">A plain-English guide for technicians.</p>
 					</div>
 				</section>
 				<nav class="ts-docs__nav"><a href="#guide">Feature guides</a></nav>
 				<section class="ts-docs__section" id="guide">
-					<div class="ts-docs__usp-grid"><article class="ts-docs__usp">Tutor-first availability</article></div>
-					<div class="ts-docs__shortcode"><code>[plumberslot tutor="your-tutor-slug"]</code></div>
+					<div class="ts-docs__usp-grid"><article class="ts-docs__usp">Technician-first availability</article></div>
+					<div class="ts-docs__shortcode"><code>[plumberslot technician="your-technician-slug"]</code></div>
 				</section>
 			</section>
 		</main>

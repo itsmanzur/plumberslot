@@ -68,15 +68,15 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 				<header class="ts-book__hd">Steps</header>
 				<div class="ts-book__body">
 					<div class="ts-tz">Timezone</div>
-					<div class="ts-book__subjects">
-						<button class="ts-book__subject">English</button>
-						<button class="ts-book__subject">Maths</button>
+					<div class="ts-book__services">
+						<button class="ts-book__service">Drain Cleaning</button>
+						<button class="ts-book__service">Water Heater</button>
 					</div>
 					<div class="ts-book__slots">
 						<button class="ts-slot ts-slot--open">10:00</button>
 					</div>
 					<dl class="ts-book__summary"><div><dt>Total</dt><dd>Free</dd></div></dl>
-					<label class="ts-book__field">Name<input value="Learner"></label>
+					<label class="ts-book__field">Name<input value="Customer"></label>
 				</div>
 				<footer class="ts-book__ft"><button class="ts-btn ts-btn--primary">Continue</button></footer>
 			</section>
@@ -89,8 +89,8 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 		'.ts-book__hd',
 		'.ts-book__body',
 		'.ts-tz',
-		'.ts-book__subjects',
-		'.ts-book__subject',
+		'.ts-book__services',
+		'.ts-book__service',
 		'.ts-book__slots',
 		'.ts-slot',
 		'.ts-book__summary',
@@ -120,8 +120,8 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 		paddingLeft: '14px',
 		paddingTop: '10px',
 	} );
-	expect( styles[ '.ts-book__subjects' ].columnGap ).toBe( '12px' );
-	expect( styles[ '.ts-book__subject' ] ).toMatchObject( {
+	expect( styles[ '.ts-book__services' ].columnGap ).toBe( '12px' );
+	expect( styles[ '.ts-book__service' ] ).toMatchObject( {
 		borderRadius: '12px',
 		paddingLeft: '18px',
 		paddingTop: '16px',
@@ -163,7 +163,7 @@ test( 'admin colour, spacing, radius and shadow match the reference', async ( {
 		<div class="plumberslot-admin ts-admin plumberslot-root">
 			<section class="ts-admin-card">
 				<div class="ts-admin-card__header"><h2>Availability</h2></div>
-				<label class="ts-admin-field"><span>Name</span><input value="Tutor"></label>
+				<label class="ts-admin-field"><span>Name</span><input value="Technician"></label>
 				<button class="ts-btn ts-btn--primary">Save</button>
 			</section>
 		</div>
@@ -203,18 +203,18 @@ test( 'admin colour, spacing, radius and shadow match the reference', async ( {
 	} );
 } );
 
-test( 'parent dashboard cards match the public reference surface', async ( {
+test( 'technician dashboard cards match the public reference surface', async ( {
 	page,
 } ) => {
 	await page.setContent( `
 		<style>${ readBuiltCss( 'dashboard' ) }</style>
 		<div class="plumberslot-dashboard ts-dash plumberslot-root">
-			<div class="ts-dash__tabs"><button class="ts-dash__tab">Learner</button></div>
+			<div class="ts-dash__tabs"><button class="ts-dash__tab">Today</button></div>
 			<div class="ts-dash__grid">
 				<section class="ts-dash__panel">
-					<div class="ts-dash__lesson"><time>27 Jul</time><span>Chemistry</span><button>Open</button></div>
+					<div class="ts-dash__job"><time>27 Jul</time><span>Drain Cleaning</span><button>Open</button></div>
 				</section>
-				<aside class="ts-dash__side"><section class="ts-dash__panel">Credits</section></aside>
+				<aside class="ts-dash__side"><section class="ts-dash__panel">Service Plans</section></aside>
 			</div>
 		</div>
 	` );
@@ -225,7 +225,7 @@ test( 'parent dashboard cards match the public reference surface', async ( {
 		'.ts-dash__tab',
 		'.ts-dash__grid',
 		'.ts-dash__panel',
-		'.ts-dash__lesson',
+		'.ts-dash__job',
 	] );
 
 	expect( styles[ '.plumberslot-dashboard' ].color ).toBe( 'rgb(60, 71, 89)' );
@@ -244,7 +244,7 @@ test( 'parent dashboard cards match the public reference surface', async ( {
 		paddingLeft: '20px',
 		paddingTop: '20px',
 	} );
-	expect( styles[ '.ts-dash__lesson' ] ).toMatchObject( {
+	expect( styles[ '.ts-dash__job' ] ).toMatchObject( {
 		columnGap: '14px',
 		paddingTop: '15px',
 	} );

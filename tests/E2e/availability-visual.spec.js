@@ -65,10 +65,10 @@ test( 'availability timetable matches its visual baseline', async ( {
 	const seed = await fixture( 'seed-lifecycle', fixtureKey );
 
 	try {
-		await logIn( page, seed.tutorLogin, seed.password );
+		await logIn( page, seed.technicianLogin, seed.password );
 		const availabilityResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( `/availability/${ seed.tutorId }` ) &&
+				response.url().includes( `/availability/${ seed.technicianId }` ) &&
 				'GET' === response.request().method()
 		);
 		await page.goto( '/wp-admin/admin.php?page=plumberslot-availability' );
@@ -77,7 +77,7 @@ test( 'availability timetable matches its visual baseline', async ( {
 		const root = page.locator( '#plumberslot-admin-root' );
 		await expect(
 			root.getByRole( 'heading', {
-				name: 'When can students book you?',
+				name: 'When can customers book you?',
 			} )
 		).toBeVisible();
 		await expect( root.locator( '.ts-tt' ) ).toBeVisible();

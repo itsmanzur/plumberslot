@@ -184,15 +184,15 @@ test( 'booking states respect reduced-motion preference', async ( {
 	try {
 		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 
-		await expectReducedMotion( widget, 'Subject step' );
+		await expectReducedMotion( widget, 'Service step' );
 		await widget.getByRole( 'option', { name: /English E2E/ } ).click();
 		await page.route(
 			'**/wp-json/plumberslot/v1/slots?**',

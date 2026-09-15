@@ -28,22 +28,22 @@ probe proves the cached path does not read availability, exception, booking,
 or slot-lock tables. DNS, HTTP-server startup, and TLS are intentionally outside
 this server-side application budget.
 
-`composer test:perf:slots-uncached` bumps the tutor's cache generation before
+`composer test:perf:slots-uncached` bumps the technician's cache generation before
 each of 25 measured requests, outside the timer, so every REST dispatch must
 read the real availability, exception, booking, and slot-lock tables and
 recompute/serialize the slots. Its p75 application response budget is 200ms.
 
 `composer test:perf:booking-post` acquires each hold outside the timer, then
-measures 25 paid-subject booking requests through real WordPress REST dispatch
+measures 25 paid-service booking requests through real WordPress REST dispatch
 and MySQL. The 300ms p75 synchronous budget includes nonce/capability/rate-limit
-checks, subject ownership, hold verification and consumption, slot/overlap
+checks, service ownership, hold verification and consumption, slot/overlap
 checks, transaction and booking insert, audit logging, reminder scheduling,
 notification dispatch, and response serialization. It does not execute the
 later asynchronous reminder or meeting jobs.
 
 `composer test:perf:booking-calendar` seeds exactly 10,000 hourly confirmed
 bookings outside the timer, proves the production calendar range query uses a
-tutor/end composite index, then reads and hydrates a 744-row month window 25
+technician/end composite index, then reads and hydrates a 744-row month window 25
 times. Its p75 MySQL repository budget is 500ms; fixture generation, HTTP, and
 browser rendering are intentionally outside this database-query gate.
 
@@ -60,7 +60,7 @@ activation, deactivation cleanup, and scheduled-action group isolation.
 The deactivation cleanup smoke runs the production `Deactivator` against real
 WordPress and Action Scheduler state. It verifies runtime action, cache, and
 data cleanup boundaries while preserving every table, option, role, and seeded
-tutor.
+technician.
 
 The companion isolation case schedules identical hook/argument actions in the
 PlumberSlot and a foreign group, then proves deactivation removes only PlumberSlot's

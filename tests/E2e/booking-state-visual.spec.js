@@ -93,11 +93,11 @@ async function freezeCountdown( page ) {
 
 async function openConfirmStep( page, seed ) {
 	await logIn( page, seed.aliceLogin, seed.password );
-	const tutorResponse = page.waitForResponse( ( response ) =>
-		response.url().includes( `/public/tutors/${ seed.tutorId }` )
+	const technicianResponse = page.waitForResponse( ( response ) =>
+		response.url().includes( `/public/technicians/${ seed.technicianId }` )
 	);
 	await page.goto( seed.pagePath );
-	expect( ( await tutorResponse ).status() ).toBe( 200 );
+	expect( ( await technicianResponse ).status() ).toBe( 200 );
 	await dismissConsent( page );
 
 	const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
@@ -256,7 +256,7 @@ test( 'booking completion state matches its visual baseline', async ( {
 		if ( await deadline.isVisible() ) {
 			await replaceText(
 				deadline,
-				'Need a different time? You can move this lesson yourself until Sunday, 9 August 2026 at 10:00 AM.'
+				'Need a different time? You can move this appointment yourself until Sunday, 9 August 2026 at 10:00 AM.'
 			);
 		}
 		await snapshot( widget, 'booking-completion.png' );

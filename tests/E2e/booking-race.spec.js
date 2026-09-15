@@ -79,7 +79,7 @@ async function createBooking( page, nonce, seed, start = seed.start ) {
 					'X-WP-Nonce': request.nonce,
 				},
 				body: JSON.stringify( {
-					tutor_id: request.tutorId,
+					technician_id: request.technicianId,
 					start: request.start,
 					timezone: 'UTC',
 				} ),
@@ -90,7 +90,7 @@ async function createBooking( page, nonce, seed, start = seed.start ) {
 				body: await response.json(),
 			};
 		},
-		{ nonce, tutorId: seed.tutorId, start }
+		{ nonce, technicianId: seed.technicianId, start }
 	);
 }
 
@@ -152,14 +152,14 @@ function skipUnlessRaceIsReady( testInfo ) {
 	);
 }
 
-test( 'two students race for one slot: one books and one receives 409', async ( {
+test( 'two customers race for one slot: one books and one receives 409', async ( {
 	browser,
 }, testInfo ) => {
 	skipUnlessRaceIsReady( testInfo );
 	await runRace( browser, 0 );
 } );
 
-test( 'two students race for overlapping starts: one books and one receives 409', async ( {
+test( 'two customers race for overlapping starts: one books and one receives 409', async ( {
 	browser,
 }, testInfo ) => {
 	skipUnlessRaceIsReady( testInfo );

@@ -116,7 +116,7 @@ async function tabTo( page, target, label, limit = 120 ) {
 	);
 }
 
-test( 'student completes booking with keyboard only', async ( {
+test( 'customer completes booking with keyboard only', async ( {
 	page,
 }, testInfo ) => {
 	testInfo.setTimeout( 150000 );
@@ -132,23 +132,23 @@ test( 'student completes booking with keyboard only', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
-		const firstSubject = widget
-			.getByRole( 'listbox', { name: 'Subjects' } )
+		const firstService = widget
+			.getByRole( 'listbox', { name: 'Services' } )
 			.getByRole( 'option' )
 			.first();
-		await tabTo( page, firstSubject, 'first subject option' );
+		await tabTo( page, firstService, 'first service option' );
 		await page.keyboard.press( 'ArrowRight' );
 		await expect(
 			widget
-				.getByRole( 'listbox', { name: 'Subjects' } )
+				.getByRole( 'listbox', { name: 'Services' } )
 				.locator( '[aria-selected="true"]' )
 		).toHaveCount( 1 );
 
@@ -198,9 +198,9 @@ test( 'student completes booking with keyboard only', async ( {
 		).toBeVisible();
 
 		const notes = widget.getByPlaceholder(
-			'Anything helpful before the lesson'
+			'Anything helpful before the appointment'
 		);
-		await tabTo( page, notes, 'lesson note field' );
+		await tabTo( page, notes, 'appointment note field' );
 		await page.keyboard.type( 'Keyboard-only E2E booking.' );
 		await expect( notes ).toHaveValue( 'Keyboard-only E2E booking.' );
 

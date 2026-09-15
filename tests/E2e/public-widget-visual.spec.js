@@ -66,11 +66,11 @@ test( 'public booking widget matches its visual baseline', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await page.goto( seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		const consentButton = page.locator(
 			'#consentaro-banner [data-consentaro-action="accept-all"]'
 		);
@@ -85,13 +85,13 @@ test( 'public booking widget matches its visual baseline', async ( {
 				name: 'What do you want to work on?',
 			} )
 		).toBeVisible();
-		const subject = widget.getByRole( 'option', { name: /English E2E/ } );
-		await subject.click();
-		await expect( subject ).toHaveAttribute( 'aria-selected', 'true' );
+		const service = widget.getByRole( 'option', { name: /English E2E/ } );
+		await service.click();
+		await expect( service ).toHaveAttribute( 'aria-selected', 'true' );
 		await expect(
 			widget.getByRole( 'button', { name: 'Choose a time →' } )
 		).toBeEnabled();
-		await subject.evaluate( ( element ) => element.blur() );
+		await service.evaluate( ( element ) => element.blur() );
 		await page.mouse.move( 0, 0 );
 		await page.evaluate( () => document.fonts.ready );
 

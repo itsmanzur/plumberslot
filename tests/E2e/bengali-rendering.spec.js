@@ -150,27 +150,27 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
-		const tutorResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/tutors/${ seed.tutorId }` )
+		const technicianResponse = page.waitForResponse( ( response ) =>
+			response.url().includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
-		expect( ( await tutorResponse ).status() ).toBe( 200 );
+		expect( ( await technicianResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 		await page.evaluate( () => document.fonts.ready );
 
 		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
-		const subject = widget.getByRole( 'option', {
+		const service = widget.getByRole( 'option', {
 			name: /বাংলা ভাষা ও সাহিত্য/,
 		} );
-		await expect( subject ).toContainText( 'প্রাথমিক · জাতীয় শিক্ষাক্রম' );
-		await expectBengaliGlyphs( subject );
-		await expect( widget ).toHaveScreenshot( 'bengali-subject.png', {
+		await expect( service ).toContainText( 'প্রাথমিক · জাতীয় শিক্ষাক্রম' );
+		await expectBengaliGlyphs( service );
+		await expect( widget ).toHaveScreenshot( 'bengali-service.png', {
 			animations: 'disabled',
 			caret: 'hide',
 			maxDiffPixelRatio: 0.005,
 		} );
 
-		await subject.click();
+		await service.click();
 		const slotsResponse = page.waitForResponse( ( response ) =>
 			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
@@ -196,7 +196,7 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 		).toBeVisible();
 
 		await widget
-			.getByPlaceholder( 'Anything helpful before the lesson' )
+			.getByPlaceholder( 'Anything helpful before the appointment' )
 			.fill( 'আজ আমরা বাংলা ব্যাকরণ ও যুক্তাক্ষর অনুশীলন করব।' );
 		await replaceText(
 			widget.getByText( /^Held for / ),

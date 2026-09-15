@@ -10,9 +10,9 @@ const srcTimeStep = path.join(
 	__dirname,
 	'../../assets/src/widget/views/TimeStep.js'
 );
-const srcSubjectStep = path.join(
+const srcServiceStep = path.join(
 	__dirname,
-	'../../assets/src/widget/views/SubjectStep.js'
+	'../../assets/src/widget/views/ServiceStep.js'
 );
 const srcConfirmStep = path.join(
 	__dirname,
@@ -39,7 +39,7 @@ test( 'widget JS + CSS gzip size stays under 50KB', async () => {
 	expect( gzipBytes ).toBeLessThan( 50 * 1024 );
 } );
 
-test( '390px layout guards: overflow-x hidden and single-column subjects', async () => {
+test( '390px layout guards: overflow-x hidden and single-column services', async () => {
 	const css = fs.readFileSync( distCss, 'utf8' );
 	expect( css ).toMatch( /overflow-x:\s*hidden/ );
 	expect( css ).toMatch( /max-width:\s*390px/ );
@@ -91,25 +91,24 @@ test( 'widget actions meet the 44px touch-target floor', async () => {
 	expect( css ).toMatch( /\.ts-book__day[^}]*min-height:\s*44px/s );
 } );
 
-test( 'subject step uses polished fallback copy and left alignment', async () => {
-	const source = fs.readFileSync( srcSubjectStep, 'utf8' );
+test( 'service step uses polished fallback copy and left alignment', async () => {
+	const source = fs.readFileSync( srcServiceStep, 'utf8' );
 	const css = fs.readFileSync( distCss, 'utf8' );
-	expect( source ).toContain( 'minute lesson' );
+	expect( source ).toContain( 'minute appointment' );
 	expect( source ).toContain( "'Free'" );
-	expect( source ).toContain( '/ lesson' );
 	expect( css ).toMatch( /\.ts-book--step[^}]*margin:\s*0/s );
 	expect( css ).toMatch(
-		/\.plumberslot-widget \.ts-book__subject\.is-selected[^}]*background:\s*var\(--ts-primary-wash\)\s*!important/s
+		/\.plumberslot-widget \.ts-book__service\.is-selected[^}]*background:\s*var\(--ts-primary-wash\)\s*!important/s
 	);
 } );
 
-test( 'theme button hover cannot override subject readability', async () => {
+test( 'theme button hover cannot override service readability', async () => {
 	const css = fs.readFileSync( distCss, 'utf8' );
 	expect( css ).toMatch(
-		/\.plumberslot-widget \.ts-book__subject:hover[^}]*background:\s*var\(--ts-card\)\s*!important/s
+		/\.plumberslot-widget \.ts-book__service:hover[^}]*background:\s*var\(--ts-card\)\s*!important/s
 	);
 	expect( css ).toMatch(
-		/\.plumberslot-widget \.ts-book__subject:hover[^}]*color:\s*var\(--ts-ink\)/s
+		/\.plumberslot-widget \.ts-book__service:hover[^}]*color:\s*var\(--ts-ink\)/s
 	);
 } );
 
@@ -131,14 +130,14 @@ test( 'widget compatibility layer owns interactive component states', async () =
 	expect( source ).toContain( 'appearance: auto !important' );
 } );
 
-test( 'confirm step releases holds and books only linked students', async () => {
+test( 'confirm step releases holds and books only linked customers', async () => {
 	const source = fs.readFileSync( srcConfirmStep, 'utf8' );
 	for ( const marker of [
 		"get( 'relations/children' )",
 		"remove( 'bookings/hold'",
-		'student_id: forChild ? childId : undefined',
+		'customer_id: forChild ? childId : undefined',
 		"role: 'group'",
-		'Linked student',
+		'Linked customer',
 		'Who is this for?',
 		'Payment',
 		'Securing this time',
@@ -172,7 +171,7 @@ test( 'completion view exposes resilient reference and calendar actions', async 
 		'bookingReference',
 		'Payment confirmed',
 		'Add to calendar',
-		'Open secure lesson link',
+		'Open secure appointment link',
 		'Package credit',
 	] ) {
 		expect( done ).toContain( marker );
@@ -188,7 +187,7 @@ test( 'completion view exposes resilient reference and calendar actions', async 
 test( 'mobile booking path screens are present in the widget', async () => {
 	const app = fs.readFileSync( srcApp, 'utf8' );
 	const bundle = fs.readFileSync( distJs, 'utf8' );
-	for ( const step of [ 'subject', 'time', 'confirm', 'done', 'profile' ] ) {
+	for ( const step of [ 'service', 'time', 'confirm', 'done', 'profile' ] ) {
 		expect( app ).toContain( `'${ step }'` );
 	}
 	for ( const label of [

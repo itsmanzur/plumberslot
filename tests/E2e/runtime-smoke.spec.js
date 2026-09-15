@@ -13,7 +13,7 @@ test( 'WordPress and the PlumberSlot REST route boot without a fatal error', asy
 	const payload = await slots.json();
 	expect( payload.code ).toBe( 'rest_missing_callback_param' );
 	expect( payload.data.params ).toEqual(
-		expect.arrayContaining( [ 'tutor_id', 'from', 'to' ] )
+		expect.arrayContaining( [ 'technician_id', 'from', 'to' ] )
 	);
 } );
 

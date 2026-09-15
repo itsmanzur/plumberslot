@@ -71,7 +71,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 	const seed = await fixture( 'seed-onboarding', fixtureKey );
 
 	try {
-		await logIn( page, seed.tutorLogin, seed.password );
+		await logIn( page, seed.technicianLogin, seed.password );
 		const statusResponse = page.waitForResponse(
 			( response ) =>
 				response.url().endsWith( '/plumberslot/v1/setup' ) &&
@@ -87,7 +87,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 		await page.getByRole( 'button', { name: 'Continue →' } ).click();
 
 		await expect(
-			page.getByRole( 'heading', { name: 'Subjects you teach' } )
+			page.getByRole( 'heading', { name: 'Services you teach' } )
 		).toBeVisible();
 		await page
 			.getByRole( 'button', { name: 'Physics', exact: true } )
@@ -97,7 +97,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 
 		await expect(
 			page.getByRole( 'heading', {
-				name: 'Paint the hours students can book',
+				name: 'Paint the hours customers can book',
 			} )
 		).toBeVisible();
 		await page.getByRole( 'button', { name: 'Weekend mornings' } ).click();
@@ -129,22 +129,22 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 			page.getByRole( 'heading', { name: 'You are bookable' } )
 		).toBeVisible();
 		await expect(
-			page.getByRole( 'button', { name: 'Invite tutors' } )
+			page.getByRole( 'button', { name: 'Invite technicians' } )
 		).toBeVisible();
 		await page.getByText( 'WordPress shortcode' ).click();
 		await expect(
-			page.getByText( `[plumberslot tutor="${ seed.tutorSlug }"]` )
+			page.getByText( `[plumberslot technician="${ seed.technicianSlug }"]` )
 		).toBeVisible();
 
 		const database = await fixture( 'inspect-onboarding', fixtureKey );
 		expect( database.completed ).toBe( '1' );
-		expect( database.tutor.status ).toBe( 'active' );
-		expect( database.subjects ).toContain( 'Physics' );
+		expect( database.technician.status ).toBe( 'active' );
+		expect( database.services ).toContain( 'Physics' );
 		expect( database.availabilityCount ).toBeGreaterThan( 0 );
 		expect( database.setupMode ).toBe( 'centre' );
 		expect( database.paymentsEnabled ).toBe( false );
 		expect( database.pageContent ).toBe(
-			`[plumberslot tutor="${ seed.tutorSlug }"]`
+			`[plumberslot technician="${ seed.technicianSlug }"]`
 		);
 		expect( database.auditCount ).toBe( 1 );
 	} finally {
