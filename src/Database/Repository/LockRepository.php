@@ -1,6 +1,6 @@
 <?php
 /**
- * Slot holds. A student pays inside a window; nobody else can take the slot.
+ * Slot holds. A customer pays inside a window; nobody else can take the slot.
  *
  * @package PlumberSlot
  */
@@ -24,36 +24,36 @@ final class LockRepository extends AbstractRepository implements HoldOccupancySo
 	/**
 	 * Claim a slot. Returns the token, or null when someone already holds it.
 	 */
-	public function acquire( int $tutor_id, int $owner_id, string $start_utc, int $minutes ): ?string {
+	public function acquire( int $technician_id, int $owner_id, string $start_utc, int $minutes ): ?string {
 		$this->purge_expired();
 
 		$token = bin2hex( random_bytes( 32 ) );
 
-		$sql = 'INSERT IGNORE INTO ' . $this->table() . ' (tutor_id, owner_id, start_utc, token, expires_at) VALUES (%d, %d, %s, %s, %s)';
+		$sql = 'INSERT IGNORE INTO ' . $this->table() . ' (technician_id, owner_id, start_utc, token, expires_at) VALUES (%d, %d, %s, %s, %s)';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- prepared here.
 		$affected = $this->db->query(
-			$this->db->prepare( $sql, $tutor_id, $owner_id, $start_utc, $token, gmdate( 'Y-m-d H:i:s', time() + ( $minutes * MINUTE_IN_SECONDS ) ) )
+			$this->db->prepare( $sql, $technician_id, $owner_id, $start_utc, $token, gmdate( 'Y-m-d H:i:s', time() + ( $minutes * MINUTE_IN_SECONDS ) ) )
 		);
 
 		if ( 1 !== $affected ) {
 			return null;
 		}
 
-		Cache::forget_tutor( $tutor_id );
+		Cache::forget_technician( $technician_id );
 
 		return $token;
 	}
 
 	public function release( string $token ): void {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- internal lock token lookup.
-		$tutor_id = (int) $this->db->get_var(
-			$this->db->prepare( 'SELECT tutor_id FROM ' . $this->table() . ' WHERE token = %s', $token )
+		$technician_id = (int) $this->db->get_var(
+			$this->db->prepare( 'SELECT technician_id FROM ' . $this->table() . ' WHERE token = %s', $token )
 		);
 		$this->db->delete( $this->table(), array( 'token' => $token ), array( '%s' ) );
 
-		if ( $tutor_id > 0 ) {
-			Cache::forget_tutor( $tutor_id );
+		if ( $technician_id > 0 ) {
+			Cache::forget_technician( $technician_id );
 		}
 	}
 
@@ -62,15 +62,15 @@ final class LockRepository extends AbstractRepository implements HoldOccupancySo
 	 */
 	public function release_owned( string $token, int $owner_id ): bool {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- internal lock token lookup.
-		$tutor_id = (int) $this->db->get_var(
+		$technician_id = (int) $this->db->get_var(
 			$this->db->prepare(
-				'SELECT tutor_id FROM ' . $this->table() . ' WHERE token = %s AND owner_id = %d',
+				'SELECT technician_id FROM ' . $this->table() . ' WHERE token = %s AND owner_id = %d',
 				$token,
 				$owner_id
 			)
 		);
 
-		if ( $tutor_id <= 0 ) {
+		if ( $technician_id <= 0 ) {
 			return false;
 		}
 
@@ -84,19 +84,19 @@ final class LockRepository extends AbstractRepository implements HoldOccupancySo
 		);
 
 		if ( $released ) {
-			Cache::forget_tutor( $tutor_id );
+			Cache::forget_technician( $technician_id );
 		}
 
 		return 1 === $released;
 	}
 
-	public function verify( string $token, int $tutor_id, int $owner_id, string $start_utc ): bool {
+	public function verify( string $token, int $technician_id, int $owner_id, string $start_utc ): bool {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (bool) $this->db->get_var(
 			$this->db->prepare(
-				'SELECT id FROM ' . $this->table() . ' WHERE token = %s AND tutor_id = %d AND owner_id = %d AND start_utc = %s AND expires_at > %s',
+				'SELECT id FROM ' . $this->table() . ' WHERE token = %s AND technician_id = %d AND owner_id = %d AND start_utc = %s AND expires_at > %s',
 				$token,
-				$tutor_id,
+				$technician_id,
 				$owner_id,
 				$start_utc,
 				$this->now()
@@ -109,14 +109,14 @@ final class LockRepository extends AbstractRepository implements HoldOccupancySo
 	 *
 	 * @return list<string>
 	 */
-	public function held_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+	public function held_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return array_map(
 			'strval',
 			(array) $this->db->get_col(
 				$this->db->prepare(
-					'SELECT start_utc FROM ' . $this->table() . ' WHERE tutor_id = %d AND expires_at > %s AND start_utc BETWEEN %s AND %s',
-					$tutor_id,
+					'SELECT start_utc FROM ' . $this->table() . ' WHERE technician_id = %d AND expires_at > %s AND start_utc BETWEEN %s AND %s',
+					$technician_id,
 					$this->now(),
 					$from_utc,
 					$to_utc

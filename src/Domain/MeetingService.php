@@ -5,7 +5,7 @@
  * Meeting creation is decoupled from the booking write so a provider API
  * failure never rolls back a confirmed payment. If the meeting fails, the
  * booking stays confirmed and an admin notice appears; the lesson still runs,
- * the student just has to use the fallback link.
+ * the customer just has to use the fallback link.
  *
  * @package PlumberSlot
  */
@@ -15,7 +15,7 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Domain;
 
 use PlumberSlot\Domain\Contract\MeetingBookingStore;
-use PlumberSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Domain\Contract\TechnicianSource;
 use PlumberSlot\Meetings\ProviderRegistry;
 use PlumberSlot\Support\AuditLog;
 use WP_Error;
@@ -27,7 +27,7 @@ final class MeetingService {
 	public function __construct(
 		private readonly ProviderRegistry $providers,
 		private readonly MeetingBookingStore $bookings,
-		private readonly TutorSource $tutors
+		private readonly TechnicianSource $technicians
 	) {}
 
 	public function register(): void {
@@ -51,7 +51,7 @@ final class MeetingService {
 	/**
 	 * Create a meeting for a just-confirmed booking.
 	 *
-	 * Silently skips when no provider is connected for the tutor.
+	 * Silently skips when no provider is connected for the technician.
 	 */
 	public function create_for_booking( int $booking_id ): void {
 		$booking = $this->bookings->find( $booking_id );
@@ -65,14 +65,14 @@ final class MeetingService {
 			return;
 		}
 
-		$tutor_id  = (int) $booking->tutor_id;
-		$tutor_row = $this->tutors->find( $tutor_id );
+		$technician_id  = (int) $booking->technician_id;
+		$technician_row = $this->technicians->find( $technician_id );
 
-		if ( ! $tutor_row ) {
+		if ( ! $technician_row ) {
 			return;
 		}
 
-		$provider = $this->resolve_provider( (int) $tutor_row->user_id );
+		$provider = $this->resolve_provider( (int) $technician_row->user_id );
 
 		if ( ! $provider ) {
 			return;
@@ -81,7 +81,7 @@ final class MeetingService {
 		$title     = $this->meeting_title( $booking );
 		$reference = $provider->create(
 			$booking_id,
-			(int) $tutor_row->user_id,
+			(int) $technician_row->user_id,
 			(string) $booking->start_utc,
 			(int) ( $booking->end_utc ? ( strtotime( (string) $booking->end_utc ) - strtotime( (string) $booking->start_utc ) ) / 60 : 60 ),
 			$title
@@ -107,11 +107,11 @@ final class MeetingService {
 	}
 
 	/**
-	 * Resolve the first connected provider for a given tutor user_id.
+	 * Resolve the first connected provider for a given technician user_id.
 	 */
-	private function resolve_provider( int $tutor_user_id ): ?\PlumberSlot\Meetings\ProviderInterface {
+	private function resolve_provider( int $technician_user_id ): ?\PlumberSlot\Meetings\ProviderInterface {
 		foreach ( $this->providers->all() as $provider ) {
-			if ( $provider->is_connected( $tutor_user_id ) ) {
+			if ( $provider->is_connected( $technician_user_id ) ) {
 				return $provider;
 			}
 		}
@@ -120,12 +120,12 @@ final class MeetingService {
 	}
 
 	private function meeting_title( object $booking ): string {
-		$student = get_userdata( (int) $booking->student_id );
+		$customer = get_userdata( (int) $booking->customer_id );
 
 		return sprintf(
-			/* translators: %s: student display name. */
+			/* translators: %s: customer display name. */
 			__( 'Lesson with %s', 'plumberslot' ),
-			$student ? $student->display_name : __( 'Student', 'plumberslot' )
+			$customer ? $customer->display_name : __( 'Customer', 'plumberslot' )
 		);
 	}
 }

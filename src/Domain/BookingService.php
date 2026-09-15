@@ -36,13 +36,13 @@ final class BookingService {
 	/**
 	 * Create one booking.
 	 *
-	 * A per-tutor MySQL advisory lock serializes the overlap check and insert.
+	 * A per-technician MySQL advisory lock serializes the overlap check and insert.
 	 * The locked range query prevents different starts whose lesson intervals cross.
 	 *
 	 * @param array{
-	 *   tutor_id:int, student_id:int, parent_id:?int, subject_id:?int,
-	 *   start_utc:DateTimeImmutable, duration_min:int, tutor_tz:string,
-	 *   student_tz:string, price_minor:int, currency:string,
+	 *   technician_id:int, customer_id:int, parent_id:?int, service_id:?int,
+	 *   start_utc:DateTimeImmutable, duration_min:int, technician_tz:string,
+	 *   customer_tz:string, price_minor:int, currency:string,
 	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string
 	 * } $args Booking arguments, already validated by the controller.
 	 * @return int|WP_Error Booking id, or an error.
@@ -52,13 +52,13 @@ final class BookingService {
 		$end   = $start->modify( '+' . $args['duration_min'] . ' minutes' );
 		$token = ! empty( $args['lock_token'] ) ? (string) $args['lock_token'] : '';
 
-		$allowed = $this->policy->can_be_booked( $args['tutor_id'], $start );
+		$allowed = $this->policy->can_be_booked( $args['technician_id'], $start );
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
 
 		if ( '' !== $token
-			&& ! $this->locks->verify( $token, $args['tutor_id'], get_current_user_id(), Time::sql( $start ) ) ) {
+			&& ! $this->locks->verify( $token, $args['technician_id'], get_current_user_id(), Time::sql( $start ) ) ) {
 			return new WP_Error(
 				'plumberslot_lock_expired',
 				__( 'That slot was only held for a few minutes and the hold has expired. Pick a time again.', 'plumberslot' ),
@@ -66,10 +66,10 @@ final class BookingService {
 			);
 		}
 
-		if ( ! $this->bookings->acquire_tutor_lock( $args['tutor_id'] ) ) {
+		if ( ! $this->bookings->acquire_technician_lock( $args['technician_id'] ) ) {
 			return new WP_Error(
 				'plumberslot_slot_taken',
-				__( 'Someone is booking with this tutor right now. Try again.', 'plumberslot' ),
+				__( 'Someone is booking with this technician right now. Try again.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -79,8 +79,8 @@ final class BookingService {
 				$this->locks->release( $token );
 			}
 
-			if ( $this->bookings->has_overlap( $args['tutor_id'], Time::sql( $start ), Time::sql( $end ) )
-				|| ! $this->slots->is_open( $args['tutor_id'], $start, $args['tutor_tz'], $args['duration_min'] ) ) {
+			if ( $this->bookings->has_overlap( $args['technician_id'], Time::sql( $start ), Time::sql( $end ) )
+				|| ! $this->slots->is_open( $args['technician_id'], $start, $args['technician_tz'], $args['duration_min'] ) ) {
 				return new WP_Error(
 					'plumberslot_slot_taken',
 					__( 'That time is no longer open. Choose another slot.', 'plumberslot' ),
@@ -126,9 +126,9 @@ final class BookingService {
 				throw $error;
 			}
 
-			Cache::forget_tutor( $args['tutor_id'] );
+			Cache::forget_technician( $args['technician_id'] );
 		} finally {
-			$this->bookings->release_tutor_lock( $args['tutor_id'] );
+			$this->bookings->release_technician_lock( $args['technician_id'] );
 		}
 
 		$this->after_booking_created( $id, $args );
@@ -165,19 +165,19 @@ final class BookingService {
 		}
 
 		$duration = ( strtotime( $booking->end_utc ) - strtotime( $booking->start_utc ) ) / MINUTE_IN_SECONDS;
-		$tutor_id = (int) $booking->tutor_id;
+		$technician_id = (int) $booking->technician_id;
 		$end      = $new_start_utc->modify( '+' . $duration . ' minutes' );
 		$args     = array(
-			'tutor_id'       => $tutor_id,
-			'student_id'     => (int) $booking->student_id,
+			'technician_id'       => $technician_id,
+			'customer_id'     => (int) $booking->customer_id,
 			'parent_id'      => $booking->parent_id ? (int) $booking->parent_id : null,
-			'subject_id'     => $booking->subject_id ? (int) $booking->subject_id : null,
+			'service_id'     => $booking->service_id ? (int) $booking->service_id : null,
 			'series_id'      => $booking->series_id ? (int) $booking->series_id : null,
 			'series_index'   => $booking->series_index ? (int) $booking->series_index : null,
 			'start_utc'      => $new_start_utc,
 			'duration_min'   => (int) $duration,
-			'tutor_tz'       => $this->policy->tutor_timezone( $tutor_id ),
-			'student_tz'     => (string) $booking->student_tz,
+			'technician_tz'       => $this->policy->technician_timezone( $technician_id ),
+			'customer_tz'     => (string) $booking->customer_tz,
 			'price_minor'    => (int) $booking->price_minor,
 			'currency'       => (string) $booking->currency,
 			'credit_id'      => $booking->credit_id ? (int) $booking->credit_id : null,
@@ -188,22 +188,22 @@ final class BookingService {
 			'notes'          => $booking->notes,
 		);
 
-		$allowed = $this->policy->can_be_booked( $tutor_id, $new_start_utc );
+		$allowed = $this->policy->can_be_booked( $technician_id, $new_start_utc );
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
 
-		if ( ! $this->bookings->acquire_tutor_lock( $tutor_id ) ) {
+		if ( ! $this->bookings->acquire_technician_lock( $technician_id ) ) {
 			return new WP_Error(
 				'plumberslot_slot_taken',
-				__( 'Someone is booking with this tutor right now. Try again.', 'plumberslot' ),
+				__( 'Someone is booking with this technician right now. Try again.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
 
 		try {
-			if ( $this->bookings->has_overlap( $tutor_id, Time::sql( $new_start_utc ), Time::sql( $end ), $booking_id )
-				|| ! $this->slots->is_open( $tutor_id, $new_start_utc, $args['tutor_tz'], (int) $duration, $booking_id ) ) {
+			if ( $this->bookings->has_overlap( $technician_id, Time::sql( $new_start_utc ), Time::sql( $end ), $booking_id )
+				|| ! $this->slots->is_open( $technician_id, $new_start_utc, $args['technician_tz'], (int) $duration, $booking_id ) ) {
 				return new WP_Error(
 					'plumberslot_slot_taken',
 					__( 'That time is no longer open. Choose another slot.', 'plumberslot' ),
@@ -252,9 +252,9 @@ final class BookingService {
 				throw $error;
 			}
 
-			Cache::forget_tutor( $tutor_id );
+			Cache::forget_technician( $technician_id );
 		} finally {
-			$this->bookings->release_tutor_lock( $tutor_id );
+			$this->bookings->release_technician_lock( $technician_id );
 		}
 
 		$this->after_booking_created( $new_id, $args );
@@ -271,15 +271,15 @@ final class BookingService {
 	 */
 	private function booking_row( array $args, DateTimeImmutable $start, DateTimeImmutable $end ): array {
 		return array(
-			'tutor_id'      => $args['tutor_id'],
-			'student_id'    => $args['student_id'],
+			'technician_id'      => $args['technician_id'],
+			'customer_id'    => $args['customer_id'],
 			'parent_id'     => $args['parent_id'] ?? null,
-			'subject_id'    => $args['subject_id'] ?? null,
+			'service_id'    => $args['service_id'] ?? null,
 			'series_id'     => $args['series_id'] ?? null,
 			'series_index'  => $args['series_index'] ?? null,
 			'start_utc'     => Time::sql( $start ),
 			'end_utc'       => Time::sql( $end ),
-			'student_tz'    => $args['student_tz'],
+			'customer_tz'    => $args['customer_tz'],
 			'status'        => $args['status'] ?? $this->policy->initial_status( $args ),
 			'price_minor'   => $args['price_minor'],
 			'currency'      => $args['currency'],
@@ -362,7 +362,7 @@ final class BookingService {
 			throw $error;
 		}
 
-		Cache::forget_tutor( (int) $booking->tutor_id );
+		Cache::forget_technician( (int) $booking->technician_id );
 
 		AuditLog::record( 'booking.cancelled', 'booking', $booking_id, array( 'reason' => $reason ) );
 
@@ -388,7 +388,7 @@ final class BookingService {
 	}
 
 	/**
-	 * Tutor marks a lesson complete or as a no-show.
+	 * Technician marks a lesson complete or as a no-show.
 	 */
 	public function mark_attendance( int $booking_id, string $status ): bool|WP_Error {
 		if ( ! in_array( $status, array( 'completed', 'no_show' ), true ) ) {
@@ -409,7 +409,7 @@ final class BookingService {
 	}
 
 	/**
-	 * Record a tutor-attested outcome without allowing time or concurrent
+	 * Record a technician-attested outcome without allowing time or concurrent
 	 * requests to manufacture an invalid lifecycle transition.
 	 */
 	private function mark_attendance_outcome( object $booking, string $status ): bool|WP_Error {

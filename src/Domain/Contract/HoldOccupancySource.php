@@ -16,5 +16,5 @@ interface HoldOccupancySource {
 	/**
 	 * @return list<string>
 	 */
-	public function held_in_range( int $tutor_id, string $from_utc, string $to_utc ): array;
+	public function held_in_range( int $technician_id, string $from_utc, string $to_utc ): array;
 }

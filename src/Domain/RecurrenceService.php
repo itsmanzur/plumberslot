@@ -31,7 +31,7 @@ final class RecurrenceService {
 	 * Create a series and every lesson in it.
 	 *
 	 * Slots already taken are skipped rather than failing the whole course; the
-	 * caller gets back both lists so the student can be told exactly which
+	 * caller gets back both lists so the customer can be told exactly which
 	 * weeks need a different time.
 	 *
 	 * @param array<string, mixed> $args   Same shape as BookingService::create().
@@ -50,8 +50,8 @@ final class RecurrenceService {
 
 		$series_id = $this->series->create(
 			array(
-				'tutor_id'    => (int) $args['tutor_id'],
-				'student_id'  => (int) $args['student_id'],
+				'technician_id'    => (int) $args['technician_id'],
+				'customer_id'  => (int) $args['customer_id'],
 				'rrule'       => $this->to_rrule( $days, $count ),
 				'total_count' => $count,
 			)
@@ -102,7 +102,7 @@ final class RecurrenceService {
 				'booked'    => count( $booked ),
 				'requested' => $count,
 				'skipped'   => count( $skipped ),
-				'tutor_id'  => (int) $args['tutor_id'],
+				'technician_id'  => (int) $args['technician_id'],
 			)
 		);
 

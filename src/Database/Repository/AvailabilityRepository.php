@@ -24,24 +24,24 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 	/**
 	 * @return list<object>
 	 */
-	public function rules_for( int $tutor_id ): array {
+	public function rules_for( int $technician_id ): array {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
-			$this->db->prepare( 'SELECT * FROM ' . $this->table() . ' WHERE tutor_id = %d ORDER BY weekday, start_min', $tutor_id )
+			$this->db->prepare( 'SELECT * FROM ' . $this->table() . ' WHERE technician_id = %d ORDER BY weekday, start_min', $technician_id )
 		);
 	}
 
 	/**
 	 * @return list<object>
 	 */
-	public function exceptions_between( int $tutor_id, string $from_date, string $to_date ): array {
+	public function exceptions_between( int $technician_id, string $from_date, string $to_date ): array {
 		$table = Schema::table( Schema::EXCEPTIONS );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT * FROM ' . $table . ' WHERE tutor_id = %d AND on_date BETWEEN %s AND %s ORDER BY on_date ASC, id ASC',
-				$tutor_id,
+				'SELECT * FROM ' . $table . ' WHERE technician_id = %d AND on_date BETWEEN %s AND %s ORDER BY on_date ASC, id ASC',
+				$technician_id,
 				$from_date,
 				$to_date
 			)
@@ -53,15 +53,15 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 	 *
 	 * @return list<object>
 	 */
-	public function exceptions_for_tutor( int $tutor_id, int $limit = 50 ): array {
+	public function exceptions_for_technician( int $technician_id, int $limit = 50 ): array {
 		$table = Schema::table( Schema::EXCEPTIONS );
 		$limit = max( 1, min( 200, $limit ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT * FROM ' . $table . ' WHERE tutor_id = %d ORDER BY on_date DESC, id DESC LIMIT %d',
-				$tutor_id,
+				'SELECT * FROM ' . $table . ' WHERE technician_id = %d ORDER BY on_date DESC, id DESC LIMIT %d',
+				$technician_id,
 				$limit
 			)
 		);
@@ -70,7 +70,7 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 	/**
 	 * @param array{on_date:string,kind:string,start_min?:?int,end_min?:?int,note?:?string} $data Exception.
 	 */
-	public function add_exception( int $tutor_id, array $data ): int {
+	public function add_exception( int $technician_id, array $data ): int {
 		$table = Schema::table( Schema::EXCEPTIONS );
 		$kind  = sanitize_key( (string) ( $data['kind'] ?? 'closed' ) );
 
@@ -81,7 +81,7 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 		$inserted = $this->db->insert(
 			$table,
 			array(
-				'tutor_id'  => $tutor_id,
+				'technician_id'  => $technician_id,
 				'on_date'   => (string) $data['on_date'],
 				'kind'      => $kind,
 				'start_min' => isset( $data['start_min'] ) ? (int) $data['start_min'] : null,
@@ -94,18 +94,18 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 			return 0;
 		}
 
-		Cache::forget_tutor( $tutor_id );
+		Cache::forget_technician( $technician_id );
 
 		return (int) $this->db->insert_id;
 	}
 
-	public function delete_exception( int $tutor_id, int $exception_id ): bool {
+	public function delete_exception( int $technician_id, int $exception_id ): bool {
 		$table   = Schema::table( Schema::EXCEPTIONS );
 		$deleted = $this->db->delete(
 			$table,
 			array(
 				'id'       => $exception_id,
-				'tutor_id' => $tutor_id,
+				'technician_id' => $technician_id,
 			),
 			array( '%d', '%d' )
 		);
@@ -114,25 +114,25 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 			return false;
 		}
 
-		Cache::forget_tutor( $tutor_id );
+		Cache::forget_technician( $technician_id );
 
 		return true;
 	}
 
 	/**
-	 * Replace a tutor's whole week in one transaction. The grid editor always
+	 * Replace a technician's whole week in one transaction. The grid editor always
 	 * sends the complete week, so a partial write can never leave a half-saved
 	 * schedule behind.
 	 *
 	 * @param list<array{weekday:int,start_min:int,end_min:int}> $rules Rules.
 	 */
-	public function replace_week( int $tutor_id, array $rules ): bool {
+	public function replace_week( int $technician_id, array $rules ): bool {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- transaction control statement.
 		if ( false === $this->db->query( 'START TRANSACTION' ) ) {
 			return false;
 		}
 
-		$deleted = $this->db->delete( $this->table(), array( 'tutor_id' => $tutor_id ), array( '%d' ) );
+		$deleted = $this->db->delete( $this->table(), array( 'technician_id' => $technician_id ), array( '%d' ) );
 
 		if ( false === $deleted ) {
 			$this->rollback();
@@ -144,7 +144,7 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 			$inserted = $this->db->insert(
 				$this->table(),
 				array(
-					'tutor_id'  => $tutor_id,
+					'technician_id'  => $technician_id,
 					'weekday'   => $rule['weekday'],
 					'start_min' => $rule['start_min'],
 					'end_min'   => $rule['end_min'],
@@ -166,7 +166,7 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 			return false;
 		}
 
-		Cache::forget_tutor( $tutor_id );
+		Cache::forget_technician( $technician_id );
 
 		return true;
 	}

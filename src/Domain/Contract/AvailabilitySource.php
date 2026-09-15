@@ -16,10 +16,10 @@ interface AvailabilitySource {
 	/**
 	 * @return list<object>
 	 */
-	public function rules_for( int $tutor_id ): array;
+	public function rules_for( int $technician_id ): array;
 
 	/**
 	 * @return list<object>
 	 */
-	public function exceptions_between( int $tutor_id, string $from_date, string $to_date ): array;
+	public function exceptions_between( int $technician_id, string $from_date, string $to_date ): array;
 }

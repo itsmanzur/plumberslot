@@ -23,7 +23,7 @@ final class Migrator {
 	private const STEPS = array(
 		1 => 'step_1_initial',
 		2 => 'step_2_lock_ownership',
-		3 => 'step_3_subject_status',
+		3 => 'step_3_service_status',
 		4 => 'step_4_drop_unique_slot_key',
 		5 => 'step_5_payments',
 		6 => 'step_6_performance_hardening',
@@ -57,13 +57,13 @@ final class Migrator {
 		Schema::create_all();
 	}
 
-	private function step_3_subject_status(): void {
+	private function step_3_service_status(): void {
 		Schema::create_all();
 	}
 
 	/**
 	 * Moved/cancelled rows must not permanently block a start time. Overlap
-	 * safety comes from the per-tutor advisory lock plus has_overlap().
+	 * safety comes from the per-technician advisory lock plus has_overlap().
 	 */
 	private function step_4_drop_unique_slot_key(): void {
 		global $wpdb;

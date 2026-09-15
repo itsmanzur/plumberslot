@@ -1,6 +1,6 @@
 <?php
 /**
- * Tutor profiles.
+ * Technician profiles.
  *
  * @package PlumberSlot
  */
@@ -10,14 +10,14 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Database\Repository;
 
 use PlumberSlot\Database\Schema;
-use PlumberSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Domain\Contract\TechnicianSource;
 
 defined( 'ABSPATH' ) || exit;
 
-final class TutorRepository extends AbstractRepository implements TutorSource {
+final class TechnicianRepository extends AbstractRepository implements TechnicianSource {
 
 	protected function table(): string {
-		return Schema::table( Schema::TUTORS );
+		return Schema::table( Schema::TECHNICIANS );
 	}
 
 	/**
@@ -90,18 +90,18 @@ final class TutorRepository extends AbstractRepository implements TutorSource {
 	}
 
 	/**
-	 * Map a WordPress user to a tutor row id, or 0.
+	 * Map a WordPress user to a technician row id, or 0.
 	 *
 	 * Used everywhere ownership is checked, so it is deliberately the only
 	 * place that translation happens.
 	 */
-	public function tutor_id_for_user( int $user_id ): int {
+	public function technician_id_for_user( int $user_id ): int {
 		if ( $user_id <= 0 ) {
 			return 0;
 		}
 
-		$tutor = $this->find_by_user( $user_id );
+		$technician = $this->find_by_user( $user_id );
 
-		return $tutor ? (int) $tutor->id : 0;
+		return $technician ? (int) $technician->id : 0;
 	}
 }

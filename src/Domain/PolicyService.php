@@ -1,6 +1,6 @@
 <?php
 /**
- * Business rules: lead time, cancellation windows, trial eligibility.
+ * Business rules: lead time, cancellation windows, free-estimate eligibility.
  *
  * Kept apart from BookingService so a site owner can swap the whole rule set
  * without touching the code that writes rows.
@@ -25,7 +25,7 @@ final class PolicyService {
 		private readonly BookingRepository $bookings = new BookingRepository()
 	) {}
 
-	public function can_be_booked( int $tutor_id, DateTimeImmutable $start_utc ): bool|WP_Error {
+	public function can_be_booked( int $technician_id, DateTimeImmutable $start_utc ): bool|WP_Error {
 		$lead = Settings::int( 'lead_time_minutes', 240 );
 
 		if ( $start_utc->getTimestamp() < time() + ( $lead * MINUTE_IN_SECONDS ) ) {
@@ -45,7 +45,7 @@ final class PolicyService {
 			);
 		}
 
-		return apply_filters( 'plumberslot_can_be_booked', true, $tutor_id, $start_utc );
+		return apply_filters( 'plumberslot_can_be_booked', true, $technician_id, $start_utc );
 	}
 
 	public function can_reschedule( object $booking ): bool|WP_Error {
@@ -54,7 +54,7 @@ final class PolicyService {
 		if ( strtotime( $booking->start_utc ) - time() < $window * MINUTE_IN_SECONDS ) {
 			return new WP_Error(
 				'plumberslot_reschedule_closed',
-				__( 'This lesson is too close to its start time to move. Message your tutor instead.', 'plumberslot' ),
+				__( 'This lesson is too close to its start time to move. Message your technician instead.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -63,17 +63,17 @@ final class PolicyService {
 	}
 
 	/**
-	 * Free trials are one per student, ever — matching the admin offer copy.
+	 * Free estimates are one per customer, ever — matching the admin offer copy.
 	 */
-	public function can_use_trial( int $student_id, object $subject ): bool|WP_Error {
-		if ( empty( $subject->is_trial ) ) {
+	public function can_use_free_estimate( int $customer_id, object $service ): bool|WP_Error {
+		if ( empty( $service->is_free_estimate ) ) {
 			return true;
 		}
 
-		if ( $this->bookings->student_has_used_trial( $student_id ) ) {
+		if ( $this->bookings->customer_has_used_free_estimate( $customer_id ) ) {
 			return new WP_Error(
-				'plumberslot_trial_used',
-				__( 'This student has already used their free trial lesson.', 'plumberslot' ),
+				'plumberslot_free_estimate_used',
+				__( 'This customer has already used their free estimate.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -96,10 +96,10 @@ final class PolicyService {
 		return Settings::bool( 'auto_confirm', true ) ? 'pending_payment' : 'pending';
 	}
 
-	public function tutor_timezone( int $tutor_id ): string {
-		$repo  = new \PlumberSlot\Database\Repository\TutorRepository();
-		$tutor = $repo->find( $tutor_id );
+	public function technician_timezone( int $technician_id ): string {
+		$repo  = new \PlumberSlot\Database\Repository\TechnicianRepository();
+		$technician = $repo->find( $technician_id );
 
-		return $tutor->timezone ?? wp_timezone_string();
+		return $technician->timezone ?? wp_timezone_string();
 	}
 }

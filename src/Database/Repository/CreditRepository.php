@@ -25,18 +25,18 @@ final class CreditRepository extends AbstractRepository {
 	 *
 	 * @return list<object>
 	 */
-	public function usable_for( int $owner_id, int $tutor_id ): array {
+	public function usable_for( int $owner_id, int $technician_id ): array {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
 				'SELECT * FROM ' . $this->table() . '
 				 WHERE owner_id = %d
-				   AND ( tutor_id IS NULL OR tutor_id = %d )
+				   AND ( technician_id IS NULL OR technician_id = %d )
 				   AND used < total
 				   AND ( expires_at IS NULL OR expires_at > %s )
 				 ORDER BY expires_at IS NULL, expires_at ASC',
 				$owner_id,
-				$tutor_id,
+				$technician_id,
 				$this->now()
 			)
 		);
@@ -63,32 +63,32 @@ final class CreditRepository extends AbstractRepository {
 	}
 
 	/**
-	 * Remaining prepaid lessons held against this tutor (or site-wide packs).
+	 * Remaining prepaid lessons held against this technician (or site-wide packs).
 	 */
-	public function remaining_for_tutor( int $tutor_id ): int {
+	public function remaining_for_technician( int $technician_id ): int {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (int) $this->db->get_var(
 			$this->db->prepare(
 				'SELECT COALESCE( SUM( total - used ), 0 ) FROM ' . $this->table() . '
-				 WHERE ( tutor_id = %d OR tutor_id IS NULL )
+				 WHERE ( technician_id = %d OR technician_id IS NULL )
 				   AND used < total
 				   AND ( expires_at IS NULL OR expires_at > %s )',
-				$tutor_id,
+				$technician_id,
 				$this->now()
 			)
 		);
 	}
 
 	/**
-	 * @param array{owner_id:int, tutor_id:?int, subject_id:?int, total:int, price_minor:int, expires_at:?string} $data Package fields.
+	 * @param array{owner_id:int, technician_id:?int, service_id:?int, total:int, price_minor:int, expires_at:?string} $data Package fields.
 	 */
 	public function create_package( array $data ): int {
 		$this->db->insert(
 			$this->table(),
 			array(
 				'owner_id'    => (int) $data['owner_id'],
-				'tutor_id'    => $data['tutor_id'] ?? null,
-				'subject_id'  => $data['subject_id'] ?? null,
+				'technician_id'    => $data['technician_id'] ?? null,
+				'service_id'  => $data['service_id'] ?? null,
 				'total'       => (int) $data['total'],
 				'used'        => 0,
 				'price_minor' => (int) $data['price_minor'],
@@ -103,8 +103,8 @@ final class CreditRepository extends AbstractRepository {
 	/**
 	 * @return list<object>
 	 */
-	public function for_owner( int $owner_id, ?int $tutor_id = null ): array {
-		if ( null === $tutor_id ) {
+	public function for_owner( int $owner_id, ?int $technician_id = null ): array {
+		if ( null === $technician_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 			return (array) $this->db->get_results(
 				$this->db->prepare(
@@ -119,10 +119,10 @@ final class CreditRepository extends AbstractRepository {
 			$this->db->prepare(
 				'SELECT * FROM ' . $this->table() . '
 				 WHERE owner_id = %d
-				   AND ( tutor_id IS NULL OR tutor_id = %d )
+				   AND ( technician_id IS NULL OR technician_id = %d )
 				 ORDER BY id DESC',
 				$owner_id,
-				$tutor_id
+				$technician_id
 			)
 		);
 	}
@@ -132,7 +132,7 @@ final class CreditRepository extends AbstractRepository {
 	 *
 	 * @return int Lessons rolled over (removed from old packs).
 	 */
-	public function roll_unused_into( int $owner_id, int $tutor_id ): int {
+	public function roll_unused_into( int $owner_id, int $technician_id ): int {
 		$now     = $this->now();
 		$horizon = gmdate( 'Y-m-d H:i:s', time() + ( 30 * DAY_IN_SECONDS ) );
 
@@ -141,13 +141,13 @@ final class CreditRepository extends AbstractRepository {
 			$this->db->prepare(
 				'SELECT * FROM ' . $this->table() . '
 				 WHERE owner_id = %d
-				   AND ( tutor_id IS NULL OR tutor_id = %d )
+				   AND ( technician_id IS NULL OR technician_id = %d )
 				   AND used < total
 				   AND expires_at IS NOT NULL
 				   AND expires_at > %s
 				   AND expires_at <= %s',
 				$owner_id,
-				$tutor_id,
+				$technician_id,
 				$now,
 				$horizon
 			)

@@ -16,5 +16,5 @@ interface BookingOccupancySource {
 	/**
 	 * @return list<object>
 	 */
-	public function find_in_range( int $tutor_id, string $from_utc, string $to_utc ): array;
+	public function find_in_range( int $technician_id, string $from_utc, string $to_utc ): array;
 }

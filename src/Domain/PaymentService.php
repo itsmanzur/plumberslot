@@ -343,7 +343,7 @@ final class PaymentService {
 	private function after_booking_refunded( object $booking, string $payment_ref = '' ): void {
 		$booking_id = (int) $booking->id;
 
-		Cache::forget_tutor( (int) $booking->tutor_id );
+		Cache::forget_technician( (int) $booking->technician_id );
 		AuditLog::record( 'booking.refunded', 'booking', $booking_id, array( 'ref' => $payment_ref ) );
 		do_action( 'plumberslot_booking_refunded', $booking_id, $payment_ref );
 	}
@@ -394,7 +394,7 @@ final class PaymentService {
 			return;
 		}
 
-		Cache::forget_tutor( (int) $booking->tutor_id );
+		Cache::forget_technician( (int) $booking->technician_id );
 		AuditLog::record( 'payment.expired', 'payment', $payment_id, array( 'booking' => $booking_id ), 0 );
 		AuditLog::record( 'booking.payment_expired', 'booking', $booking_id, array( 'payment' => $payment_id ), 0 );
 		do_action( 'plumberslot_booking_payment_expired', $booking_id, $booking );

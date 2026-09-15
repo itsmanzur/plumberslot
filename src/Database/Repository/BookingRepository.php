@@ -22,7 +22,7 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Insert a booking under the tutor lock. Recheck the active range here so a
+	 * Insert a booking under the technician lock. Recheck the active range here so a
 	 * direct caller cannot bypass the service-level overlap guard.
 	 *
 	 * @param array<string, mixed> $data               Column values.
@@ -34,7 +34,7 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 
 		if ( ! in_array( $status, array( 'cancelled', 'refunded', 'moved', 'payment_expired' ), true )
 			&& $this->has_overlap(
-				(int) $data['tutor_id'],
+				(int) $data['technician_id'],
 				(string) $data['start_utc'],
 				(string) $data['end_utc'],
 				$exclude_booking_id
@@ -51,23 +51,23 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Bookings that occupy any part of the window. Hits idx_tutor_end so old
+	 * Bookings that occupy any part of the window. Hits idx_technician_end so old
 	 * booking history is skipped before the overlap and status checks.
 	 *
 	 * @return list<object>
 	 */
-	public function find_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+	public function find_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT id, start_utc, end_utc, status, student_id, subject_id
+				'SELECT id, start_utc, end_utc, status, customer_id, service_id
 				 FROM ' . $this->table() . "
-				 WHERE tutor_id = %d
+				 WHERE technician_id = %d
 				   AND status NOT IN ( 'cancelled', 'refunded', 'moved', 'payment_expired' )
 				   AND start_utc < %s
 				   AND end_utc   > %s
 				 ORDER BY start_utc ASC",
-				$tutor_id,
+				$technician_id,
 				$to_utc,
 				$from_utc
 			)
@@ -79,13 +79,13 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	 *
 	 * @param int $exclude_booking_id Booking to ignore (the row being moved).
 	 */
-	public function has_overlap( int $tutor_id, string $start_utc, string $end_utc, int $exclude_booking_id = 0 ): bool {
+	public function has_overlap( int $technician_id, string $start_utc, string $end_utc, int $exclude_booking_id = 0 ): bool {
 		$sql    = 'SELECT id FROM ' . $this->table() . "
-			 WHERE tutor_id = %d
+			 WHERE technician_id = %d
 			   AND status NOT IN ( 'cancelled', 'refunded', 'moved', 'payment_expired' )
 			   AND start_utc < %s
 			   AND end_utc > %s";
-		$params = array( $tutor_id, $end_utc, $start_utc );
+		$params = array( $technician_id, $end_utc, $start_utc );
 
 		if ( $exclude_booking_id > 0 ) {
 			$sql     .= ' AND id <> %d';
@@ -99,23 +99,23 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Serialize all booking writes for one tutor across PHP processes.
+	 * Serialize all booking writes for one technician across PHP processes.
 	 */
-	public function acquire_tutor_lock( int $tutor_id, int $timeout_seconds = 5 ): bool {
+	public function acquire_technician_lock( int $technician_id, int $timeout_seconds = 5 ): bool {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- MySQL advisory lock is the cross-process mutex for overlapping intervals.
 		return 1 === (int) $this->db->get_var(
 			$this->db->prepare(
 				'SELECT GET_LOCK( %s, %d )',
-				$this->tutor_lock_name( $tutor_id ),
+				$this->technician_lock_name( $technician_id ),
 				$timeout_seconds
 			)
 		);
 	}
 
-	public function release_tutor_lock( int $tutor_id ): void {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- releases only the internally named tutor mutex.
+	public function release_technician_lock( int $technician_id ): void {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- releases only the internally named technician mutex.
 		$this->db->get_var(
-			$this->db->prepare( 'SELECT RELEASE_LOCK( %s )', $this->tutor_lock_name( $tutor_id ) )
+			$this->db->prepare( 'SELECT RELEASE_LOCK( %s )', $this->technician_lock_name( $technician_id ) )
 		);
 	}
 
@@ -241,7 +241,7 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT * FROM ' . $this->table() . ' WHERE student_id = %d OR parent_id = %d ORDER BY start_utc DESC',
+				'SELECT * FROM ' . $this->table() . ' WHERE customer_id = %d OR parent_id = %d ORDER BY start_utc DESC',
 				$user_id,
 				$user_id
 			)
@@ -249,13 +249,13 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Bookings where the user is the student.
+	 * Bookings where the user is the customer.
 	 *
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
 	 * @return array{items:list<object>,total:int,page:int,per_page:int}
 	 */
-	public function find_for_student( int $student_id, array $filters = array() ): array {
-		return $this->paginated_list( 'student', $student_id, $filters );
+	public function find_for_customer( int $customer_id, array $filters = array() ): array {
+		return $this->paginated_list( 'customer', $customer_id, $filters );
 	}
 
 	/**
@@ -269,20 +269,20 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Bookings taught by this tutor.
+	 * Bookings taught by this technician.
 	 *
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
 	 * @return array{items:list<object>,total:int,page:int,per_page:int}
 	 */
-	public function find_for_tutor( int $tutor_id, array $filters = array() ): array {
-		return $this->paginated_list( 'tutor', $tutor_id, $filters );
+	public function find_for_technician( int $technician_id, array $filters = array() ): array {
+		return $this->paginated_list( 'technician', $technician_id, $filters );
 	}
 
 	/**
 	 * Scope controls every SQL identifier and fragment in this query builder.
 	 * Callers may supply values only; arbitrary clauses are never accepted.
 	 *
-	 * @param 'student'|'family'|'tutor'                                                      $scope   Ownership scope.
+	 * @param 'customer'|'family'|'technician'                                                      $scope   Ownership scope.
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
 	 * @return array{items:list<object>,total:int,page:int,per_page:int}
 	 */
@@ -295,14 +295,14 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		if ( 'family' === $scope ) {
 			$relations    = Schema::table( Schema::RELATIONS );
 			$owner_clause = 'r.parent_id = %d AND r.confirmed = 1';
-			$from_sql     = $table . ' b INNER JOIN ' . $relations . ' r ON r.student_id = b.student_id';
+			$from_sql     = $table . ' b INNER JOIN ' . $relations . ' r ON r.student_id = b.customer_id';
 			$alias        = 'b.';
-		} elseif ( 'tutor' === $scope ) {
-			$owner_clause = 'tutor_id = %d';
+		} elseif ( 'technician' === $scope ) {
+			$owner_clause = 'technician_id = %d';
 			$from_sql     = $table;
 			$alias        = '';
-		} elseif ( 'student' === $scope ) {
-			$owner_clause = 'student_id = %d';
+		} elseif ( 'customer' === $scope ) {
+			$owner_clause = 'customer_id = %d';
 			$from_sql     = $table;
 			$alias        = '';
 		} else {
@@ -356,26 +356,26 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Whether the student already used a free-trial subject on any tutor.
+	 * Whether the customer already used a free-estimate service from any technician.
 	 */
-	public function student_has_used_trial( int $student_id ): bool {
-		$subjects = Schema::table( Schema::SUBJECTS );
+	public function customer_has_used_free_estimate( int $customer_id ): bool {
+		$services = Schema::table( Schema::SERVICES );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from whitelist.
 		return (bool) $this->db->get_var(
 			$this->db->prepare(
 				'SELECT b.id FROM ' . $this->table() . ' b
-				 INNER JOIN ' . $subjects . " s ON s.id = b.subject_id
-				 WHERE b.student_id = %d
-				   AND s.is_trial = 1
+				 INNER JOIN ' . $services . " s ON s.id = b.service_id
+				 WHERE b.customer_id = %d
+				   AND s.is_free_estimate = 1
 				   AND b.status NOT IN ( 'cancelled', 'refunded', 'payment_expired' )
 				 LIMIT 1",
-				$student_id
+				$customer_id
 			)
 		);
 	}
 
-	private function tutor_lock_name( int $tutor_id ): string {
-		return 'plumberslot:' . md5( $this->db->prefix . '|' . $tutor_id );
+	private function technician_lock_name( int $technician_id ): string {
+		return 'plumberslot:' . md5( $this->db->prefix . '|' . $technician_id );
 	}
 }

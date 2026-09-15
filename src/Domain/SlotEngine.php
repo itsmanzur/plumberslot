@@ -3,9 +3,9 @@
  * Turns availability rules into bookable slots.
  *
  * Slots are never stored. A year of fifteen-minute slots would be roughly
- * thirty-five thousand rows per tutor, all of which go stale the moment a rule
+ * thirty-five thousand rows per technician, all of which go stale the moment a rule
  * changes. Instead the rules are stored and the slots are computed per request
- * and cached, keyed by tutor and month.
+ * and cached, keyed by technician and month.
  *
  * @package PlumberSlot
  */
@@ -42,26 +42,26 @@ final class SlotEngine {
 	/**
 	 * Every slot in a window, each already marked open, booked or held.
 	 *
-	 * @param int               $tutor_id      Tutor row id.
+	 * @param int               $technician_id      Technician row id.
 	 * @param DateTimeImmutable $from_utc      Window start, UTC.
 	 * @param DateTimeImmutable $to_utc        Window end, UTC.
-	 * @param string            $tutor_tz      Tutor's IANA zone.
+	 * @param string            $technician_tz      Technician's IANA zone.
 	 * @param int               $duration_min  Lesson length.
 	 * @return list<Slot>
 	 * @throws \InvalidArgumentException When the window is empty or too wide.
 	 */
 	public function slots_for(
-		int $tutor_id,
+		int $technician_id,
 		DateTimeImmutable $from_utc,
 		DateTimeImmutable $to_utc,
-		string $tutor_tz,
+		string $technician_tz,
 		int $duration_min,
 		int $exclude_booking_id = 0
 	): array {
 		self::assert_valid_range( $from_utc, $to_utc );
 
 		if ( $exclude_booking_id <= 0 ) {
-			$key    = Cache::slot_key( $tutor_id, $from_utc, $to_utc, $duration_min );
+			$key    = Cache::slot_key( $technician_id, $from_utc, $to_utc, $duration_min );
 			$cached = Cache::get( $key );
 
 			if ( is_array( $cached ) ) {
@@ -70,8 +70,8 @@ final class SlotEngine {
 			}
 		}
 
-		$candidates = $this->candidates( $tutor_id, $from_utc, $to_utc, $tutor_tz, $duration_min );
-		$slots      = $this->apply_occupancy( $tutor_id, $candidates, $from_utc, $to_utc, $duration_min, $exclude_booking_id );
+		$candidates = $this->candidates( $technician_id, $from_utc, $to_utc, $technician_tz, $duration_min );
+		$slots      = $this->apply_occupancy( $technician_id, $candidates, $from_utc, $to_utc, $duration_min, $exclude_booking_id );
 
 		if ( $exclude_booking_id <= 0 ) {
 			Cache::set( $key, $slots, Settings::int( 'slot_cache_ttl', 900 ) );
@@ -104,21 +104,21 @@ final class SlotEngine {
 	/**
 	 * Expand the weekly rules across the window, minus closures.
 	 *
-	 * All arithmetic happens in the tutor's own zone and is converted to UTC at
+	 * All arithmetic happens in the technician's own zone and is converted to UTC at
 	 * the very end. Doing it the other way round breaks twice a year, on the
 	 * days a DST transition moves the wall clock under you.
 	 *
 	 * @return list<DateTimeImmutable> Slot start times, UTC.
 	 */
 	private function candidates(
-		int $tutor_id,
+		int $technician_id,
 		DateTimeImmutable $from_utc,
 		DateTimeImmutable $to_utc,
-		string $tutor_tz,
+		string $technician_tz,
 		int $duration_min
 	): array {
-		$zone        = new DateTimeZone( $tutor_tz );
-		$rules       = $this->availability->rules_for( $tutor_id );
+		$zone        = new DateTimeZone( $technician_tz );
+		$rules       = $this->availability->rules_for( $technician_id );
 		$granularity = Settings::int( 'slot_granularity_minutes', 30 );
 		$buffer      = Settings::int( 'buffer_minutes', 10 );
 		$lead        = Settings::int( 'lead_time_minutes', 240 );
@@ -126,7 +126,7 @@ final class SlotEngine {
 
 		$exceptions = $this->index_exceptions(
 			$this->availability->exceptions_between(
-				$tutor_id,
+				$technician_id,
 				$from_utc->setTimezone( $zone )->format( 'Y-m-d' ),
 				$to_utc->setTimezone( $zone )->format( 'Y-m-d' )
 			)
@@ -181,7 +181,7 @@ final class SlotEngine {
 	 *
 	 * @param list<object> $rules   Availability rows.
 	 * @param int          $weekday 0 = Sunday.
-	 * @param string       $date    Y-m-d in the tutor's zone.
+	 * @param string       $date    Y-m-d in the technician's zone.
 	 * @return list<array{start:int,end:int}>
 	 */
 	private function windows_for_day( array $rules, int $weekday, string $date ): array {
@@ -240,7 +240,7 @@ final class SlotEngine {
 	 * @return list<Slot>
 	 */
 	private function apply_occupancy(
-		int $tutor_id,
+		int $technician_id,
 		array $candidates,
 		DateTimeImmutable $from_utc,
 		DateTimeImmutable $to_utc,
@@ -249,7 +249,7 @@ final class SlotEngine {
 	): array {
 		$duration = $duration_min * MINUTE_IN_SECONDS;
 		$bookings = $this->bookings->find_in_range(
-			$tutor_id,
+			$technician_id,
 			Time::sql( $from_utc ),
 			Time::sql( $to_utc->modify( '+' . $duration_min . ' minutes' ) )
 		);
@@ -264,7 +264,7 @@ final class SlotEngine {
 		}
 
 		$holds = $this->locks->held_in_range(
-			$tutor_id,
+			$technician_id,
 			Time::sql( $from_utc->modify( '-' . $duration_min . ' minutes' ) ),
 			Time::sql( $to_utc )
 		);
@@ -313,9 +313,9 @@ final class SlotEngine {
 		 * calendar without touching the engine.
 		 *
 		 * @param list<Slot> $slots    Computed slots.
-		 * @param int        $tutor_id Tutor row id.
+		 * @param int        $technician_id Technician row id.
 		 */
-		return apply_filters( 'plumberslot_slots', $slots, $tutor_id );
+		return apply_filters( 'plumberslot_slots', $slots, $technician_id );
 	}
 
 	/**
@@ -324,18 +324,18 @@ final class SlotEngine {
 	 * @param int $exclude_booking_id Booking to ignore while checking occupancy (reschedule).
 	 */
 	public function is_open(
-		int $tutor_id,
+		int $technician_id,
 		DateTimeImmutable $start_utc,
-		string $tutor_tz,
+		string $technician_tz,
 		int $duration_min,
 		int $exclude_booking_id = 0
 	): bool {
 		if ( $exclude_booking_id > 0 ) {
 			self::assert_valid_range( $start_utc, $start_utc->modify( '+1 second' ) );
-			$candidates = $this->candidates( $tutor_id, $start_utc, $start_utc->modify( '+1 second' ), $tutor_tz, $duration_min );
-			$slots      = $this->apply_occupancy( $tutor_id, $candidates, $start_utc, $start_utc->modify( '+1 second' ), $duration_min, $exclude_booking_id );
+			$candidates = $this->candidates( $technician_id, $start_utc, $start_utc->modify( '+1 second' ), $technician_tz, $duration_min );
+			$slots      = $this->apply_occupancy( $technician_id, $candidates, $start_utc, $start_utc->modify( '+1 second' ), $duration_min, $exclude_booking_id );
 		} else {
-			$slots = $this->slots_for( $tutor_id, $start_utc, $start_utc->modify( '+1 second' ), $tutor_tz, $duration_min );
+			$slots = $this->slots_for( $technician_id, $start_utc, $start_utc->modify( '+1 second' ), $technician_tz, $duration_min );
 		}
 
 		foreach ( $slots as $slot ) {

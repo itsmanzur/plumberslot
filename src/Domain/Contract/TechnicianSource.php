@@ -1,6 +1,6 @@
 <?php
 /**
- * Tutor data needed by domain services.
+ * Technician data needed by domain services.
  *
  * @package PlumberSlot
  */
@@ -11,7 +11,7 @@ namespace PlumberSlot\Domain\Contract;
 
 defined( 'ABSPATH' ) || exit;
 
-interface TutorSource {
+interface TechnicianSource {
 
 	public function find( int $id ): ?object;
 }

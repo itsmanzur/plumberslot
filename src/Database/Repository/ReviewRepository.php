@@ -1,6 +1,6 @@
 <?php
 /**
- * Published reviews for tutor profile pages.
+ * Published reviews for technician profile pages.
  *
  * @package PlumberSlot
  */
@@ -22,14 +22,14 @@ final class ReviewRepository extends AbstractRepository {
 	/**
 	 * @return list<object>
 	 */
-	public function approved_for_tutor( int $tutor_id, int $limit = 6 ): array {
+	public function approved_for_technician( int $technician_id, int $limit = 6 ): array {
 		$limit = max( 1, min( 20, $limit ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT * FROM ' . $this->table() . " WHERE tutor_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d",
-				$tutor_id,
+				'SELECT * FROM ' . $this->table() . " WHERE technician_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d",
+				$technician_id,
 				$limit
 			)
 		);
@@ -38,12 +38,12 @@ final class ReviewRepository extends AbstractRepository {
 	/**
 	 * @return array{average:float,count:int}
 	 */
-	public function rating_summary( int $tutor_id ): array {
+	public function rating_summary( int $technician_id ): array {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		$row = $this->db->get_row(
 			$this->db->prepare(
-				'SELECT AVG(rating) AS average, COUNT(*) AS total FROM ' . $this->table() . " WHERE tutor_id = %d AND status = 'approved'",
-				$tutor_id
+				'SELECT AVG(rating) AS average, COUNT(*) AS total FROM ' . $this->table() . " WHERE technician_id = %d AND status = 'approved'",
+				$technician_id
 			)
 		);
 

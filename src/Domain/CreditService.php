@@ -24,13 +24,13 @@ final class CreditService {
 	/**
 	 * Find a package that can pay for this lesson.
 	 */
-	public function pick_usable( int $owner_id, int $tutor_id, ?int $subject_id = null ): ?object {
-		foreach ( $this->credits->usable_for( $owner_id, $tutor_id ) as $credit ) {
-			if ( null !== $credit->subject_id && null !== $subject_id && (int) $credit->subject_id !== $subject_id ) {
+	public function pick_usable( int $owner_id, int $technician_id, ?int $service_id = null ): ?object {
+		foreach ( $this->credits->usable_for( $owner_id, $technician_id ) as $credit ) {
+			if ( null !== $credit->service_id && null !== $service_id && (int) $credit->service_id !== $service_id ) {
 				continue;
 			}
 
-			if ( null !== $credit->subject_id && null === $subject_id ) {
+			if ( null !== $credit->service_id && null === $service_id ) {
 				continue;
 			}
 
@@ -98,18 +98,18 @@ final class CreditService {
 	 * Create a prepaid package. Optionally rolls unused lessons from an
 	 * expiring pack into the new one when rollover is enabled.
 	 *
-	 * @param array{owner_id:int, tutor_id:?int, subject_id:?int, total:int, price_minor?:int} $args Package fields.
+	 * @param array{owner_id:int, technician_id:?int, service_id:?int, total:int, price_minor?:int} $args Package fields.
 	 * @return object|\WP_Error
 	 */
 	public function purchase( array $args ) {
 		$owner_id = (int) $args['owner_id'];
 		$total    = max( 1, min( 100, (int) $args['total'] ) );
-		$tutor_id = isset( $args['tutor_id'] ) && $args['tutor_id'] ? (int) $args['tutor_id'] : null;
-		$subject  = isset( $args['subject_id'] ) && $args['subject_id'] ? (int) $args['subject_id'] : null;
+		$technician_id = isset( $args['technician_id'] ) && $args['technician_id'] ? (int) $args['technician_id'] : null;
+		$service  = isset( $args['service_id'] ) && $args['service_id'] ? (int) $args['service_id'] : null;
 
 		$rollover = 0;
-		if ( Settings::bool( 'credit_rollover_enabled', true ) && null !== $tutor_id ) {
-			$rollover = $this->credits->roll_unused_into( $owner_id, $tutor_id );
+		if ( Settings::bool( 'credit_rollover_enabled', true ) && null !== $technician_id ) {
+			$rollover = $this->credits->roll_unused_into( $owner_id, $technician_id );
 			$total   += $rollover;
 		}
 
@@ -119,8 +119,8 @@ final class CreditService {
 		$id = $this->credits->create_package(
 			array(
 				'owner_id'    => $owner_id,
-				'tutor_id'    => $tutor_id,
-				'subject_id'  => $subject,
+				'technician_id'    => $technician_id,
+				'service_id'  => $service,
 				'total'       => $total,
 				'price_minor' => (int) ( $args['price_minor'] ?? 0 ),
 				'expires_at'  => $expires_at,
@@ -142,7 +142,7 @@ final class CreditService {
 			array(
 				'total'    => $total,
 				'rollover' => $rollover,
-				'tutor_id' => $tutor_id,
+				'technician_id' => $technician_id,
 			)
 		);
 
@@ -158,11 +158,11 @@ final class CreditService {
 	/**
 	 * @return array{total:int, used:int, remaining:int}
 	 */
-	public function balance( int $owner_id, int $tutor_id ): array {
+	public function balance( int $owner_id, int $technician_id ): array {
 		$total = 0;
 		$used  = 0;
 
-		foreach ( $this->credits->usable_for( $owner_id, $tutor_id ) as $credit ) {
+		foreach ( $this->credits->usable_for( $owner_id, $technician_id ) as $credit ) {
 			$total += (int) $credit->total;
 			$used  += (int) $credit->used;
 		}
