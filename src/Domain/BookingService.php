@@ -40,7 +40,7 @@ final class BookingService {
 	 * The locked range query prevents different starts whose lesson intervals cross.
 	 *
 	 * @param array{
-	 *   technician_id:int, customer_id:int, parent_id:?int, service_id:?int,
+	 *   technician_id:int, customer_id:int, service_id:?int,
 	 *   start_utc:DateTimeImmutable, duration_min:int, technician_tz:string,
 	 *   customer_tz:string, price_minor:int, currency:string,
 	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string
@@ -170,7 +170,6 @@ final class BookingService {
 		$args     = array(
 			'technician_id'       => $technician_id,
 			'customer_id'     => (int) $booking->customer_id,
-			'parent_id'      => $booking->parent_id ? (int) $booking->parent_id : null,
 			'service_id'     => $booking->service_id ? (int) $booking->service_id : null,
 			'series_id'      => $booking->series_id ? (int) $booking->series_id : null,
 			'series_index'   => $booking->series_index ? (int) $booking->series_index : null,
@@ -273,7 +272,6 @@ final class BookingService {
 		return array(
 			'technician_id'      => $args['technician_id'],
 			'customer_id'    => $args['customer_id'],
-			'parent_id'     => $args['parent_id'] ?? null,
 			'service_id'    => $args['service_id'] ?? null,
 			'series_id'     => $args['series_id'] ?? null,
 			'series_index'  => $args['series_index'] ?? null,

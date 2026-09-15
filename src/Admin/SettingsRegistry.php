@@ -97,7 +97,6 @@ final class SettingsRegistry {
 
 		foreach ( array(
 			'auto_confirm',
-			'copy_parent_on_all_mail',
 			'credit_rollover_enabled',
 			'sms_enabled',
 			'bkash_sandbox',

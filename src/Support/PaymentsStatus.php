@@ -3,7 +3,7 @@
  * Whether online checkout can actually run.
  *
  * payments_enabled alone is not enough — Stripe or bKash must be configured
- * or parents only see “pay the technician directly”.
+ * or customers only see “pay the technician directly”.
  *
  * @package PlumberSlot
  */

@@ -40,7 +40,6 @@ final class Activator {
 				'hold_window_minutes'      => 10,
 				'slot_cache_ttl'           => 900,
 				'auto_confirm'             => true,
-				'copy_parent_on_all_mail'  => true,
 				'delete_data_on_uninstall' => false,
 			),
 			'',

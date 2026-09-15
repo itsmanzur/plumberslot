@@ -168,15 +168,13 @@ final class PrivacyHooks {
 	private function record_markers( int $user_id, bool $for_erasure, int $limit, int $offset ): array {
 		global $wpdb;
 
-		$bookings  = Schema::table( Schema::BOOKINGS );
-		$relations = Schema::table( Schema::RELATIONS );
-		$reviews   = Schema::table( Schema::REVIEWS );
-		$queries   = array(
-			"SELECT 'booking' AS record_type, id, created_at AS sort_at FROM {$bookings} WHERE customer_id = %d OR parent_id = %d",
-			"SELECT 'relation' AS record_type, id, created_at AS sort_at FROM {$relations} WHERE parent_id = %d OR student_id = %d",
+		$bookings = Schema::table( Schema::BOOKINGS );
+		$reviews  = Schema::table( Schema::REVIEWS );
+		$queries  = array(
+			"SELECT 'booking' AS record_type, id, created_at AS sort_at FROM {$bookings} WHERE customer_id = %d",
 			"SELECT 'review' AS record_type, id, created_at AS sort_at FROM {$reviews} WHERE author_id = %d",
 		);
-		$params    = array( $user_id, $user_id, $user_id, $user_id, $user_id );
+		$params   = array( $user_id, $user_id );
 
 		if ( $for_erasure ) {
 			$series    = Schema::table( Schema::SERIES );
@@ -203,10 +201,9 @@ final class PrivacyHooks {
 	 */
 	private function export_item( object $marker, int $user_id ): ?array {
 		return match ( (string) $marker->record_type ) {
-			'booking'  => $this->export_booking( (int) $marker->id, $user_id ),
-			'relation' => $this->export_relation( (int) $marker->id, $user_id ),
-			'review'   => $this->export_review( (int) $marker->id ),
-			default    => null,
+			'booking' => $this->export_booking( (int) $marker->id, $user_id ),
+			'review'  => $this->export_review( (int) $marker->id ),
+			default   => null,
 		};
 	}
 
@@ -223,9 +220,6 @@ final class PrivacyHooks {
 		$roles = array();
 		if ( $user_id === (int) $booking->customer_id ) {
 			$roles[] = __( 'Customer', 'plumberslot' );
-		}
-		if ( $user_id === (int) $booking->parent_id ) {
-			$roles[] = __( 'Paying parent', 'plumberslot' );
 		}
 
 		$data = array(
@@ -245,31 +239,6 @@ final class PrivacyHooks {
 			'group_label' => __( 'Lessons', 'plumberslot' ),
 			'item_id'     => 'booking-' . $booking->id,
 			'data'        => $data,
-		);
-	}
-
-	/**
-	 * @return array{group_id:string, group_label:string, item_id:string, data:list<array{name:string, value:string}>}|null
-	 */
-	private function export_relation( int $relation_id, int $user_id ): ?array {
-		$relation = $this->find_row( Schema::RELATIONS, $relation_id );
-
-		if ( ! $relation ) {
-			return null;
-		}
-
-		$is_parent = $user_id === (int) $relation->parent_id;
-
-		return array(
-			'group_id'    => 'plumberslot-relations',
-			'group_label' => __( 'Family relationships', 'plumberslot' ),
-			'item_id'     => 'relation-' . $relation->id,
-			'data'        => array(
-				$this->export_field( __( 'Role', 'plumberslot' ), $is_parent ? __( 'Parent', 'plumberslot' ) : __( 'Student', 'plumberslot' ) ),
-				$this->export_field( __( 'Relationship', 'plumberslot' ), (string) $relation->relation ),
-				$this->export_field( __( 'Related account ID', 'plumberslot' ), (string) ( $is_parent ? $relation->student_id : $relation->parent_id ) ),
-				$this->export_field( __( 'Confirmed', 'plumberslot' ), (int) $relation->confirmed ? __( 'Yes', 'plumberslot' ) : __( 'No', 'plumberslot' ) ),
-			),
 		);
 	}
 
@@ -313,18 +282,12 @@ final class PrivacyHooks {
 				$changed = (int) $wpdb->query(
 					$wpdb->prepare(
 						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from the schema whitelist; values are prepared below.
-						'UPDATE ' . $table . ' SET customer_id = IF(customer_id = %d, 0, customer_id), parent_id = IF(parent_id = %d, NULL, parent_id), notes = NULL, updated_at = %s WHERE id = %d',
-						$user_id,
+						'UPDATE ' . $table . ' SET customer_id = IF(customer_id = %d, 0, customer_id), notes = NULL, updated_at = %s WHERE id = %d',
 						$user_id,
 						gmdate( 'Y-m-d H:i:s' ),
 						$id
 					)
 				);
-				break;
-
-			case 'relation':
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- relation id comes from a prepared internal query.
-				$changed = (int) $wpdb->delete( Schema::table( Schema::RELATIONS ), array( 'id' => $id ), array( '%d' ) );
 				break;
 
 			case 'review':
@@ -369,7 +332,7 @@ final class PrivacyHooks {
 
 		return array(
 			'removed'  => $changed > 0,
-			'retained' => $changed > 0 && 'relation' !== $type,
+			'retained' => $changed > 0,
 		);
 	}
 

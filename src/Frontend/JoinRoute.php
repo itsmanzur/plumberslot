@@ -6,7 +6,7 @@
  * in an email body. Instead the email contains a signed, expiring URL pointing
  * here. This handler verifies the signature, resolves the real link through the
  * provider, and issues a short-lived redirect — so a forwarded confirmation
- * email cannot admit a stranger into a child's lesson.
+ * email cannot admit a stranger into the appointment.
  *
  * @package PlumberSlot
  */
@@ -62,7 +62,7 @@ final class JoinRoute {
 			wp_die( esc_html__( 'Invalid meeting link.', 'plumberslot' ), '', array( 'response' => 400 ) );
 		}
 
-		/** @var object{meeting_token:string,customer_id:int,technician_id:int,parent_id:?int,meeting_ref:string}|null $booking */
+		/** @var object{meeting_token:string,customer_id:int,technician_id:int,meeting_ref:string}|null $booking */
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking || empty( $booking->meeting_token ) ) {
@@ -80,10 +80,6 @@ final class JoinRoute {
 		// Only the confirmed participants may join.
 		$user_id = get_current_user_id();
 		$allowed = array( (int) $booking->customer_id );
-
-		if ( $booking->parent_id ) {
-			$allowed[] = (int) $booking->parent_id;
-		}
 
 		// Resolve technician user_id from technician row.
 		$technician_row = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->find( (int) $booking->technician_id );

@@ -2,10 +2,6 @@
 /**
  * Turns booking events into messages.
  *
- * Every message can go to two people. In tutoring the payer and the attendee
- * are usually different, and sending only to the person who clicked the button
- * is how a parent finds out about a cancelled lesson from their child.
- *
  * @package PlumberSlot
  */
 
@@ -16,7 +12,6 @@ namespace PlumberSlot\Notifications;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Notifications\Channel\ChannelInterface;
 use PlumberSlot\Notifications\Channel\EmailChannel;
-use PlumberSlot\Support\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,18 +60,6 @@ final class Dispatcher {
 		}
 
 		$recipients = array( (int) $booking->customer_id );
-		$parent_id  = $booking->parent_id ? (int) $booking->parent_id : 0;
-
-		// Receipts always go to the payer when a parent paid for the child.
-		$is_receipt = in_array( $event, array( 'booking_created', 'booking_confirmed' ), true );
-		if ( $parent_id > 0 && ( $is_receipt || Settings::bool( 'copy_parent_on_all_mail', true ) ) ) {
-			$recipients[] = $parent_id;
-		}
-
-		// Reminders always reach both customer and parent when linked.
-		if ( $parent_id > 0 && str_starts_with( $event, 'reminder_' ) ) {
-			$recipients[] = $parent_id;
-		}
 
 		// Technician gets a copy on booking_created, booking_cancelled, reminder_24h.
 		if ( in_array( $event, array( 'booking_created', 'booking_cancelled', 'reminder_24h' ), true ) ) {

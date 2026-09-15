@@ -186,7 +186,6 @@ final class DashboardController extends AbstractController {
 			}
 			$booking_id = (int) $row->id;
 			$customer    = get_userdata( (int) $row->customer_id );
-			$parent     = $row->parent_id ? get_userdata( (int) $row->parent_id ) : null;
 			$service    = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$start      = new \DateTimeImmutable( (string) $row->start_utc, new \DateTimeZone( 'UTC' ) );
 			$end        = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
@@ -201,9 +200,7 @@ final class DashboardController extends AbstractController {
 				'id'            => $booking_id,
 				'customer'       => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
-				'context'       => $parent
-					? sprintf( /* translators: %s: parent display name. */ __( 'Parent: %s', 'plumberslot' ), $parent->display_name )
-					: __( 'Books their own lessons', 'plumberslot' ),
+				'context'       => __( 'Books their own lessons', 'plumberslot' ),
 				'service'       => $service ? (string) $service->name : __( 'Lesson', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )

@@ -60,7 +60,7 @@ final class BookingsController extends AbstractController {
 					'args'                => array(
 						'scope'    => array(
 							'type'    => 'string',
-							'enum'    => array( 'mine', 'family', 'teaching' ),
+							'enum'    => array( 'mine', 'teaching' ),
 							'default' => 'mine',
 						),
 						'from'     => array(
@@ -119,7 +119,7 @@ final class BookingsController extends AbstractController {
 				'args'                => array(
 					'scope' => array(
 						'type'    => 'string',
-						'enum'    => array( 'mine', 'family', 'teaching' ),
+						'enum'    => array( 'mine', 'teaching' ),
 						'default' => 'teaching',
 					),
 				),
@@ -259,10 +259,6 @@ final class BookingsController extends AbstractController {
 				'required'          => true,
 				'type'              => 'string',
 				'validate_callback' => array( Validate::class, 'is_iso8601' ),
-			),
-			'customer_id' => array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
 			),
 			'timezone'   => array(
 				'type'              => 'string',
@@ -421,7 +417,6 @@ final class BookingsController extends AbstractController {
 		}
 
 		$result = match ( $scope ) {
-			'family'   => $this->repo->find_for_family( $user_id, $filters ),
 			'teaching' => $this->teaching_bookings( $user_id, $filters, (int) ( $request['technician_id'] ?? 0 ) ),
 			default    => $this->repo->find_for_customer( $user_id, $filters ),
 		};
@@ -738,15 +733,8 @@ final class BookingsController extends AbstractController {
 			}
 		}
 
-		$actor = get_current_user_id();
-
-		// The booker may be a parent acting for a child. Never take that on trust.
-		$customer_id = (int) ( $request['customer_id'] ? $request['customer_id'] : $actor );
-		$parent_id  = $customer_id === $actor ? null : $actor;
-
-		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $customer_id ) ) {
-			return $this->guard->deny();
-		}
+		$actor       = get_current_user_id();
+		$customer_id = $actor;
 
 		if ( null !== $service ) {
 			$free_estimate = $this->policy->can_use_free_estimate( $customer_id, $service );
@@ -759,7 +747,7 @@ final class BookingsController extends AbstractController {
 		$credit_id = null;
 
 		if ( $request['use_credit'] ) {
-			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $technician->id, $service_id );
+			$credit = $this->credits->pick_usable( $actor, (int) $technician->id, $service_id );
 
 			if ( ! $credit ) {
 				return new WP_Error(
@@ -793,7 +781,6 @@ final class BookingsController extends AbstractController {
 			array(
 				'technician_id'       => (int) $technician->id,
 				'customer_id'     => $customer_id,
-				'parent_id'      => $parent_id,
 				'service_id'     => $service_id,
 				'start_utc'      => Time::from_iso( (string) $request['start'] ),
 				'duration_min'   => $duration,

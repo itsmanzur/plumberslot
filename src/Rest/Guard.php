@@ -16,7 +16,6 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Rest;
 
 use PlumberSlot\Database\Repository\TechnicianRepository;
-use PlumberSlot\Database\Schema;
 use PlumberSlot\Support\Capabilities;
 use WP_Error;
 
@@ -62,8 +61,8 @@ final class Guard {
 	/**
 	 * Can the current user see or change this booking?
 	 *
-	 * Four legitimate parties: the customer, the paying parent, the technician who
-	 * does the work, and a site manager. Everyone else gets a 404.
+	 * Three legitimate parties: the customer, the technician who does the
+	 * work, and a site manager. Everyone else gets a 404.
 	 */
 	public function may_touch_booking( object $booking ): bool {
 		if ( $this->is_site_manager() ) {
@@ -80,38 +79,6 @@ final class Guard {
 			return true;
 		}
 
-		if ( null !== $booking->parent_id && (int) $booking->parent_id === $user_id ) {
-			return true;
-		}
-
 		return $this->technicians->technician_id_for_user( $user_id ) === (int) $booking->technician_id;
-	}
-
-	/**
-	 * Is this user really the guardian of this student?
-	 *
-	 * Checked on every parent-scoped read, so a parent account cannot widen
-	 * itself into somebody else's child by editing an id in the request.
-	 */
-	public function is_guardian_of( int $parent_id, int $student_id ): bool {
-		global $wpdb;
-
-		if ( $parent_id === $student_id ) {
-			return true;
-		}
-
-		$table = Schema::table( Schema::RELATIONS );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- relationship lookup is direct and the table name is resolved from the internal whitelist.
-		$relation_id = $wpdb->get_var(
-			$wpdb->prepare(
-				'SELECT id FROM ' . $table . ' WHERE parent_id = %d AND student_id = %d AND confirmed = 1',
-				$parent_id,
-				$student_id
-			)
-		);
-		// phpcs:enable
-
-		return (bool) $relation_id;
 	}
 }

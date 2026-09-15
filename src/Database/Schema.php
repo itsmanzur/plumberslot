@@ -26,7 +26,6 @@ final class Schema {
 	public const SERIES       = 'plumberslot_series';
 	public const LOCKS        = 'plumberslot_slot_locks';
 	public const CREDITS      = 'plumberslot_credits';
-	public const RELATIONS    = 'plumberslot_relations';
 	public const REVIEWS      = 'plumberslot_reviews';
 	public const AUDIT        = 'plumberslot_audit_log';
 	public const PAYMENTS     = 'plumberslot_payments';
@@ -59,7 +58,6 @@ final class Schema {
 			self::SERIES,
 			self::LOCKS,
 			self::CREDITS,
-			self::RELATIONS,
 			self::REVIEWS,
 			self::AUDIT,
 			self::PAYMENTS,
@@ -175,7 +173,6 @@ final class Schema {
 				id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 				technician_id BIGINT UNSIGNED NOT NULL,
 				customer_id   BIGINT UNSIGNED NOT NULL,
-				parent_id     BIGINT UNSIGNED NULL,
 				service_id    BIGINT UNSIGNED NULL,
 				series_id     BIGINT UNSIGNED NULL,
 				series_index  SMALLINT UNSIGNED NULL,
@@ -197,7 +194,6 @@ final class Schema {
 				KEY idx_technician_range (technician_id, start_utc, status),
 				KEY idx_technician_end (technician_id, end_utc),
 				KEY idx_customer (customer_id, start_utc),
-				KEY idx_parent (parent_id, start_utc),
 				KEY idx_series (series_id, series_index)
 			) {$charset};",
 
@@ -228,19 +224,6 @@ final class Schema {
 				created_at  DATETIME        NOT NULL,
 				PRIMARY KEY (id),
 				KEY idx_owner (owner_id, expires_at)
-			) {$charset};",
-
-			// Parent -> child. The relationship every competitor is missing.
-			"CREATE TABLE {$p( self::RELATIONS )} (
-				id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-				parent_id  BIGINT UNSIGNED NOT NULL,
-				student_id BIGINT UNSIGNED NOT NULL,
-				relation   VARCHAR(32)     NOT NULL DEFAULT 'guardian',
-				confirmed  TINYINT(1)      NOT NULL DEFAULT 0,
-				created_at DATETIME        NOT NULL,
-				PRIMARY KEY (id),
-				UNIQUE KEY uq_pair (parent_id, student_id),
-				KEY idx_student (student_id)
 			) {$charset};",
 
 			"CREATE TABLE {$p( self::REVIEWS )} (

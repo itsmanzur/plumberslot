@@ -138,8 +138,8 @@ final class PublicTechnicianController extends AbstractController {
 				'id'     => (int) $row->id,
 				'rating' => (int) $row->rating,
 				'body'   => (string) $row->body,
-				'author' => $author ? $author->display_name : __( 'Parent', 'plumberslot' ),
-				'role'   => __( 'Parent', 'plumberslot' ),
+				'author' => $author ? $author->display_name : __( 'Customer', 'plumberslot' ),
+				'role'   => __( 'Customer', 'plumberslot' ),
 			);
 		}
 

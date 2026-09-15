@@ -25,7 +25,6 @@ final class Capabilities {
 
 	public const ROLE_TECHNICIAN = 'plumberslot_technician';
 	public const ROLE_CUSTOMER   = 'plumberslot_customer';
-	public const ROLE_PARENT     = 'plumberslot_parent';
 
 	public static function add_all(): void {
 		add_role(
@@ -48,15 +47,6 @@ final class Capabilities {
 			)
 		);
 
-		add_role(
-			self::ROLE_PARENT,
-			__( 'Parent', 'plumberslot' ),
-			array(
-				'read'     => true,
-				self::BOOK => true,
-			)
-		);
-
 		$admin = get_role( 'administrator' );
 
 		if ( $admin ) {
@@ -69,7 +59,6 @@ final class Capabilities {
 	public static function remove_all(): void {
 		remove_role( self::ROLE_TECHNICIAN );
 		remove_role( self::ROLE_CUSTOMER );
-		remove_role( self::ROLE_PARENT );
 
 		$admin = get_role( 'administrator' );
 

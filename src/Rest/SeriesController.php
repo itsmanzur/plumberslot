@@ -58,10 +58,6 @@ final class SeriesController extends AbstractController {
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'customer_id' => array(
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-					),
 					'start'      => array(
 						'required'          => true,
 						'type'              => 'string',
@@ -180,13 +176,8 @@ final class SeriesController extends AbstractController {
 			}
 		}
 
-		$actor      = get_current_user_id();
-		$customer_id = (int) ( $request['customer_id'] ? $request['customer_id'] : $actor );
-		$parent_id  = $customer_id === $actor ? null : $actor;
-
-		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $customer_id ) ) {
-			return $this->guard->deny();
-		}
+		$actor       = get_current_user_id();
+		$customer_id = $actor;
 
 		if ( null !== $service ) {
 			$free_estimate = $this->policy->can_use_free_estimate( $customer_id, $service );
@@ -203,7 +194,7 @@ final class SeriesController extends AbstractController {
 		$use_credit = (bool) $request['use_credit'];
 		$credit_id  = null;
 		if ( $use_credit ) {
-			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $technician->id, $service_id );
+			$credit = $this->credits->pick_usable( $actor, (int) $technician->id, $service_id );
 			if ( ! $credit ) {
 				return new WP_Error(
 					'plumberslot_no_credits',
@@ -231,7 +222,6 @@ final class SeriesController extends AbstractController {
 			array(
 				'technician_id'       => (int) $technician->id,
 				'customer_id'     => $customer_id,
-				'parent_id'      => $parent_id,
 				'service_id'     => $service_id,
 				'start_utc'      => $start,
 				'duration_min'   => $duration,
@@ -338,10 +328,6 @@ final class SeriesController extends AbstractController {
 
 		$user_id = get_current_user_id();
 		if ( (int) $series->customer_id === $user_id ) {
-			return true;
-		}
-
-		if ( $this->guard->is_guardian_of( $user_id, (int) $series->customer_id ) ) {
 			return true;
 		}
 

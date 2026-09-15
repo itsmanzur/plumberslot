@@ -241,8 +241,7 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		return (array) $this->db->get_results(
 			$this->db->prepare(
-				'SELECT * FROM ' . $this->table() . ' WHERE customer_id = %d OR parent_id = %d ORDER BY start_utc DESC',
-				$user_id,
+				'SELECT * FROM ' . $this->table() . ' WHERE customer_id = %d ORDER BY start_utc DESC',
 				$user_id
 			)
 		);
@@ -259,16 +258,6 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	/**
-	 * Bookings for confirmed children of this parent.
-	 *
-	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
-	 * @return array{items:list<object>,total:int,page:int,per_page:int}
-	 */
-	public function find_for_family( int $parent_id, array $filters = array() ): array {
-		return $this->paginated_list( 'family', $parent_id, $filters );
-	}
-
-	/**
 	 * Bookings taught by this technician.
 	 *
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
@@ -282,7 +271,7 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	 * Scope controls every SQL identifier and fragment in this query builder.
 	 * Callers may supply values only; arbitrary clauses are never accepted.
 	 *
-	 * @param 'customer'|'family'|'technician'                                                      $scope   Ownership scope.
+	 * @param 'customer'|'technician'                                                      $scope   Ownership scope.
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
 	 * @return array{items:list<object>,total:int,page:int,per_page:int}
 	 */
@@ -292,22 +281,15 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		$offset   = ( $page - 1 ) * $per_page;
 		$table    = $this->table();
 
-		if ( 'family' === $scope ) {
-			$relations    = Schema::table( Schema::RELATIONS );
-			$owner_clause = 'r.parent_id = %d AND r.confirmed = 1';
-			$from_sql     = $table . ' b INNER JOIN ' . $relations . ' r ON r.student_id = b.customer_id';
-			$alias        = 'b.';
-		} elseif ( 'technician' === $scope ) {
+		if ( 'technician' === $scope ) {
 			$owner_clause = 'technician_id = %d';
-			$from_sql     = $table;
-			$alias        = '';
 		} elseif ( 'customer' === $scope ) {
 			$owner_clause = 'customer_id = %d';
-			$from_sql     = $table;
-			$alias        = '';
 		} else {
 			throw new \InvalidArgumentException( 'Unknown booking list scope.' );
 		}
+
+		$from_sql = $table;
 
 		$where  = array( $owner_clause );
 		$params = array( $owner_id );
@@ -316,17 +298,17 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		$status = $filters['status'] ?? null;
 
 		if ( is_string( $from ) && '' !== $from ) {
-			$where[]  = $alias . 'start_utc >= %s';
+			$where[]  = 'start_utc >= %s';
 			$params[] = $from;
 		}
 
 		if ( is_string( $to ) && '' !== $to ) {
-			$where[]  = $alias . 'start_utc < %s';
+			$where[]  = 'start_utc < %s';
 			$params[] = $to;
 		}
 
 		if ( is_string( $status ) && '' !== $status ) {
-			$where[]  = $alias . 'status = %s';
+			$where[]  = 'status = %s';
 			$params[] = $status;
 		}
 
@@ -335,9 +317,9 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- prepared below with whitelist tables.
 		$total = (int) $this->db->get_var( $this->db->prepare( $count_sql, $params ) );
 
-		$select_sql = 'SELECT ' . ( 'family' === $scope ? 'b.*' : '*' ) . ' FROM ' . $from_sql
+		$select_sql = 'SELECT * FROM ' . $from_sql
 			. ' WHERE ' . $where_sql
-			. ' ORDER BY ' . $alias . 'start_utc ASC'
+			. ' ORDER BY start_utc ASC'
 			. ' LIMIT %d OFFSET %d';
 
 		$list_params   = $params;
