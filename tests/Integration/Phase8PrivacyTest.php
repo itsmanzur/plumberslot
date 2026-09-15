@@ -10,8 +10,7 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Tests\Integration;
 
 use PlumberSlot\Database\Repository\BookingRepository;
-use PlumberSlot\Database\Repository\RelationRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Privacy\PrivacyHooks;
 use PlumberSlot\Support\AuditLog;
@@ -20,7 +19,7 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 
 	private BookingRepository $bookings;
 	private PrivacyHooks $privacy;
-	private int $tutor_id;
+	private int $technician_id;
 
 	public function set_up(): void {
 		parent::set_up();
@@ -29,12 +28,12 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$this->bookings = new BookingRepository();
 		$this->privacy  = new PrivacyHooks( $this->bookings );
 
-		$tutor_user_id  = self::factory()->user->create();
-		$this->tutor_id = ( new TutorRepository() )->create(
+		$technician_user_id  = self::factory()->user->create();
+		$this->technician_id = ( new TechnicianRepository() )->create(
 			array(
-				'user_id'      => $tutor_user_id,
-				'slug'         => 'phase8-privacy-' . $tutor_user_id,
-				'display_name' => 'Phase 8 Privacy Tutor',
+				'user_id'      => $technician_user_id,
+				'slug'         => 'phase8-privacy-' . $technician_user_id,
+				'display_name' => 'Phase 8 Privacy Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
@@ -66,28 +65,21 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'accounting, tax, fraud prevention or dispute resolution', $policy );
 	}
 
-	public function test_export_paginates_bookings_relations_reviews_and_parent_data(): void {
+	public function test_export_paginates_bookings_and_reviews(): void {
 		global $wpdb;
 
 		$user_id     = self::factory()->user->create( array( 'user_email' => 'privacy-export@example.test' ) );
-		$parent_id   = self::factory()->user->create();
 		$booking_ids = array();
 
 		for ( $index = 0; $index < 21; $index++ ) {
-			$booking_ids[] = $this->create_booking(
-				20 === $index ? $parent_id : $user_id,
-				20 === $index ? $user_id : $parent_id,
-				$index,
-				'Private lesson note ' . $index
-			);
+			$booking_ids[] = $this->create_booking( $user_id, $index, 'Private appointment note ' . $index );
 		}
 
-		( new RelationRepository() )->invite( $parent_id, $user_id, 'guardian' );
 		$wpdb->insert(
 			Schema::table( Schema::REVIEWS ),
 			array(
 				'booking_id' => $booking_ids[0],
-				'tutor_id'   => $this->tutor_id,
+				'technician_id' => $this->technician_id,
 				'author_id'  => $user_id,
 				'rating'     => 5,
 				'body'       => 'A private review body',
@@ -108,35 +100,30 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 
 		$this->assertCount( 20, $page_one['data'] );
 		$this->assertFalse( $page_one['done'] );
-		$this->assertCount( 3, $page_two['data'] );
+		$this->assertCount( 2, $page_two['data'] );
 		$this->assertTrue( $page_two['done'] );
-		$this->assertCount( 23, array_unique( $item_ids ) );
+		$this->assertCount( 22, array_unique( $item_ids ) );
 		$this->assertContains( 'plumberslot-bookings', $groups );
-		$this->assertContains( 'plumberslot-relations', $groups );
 		$this->assertContains( 'plumberslot-reviews', $groups );
 
 		$first_booking = $this->find_export_item( $all, 'booking-' . $booking_ids[0] );
-		$this->assertStringContainsString( 'Student', wp_json_encode( $first_booking['data'] ) );
-		$this->assertStringContainsString( 'Private lesson note 0', wp_json_encode( $first_booking['data'] ) );
-
-		$parent_booking = $this->find_export_item( $all, 'booking-' . $booking_ids[20] );
-		$this->assertStringContainsString( 'Paying parent', wp_json_encode( $parent_booking['data'] ) );
+		$this->assertStringContainsString( 'Customer', wp_json_encode( $first_booking['data'] ) );
+		$this->assertStringContainsString( 'Private appointment note 0', wp_json_encode( $first_booking['data'] ) );
 	}
 
 	public function test_eraser_anonymizes_all_personal_links_without_losing_accounting_data(): void {
 		global $wpdb;
 
-		$user_id         = self::factory()->user->create( array( 'user_email' => 'privacy-erase@example.test' ) );
-		$other_id        = self::factory()->user->create();
-		$student_booking = $this->create_booking( $user_id, $other_id, 0, 'Student private note', 1250, 'pay-student' );
-		$parent_booking  = $this->create_booking( $other_id, $user_id, 2, 'Parent private note', 2400, 'pay-parent' );
+		$user_id       = self::factory()->user->create( array( 'user_email' => 'privacy-erase@example.test' ) );
+		$other_id      = self::factory()->user->create();
+		$user_booking  = $this->create_booking( $user_id, 0, 'Customer private note', 1250, 'pay-customer' );
+		$other_booking = $this->create_booking( $other_id, 2, 'Unrelated private note', 2400, 'pay-other' );
 
-		( new RelationRepository() )->invite( $user_id, $other_id, 'guardian' );
 		$wpdb->insert(
 			Schema::table( Schema::REVIEWS ),
 			array(
-				'booking_id' => $student_booking,
-				'tutor_id'   => $this->tutor_id,
+				'booking_id' => $user_booking,
+				'technician_id' => $this->technician_id,
 				'author_id'  => $user_id,
 				'rating'     => 4,
 				'body'       => 'Erase this review body',
@@ -147,8 +134,8 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$wpdb->insert(
 			Schema::table( Schema::SERIES ),
 			array(
-				'tutor_id'    => $this->tutor_id,
-				'student_id'  => $user_id,
+				'technician_id'    => $this->technician_id,
+				'customer_id'  => $user_id,
 				'rrule'       => 'FREQ=WEEKLY',
 				'total_count' => 4,
 				'created_at'  => gmdate( 'Y-m-d H:i:s' ),
@@ -158,8 +145,8 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 			Schema::table( Schema::CREDITS ),
 			array(
 				'owner_id'    => $user_id,
-				'tutor_id'    => $this->tutor_id,
-				'subject_id'  => null,
+				'technician_id'    => $this->technician_id,
+				'service_id'  => null,
 				'total'       => 10,
 				'used'        => 3,
 				'price_minor' => 7500,
@@ -174,7 +161,7 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 					'actor_id'    => $user_id,
 					'action'      => 'privacy.fixture',
 					'object_type' => 'booking',
-					'object_id'   => $student_booking,
+					'object_id'   => $user_booking,
 					'ip_hash'     => hash( 'sha256', 'private-ip-' . $index ),
 					'meta'        => wp_json_encode( array( 'email' => 'privacy-erase@example.test' ) ),
 					'created_at'  => gmdate( 'Y-m-d H:i:s' ),
@@ -196,25 +183,22 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$this->assertTrue( $first['items_retained'] );
 		$this->assertNotEmpty( $first['messages'] );
 
-		$student_row = $this->bookings->find( $student_booking );
-		$parent_row  = $this->bookings->find( $parent_booking );
-		$this->assertSame( 0, (int) $student_row->student_id );
-		$this->assertSame( $other_id, (int) $student_row->parent_id );
-		$this->assertNull( $student_row->notes );
-		$this->assertSame( 1250, (int) $student_row->price_minor );
-		$this->assertSame( 'pay-student', $student_row->payment_ref );
-		$this->assertSame( $other_id, (int) $parent_row->student_id );
-		$this->assertNull( $parent_row->parent_id );
-		$this->assertNull( $parent_row->notes );
-		$this->assertSame( 2400, (int) $parent_row->price_minor );
-		$this->assertSame( 'pay-parent', $parent_row->payment_ref );
+		$user_row  = $this->bookings->find( $user_booking );
+		$other_row = $this->bookings->find( $other_booking );
+		$this->assertSame( 0, (int) $user_row->customer_id );
+		$this->assertNull( $user_row->notes );
+		$this->assertSame( 1250, (int) $user_row->price_minor );
+		$this->assertSame( 'pay-customer', $user_row->payment_ref );
+		$this->assertSame( $other_id, (int) $other_row->customer_id );
+		$this->assertSame( 'Unrelated private note', $other_row->notes );
+		$this->assertSame( 2400, (int) $other_row->price_minor );
+		$this->assertSame( 'pay-other', $other_row->payment_ref );
 
-		$this->assertSame( 0, $this->count_for_user( Schema::RELATIONS, 'parent_id', $user_id ) );
 		$review = $wpdb->get_row( 'SELECT * FROM ' . Schema::table( Schema::REVIEWS ) . ' LIMIT 1' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- integration-test table.
 		$this->assertSame( 0, (int) $review->author_id );
 		$this->assertNull( $review->body );
 		$this->assertSame( 4, (int) $review->rating );
-		$this->assertSame( 0, $this->count_for_user( Schema::SERIES, 'student_id', $user_id ) );
+		$this->assertSame( 0, $this->count_for_user( Schema::SERIES, 'customer_id', $user_id ) );
 		$this->assertSame( 0, $this->count_for_user( Schema::CREDITS, 'owner_id', $user_id ) );
 		$this->assertSame( 0, $this->count_for_user( Schema::AUDIT, 'actor_id', $user_id ) );
 		$this->assertSame( 25, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::table( Schema::AUDIT ) . ' WHERE actor_id = 0 AND ip_hash IS NULL AND meta IS NULL' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
@@ -234,8 +218,7 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 	}
 
 	private function create_booking(
-		int $student_id,
-		?int $parent_id,
+		int $customer_id,
 		int $offset,
 		string $notes,
 		int $price_minor = 1000,
@@ -244,15 +227,14 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$start = gmdate( 'Y-m-d H:i:s', time() + ( ( 48 + ( $offset * 2 ) ) * HOUR_IN_SECONDS ) );
 		$id    = $this->bookings->insert_unique(
 			array(
-				'tutor_id'      => $this->tutor_id,
-				'student_id'    => $student_id,
-				'parent_id'     => $parent_id,
-				'subject_id'    => null,
+				'technician_id' => $this->technician_id,
+				'customer_id'   => $customer_id,
+				'service_id'    => null,
 				'series_id'     => null,
 				'series_index'  => null,
 				'start_utc'     => $start,
 				'end_utc'       => gmdate( 'Y-m-d H:i:s', strtotime( $start ) + HOUR_IN_SECONDS ),
-				'student_tz'    => 'UTC',
+				'customer_tz'   => 'UTC',
 				'status'        => 'completed',
 				'price_minor'   => $price_minor,
 				'currency'      => 'USD',
@@ -286,7 +268,7 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 	private function count_for_user( string $table_key, string $column, int $user_id ): int {
 		global $wpdb;
 
-		$allowed = array( 'parent_id', 'student_id', 'author_id', 'owner_id', 'actor_id' );
+		$allowed = array( 'customer_id', 'author_id', 'owner_id', 'actor_id' );
 		$this->assertContains( $column, $allowed );
 		$table = Schema::table( $table_key );
 

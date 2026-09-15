@@ -28,7 +28,7 @@ test( 'renders stored technician, service, and review payloads as text', () => {
 				from_price_minor: 0,
 				currency: 'USD',
 				rating: 5,
-				lesson_count: 1,
+				job_count: 1,
 				years_teaching: 1,
 				response_time: PAYLOAD,
 				languages: [ PAYLOAD ],
@@ -82,6 +82,6 @@ test( 'does not expose an executable meeting URL', () => {
 	);
 
 	expect( root.querySelector( 'a[href^="javascript:"]' ) ).toBeNull();
-	expect( root.textContent ).not.toContain( 'Join lesson' );
+	expect( root.textContent ).not.toContain( 'Join appointment' );
 	expect( window.__plumberslotXss ).toBe( 0 );
 } );

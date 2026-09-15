@@ -14,8 +14,8 @@ use DateTimeZone;
 use PlumberSlot\Database\Repository\AvailabilityRepository;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\LockRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Support\Capabilities;
 use PlumberSlot\Support\Settings;
@@ -33,9 +33,9 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	private const BUDGET_MS    = 300.0;
 	private const SAMPLE_COUNT = 25;
 
-	private int $tutor_id;
-	private int $subject_id;
-	private int $student_id;
+	private int $technician_id;
+	private int $service_id;
+	private int $customer_id;
 	private LockRepository $locks;
 
 	public function set_up(): void {
@@ -55,23 +55,23 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 			)
 		);
 
-		$tutor_user_id    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$this->student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$this->tutor_id   = ( new TutorRepository() )->create(
+		$technician_user_id    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$this->customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$this->technician_id   = ( new TechnicianRepository() )->create(
 			array(
-				'user_id'           => $tutor_user_id,
-				'slug'              => 'booking-performance-tutor',
-				'display_name'      => 'Booking Performance Tutor',
+				'user_id'           => $technician_user_id,
+				'slug'              => 'booking-performance-technician',
+				'display_name'      => 'Booking Performance Technician',
 				'timezone'          => 'UTC',
 				'hourly_rate_minor' => 4500,
 				'currency'          => 'USD',
 				'status'            => 'active',
 			)
 		);
-		$this->subject_id = ( new SubjectRepository() )->create(
-			$this->tutor_id,
+		$this->service_id = ( new ServiceRepository() )->create(
+			$this->technician_id,
 			array(
-				'name'         => 'Performance Mathematics',
+				'name'         => 'Performance Drain Cleaning',
 				'duration_min' => 60,
 				'price_minor'  => 4500,
 				'status'       => 'active',
@@ -79,8 +79,8 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 		);
 		$this->locks      = new LockRepository();
 
-		self::assertGreaterThan( 0, $this->tutor_id );
-		self::assertGreaterThan( 0, $this->subject_id );
+		self::assertGreaterThan( 0, $this->technician_id );
+		self::assertGreaterThan( 0, $this->service_id );
 
 		$rules = array();
 		for ( $weekday = 0; $weekday < 7; $weekday++ ) {
@@ -91,7 +91,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 			);
 		}
 
-		self::assertTrue( ( new AvailabilityRepository() )->replace_week( $this->tutor_id, $rules ) );
+		self::assertTrue( ( new AvailabilityRepository() )->replace_week( $this->technician_id, $rules ) );
 	}
 
 	public function tear_down(): void {
@@ -111,13 +111,13 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 
 		for ( $sample = 0; $sample < self::SAMPLE_COUNT; $sample++ ) {
 			$start = $first_day->modify( '+' . $sample . ' days' );
-			wp_set_current_user( $this->student_id );
+			wp_set_current_user( $this->customer_id );
 			$this->clear_rate_limit();
 
 			// Holding the slot is a separate request; verification and consumption are timed below.
 			$token = $this->locks->acquire(
-				$this->tutor_id,
-				$this->student_id,
+				$this->technician_id,
+				$this->customer_id,
 				Time::sql( $start ),
 				10
 			);
@@ -133,7 +133,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 			self::assertGreaterThan( 0, $booking_id );
 			self::assertSame( 'pending_payment', $data['status'] ?? null );
 			self::assertSame( 'unpaid', $data['payment'] ?? null );
-			self::assertFalse( $this->locks->verify( $token, $this->tutor_id, $this->student_id, Time::sql( $start ) ) );
+			self::assertFalse( $this->locks->verify( $token, $this->technician_id, $this->customer_id, Time::sql( $start ) ) );
 
 			$samples[]     = $elapsed;
 			$booking_ids[] = $booking_id;
@@ -169,8 +169,8 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id'   => $this->tutor_id,
-				'subject_id' => $this->subject_id,
+				'technician_id'   => $this->technician_id,
+				'service_id' => $this->service_id,
 				'start'      => $start->format( DATE_ATOM ),
 				'timezone'   => 'UTC',
 				'lock_token' => $token,
@@ -195,7 +195,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	}
 
 	private function clear_rate_limit(): void {
-		$key = 'plumberslot_rl_' . md5( 'create_booking|u' . $this->student_id );
+		$key = 'plumberslot_rl_' . md5( 'create_booking|u' . $this->customer_id );
 		delete_transient( $key );
 	}
 

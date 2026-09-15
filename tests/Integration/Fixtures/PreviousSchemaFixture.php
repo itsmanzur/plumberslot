@@ -19,15 +19,14 @@ final class PreviousSchemaFixture {
 	/** @return list<string> */
 	public static function table_keys(): array {
 		return array(
-			Schema::TUTORS,
-			Schema::SUBJECTS,
+			Schema::TECHNICIANS,
+			Schema::SERVICES,
 			Schema::AVAILABILITY,
 			Schema::EXCEPTIONS,
 			Schema::BOOKINGS,
 			Schema::SERIES,
 			Schema::LOCKS,
 			Schema::CREDITS,
-			Schema::RELATIONS,
 			Schema::REVIEWS,
 			Schema::AUDIT,
 		);

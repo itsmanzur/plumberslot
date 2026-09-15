@@ -15,8 +15,8 @@ use PlumberSlot\Database\Repository\AvailabilityRepository;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\CreditRepository;
 use PlumberSlot\Database\Repository\LockRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Database\TransactionManager;
 use PlumberSlot\Domain\BookingService;
@@ -43,8 +43,8 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	private LockRepository $locks;
 	private CreditRepository $credits;
 	private AvailabilityRepository $availability;
-	private TutorRepository $tutors;
-	private SubjectRepository $subjects;
+	private TechnicianRepository $technicians;
+	private ServiceRepository $services;
 
 	public function set_up(): void {
 		parent::set_up();
@@ -57,8 +57,8 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$this->locks       = new LockRepository();
 		$this->credits     = new CreditRepository();
 		$this->availability = new AvailabilityRepository();
-		$this->tutors      = new TutorRepository();
-		$this->subjects     = new SubjectRepository();
+		$this->technicians      = new TechnicianRepository();
+		$this->services     = new ServiceRepository();
 
 		Settings::update(
 			array(
@@ -68,7 +68,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 				'buffer_minutes'           => 0,
 				'slot_cache_ttl'           => 60,
 				'auto_confirm'             => true,
-				'allow_student_reschedule' => false,
+				'allow_customer_reschedule' => false,
 			)
 		);
 
@@ -83,81 +83,81 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_two_inserts_on_the_same_slot_produce_one_booking(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 1 );
-		$data       = $this->booking_row( $tutor_id, $student_id, $start );
+		$data       = $this->booking_row( $technician_id, $customer_id, $start );
 
 		$winner = $this->bookings->insert_unique( $data );
 		$loser  = ( new BookingRepository() )->insert_unique( $data );
 
 		self::assertIsInt( $winner );
 		self::assertNull( $loser );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $start ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $start ) );
 	}
 
 	public function test_the_loser_receives_a_409_not_a_fatal(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_a  = self::factory()->user->create();
-		$student_b  = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_a  = self::factory()->user->create();
+		$customer_b  = self::factory()->user->create();
 		$start      = $this->future_start( 2 );
 
-		$this->open_window( $tutor_id, $start );
+		$this->open_window( $technician_id, $start );
 
-		$winner = $this->service()->create( $this->booking_args( $tutor_id, $student_a, $start ) );
-		$loser  = $this->service()->create( $this->booking_args( $tutor_id, $student_b, $start ) );
+		$winner = $this->service()->create( $this->booking_args( $technician_id, $customer_a, $start ) );
+		$loser  = $this->service()->create( $this->booking_args( $technician_id, $customer_b, $start ) );
 
 		self::assertIsInt( $winner );
 		self::assertInstanceOf( WP_Error::class, $loser );
 		self::assertSame( 'plumberslot_slot_taken', $loser->get_error_code() );
 		self::assertSame( 409, $loser->get_error_data()['status'] );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $start ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $start ) );
 	}
 
 	public function test_an_overlapping_start_is_rejected_but_an_adjacent_start_is_allowed(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_a = self::factory()->user->create();
-		$student_b = self::factory()->user->create();
-		$student_c = self::factory()->user->create();
+		$technician_id  = $this->create_technician();
+		$customer_a = self::factory()->user->create();
+		$customer_b = self::factory()->user->create();
+		$customer_c = self::factory()->user->create();
 		$start     = $this->future_start( 2 );
 
-		$this->open_window( $tutor_id, $start );
+		$this->open_window( $technician_id, $start );
 
-		$winner   = $this->service()->create( $this->booking_args( $tutor_id, $student_a, $start ) );
-		$overlap  = $this->service()->create( $this->booking_args( $tutor_id, $student_b, $start->modify( '+30 minutes' ) ) );
-		$adjacent = $this->service()->create( $this->booking_args( $tutor_id, $student_c, $start->modify( '+60 minutes' ) ) );
+		$winner   = $this->service()->create( $this->booking_args( $technician_id, $customer_a, $start ) );
+		$overlap  = $this->service()->create( $this->booking_args( $technician_id, $customer_b, $start->modify( '+30 minutes' ) ) );
+		$adjacent = $this->service()->create( $this->booking_args( $technician_id, $customer_c, $start->modify( '+60 minutes' ) ) );
 
 		self::assertIsInt( $winner );
 		self::assertInstanceOf( WP_Error::class, $overlap );
 		self::assertSame( 'plumberslot_slot_taken', $overlap->get_error_code() );
 		self::assertSame( 409, $overlap->get_error_data()['status'] );
 		self::assertIsInt( $adjacent );
-		self::assertSame( 2, $this->booking_total( $tutor_id ) );
+		self::assertSame( 2, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_no_overlapping_active_lessons_can_be_created_or_moved(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_a = self::factory()->user->create();
-		$student_b = self::factory()->user->create();
-		$student_c = self::factory()->user->create();
+	public function test_no_overlapping_active_appointments_can_be_created_or_moved(): void {
+		$technician_id  = $this->create_technician();
+		$customer_a = self::factory()->user->create();
+		$customer_b = self::factory()->user->create();
+		$customer_c = self::factory()->user->create();
 		$start     = $this->future_start( 40 );
 
-		$this->open_window( $tutor_id, $start, 240 );
+		$this->open_window( $technician_id, $start, 240 );
 
-		$first = $this->service()->create( $this->booking_args( $tutor_id, $student_a, $start ) );
+		$first = $this->service()->create( $this->booking_args( $technician_id, $customer_a, $start ) );
 		self::assertIsInt( $first );
 
-		// Starts earlier and runs into the first lesson.
+		// Starts earlier and runs into the first appointment.
 		$wraps_start = $this->service()->create(
-			$this->booking_args( $tutor_id, $student_b, $start->modify( '-30 minutes' ), 60 )
+			$this->booking_args( $technician_id, $customer_b, $start->modify( '-30 minutes' ), 60 )
 		);
-		// Contained inside the first lesson.
+		// Contained inside the first appointment.
 		$contained = $this->service()->create(
-			$this->booking_args( $tutor_id, $student_b, $start->modify( '+15 minutes' ), 30 )
+			$this->booking_args( $technician_id, $customer_b, $start->modify( '+15 minutes' ), 30 )
 		);
-		// Starts inside the first lesson and finishes after it.
+		// Starts inside the first appointment and finishes after it.
 		$extends_past = $this->service()->create(
-			$this->booking_args( $tutor_id, $student_b, $start->modify( '+30 minutes' ), 60 )
+			$this->booking_args( $technician_id, $customer_b, $start->modify( '+30 minutes' ), 60 )
 		);
 
 		self::assertInstanceOf( WP_Error::class, $wraps_start );
@@ -165,7 +165,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertInstanceOf( WP_Error::class, $extends_past );
 
 		$second = $this->service()->create(
-			$this->booking_args( $tutor_id, $student_b, $start->modify( '+60 minutes' ) )
+			$this->booking_args( $technician_id, $customer_b, $start->modify( '+60 minutes' ) )
 		);
 		self::assertIsInt( $second );
 
@@ -177,90 +177,90 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertTrue( $moved_adjacent );
 
 		$third = $this->service()->create(
-			$this->booking_args( $tutor_id, $student_c, $start->modify( '+60 minutes' ) )
+			$this->booking_args( $technician_id, $customer_c, $start->modify( '+60 minutes' ) )
 		);
 		self::assertIsInt( $third );
 
-		self::assertSame( 0, $this->active_overlap_pairs( $tutor_id ) );
-		self::assertSame( 3, $this->active_booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->active_overlap_pairs( $technician_id ) );
+		self::assertSame( 3, $this->active_booking_total( $technician_id ) );
 	}
 
 	public function test_a_held_slot_cannot_be_booked_by_someone_else(): void {
-		$tutor_id     = $this->create_tutor();
+		$technician_id     = $this->create_technician();
 		$holder_id    = self::factory()->user->create();
 		$other_id     = self::factory()->user->create();
 		$start        = $this->future_start( 3 );
 		$start_sql    = Time::sql( $start );
 
-		$this->open_window( $tutor_id, $start );
-		$token = $this->locks->acquire( $tutor_id, $holder_id, $start_sql, 10 );
+		$this->open_window( $technician_id, $start );
+		$token = $this->locks->acquire( $technician_id, $holder_id, $start_sql, 10 );
 
 		self::assertNotNull( $token );
-		self::assertTrue( $this->locks->verify( $token, $tutor_id, $holder_id, $start_sql ) );
+		self::assertTrue( $this->locks->verify( $token, $technician_id, $holder_id, $start_sql ) );
 
 		wp_set_current_user( $other_id );
-		$result = $this->service()->create( $this->booking_args( $tutor_id, $other_id, $start ) );
+		$result = $this->service()->create( $this->booking_args( $technician_id, $other_id, $start ) );
 
 		self::assertInstanceOf( WP_Error::class, $result );
 		self::assertSame( 'plumberslot_slot_taken', $result->get_error_code() );
 		self::assertSame( 409, $result->get_error_data()['status'] );
-		self::assertSame( 0, $this->booking_count( $tutor_id, $start ) );
-		self::assertTrue( $this->locks->verify( $token, $tutor_id, $holder_id, $start_sql ) );
+		self::assertSame( 0, $this->booking_count( $technician_id, $start ) );
+		self::assertTrue( $this->locks->verify( $token, $technician_id, $holder_id, $start_sql ) );
 
 		wp_set_current_user( $holder_id );
 	}
 
 	public function test_an_expired_hold_releases_the_slot(): void {
-		$tutor_id  = $this->create_tutor();
+		$technician_id  = $this->create_technician();
 		$owner_id  = self::factory()->user->create();
 		$start_sql = Time::sql( $this->future_start( 4 ) );
-		$expired   = $this->locks->acquire( $tutor_id, $owner_id, $start_sql, -1 );
+		$expired   = $this->locks->acquire( $technician_id, $owner_id, $start_sql, -1 );
 
 		self::assertNotNull( $expired );
-		self::assertFalse( $this->locks->verify( $expired, $tutor_id, $owner_id, $start_sql ) );
+		self::assertFalse( $this->locks->verify( $expired, $technician_id, $owner_id, $start_sql ) );
 		self::assertSame( 1, $this->locks->purge_expired() );
 
-		$fresh = $this->locks->acquire( $tutor_id, $owner_id, $start_sql, 10 );
+		$fresh = $this->locks->acquire( $technician_id, $owner_id, $start_sql, 10 );
 
 		self::assertNotNull( $fresh );
 		self::assertNotSame( $expired, $fresh );
-		self::assertTrue( $this->locks->verify( $fresh, $tutor_id, $owner_id, $start_sql ) );
+		self::assertTrue( $this->locks->verify( $fresh, $technician_id, $owner_id, $start_sql ) );
 	}
 
 	public function test_a_hold_token_can_only_be_used_by_its_owner(): void {
-		$tutor_id = $this->create_tutor();
+		$technician_id = $this->create_technician();
 		$holder   = self::factory()->user->create();
 		$thief    = self::factory()->user->create();
 		$start    = $this->future_start( 5 );
 		$start_sql = Time::sql( $start );
 
-		$this->open_window( $tutor_id, $start );
-		$token = $this->locks->acquire( $tutor_id, $holder, $start_sql, 10 );
+		$this->open_window( $technician_id, $start );
+		$token = $this->locks->acquire( $technician_id, $holder, $start_sql, 10 );
 		self::assertNotNull( $token );
 
 		wp_set_current_user( $thief );
-		$stolen_args               = $this->booking_args( $tutor_id, $thief, $start );
+		$stolen_args               = $this->booking_args( $technician_id, $thief, $start );
 		$stolen_args['lock_token'] = $token;
 		$stolen                    = $this->service()->create( $stolen_args );
 
 		self::assertInstanceOf( WP_Error::class, $stolen );
 		self::assertSame( 'plumberslot_lock_expired', $stolen->get_error_code() );
 		self::assertSame( 409, $stolen->get_error_data()['status'] );
-		self::assertTrue( $this->locks->verify( $token, $tutor_id, $holder, $start_sql ) );
+		self::assertTrue( $this->locks->verify( $token, $technician_id, $holder, $start_sql ) );
 
 		wp_set_current_user( $holder );
-		$owned_args               = $this->booking_args( $tutor_id, $holder, $start );
+		$owned_args               = $this->booking_args( $technician_id, $holder, $start );
 		$owned_args['lock_token'] = $token;
 		$owned                    = $this->service()->create( $owned_args );
 
 		self::assertIsInt( $owned );
-		self::assertFalse( $this->locks->verify( $token, $tutor_id, $holder, $start_sql ) );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $start ) );
+		self::assertFalse( $this->locks->verify( $token, $technician_id, $holder, $start_sql ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $start ) );
 	}
 
 	public function test_the_hold_endpoint_rejects_a_closed_time(): void {
-		$tutor_id = $this->create_tutor();
-		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id = $this->create_technician();
+		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start    = $this->future_start( 6 );
 
 		wp_set_current_user( $user_id );
@@ -269,7 +269,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id' => $tutor_id,
+				'technician_id' => $technician_id,
 				'start'    => $start->format( DATE_ATOM ),
 			)
 		);
@@ -280,24 +280,24 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 409, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_slot_taken', $data['code'] );
-		self::assertSame( 0, $this->lock_total( $tutor_id ) );
+		self::assertSame( 0, $this->lock_total( $technician_id ) );
 	}
 
 	public function test_the_hold_endpoint_records_the_current_user_as_owner(): void {
 		global $wpdb;
 
-		$tutor_id = $this->create_tutor();
-		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id = $this->create_technician();
+		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start    = $this->future_start( 7 );
 
-		$this->open_window( $tutor_id, $start );
+		$this->open_window( $technician_id, $start );
 		wp_set_current_user( $user_id );
 
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id' => $tutor_id,
+				'technician_id' => $technician_id,
 				'start'    => $start->format( DATE_ATOM ),
 			)
 		);
@@ -320,7 +320,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertTrue(
 			$this->locks->verify(
 				(string) $data['token'],
-				$tutor_id,
+				$technician_id,
 				$user_id,
 				Time::sql( $start )
 			)
@@ -328,44 +328,44 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_repeated_hold_abuse_is_rate_limited_per_user(): void {
-		$tutor_id = $this->create_tutor();
-		$abuser   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$other    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id = $this->create_technician();
+		$abuser   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$other    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start    = $this->future_start( 36 );
 
-		$this->open_window( $tutor_id, $start, 180 );
+		$this->open_window( $technician_id, $start, 180 );
 
-		$first = $this->post_hold( $abuser, $tutor_id, $start );
+		$first = $this->post_hold( $abuser, $technician_id, $start );
 
 		self::assertSame( 200, $first->get_status() );
 
 		for ( $attempt = 2; $attempt <= 10; ++$attempt ) {
-			$response = $this->post_hold( $abuser, $tutor_id, $start );
+			$response = $this->post_hold( $abuser, $technician_id, $start );
 
 			self::assertSame( 409, $response->get_status() );
 		}
 
-		$blocked = $this->post_hold( $abuser, $tutor_id, $start );
+		$blocked = $this->post_hold( $abuser, $technician_id, $start );
 		$data    = $blocked->get_data();
 
 		self::assertSame( 429, $blocked->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_too_many', $data['code'] );
-		self::assertSame( 1, $this->lock_total( $tutor_id ) );
+		self::assertSame( 1, $this->lock_total( $technician_id ) );
 
-		$separate_bucket = $this->post_hold( $other, $tutor_id, $start->modify( '+60 minutes' ) );
+		$separate_bucket = $this->post_hold( $other, $technician_id, $start->modify( '+60 minutes' ) );
 
 		self::assertSame( 200, $separate_bucket->get_status() );
-		self::assertSame( 2, $this->lock_total( $tutor_id ) );
+		self::assertSame( 2, $this->lock_total( $technician_id ) );
 	}
 
 	public function test_the_hold_owner_can_release_their_hold(): void {
-		$tutor_id = $this->create_tutor();
-		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id = $this->create_technician();
+		$user_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start    = $this->future_start( 7 );
 
-		$this->open_window( $tutor_id, $start );
-		$token = $this->locks->acquire( $tutor_id, $user_id, Time::sql( $start ), 10 );
+		$this->open_window( $technician_id, $start );
+		$token = $this->locks->acquire( $technician_id, $user_id, Time::sql( $start ), 10 );
 		self::assertNotNull( $token );
 		wp_set_current_user( $user_id );
 
@@ -376,17 +376,17 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 200, $response->get_status() );
 		self::assertSame( array( 'released' => true ), $response->get_data() );
-		self::assertFalse( $this->locks->verify( $token, $tutor_id, $user_id, Time::sql( $start ) ) );
+		self::assertFalse( $this->locks->verify( $token, $technician_id, $user_id, Time::sql( $start ) ) );
 	}
 
 	public function test_another_user_cannot_release_someone_elses_hold(): void {
-		$tutor_id = $this->create_tutor();
-		$owner_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$other_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id = $this->create_technician();
+		$owner_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$other_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start    = $this->future_start( 7 );
 
-		$this->open_window( $tutor_id, $start );
-		$token = $this->locks->acquire( $tutor_id, $owner_id, Time::sql( $start ), 10 );
+		$this->open_window( $technician_id, $start );
+		$token = $this->locks->acquire( $technician_id, $owner_id, Time::sql( $start ), 10 );
 		self::assertNotNull( $token );
 		wp_set_current_user( $other_id );
 
@@ -396,30 +396,30 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = rest_do_request( $request );
 
 		self::assertSame( 404, $response->get_status() );
-		self::assertTrue( $this->locks->verify( $token, $tutor_id, $owner_id, Time::sql( $start ) ) );
+		self::assertTrue( $this->locks->verify( $token, $technician_id, $owner_id, Time::sql( $start ) ) );
 	}
 
-	public function test_booking_accepts_a_subject_owned_by_the_selected_tutor(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create( $tutor_id, array( 'name' => 'Mathematics' ) );
+	public function test_booking_accepts_a_service_owned_by_the_selected_technician(): void {
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create( $technician_id, array( 'name' => 'Mathematics' ) );
 		$start      = $this->future_start( 18 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 
 		self::assertSame( 201, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertArrayHasKey( 'id', $data );
-		self::assertSame( $subject_id, (int) $this->bookings->find( (int) $data['id'] )->subject_id );
+		self::assertSame( $service_id, (int) $this->bookings->find( (int) $data['id'] )->service_id );
 	}
 
-	public function test_booking_uses_duration_from_the_subject_record(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+	public function test_booking_uses_duration_from_the_service_record(): void {
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
 				'name'         => 'Extended Mathematics',
 				'duration_min' => 90,
@@ -427,8 +427,8 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 		$start = $this->future_start( 19 );
 
-		$this->open_window( $tutor_id, $start, 120, 0 );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start, 120, 0 );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 		$booking  = $this->bookings->find( (int) $data['id'] );
 
@@ -438,11 +438,11 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( Time::sql( $start->modify( '+90 minutes' ) ), $booking->end_utc );
 	}
 
-	public function test_booking_uses_price_from_the_subject_record(): void {
-		$tutor_id   = $this->create_tutor( array( 'hourly_rate_minor' => 9999 ) );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+	public function test_booking_uses_price_from_the_service_record(): void {
+		$technician_id   = $this->create_technician( array( 'hourly_rate_minor' => 9999 ) );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
 				'name'        => 'Physics',
 				'price_minor' => 4500,
@@ -450,8 +450,8 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 		$start = $this->future_start( 21 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 		$booking  = $this->bookings->find( (int) $data['id'] );
 
@@ -461,11 +461,11 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 'unpaid', $data['payment'] );
 	}
 
-	public function test_booking_uses_currency_from_the_tutor_record(): void {
-		$tutor_id   = $this->create_tutor( array( 'currency' => 'BDT' ) );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+	public function test_booking_uses_currency_from_the_technician_record(): void {
+		$technician_id   = $this->create_technician( array( 'currency' => 'BDT' ) );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
 				'name'        => 'Chemistry',
 				'price_minor' => 120000,
@@ -473,17 +473,21 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 		$start = $this->future_start( 23 );
 
-		$this->open_window( $tutor_id, $start );
+		$this->open_window( $technician_id, $start );
 
-		wp_set_current_user( $student_id );
+		wp_set_current_user( $customer_id );
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id'   => $tutor_id,
-				'subject_id' => $subject_id,
-				'start'      => $start->format( DATE_ATOM ),
-				'currency'   => 'USD',
+				'technician_id' => $technician_id,
+				'service_id'    => $service_id,
+				'start'         => $start->format( DATE_ATOM ),
+				'currency'      => 'USD',
+				'address_line1' => '742 Evergreen Terrace',
+				'address_city'  => 'Springfield',
+				'address_state' => 'IL',
+				'address_zip'   => '62704',
 			)
 		);
 
@@ -494,13 +498,18 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 201, $response->get_status() );
 		self::assertNotNull( $booking );
 		self::assertSame( 'BDT', $booking->currency );
+		self::assertSame( '742 Evergreen Terrace', $data['address_line1'] );
+		self::assertSame( 'Springfield', $data['address_city'] );
+		self::assertSame( 'IL', $data['address_state'] );
+		self::assertSame( '62704', $data['address_zip'] );
+		self::assertSame( '742 Evergreen Terrace', $booking->address_line1 );
 	}
 
 	public function test_booking_ignores_client_supplied_price_and_duration(): void {
-		$tutor_id   = $this->create_tutor( array( 'hourly_rate_minor' => 9999 ) );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+		$technician_id   = $this->create_technician( array( 'hourly_rate_minor' => 9999 ) );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
 				'name'         => 'Biology',
 				'duration_min' => 45,
@@ -509,19 +518,23 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 		$start = $this->future_start( 25 );
 
-		$this->open_window( $tutor_id, $start, 120, 0 );
+		$this->open_window( $technician_id, $start, 120, 0 );
 
-		wp_set_current_user( $student_id );
+		wp_set_current_user( $customer_id );
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id'     => $tutor_id,
-				'subject_id'   => $subject_id,
-				'start'        => $start->format( DATE_ATOM ),
-				'duration_min' => 15,
-				'price_minor'  => 1,
-				'price'        => 0.01,
+				'technician_id' => $technician_id,
+				'service_id'    => $service_id,
+				'start'         => $start->format( DATE_ATOM ),
+				'duration_min'  => 15,
+				'price_minor'   => 1,
+				'price'         => 0.01,
+				'address_line1' => '1 Infinite Loop',
+				'address_city'  => 'Cupertino',
+				'address_state' => 'CA',
+				'address_zip'   => '95014',
 			)
 		);
 
@@ -535,59 +548,59 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( Time::sql( $start->modify( '+45 minutes' ) ), $booking->end_utc );
 	}
 
-	public function test_booking_rejects_a_subject_owned_by_another_tutor(): void {
-		$tutor_id       = $this->create_tutor();
-		$other_tutor_id = $this->create_tutor();
-		$student_id     = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id     = $this->subjects->create( $other_tutor_id, array( 'name' => 'Physics' ) );
+	public function test_booking_rejects_a_service_owned_by_another_technician(): void {
+		$technician_id       = $this->create_technician();
+		$other_technician_id = $this->create_technician();
+		$customer_id     = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id     = $this->services->create( $other_technician_id, array( 'name' => 'Physics' ) );
 		$start          = $this->future_start( 20 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_not_found', $data['code'] );
-		self::assertSame( 0, $this->booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_booking_hides_whether_a_requested_subject_is_missing(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_booking_hides_whether_a_requested_service_is_missing(): void {
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = $this->future_start( 22 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, 999999, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, 999999, $start );
 		$data     = $response->get_data();
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_not_found', $data['code'] );
-		self::assertSame( 0, $this->booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_booking_rejects_an_inactive_tutor(): void {
-		$tutor_id   = $this->create_tutor( array( 'status' => 'disabled' ) );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create( $tutor_id, array( 'name' => 'History' ) );
+	public function test_booking_rejects_an_inactive_technician(): void {
+		$technician_id   = $this->create_technician( array( 'status' => 'disabled' ) );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create( $technician_id, array( 'name' => 'History' ) );
 		$start      = $this->future_start( 24 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_not_found', $data['code'] );
-		self::assertSame( 0, $this->booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_booking_rejects_an_inactive_subject(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+	public function test_booking_rejects_an_inactive_service(): void {
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
 				'name'   => 'Geography',
 				'status' => 'inactive',
@@ -595,32 +608,32 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 		$start = $this->future_start( 26 );
 
-		$this->open_window( $tutor_id, $start );
-		$response = $this->post_booking( $student_id, $tutor_id, $subject_id, $start );
+		$this->open_window( $technician_id, $start );
+		$response = $this->post_booking( $customer_id, $technician_id, $service_id, $start );
 		$data     = $response->get_data();
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
 		self::assertSame( 'plumberslot_not_found', $data['code'] );
-		self::assertSame( 0, $this->booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_booking_allows_one_free_trial_per_student(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$subject_id = $this->subjects->create(
-			$tutor_id,
+	public function test_booking_allows_one_free_estimate_per_customer(): void {
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$service_id = $this->services->create(
+			$technician_id,
 			array(
-				'name'        => 'Trial Lesson',
-				'is_trial'    => 1,
+				'name'        => 'Free Estimate Visit',
+				'is_free_estimate'    => 1,
 				'price_minor' => 5000,
 			)
 		);
 		$first_start  = $this->future_start( 28 );
 		$second_start = $this->future_start( 30 );
 
-		$this->open_window( $tutor_id, $first_start );
-		$first = $this->post_booking( $student_id, $tutor_id, $subject_id, $first_start );
+		$this->open_window( $technician_id, $first_start );
+		$first = $this->post_booking( $customer_id, $technician_id, $service_id, $first_start );
 		$first_data = $first->get_data();
 		$booking    = $this->bookings->find( (int) $first_data['id'] );
 
@@ -629,23 +642,23 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 0, (int) $booking->price_minor );
 		self::assertSame( 'free', $first_data['payment'] );
 
-		$this->open_window( $tutor_id, $second_start );
-		$second = $this->post_booking( $student_id, $tutor_id, $subject_id, $second_start );
+		$this->open_window( $technician_id, $second_start );
+		$second = $this->post_booking( $customer_id, $technician_id, $service_id, $second_start );
 		$data   = $second->get_data();
 
 		self::assertSame( 409, $second->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'plumberslot_trial_used', $data['code'] );
-		self::assertSame( 1, $this->booking_total( $tutor_id ) );
+		self::assertSame( 'plumberslot_free_estimate_used', $data['code'] );
+		self::assertSame( 1, $this->booking_total( $technician_id ) );
 	}
 
 	public function test_cookie_authenticated_booking_write_requires_nonce(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = $this->future_start( 32 );
 
-		$this->open_window( $tutor_id, $start );
-		wp_set_current_user( $student_id );
+		$this->open_window( $technician_id, $start );
+		wp_set_current_user( $customer_id );
 
 		$_COOKIE[ LOGGED_IN_COOKIE ] = 'integration-test';
 
@@ -653,8 +666,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 			$request->set_body_params(
 				array(
-					'tutor_id' => $tutor_id,
-					'start'    => $start->format( DATE_ATOM ),
+					'technician_id' => $technician_id,
+					'start'         => $start->format( DATE_ATOM ),
+					'address_line1' => '221B Baker Street',
+					'address_city'  => 'London',
+					'address_state' => 'LDN',
+					'address_zip'   => 'NW1 6XE',
 				)
 			);
 
@@ -664,20 +681,20 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertSame( 403, $response->get_status() );
 			self::assertIsArray( $data );
 			self::assertSame( 'plumberslot_bad_nonce', $data['code'] );
-			self::assertSame( 0, $this->booking_total( $tutor_id ) );
+			self::assertSame( 0, $this->booking_total( $technician_id ) );
 		} finally {
 			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
 		}
 	}
 
 	public function test_an_outsider_cannot_read_or_mutate_a_booking_by_id(): void {
-		$tutor_id  = $this->create_tutor();
-		$student   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$outsider  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id  = $this->create_technician();
+		$customer   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$outsider  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start     = $this->future_start( 38 );
 
-		$this->open_window( $tutor_id, $start, 240 );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student, $start ) );
+		$this->open_window( $technician_id, $start, 240 );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer, $start ) );
 
 		self::assertIsInt( $booking_id );
 
@@ -719,19 +736,19 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertNotNull( $booking );
 		self::assertSame( 'confirmed', $booking->status );
 		self::assertSame( Time::sql( $start ), $booking->start_utc );
-		self::assertSame( 1, $this->booking_total( $tutor_id ) );
+		self::assertSame( 1, $this->booking_total( $technician_id ) );
 	}
 
-	public function test_a_tutor_cannot_mutate_another_tutors_booking_by_id(): void {
-		$owner_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$owner_id   = $this->create_tutor_for_user( $owner_user );
-		$other_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$this->create_tutor_for_user( $other_user );
-		$student    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_a_technician_cannot_mutate_another_technicians_booking_by_id(): void {
+		$owner_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$owner_id   = $this->create_technician_for_user( $owner_user );
+		$other_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$this->create_technician_for_user( $other_user );
+		$customer    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = $this->future_start( 39 );
 
 		$this->open_window( $owner_id, $start );
-		$booking_id = $this->service()->create( $this->booking_args( $owner_id, $student, $start ) );
+		$booking_id = $this->service()->create( $this->booking_args( $owner_id, $customer, $start ) );
 
 		self::assertIsInt( $booking_id );
 
@@ -746,7 +763,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 				$other_user,
 				'POST',
 				'/plumberslot/v1/bookings/' . $booking_id . '/notes',
-				array( 'notes' => 'Injected by another tutor' )
+				array( 'notes' => 'Injected by another technician' )
 			),
 			$this->authenticated_request( $other_user, 'POST', '/plumberslot/v1/payments/booking/' . $booking_id . '/refund' ),
 		);
@@ -766,19 +783,19 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertNull( $booking->payment_ref );
 	}
 
-	public function test_student_reschedule_respects_the_site_setting(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_customer_reschedule_respects_the_site_setting(): void {
+		$technician_id  = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$old_start  = $this->future_start( 40 );
 		$new_start  = $old_start->modify( '+1 day' );
 
-		$this->open_window( $tutor_id, $old_start );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $old_start ) );
+		$this->open_window( $technician_id, $old_start );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $old_start ) );
 		self::assertIsInt( $booking_id );
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 
 		$disabled = $this->authenticated_request(
-			$student_id,
+			$customer_id,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
@@ -787,11 +804,11 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 403, $disabled->get_status() );
 		self::assertSame( 'plumberslot_reschedule_disabled', $disabled->get_data()['code'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
+		self::assertSame( 0, $this->booking_count( $technician_id, $new_start ) );
 
-		Settings::update( array( 'allow_student_reschedule' => true ) );
+		Settings::update( array( 'allow_customer_reschedule' => true ) );
 		$enabled = $this->authenticated_request(
-			$student_id,
+			$customer_id,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
@@ -799,23 +816,23 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 200, $enabled->get_status() );
 		self::assertSame( 'moved', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $new_start ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $new_start ) );
 	}
 
-	public function test_owner_tutor_can_reschedule_when_student_rescheduling_is_disabled(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_owner_technician_can_reschedule_when_customer_rescheduling_is_disabled(): void {
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$old_start  = $this->future_start( 42 );
 		$new_start  = $old_start->modify( '+1 day' );
 
-		$this->open_window( $tutor_id, $old_start );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $old_start ) );
+		$this->open_window( $technician_id, $old_start );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $old_start ) );
 		self::assertIsInt( $booking_id );
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
@@ -823,40 +840,40 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 200, $response->get_status() );
 		self::assertSame( 'moved', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $new_start ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $new_start ) );
 	}
 
-	public function test_student_can_cancel_their_own_confirmed_booking(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_customer_can_cancel_their_own_confirmed_booking(): void {
+		$technician_id  = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = $this->future_start( 44 );
 
-		$this->open_window( $tutor_id, $start );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $start ) );
+		$this->open_window( $technician_id, $start );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $start ) );
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$student_id,
+			$customer_id,
 			'DELETE',
 			'/plumberslot/v1/bookings/' . $booking_id
 		);
 
 		self::assertSame( 200, $response->get_status() );
 		self::assertSame( 'cancelled', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->audit_action_count( 'booking.cancelled', $booking_id, $student_id ) );
+		self::assertSame( 1, $this->audit_action_count( 'booking.cancelled', $booking_id, $customer_id ) );
 	}
 
-	public function test_owner_tutor_can_complete_an_ended_confirmed_booking_idempotently(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_owner_technician_can_complete_an_ended_confirmed_booking_idempotently(): void {
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) );
-		$booking_id = $this->bookings->insert_unique( $this->booking_row( $tutor_id, $student_id, $start ) );
+		$booking_id = $this->bookings->insert_unique( $this->booking_row( $technician_id, $customer_id, $start ) );
 
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
@@ -864,31 +881,31 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 200, $response->get_status() );
 		self::assertSame( 'completed', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->audit_action_count( 'booking.completed', $booking_id, $tutor_user ) );
+		self::assertSame( 1, $this->audit_action_count( 'booking.completed', $booking_id, $technician_user ) );
 
 		$replay = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
 		self::assertSame( 200, $replay->get_status() );
-		self::assertSame( 1, $this->audit_action_count( 'booking.completed', $booking_id, $tutor_user ) );
+		self::assertSame( 1, $this->audit_action_count( 'booking.completed', $booking_id, $technician_user ) );
 	}
 
-	public function test_confirmed_booking_cannot_be_completed_before_lesson_end(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_confirmed_booking_cannot_be_completed_before_appointment_end(): void {
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$booking_id = $this->bookings->insert_unique(
-			$this->booking_row( $tutor_id, $student_id, $this->future_start( 1 ) )
+			$this->booking_row( $technician_id, $customer_id, $this->future_start( 1 ) )
 		);
 
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
@@ -901,12 +918,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_only_confirmed_booking_can_transition_to_completed(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$row        = $this->booking_row(
-			$tutor_id,
-			$student_id,
+			$technician_id,
+			$customer_id,
 			new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) )
 		);
 		$row['status'] = 'cancelled';
@@ -915,7 +932,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
@@ -929,10 +946,10 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 	public function test_site_manager_can_complete_an_ended_confirmed_booking(): void {
 		$manager_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) );
-		$booking_id = $this->bookings->insert_unique( $this->booking_row( $tutor_id, $student_id, $start ) );
+		$booking_id = $this->bookings->insert_unique( $this->booking_row( $technician_id, $customer_id, $start ) );
 
 		self::assertIsInt( $booking_id );
 
@@ -948,17 +965,17 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 1, $this->audit_action_count( 'booking.completed', $booking_id, $manager_id ) );
 	}
 
-	public function test_owner_tutor_can_mark_an_ended_confirmed_booking_no_show_idempotently(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_owner_technician_can_mark_an_ended_confirmed_booking_no_show_idempotently(): void {
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) );
-		$booking_id = $this->bookings->insert_unique( $this->booking_row( $tutor_id, $student_id, $start ) );
+		$booking_id = $this->bookings->insert_unique( $this->booking_row( $technician_id, $customer_id, $start ) );
 
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
@@ -966,31 +983,31 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 200, $response->get_status() );
 		self::assertSame( 'no_show', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->audit_action_count( 'booking.no_show', $booking_id, $tutor_user ) );
+		self::assertSame( 1, $this->audit_action_count( 'booking.no_show', $booking_id, $technician_user ) );
 
 		$replay = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
 		self::assertSame( 200, $replay->get_status() );
-		self::assertSame( 1, $this->audit_action_count( 'booking.no_show', $booking_id, $tutor_user ) );
+		self::assertSame( 1, $this->audit_action_count( 'booking.no_show', $booking_id, $technician_user ) );
 	}
 
-	public function test_confirmed_booking_cannot_be_marked_no_show_before_lesson_end(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+	public function test_confirmed_booking_cannot_be_marked_no_show_before_appointment_end(): void {
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$booking_id = $this->bookings->insert_unique(
-			$this->booking_row( $tutor_id, $student_id, $this->future_start( 1 ) )
+			$this->booking_row( $technician_id, $customer_id, $this->future_start( 1 ) )
 		);
 
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
@@ -1003,12 +1020,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_completed_booking_cannot_transition_to_no_show(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->create_tutor_for_user( $tutor_user );
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->create_technician_for_user( $technician_user );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$row        = $this->booking_row(
-			$tutor_id,
-			$student_id,
+			$technician_id,
+			$customer_id,
 			new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) )
 		);
 		$row['status'] = 'completed';
@@ -1017,7 +1034,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertIsInt( $booking_id );
 
 		$response = $this->authenticated_request(
-			$tutor_user,
+			$technician_user,
 			'POST',
 			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
@@ -1031,10 +1048,10 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 	public function test_site_manager_can_mark_an_ended_confirmed_booking_no_show(): void {
 		$manager_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start      = new DateTimeImmutable( '-2 hours', new DateTimeZone( 'UTC' ) );
-		$booking_id = $this->bookings->insert_unique( $this->booking_row( $tutor_id, $student_id, $start ) );
+		$booking_id = $this->bookings->insert_unique( $this->booking_row( $technician_id, $customer_id, $start ) );
 
 		self::assertIsInt( $booking_id );
 
@@ -1051,14 +1068,14 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_closed_lifecycle_states_cannot_be_changed_by_booking_operations(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$statuses   = array( 'completed', 'no_show', 'moved', 'cancelled', 'refunded', 'payment_expired' );
 		$service    = $this->service();
 
 		foreach ( $statuses as $offset => $status ) {
 			$start         = new DateTimeImmutable( '-' . ( $offset + 2 ) . ' days 10:00:00', new DateTimeZone( 'UTC' ) );
-			$row           = $this->booking_row( $tutor_id, $student_id, $start );
+			$row           = $this->booking_row( $technician_id, $customer_id, $start );
 			$row['status'] = $status;
 			$booking_id    = $this->bookings->insert_unique( $row );
 
@@ -1091,48 +1108,45 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_bookings_list_scopes_are_isolated(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$tutor_id   = $this->tutors->create(
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$technician_id   = $this->technicians->create(
 			array(
-				'user_id'      => $tutor_user,
-				'slug'         => 'tutor-scope-' . $tutor_user,
-				'display_name' => 'Scope Tutor',
+				'user_id'      => $technician_user,
+				'slug'         => 'technician-scope-' . $technician_user,
+				'display_name' => 'Scope Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
 		);
-		$parent_id  = self::factory()->user->create( array( 'role' => Capabilities::ROLE_PARENT ) );
-		$child_id   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$other_id   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$start      = $this->future_start( 34 );
+		$customer_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$other_id    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$start       = $this->future_start( 34 );
 
 		Capabilities::add_all();
-		$this->insert_relation( $parent_id, $child_id, true );
-		$this->insert_relation( $parent_id, $other_id, false );
 
-		$this->open_window( $tutor_id, $start );
-		$child_booking = $this->service()->create( $this->booking_args( $tutor_id, $child_id, $start ) );
+		$this->open_window( $technician_id, $start );
+		$own_booking   = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $start ) );
 		$other_booking = $this->service()->create(
-			$this->booking_args( $tutor_id, $other_id, $start->modify( '+1 hour' ) )
+			$this->booking_args( $technician_id, $other_id, $start->modify( '+1 hour' ) )
 		);
 
-		self::assertIsInt( $child_booking );
+		self::assertIsInt( $own_booking );
 		self::assertIsInt( $other_booking );
 
-		$mine = $this->list_bookings( $child_id, 'mine' );
+		$mine = $this->list_bookings( $customer_id, 'mine' );
 		self::assertSame( 200, $mine->get_status() );
-		self::assertSame( array( $child_booking ), $this->booking_ids( $mine ) );
+		self::assertSame( array( $own_booking ), $this->booking_ids( $mine ) );
 
-		$family = $this->list_bookings( $parent_id, 'family' );
-		self::assertSame( 200, $family->get_status() );
-		self::assertSame( array( $child_booking ), $this->booking_ids( $family ) );
+		$others_mine = $this->list_bookings( $other_id, 'mine' );
+		self::assertSame( 200, $others_mine->get_status() );
+		self::assertSame( array( $other_booking ), $this->booking_ids( $others_mine ) );
 
-		$teaching = $this->list_bookings( $tutor_user, 'teaching' );
+		$teaching = $this->list_bookings( $technician_user, 'teaching' );
 		self::assertSame( 200, $teaching->get_status() );
-		self::assertSame( array( $child_booking, $other_booking ), $this->booking_ids( $teaching ) );
+		self::assertSame( array( $own_booking, $other_booking ), $this->booking_ids( $teaching ) );
 
 		$paged = $this->list_bookings(
-			$tutor_user,
+			$technician_user,
 			'teaching',
 			array(
 				'per_page' => 1,
@@ -1147,41 +1161,38 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 2, (int) $paged_data['total'] );
 		self::assertSame( 2, (int) $paged_data['page'] );
 		self::assertSame( array( $other_booking ), $this->booking_ids( $paged ) );
-
-		$stranger = $this->list_bookings( $other_id, 'family' );
-		self::assertSame( array(), $this->booking_ids( $stranger ) );
 	}
 
 	public function test_booking_filters_remain_values_and_table_keys_are_whitelisted(): void {
-		$tutor_id  = $this->create_tutor();
-		$student   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
+		$technician_id  = $this->create_technician();
+		$customer   = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
 		$start     = $this->future_start( 41 );
 
-		$this->open_window( $tutor_id, $start, 180 );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student, $start ) );
+		$this->open_window( $technician_id, $start, 180 );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer, $start ) );
 
 		self::assertIsInt( $booking_id );
 
-		$injected = $this->bookings->find_for_student(
-			$student,
+		$injected = $this->bookings->find_for_customer(
+			$customer,
 			array( 'status' => "confirmed' OR 1=1 --" )
 		);
-		$normal   = $this->bookings->find_for_student( $student );
+		$normal   = $this->bookings->find_for_customer( $customer );
 
 		self::assertSame( 0, $injected['total'] );
 		self::assertSame( array(), $injected['items'] );
 		self::assertSame( 1, $normal['total'] );
 		self::assertSame( $booking_id, (int) $normal['items'][0]->id );
-		self::assertSame( 1, $this->booking_total( $tutor_id ) );
+		self::assertSame( 1, $this->booking_total( $technician_id ) );
 
 		$this->expectException( \InvalidArgumentException::class );
 		Schema::table( 'plumberslot_bookings; DROP TABLE wp_users' );
 	}
 
 	public function test_booking_csv_export_records_the_privileged_read(): void {
-		$tutor_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$this->create_tutor_for_user( $tutor_user );
-		wp_set_current_user( $tutor_user );
+		$technician_user = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$this->create_technician_for_user( $technician_user );
+		wp_set_current_user( $technician_user );
 
 		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/bookings/export' );
 		$request->set_param( 'scope', 'teaching' );
@@ -1198,8 +1209,8 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		}
 
 		$this->assertNotNull( $event );
-		$this->assertSame( $tutor_user, (int) $event->actor_id );
-		$this->assertSame( $tutor_user, (int) $event->object_id );
+		$this->assertSame( $technician_user, (int) $event->actor_id );
+		$this->assertSame( $technician_user, (int) $event->object_id );
 		$this->assertSame(
 			array(
 				'count' => 0,
@@ -1212,7 +1223,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	public function test_a_credit_cannot_be_overdrawn_by_competing_consumers(): void {
 		global $wpdb;
 
-		$tutor_id = $this->create_tutor();
+		$technician_id = $this->create_technician();
 		$owner_id = self::factory()->user->create();
 		$table     = Schema::table( Schema::CREDITS );
 
@@ -1220,7 +1231,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			$table,
 			array(
 				'owner_id'   => $owner_id,
-				'tutor_id'   => $tutor_id,
+				'technician_id'   => $technician_id,
 				'total'      => 1,
 				'used'       => 0,
 				'created_at' => gmdate( 'Y-m-d H:i:s' ),
@@ -1241,35 +1252,35 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_booking_creation_and_credit_spend_commit_together(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id  = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 8 );
-		$credit_id  = $this->create_credit( $student_id, $tutor_id, 1, 0 );
+		$credit_id  = $this->create_credit( $customer_id, $technician_id, 1, 0 );
 
-		$this->open_window( $tutor_id, $start );
-		wp_set_current_user( $student_id );
+		$this->open_window( $technician_id, $start );
+		wp_set_current_user( $customer_id );
 
-		$args                   = $this->booking_args( $tutor_id, $student_id, $start );
+		$args                   = $this->booking_args( $technician_id, $customer_id, $start );
 		$args['credit_id']      = $credit_id;
 		$args['consume_credit'] = true;
 		$result                 = $this->service()->create( $args );
 
 		self::assertIsInt( $result );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $start ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $start ) );
 		self::assertSame( $credit_id, (int) $this->bookings->find( $result )->credit_id );
 		self::assertSame( 1, $this->credit_used( $credit_id ) );
 	}
 
 	public function test_credit_failure_rolls_back_the_booking_insert(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id  = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 9 );
-		$credit_id  = $this->create_credit( $student_id, $tutor_id, 1, 1 );
+		$credit_id  = $this->create_credit( $customer_id, $technician_id, 1, 1 );
 
-		$this->open_window( $tutor_id, $start );
-		wp_set_current_user( $student_id );
+		$this->open_window( $technician_id, $start );
+		wp_set_current_user( $customer_id );
 
-		$args                   = $this->booking_args( $tutor_id, $student_id, $start );
+		$args                   = $this->booking_args( $technician_id, $customer_id, $start );
 		$args['credit_id']      = $credit_id;
 		$args['consume_credit'] = true;
 		$result                 = $this->service()->create( $args );
@@ -1277,44 +1288,44 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertInstanceOf( WP_Error::class, $result );
 		self::assertSame( 'plumberslot_no_credits', $result->get_error_code() );
 		self::assertSame( 409, $result->get_error_data()['status'] );
-		self::assertSame( 0, $this->booking_count( $tutor_id, $start ) );
+		self::assertSame( 0, $this->booking_count( $technician_id, $start ) );
 		self::assertSame( 1, $this->credit_used( $credit_id ) );
 	}
 
 	public function test_reschedule_creation_and_moved_transition_commit_together(): void {
-		$tutor_id  = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id  = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$old_start  = $this->future_start( 10 );
 		$new_start  = $old_start->modify( '+1 day' );
 
-		$this->open_window( $tutor_id, $old_start );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $old_start ) );
+		$this->open_window( $technician_id, $old_start );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $old_start ) );
 		self::assertIsInt( $booking_id );
 
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 		$result = $this->service()->reschedule( $booking_id, $new_start );
 
 		self::assertTrue( $result );
 		self::assertSame( 'moved', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 1, $this->booking_count( $tutor_id, $new_start ) );
-		self::assertSame( 2, $this->booking_total( $tutor_id ) );
+		self::assertSame( 1, $this->booking_count( $technician_id, $new_start ) );
+		self::assertSame( 2, $this->booking_total( $technician_id ) );
 	}
 
 	public function test_reschedule_preserves_confirmed_payment_identity(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$old_start  = $this->future_start( 11 );
 		$new_start  = $old_start->modify( '+1 day' );
-		$row        = $this->booking_row( $tutor_id, $student_id, $old_start );
+		$row        = $this->booking_row( $technician_id, $customer_id, $old_start );
 		$row['price_minor'] = 7500;
 		$row['payment_ref'] = 'paid-before-reschedule';
 		$booking_id         = $this->bookings->insert_unique( $row );
 
 		self::assertIsInt( $booking_id );
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 		self::assertTrue( $this->service()->reschedule( $booking_id, $new_start ) );
 
-		$new_id  = $this->booking_id_at( $tutor_id, $new_start );
+		$new_id  = $this->booking_id_at( $technician_id, $new_start );
 		$booking = $this->bookings->find( $new_id );
 
 		self::assertGreaterThan( 0, $new_id );
@@ -1327,16 +1338,16 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	public function test_failed_moved_transition_rolls_back_the_rescheduled_booking(): void {
 		global $wpdb;
 
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$old_start  = $this->future_start( 12 );
 		$new_start  = $old_start->modify( '+1 day' );
 
-		$this->open_window( $tutor_id, $old_start );
-		$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $old_start ) );
+		$this->open_window( $technician_id, $old_start );
+		$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $old_start ) );
 		self::assertIsInt( $booking_id );
 
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 
 		$previous_errors = $wpdb->suppress_errors( true );
 		$table           = Schema::table( Schema::BOOKINGS );
@@ -1360,26 +1371,26 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 'plumberslot_database_error', $result->get_error_code() );
 		self::assertSame( 500, $result->get_error_data()['status'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
-		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
-		self::assertSame( 1, $this->booking_total( $tutor_id ) );
+		self::assertSame( 0, $this->booking_count( $technician_id, $new_start ) );
+		self::assertSame( 1, $this->booking_total( $technician_id ) );
 	}
 
 	public function test_only_confirmed_bookings_can_be_moved_or_cancelled(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$old_start  = $this->future_start( 13 );
 		$new_start  = $old_start->modify( '+1 day' );
-		$row        = $this->booking_row( $tutor_id, $student_id, $old_start );
+		$row        = $this->booking_row( $technician_id, $customer_id, $old_start );
 		$row['status'] = 'completed';
 		$booking_id    = $this->bookings->insert_unique( $row );
 
 		self::assertIsInt( $booking_id );
-		$this->open_window( $tutor_id, $new_start );
+		$this->open_window( $technician_id, $new_start );
 
 		$moved = $this->service()->reschedule( $booking_id, $new_start );
 		self::assertInstanceOf( WP_Error::class, $moved );
 		self::assertSame( 'plumberslot_invalid_transition', $moved->get_error_code() );
-		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
+		self::assertSame( 0, $this->booking_count( $technician_id, $new_start ) );
 
 		$cancelled = $this->service()->cancel( $booking_id );
 		self::assertInstanceOf( WP_Error::class, $cancelled );
@@ -1389,13 +1400,13 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_confirmed_credit_booking_cancellation_is_atomic_and_idempotent(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 15 );
-		$credit_id  = $this->create_credit( $student_id, $tutor_id, 1, 0 );
+		$credit_id  = $this->create_credit( $customer_id, $technician_id, 1, 0 );
 
-		$this->open_window( $tutor_id, $start );
-		$args                   = $this->booking_args( $tutor_id, $student_id, $start );
+		$this->open_window( $technician_id, $start );
+		$args                   = $this->booking_args( $technician_id, $customer_id, $start );
 		$args['credit_id']      = $credit_id;
 		$args['consume_credit'] = true;
 		$booking_id             = $this->service()->create( $args );
@@ -1417,13 +1428,13 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	public function test_credit_refund_failure_rolls_back_cancellation(): void {
 		global $wpdb;
 
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 17 );
-		$credit_id  = $this->create_credit( $student_id, $tutor_id, 1, 0 );
+		$credit_id  = $this->create_credit( $customer_id, $technician_id, 1, 0 );
 
-		$this->open_window( $tutor_id, $start );
-		$args                   = $this->booking_args( $tutor_id, $student_id, $start );
+		$this->open_window( $technician_id, $start );
+		$args                   = $this->booking_args( $technician_id, $customer_id, $start );
 		$args['credit_id']      = $credit_id;
 		$args['consume_credit'] = true;
 		$booking_id             = $this->service()->create( $args );
@@ -1456,20 +1467,20 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_cancel_unschedules_reminders_and_cleans_the_meeting(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 14 );
 		$provider   = $this->fake_meeting_provider();
 		$filter     = $this->register_meeting_provider( $provider );
 
 		try {
-			$this->open_window( $tutor_id, $start );
-			$booking_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $start ) );
+			$this->open_window( $technician_id, $start );
+			$booking_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $start ) );
 			self::assertIsInt( $booking_id );
 
 			$reference = ProviderRegistry::reference( 'integration_test', 'cancel-me' );
 			$this->set_meeting_reference( $booking_id, $reference );
-			$generation = Cache::generation( $tutor_id );
+			$generation = Cache::generation( $technician_id );
 
 			self::assertTrue( $this->reminder_is_scheduled( $booking_id, '24h' ) );
 			self::assertTrue( $this->reminder_is_scheduled( $booking_id, '1h' ) );
@@ -1481,7 +1492,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertNull( $this->bookings->find( $booking_id )->meeting_ref );
 			self::assertFalse( $this->reminder_is_scheduled( $booking_id, '24h' ) );
 			self::assertFalse( $this->reminder_is_scheduled( $booking_id, '1h' ) );
-			self::assertGreaterThan( $generation, Cache::generation( $tutor_id ) );
+			self::assertGreaterThan( $generation, Cache::generation( $technician_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'booking.cancelled', $booking_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'meeting.cancelled', $booking_id ) );
 
@@ -1495,25 +1506,25 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_reschedule_replaces_reminders_and_cleans_the_old_meeting(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$old_start  = $this->future_start( 16 );
 		$new_start  = $old_start->modify( '+1 day' );
 		$provider   = $this->fake_meeting_provider();
 		$filter     = $this->register_meeting_provider( $provider );
 
 		try {
-			$this->open_window( $tutor_id, $old_start );
-			$old_id = $this->service()->create( $this->booking_args( $tutor_id, $student_id, $old_start ) );
+			$this->open_window( $technician_id, $old_start );
+			$old_id = $this->service()->create( $this->booking_args( $technician_id, $customer_id, $old_start ) );
 			self::assertIsInt( $old_id );
 
 			$reference = ProviderRegistry::reference( 'integration_test', 'move-me' );
 			$this->set_meeting_reference( $old_id, $reference );
-			$generation = Cache::generation( $tutor_id );
+			$generation = Cache::generation( $technician_id );
 
-			$this->open_window( $tutor_id, $new_start );
+			$this->open_window( $technician_id, $new_start );
 			$result = $this->service()->reschedule( $old_id, $new_start );
-			$new_id = $this->booking_id_at( $tutor_id, $new_start );
+			$new_id = $this->booking_id_at( $technician_id, $new_start );
 
 			self::assertTrue( $result );
 			self::assertGreaterThan( 0, $new_id );
@@ -1523,7 +1534,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertFalse( $this->reminder_is_scheduled( $old_id, '1h' ) );
 			self::assertTrue( $this->reminder_is_scheduled( $new_id, '24h' ) );
 			self::assertTrue( $this->reminder_is_scheduled( $new_id, '1h' ) );
-			self::assertGreaterThan( $generation, Cache::generation( $tutor_id ) );
+			self::assertGreaterThan( $generation, Cache::generation( $technician_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'booking.rescheduled', $old_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'meeting.cancelled', $old_id ) );
 		} finally {
@@ -1532,16 +1543,16 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	public function test_refund_unschedules_reminders_cleans_meeting_and_audits_once(): void {
-		$tutor_id   = $this->create_tutor();
-		$student_id = self::factory()->user->create();
+		$technician_id   = $this->create_technician();
+		$customer_id = self::factory()->user->create();
 		$start      = $this->future_start( 18 );
-		$credit_id  = $this->create_credit( $student_id, $tutor_id, 1, 0 );
+		$credit_id  = $this->create_credit( $customer_id, $technician_id, 1, 0 );
 		$provider   = $this->fake_meeting_provider();
 		$filter     = $this->register_meeting_provider( $provider );
 
 		try {
-			$this->open_window( $tutor_id, $start );
-			$args                   = $this->booking_args( $tutor_id, $student_id, $start );
+			$this->open_window( $technician_id, $start );
+			$args                   = $this->booking_args( $technician_id, $customer_id, $start );
 			$args['credit_id']      = $credit_id;
 			$args['consume_credit'] = true;
 			$booking_id             = $this->service()->create( $args );
@@ -1591,24 +1602,24 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @param array<string, mixed> $overrides Extra tutor column values.
+	 * @param array<string, mixed> $overrides Extra technician column values.
 	 */
-	private function create_tutor( array $overrides = array() ): int {
+	private function create_technician( array $overrides = array() ): int {
 		$user_id = self::factory()->user->create();
 
-		return $this->create_tutor_for_user( $user_id, $overrides );
+		return $this->create_technician_for_user( $user_id, $overrides );
 	}
 
 	/**
-	 * @param array<string, mixed> $overrides Extra tutor column values.
+	 * @param array<string, mixed> $overrides Extra technician column values.
 	 */
-	private function create_tutor_for_user( int $user_id, array $overrides = array() ): int {
-		return $this->tutors->create(
+	private function create_technician_for_user( int $user_id, array $overrides = array() ): int {
+		return $this->technicians->create(
 			array_merge(
 				array(
 					'user_id'      => $user_id,
-					'slug'         => 'tutor-' . $user_id,
-					'display_name' => 'Tutor ' . $user_id,
+					'slug'         => 'technician-' . $user_id,
+					'display_name' => 'Technician ' . $user_id,
 					'timezone'     => 'UTC',
 					'status'       => 'active',
 				),
@@ -1618,7 +1629,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	private function open_window(
-		int $tutor_id,
+		int $technician_id,
 		DateTimeImmutable $start,
 		int $length_min = 120,
 		int $lead_min = 60
@@ -1626,7 +1637,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$start_minute = ( (int) $start->format( 'H' ) * 60 ) + (int) $start->format( 'i' );
 
 		$this->availability->replace_week(
-			$tutor_id,
+			$technician_id,
 			array(
 				array(
 					'weekday'   => (int) $start->format( 'w' ),
@@ -1635,19 +1646,19 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 				),
 			)
 		);
-		Cache::forget_tutor( $tutor_id );
+		Cache::forget_technician( $technician_id );
 	}
 
 	/**
 	 * @return array<string, mixed>
 	 */
-	private function booking_row( int $tutor_id, int $student_id, DateTimeImmutable $start ): array {
+	private function booking_row( int $technician_id, int $customer_id, DateTimeImmutable $start ): array {
 		return array(
-			'tutor_id'      => $tutor_id,
-			'student_id'    => $student_id,
+			'technician_id'      => $technician_id,
+			'customer_id'    => $customer_id,
 			'start_utc'     => Time::sql( $start ),
 			'end_utc'       => Time::sql( $start->modify( '+60 minutes' ) ),
-			'student_tz'    => 'UTC',
+			'customer_tz'    => 'UTC',
 			'status'        => 'confirmed',
 			'price_minor'   => 0,
 			'currency'      => 'USD',
@@ -1658,16 +1669,15 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	/**
 	 * @return array<string, mixed>
 	 */
-	private function booking_args( int $tutor_id, int $student_id, DateTimeImmutable $start, int $duration_min = 60 ): array {
+	private function booking_args( int $technician_id, int $customer_id, DateTimeImmutable $start, int $duration_min = 60 ): array {
 		return array(
-			'tutor_id'       => $tutor_id,
-			'student_id'     => $student_id,
-			'parent_id'      => null,
-			'subject_id'     => null,
+			'technician_id'       => $technician_id,
+			'customer_id'     => $customer_id,
+			'service_id'     => null,
 			'start_utc'      => $start,
 			'duration_min'   => $duration_min,
-			'tutor_tz'       => 'UTC',
-			'student_tz'     => 'UTC',
+			'technician_tz'       => 'UTC',
+			'customer_tz'     => 'UTC',
 			'price_minor'    => 0,
 			'currency'       => 'USD',
 			'credit_id'      => null,
@@ -1677,7 +1687,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 	}
 
-	private function active_overlap_pairs( int $tutor_id ): int {
+	private function active_overlap_pairs( int $technician_id ): int {
 		global $wpdb;
 
 		$table = Schema::table( Schema::BOOKINGS );
@@ -1688,10 +1698,10 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is resolved from the schema whitelist.
 				"SELECT id, start_utc, end_utc FROM {$table}
-				 WHERE tutor_id = %d
+				 WHERE technician_id = %d
 				   AND status NOT IN ( 'cancelled', 'refunded', 'moved', 'payment_expired' )
 				 ORDER BY start_utc ASC, id ASC",
-				$tutor_id
+				$technician_id
 			)
 		);
 
@@ -1710,14 +1720,14 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		return $pairs;
 	}
 
-	private function create_credit( int $owner_id, int $tutor_id, int $total, int $used ): int {
+	private function create_credit( int $owner_id, int $technician_id, int $total, int $used ): int {
 		global $wpdb;
 
 		$wpdb->insert(
 			Schema::table( Schema::CREDITS ),
 			array(
 				'owner_id'   => $owner_id,
-				'tutor_id'   => $tutor_id,
+				'technician_id'   => $technician_id,
 				'total'      => $total,
 				'used'       => $used,
 				'created_at' => gmdate( 'Y-m-d H:i:s' ),
@@ -1751,13 +1761,13 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 	}
 
-	private function booking_id_at( int $tutor_id, DateTimeImmutable $start ): int {
+	private function booking_id_at( int $technician_id, DateTimeImmutable $start ): int {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT id FROM ' . Schema::table( Schema::BOOKINGS ) . ' WHERE tutor_id = %d AND start_utc = %s',
-				$tutor_id,
+				'SELECT id FROM ' . Schema::table( Schema::BOOKINGS ) . ' WHERE technician_id = %d AND start_utc = %s',
+				$technician_id,
 				Time::sql( $start )
 			)
 		);
@@ -1773,34 +1783,38 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	}
 
 	private function post_booking(
-		int $student_id,
-		int $tutor_id,
-		int $subject_id,
+		int $customer_id,
+		int $technician_id,
+		int $service_id,
 		DateTimeImmutable $start
 	): WP_REST_Response {
-		wp_set_current_user( $student_id );
+		wp_set_current_user( $customer_id );
 
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id'   => $tutor_id,
-				'subject_id' => $subject_id,
-				'start'      => $start->format( DATE_ATOM ),
+				'technician_id' => $technician_id,
+				'service_id'    => $service_id,
+				'start'         => $start->format( DATE_ATOM ),
+				'address_line1' => '10 Downing Street',
+				'address_city'  => 'London',
+				'address_state' => 'LDN',
+				'address_zip'   => 'SW1A 2AA',
 			)
 		);
 
 		return rest_do_request( $request );
 	}
 
-	private function post_hold( int $user_id, int $tutor_id, DateTimeImmutable $start ): WP_REST_Response {
+	private function post_hold( int $user_id, int $technician_id, DateTimeImmutable $start ): WP_REST_Response {
 		wp_set_current_user( $user_id );
 
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
-				'tutor_id' => $tutor_id,
+				'technician_id' => $technician_id,
 				'start'    => $start->format( DATE_ATOM ),
 			)
 		);
@@ -1855,22 +1869,6 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 	}
 
-	private function insert_relation( int $parent_id, int $student_id, bool $confirmed ): void {
-		global $wpdb;
-
-		$wpdb->insert(
-			Schema::table( Schema::RELATIONS ),
-			array(
-				'parent_id'  => $parent_id,
-				'student_id' => $student_id,
-				'relation'   => 'guardian',
-				'confirmed'  => $confirmed ? 1 : 0,
-				'created_at' => gmdate( 'Y-m-d H:i:s' ),
-			),
-			array( '%d', '%d', '%s', '%d', '%s' )
-		);
-	}
-
 	/**
 	 * @return ProviderInterface&object{cancelled:list<string>}
 	 */
@@ -1887,11 +1885,11 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 				return 'Integration Test';
 			}
 
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
 
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 				return 'unused';
 			}
 
@@ -1927,27 +1925,27 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		return ( new DateTimeImmutable( 'tomorrow 10:00:00', $zone ) )->modify( '+' . $days_ahead . ' days' );
 	}
 
-	private function booking_count( int $tutor_id, DateTimeImmutable $start ): int {
+	private function booking_count( int $technician_id, DateTimeImmutable $start ): int {
 		global $wpdb;
 
 		$table = Schema::table( Schema::BOOKINGS );
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT COUNT(*) FROM ' . $table . ' WHERE tutor_id = %d AND start_utc = %s',
-				$tutor_id,
+				'SELECT COUNT(*) FROM ' . $table . ' WHERE technician_id = %d AND start_utc = %s',
+				$technician_id,
 				Time::sql( $start )
 			)
 		);
 	}
 
-	private function booking_total( int $tutor_id ): int {
+	private function booking_total( int $technician_id ): int {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT COUNT(*) FROM ' . Schema::table( Schema::BOOKINGS ) . ' WHERE tutor_id = %d',
-				$tutor_id
+				'SELECT COUNT(*) FROM ' . Schema::table( Schema::BOOKINGS ) . ' WHERE technician_id = %d',
+				$technician_id
 			)
 		);
 	}
@@ -1968,26 +1966,26 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
 	}
 
-	private function active_booking_total( int $tutor_id ): int {
+	private function active_booking_total( int $technician_id ): int {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(*) FROM ' . Schema::table( Schema::BOOKINGS ) . "
-				 WHERE tutor_id = %d
+				 WHERE technician_id = %d
 				   AND status NOT IN ( 'cancelled', 'refunded', 'moved', 'payment_expired' )",
-				$tutor_id
+				$technician_id
 			)
 		);
 	}
 
-	private function lock_total( int $tutor_id ): int {
+	private function lock_total( int $technician_id ): int {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT COUNT(*) FROM ' . Schema::table( Schema::LOCKS ) . ' WHERE tutor_id = %d',
-				$tutor_id
+				'SELECT COUNT(*) FROM ' . Schema::table( Schema::LOCKS ) . ' WHERE technician_id = %d',
+				$technician_id
 			)
 		);
 	}

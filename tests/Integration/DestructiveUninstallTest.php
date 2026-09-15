@@ -25,13 +25,13 @@ final class DestructiveUninstallTest extends TestCase {
 		Activator::activate();
 		$this->assert_plugin_state_exists();
 
-		$tutors = Schema::table( Schema::TUTORS );
+		$technicians = Schema::table( Schema::TECHNICIANS );
 		$wpdb->insert(
-			$tutors,
+			$technicians,
 			array(
 				'user_id'      => 1,
 				'slug'         => 'destructive-uninstall-smoke',
-				'display_name' => 'Disposable Tutor',
+				'display_name' => 'Disposable Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 				'created_at'   => gmdate( 'Y-m-d H:i:s' ),
@@ -78,9 +78,8 @@ final class DestructiveUninstallTest extends TestCase {
 		self::assertFalse( get_transient( 'plumberslot_show_onboarding' ) );
 		self::assertFalse( wp_cache_get( 'uninstall-smoke', 'plumberslot' ) );
 
-		self::assertNull( get_role( Capabilities::ROLE_TUTOR ) );
-		self::assertNull( get_role( Capabilities::ROLE_STUDENT ) );
-		self::assertNull( get_role( Capabilities::ROLE_PARENT ) );
+		self::assertNull( get_role( Capabilities::ROLE_TECHNICIAN ) );
+		self::assertNull( get_role( Capabilities::ROLE_CUSTOMER ) );
 
 		$administrator = get_role( 'administrator' );
 		self::assertNotNull( $administrator );
@@ -102,9 +101,8 @@ final class DestructiveUninstallTest extends TestCase {
 
 		self::assertIsArray( get_option( 'plumberslot_settings', false ) );
 		self::assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
-		self::assertNotNull( get_role( Capabilities::ROLE_TUTOR ) );
-		self::assertNotNull( get_role( Capabilities::ROLE_STUDENT ) );
-		self::assertNotNull( get_role( Capabilities::ROLE_PARENT ) );
+		self::assertNotNull( get_role( Capabilities::ROLE_TECHNICIAN ) );
+		self::assertNotNull( get_role( Capabilities::ROLE_CUSTOMER ) );
 	}
 
 	private function table_exists( string $table ): bool {

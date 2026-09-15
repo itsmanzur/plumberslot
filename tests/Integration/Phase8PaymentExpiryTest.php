@@ -89,7 +89,7 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 		$this->assertSame( 'payment_expired', $this->bookings->find( (int) $booking->id )->status );
 
 		$replacement = $this->insert_booking(
-			(int) $booking->tutor_id,
+			(int) $booking->technician_id,
 			(string) $booking->start_utc,
 			(string) $booking->end_utc,
 			2800
@@ -219,18 +219,17 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 		);
 	}
 
-	private function insert_booking( int $tutor_id, string $start, string $end, int $amount ): ?int {
+	private function insert_booking( int $technician_id, string $start, string $end, int $amount ): ?int {
 		return $this->bookings->insert_unique(
 			array(
-				'tutor_id'      => $tutor_id,
-				'student_id'    => 81,
-				'parent_id'     => null,
-				'subject_id'    => null,
+				'technician_id'      => $technician_id,
+				'customer_id'    => 81,
+				'service_id'    => null,
 				'series_id'     => null,
 				'series_index'  => null,
 				'start_utc'     => $start,
 				'end_utc'       => $end,
-				'student_tz'    => 'UTC',
+				'customer_tz'    => 'UTC',
 				'status'        => 'pending_payment',
 				'price_minor'   => $amount,
 				'currency'      => 'USD',

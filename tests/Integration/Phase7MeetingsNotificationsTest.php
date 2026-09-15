@@ -10,10 +10,10 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Tests\Integration;
 
 use PlumberSlot\Database\Repository\BookingRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Domain\Contract\MeetingBookingStore;
-use PlumberSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Domain\Contract\TechnicianSource;
 use PlumberSlot\Domain\MeetingService;
 use PlumberSlot\Frontend\JoinRoute;
 use PlumberSlot\Meetings\MeetingCleanup;
@@ -193,13 +193,13 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 	public function test_meeting_service_skips_when_no_provider(): void {
 		$registry = new ProviderRegistry();
 		$bookings = $this->createMock( MeetingBookingStore::class );
-		$tutors   = $this->createMock( TutorSource::class );
-		$service  = new MeetingService( $registry, $bookings, $tutors );
+		$technicians   = $this->createMock( TechnicianSource::class );
+		$service  = new MeetingService( $registry, $bookings, $technicians );
 
 		$fake_booking              = new \stdClass();
 		$fake_booking->id          = 1;
-		$fake_booking->student_id  = 5;
-		$fake_booking->tutor_id    = 2;
+		$fake_booking->customer_id  = 5;
+		$fake_booking->technician_id    = 2;
 		$fake_booking->start_utc   = gmdate( 'Y-m-d H:i:s', time() + 3600 );
 		$fake_booking->end_utc     = gmdate( 'Y-m-d H:i:s', time() + 7200 );
 		$fake_booking->price_minor = 0;
@@ -207,9 +207,9 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 
 		$bookings->method( 'find' )->willReturn( $fake_booking );
 
-		$fake_tutor          = new \stdClass();
-		$fake_tutor->user_id = 10;
-		$tutors->method( 'find' )->willReturn( $fake_tutor );
+		$fake_technician          = new \stdClass();
+		$fake_technician->user_id = 10;
+		$technicians->method( 'find' )->willReturn( $fake_technician );
 
 		// Should run without error and without calling set_meeting_ref.
 		$bookings->expects( $this->never() )->method( 'set_meeting_ref' );
@@ -224,10 +224,10 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			public function label(): string {
 				return 'Fake';
 			}
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 				return 'fake-ref-' . $booking_id;
 			}
 			public function cancel( string $reference ): bool|WP_Error {
@@ -242,23 +242,23 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$registry->register( $fake_provider );
 
 		$bookings = $this->createMock( MeetingBookingStore::class );
-		$tutors   = $this->createMock( TutorSource::class );
-		$service  = new MeetingService( $registry, $bookings, $tutors );
+		$technicians   = $this->createMock( TechnicianSource::class );
+		$service  = new MeetingService( $registry, $bookings, $technicians );
 
 		$fake_booking              = new \stdClass();
 		$fake_booking->id          = 7;
-		$fake_booking->student_id  = 5;
-		$fake_booking->tutor_id    = 2;
+		$fake_booking->customer_id  = 5;
+		$fake_booking->technician_id    = 2;
 		$fake_booking->start_utc   = gmdate( 'Y-m-d H:i:s', time() + 3600 );
 		$fake_booking->end_utc     = gmdate( 'Y-m-d H:i:s', time() + 7200 );
 		$fake_booking->price_minor = 0;
 		$fake_booking->meeting_ref = null;
 
-		$fake_tutor          = new \stdClass();
-		$fake_tutor->user_id = 10;
+		$fake_technician          = new \stdClass();
+		$fake_technician->user_id = 10;
 
 		$bookings->method( 'find' )->willReturn( $fake_booking );
-		$tutors->method( 'find' )->willReturn( $fake_tutor );
+		$technicians->method( 'find' )->willReturn( $fake_technician );
 		$bookings->expects( $this->once() )->method( 'set_meeting_ref' )
 			->with( 7, 'fake|fake-ref-7' );
 
@@ -275,9 +275,9 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$this->assertSame( array( 'provider' => 'fake' ), json_decode( (string) $events[0]->meta, true ) );
 	}
 
-	public function test_meeting_service_checks_connection_with_tutor_user_id(): void {
-		$tutor_user_id = 417;
-		$fake_provider = new class( $tutor_user_id ) implements ProviderInterface {
+	public function test_meeting_service_checks_connection_with_technician_user_id(): void {
+		$technician_user_id = 417;
+		$fake_provider = new class( $technician_user_id ) implements ProviderInterface {
 			/** @var array<string, int> */
 			public array $calls = array();
 
@@ -291,14 +291,14 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 				return 'Identity aware';
 			}
 
-			public function is_connected( int $tutor_id ): bool {
-				$this->calls['connected'] = $tutor_id;
+			public function is_connected( int $technician_id ): bool {
+				$this->calls['connected'] = $technician_id;
 
-				return $this->expected_user_id === $tutor_id;
+				return $this->expected_user_id === $technician_id;
 			}
 
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
-				$this->calls['created'] = $tutor_id;
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+				$this->calls['created'] = $technician_id;
 
 				return 'meeting-' . $booking_id;
 			}
@@ -316,30 +316,30 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$registry->register( $fake_provider );
 
 		$bookings = $this->createMock( MeetingBookingStore::class );
-		$tutors   = $this->createMock( TutorSource::class );
-		$service  = new MeetingService( $registry, $bookings, $tutors );
+		$technicians   = $this->createMock( TechnicianSource::class );
+		$service  = new MeetingService( $registry, $bookings, $technicians );
 
 		$booking              = new \stdClass();
 		$booking->id          = 8;
-		$booking->student_id  = 5;
-		$booking->tutor_id    = 23;
+		$booking->customer_id  = 5;
+		$booking->technician_id    = 23;
 		$booking->start_utc   = gmdate( 'Y-m-d H:i:s', time() + 3600 );
 		$booking->end_utc     = gmdate( 'Y-m-d H:i:s', time() + 7200 );
 		$booking->price_minor = 0;
 		$booking->meeting_ref = null;
 
-		$tutor          = new \stdClass();
-		$tutor->user_id = $tutor_user_id;
+		$technician          = new \stdClass();
+		$technician->user_id = $technician_user_id;
 
 		$bookings->method( 'find' )->willReturn( $booking );
-		$tutors->method( 'find' )->with( 23 )->willReturn( $tutor );
+		$technicians->method( 'find' )->with( 23 )->willReturn( $technician );
 		$bookings->expects( $this->once() )->method( 'set_meeting_ref' )
 			->with( 8, 'identity-aware|meeting-8' );
 
 		$service->create_for_booking( 8 );
 
-		$this->assertSame( $tutor_user_id, $fake_provider->calls['connected'] );
-		$this->assertSame( $tutor_user_id, $fake_provider->calls['created'] );
+		$this->assertSame( $technician_user_id, $fake_provider->calls['connected'] );
+		$this->assertSame( $technician_user_id, $fake_provider->calls['created'] );
 	}
 
 	public function test_meeting_service_skips_already_has_ref(): void {
@@ -350,10 +350,10 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			public function label(): string {
 				return 'Fake';
 			}
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 				return 'ref';
 			}
 			public function cancel( string $reference ): bool|WP_Error {
@@ -368,8 +368,8 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$registry->register( $fake_provider );
 
 		$bookings = $this->createMock( MeetingBookingStore::class );
-		$tutors   = $this->createMock( TutorSource::class );
-		$service  = new MeetingService( $registry, $bookings, $tutors );
+		$technicians   = $this->createMock( TechnicianSource::class );
+		$service  = new MeetingService( $registry, $bookings, $technicians );
 
 		$fake_booking              = new \stdClass();
 		$fake_booking->id          = 3;
@@ -401,7 +401,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			public function label(): string {
 				return 'Fake';
 			}
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
 			public function create( int $b, int $t, string $s, int $d, string $ti ): string|WP_Error {
@@ -435,11 +435,11 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 				return 'Failing cleanup provider';
 			}
 
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
 
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 				return 'unused';
 			}
 
@@ -496,18 +496,18 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		wp_set_current_user( 0 );
 
 		$this->expectException( \WPDieException::class );
-		$this->expectExceptionMessage( 'Sign in with a lesson participant account' );
+		$this->expectExceptionMessage( 'Sign in with a appointment participant account' );
 
 		( new JoinRoute( new BookingRepository(), $registry ) )->handle();
 	}
 
-	public function test_join_route_allows_the_booked_student_to_resolve_the_provider(): void {
+	public function test_join_route_allows_the_booked_customer_to_resolve_the_provider(): void {
 		$seed     = $this->seed_booking_with_meeting();
 		$registry = new ProviderRegistry();
 		$registry->register( $this->throwing_join_provider( 'Authorized participant reached provider.' ) );
 
 		$this->prepare_join_request( $seed['booking_id'], $seed['token'] );
-		wp_set_current_user( $seed['student_id'] );
+		wp_set_current_user( $seed['customer_id'] );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Authorized participant reached provider.' );
@@ -532,15 +532,15 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 	public function test_email_contains_only_the_signed_plumberslot_join_url(): void {
 		$user_id = self::factory()->user->create(
 			array(
-				'user_email'   => 'phase7-student@example.test',
-				'display_name' => 'Phase 7 Student',
+				'user_email'   => 'phase7-customer@example.test',
+				'display_name' => 'Phase 7 Customer',
 			)
 		);
 		$token   = bin2hex( random_bytes( 32 ) );
 		$booking = (object) array(
 			'id'            => 77,
 			'start_utc'     => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
-			'student_tz'    => 'UTC',
+			'customer_tz'    => 'UTC',
 			'meeting_ref'   => 'fake|https://provider.example.test/private-room',
 			'meeting_token' => $token,
 		);
@@ -565,7 +565,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$this->assertStringNotContainsString( $token, (string) $mail['message'] );
 	}
 
-	public function test_dispatcher_reaches_student_parent_and_tutor_by_event(): void {
+	public function test_dispatcher_reaches_customer_and_technician_by_event(): void {
 		$seed = $this->seed_booking_with_meeting();
 		$spy  = new class() implements ChannelInterface {
 			/** @var list<array{event:string,user_id:int}> */
@@ -599,31 +599,30 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		}
 
 		$this->assertSame(
-			array( $seed['student_id'], $seed['parent_id'], $seed['tutor_user_id'] ),
+			array( $seed['customer_id'], $seed['technician_user_id'] ),
 			$this->recipients_for( $spy->sent, 'booking_created' )
 		);
 		$this->assertSame(
-			array( $seed['student_id'], $seed['parent_id'] ),
+			array( $seed['customer_id'] ),
 			$this->recipients_for( $spy->sent, 'booking_confirmed' )
 		);
 		$this->assertSame(
-			array( $seed['student_id'], $seed['parent_id'], $seed['tutor_user_id'] ),
+			array( $seed['customer_id'], $seed['technician_user_id'] ),
 			$this->recipients_for( $spy->sent, 'reminder_24h' )
 		);
 	}
 
 	/**
-	 * @return array{booking_id:int,token:string,student_id:int,parent_id:int,tutor_user_id:int}
+	 * @return array{booking_id:int,token:string,customer_id:int,technician_user_id:int}
 	 */
 	private function seed_booking_with_meeting(): array {
-		$tutor_user_id = self::factory()->user->create();
-		$student_id    = self::factory()->user->create();
-		$parent_id     = self::factory()->user->create();
-		$tutor_id      = ( new TutorRepository() )->create(
+		$technician_user_id = self::factory()->user->create();
+		$customer_id        = self::factory()->user->create();
+		$technician_id      = ( new TechnicianRepository() )->create(
 			array(
-				'user_id'      => $tutor_user_id,
+				'user_id'      => $technician_user_id,
 				'slug'         => 'phase7-' . wp_generate_password( 8, false ),
-				'display_name' => 'Phase 7 Tutor',
+				'display_name' => 'Phase 7 Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
@@ -632,15 +631,14 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$start         = gmdate( 'Y-m-d H:i:s', time() + ( 3 * DAY_IN_SECONDS ) );
 		$booking_id    = ( new BookingRepository() )->insert_unique(
 			array(
-				'tutor_id'      => $tutor_id,
-				'student_id'    => $student_id,
-				'parent_id'     => $parent_id,
-				'subject_id'    => null,
+				'technician_id' => $technician_id,
+				'customer_id'   => $customer_id,
+				'service_id'    => null,
 				'series_id'     => null,
 				'series_index'  => null,
 				'start_utc'     => $start,
 				'end_utc'       => gmdate( 'Y-m-d H:i:s', strtotime( $start ) + HOUR_IN_SECONDS ),
-				'student_tz'    => 'UTC',
+				'customer_tz'   => 'UTC',
 				'status'        => 'confirmed',
 				'price_minor'   => 0,
 				'currency'      => 'USD',
@@ -655,11 +653,10 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		$this->assertNotNull( $booking_id );
 
 		return array(
-			'booking_id'    => (int) $booking_id,
-			'token'         => $token,
-			'student_id'    => $student_id,
-			'parent_id'     => $parent_id,
-			'tutor_user_id' => $tutor_user_id,
+			'booking_id'         => (int) $booking_id,
+			'token'              => $token,
+			'customer_id'        => $customer_id,
+			'technician_user_id' => $technician_user_id,
 		);
 	}
 
@@ -681,11 +678,11 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 				return 'Fake';
 			}
 
-			public function is_connected( int $tutor_id ): bool {
+			public function is_connected( int $technician_id ): bool {
 				return true;
 			}
 
-			public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+			public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 				return 'unused';
 			}
 

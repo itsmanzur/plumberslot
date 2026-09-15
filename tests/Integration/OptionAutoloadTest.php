@@ -12,8 +12,8 @@ namespace PlumberSlot\Tests\Integration;
 use PlumberSlot\Activator;
 use PlumberSlot\Database\Migrator;
 use PlumberSlot\Database\Repository\AvailabilityRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Frontend\AssetManager;
 use PlumberSlot\Frontend\DashboardRoutes;
@@ -45,10 +45,10 @@ final class OptionAutoloadTest extends WP_UnitTestCase {
 		Activator::activate();
 		( new DashboardRoutes( new AssetManager() ) )->add_rewrites();
 
-		$tutor_user_id = self::factory()->user->create(
-			array( 'role' => Capabilities::ROLE_TUTOR )
+		$technician_user_id = self::factory()->user->create(
+			array( 'role' => Capabilities::ROLE_TECHNICIAN )
 		);
-		wp_set_current_user( $tutor_user_id );
+		wp_set_current_user( $technician_user_id );
 
 		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/setup' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -56,7 +56,7 @@ final class OptionAutoloadTest extends WP_UnitTestCase {
 			(string) wp_json_encode(
 				array(
 					'mode'             => 'solo',
-					'subjects'         => array( 'Mathematics' ),
+					'services'         => array( 'Plumbing Inspection' ),
 					'week'             => array(),
 					'payments_enabled' => false,
 					'started_at'       => time() - 30,
@@ -64,11 +64,11 @@ final class OptionAutoloadTest extends WP_UnitTestCase {
 			)
 		);
 
-		$tutors   = new TutorRepository();
+		$technicians   = new TechnicianRepository();
 		$response = ( new SetupController(
-			new Guard( $tutors ),
-			$tutors,
-			new SubjectRepository(),
+			new Guard( $technicians ),
+			$technicians,
+			new ServiceRepository(),
 			new AvailabilityRepository()
 		) )->complete( $request );
 

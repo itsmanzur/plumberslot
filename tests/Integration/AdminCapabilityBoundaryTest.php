@@ -18,27 +18,27 @@ use WP_UnitTestCase;
  */
 final class AdminCapabilityBoundaryTest extends WP_UnitTestCase {
 
-	public function test_tutor_cannot_list_tutors_or_settings(): void {
-		$user_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
+	public function test_technician_cannot_list_technicians_or_settings(): void {
+		$user_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
 		wp_set_current_user( $user_id );
 
-		$tutors = rest_do_request( new WP_REST_Request( 'GET', '/plumberslot/v1/tutors' ) );
-		$this->assertSame( 404, $tutors->get_status() );
+		$technicians = rest_do_request( new WP_REST_Request( 'GET', '/plumberslot/v1/technicians' ) );
+		$this->assertSame( 404, $technicians->get_status() );
 
 		$settings = rest_do_request( new WP_REST_Request( 'GET', '/plumberslot/v1/settings' ) );
 		$this->assertTrue( in_array( $settings->get_status(), array( 401, 403, 404 ), true ) );
 	}
 
-	public function test_manager_can_list_tutors(): void {
+	public function test_manager_can_list_technicians(): void {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/tutors' );
+		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/technicians' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$response = rest_do_request( $request );
 
 		$this->assertSame( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertArrayHasKey( 'tutors', $data );
+		$this->assertArrayHasKey( 'technicians', $data );
 	}
 }

@@ -16,8 +16,8 @@ use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\CreditRepository;
 use PlumberSlot\Database\Repository\LockRepository;
 use PlumberSlot\Database\Repository\PaymentRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Database\TransactionManager;
 use PlumberSlot\Domain\BookingService;
@@ -42,7 +42,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 	private BookingRepository $bookings;
 	private PaymentRepository $payments;
 	private AvailabilityRepository $availability;
-	private TutorRepository $tutors;
+	private TechnicianRepository $technicians;
 	private FakePayGateway $gateway;
 
 	public function set_up(): void {
@@ -54,7 +54,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$this->bookings     = new BookingRepository();
 		$this->payments     = new PaymentRepository();
 		$this->availability = new AvailabilityRepository();
-		$this->tutors       = new TutorRepository();
+		$this->technicians       = new TechnicianRepository();
 		$this->gateway      = new FakePayGateway();
 
 		Settings::update(
@@ -278,7 +278,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$this->assertSame( 1, $this->gateway->refund_calls );
 	}
 
-	public function test_refund_rejects_a_confirmed_lesson_before_calling_gateway(): void {
+	public function test_refund_rejects_a_confirmed_appointment_before_calling_gateway(): void {
 		$ctx     = $this->seed();
 		$service = $this->payment_service();
 		$booking = $this->create_payable( $ctx, 1800 );
@@ -310,9 +310,9 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$credits    = new CreditRepository();
 		$credit_id  = $credits->create_package(
 			array(
-				'owner_id'    => $ctx['student_id'],
-				'tutor_id'    => $ctx['tutor_id'],
-				'subject_id'  => null,
+				'owner_id'    => $ctx['customer_id'],
+				'technician_id'    => $ctx['technician_id'],
+				'service_id'  => null,
 				'total'       => 1,
 				'price_minor' => 2000,
 				'expires_at'  => null,
@@ -320,14 +320,13 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		);
 		$start      = new DateTimeImmutable( '+4 days 11:00:00', new DateTimeZone( 'UTC' ) );
 		$args       = array(
-			'tutor_id'       => $ctx['tutor_id'],
-			'student_id'     => $ctx['student_id'],
-			'parent_id'      => null,
-			'subject_id'     => null,
+			'technician_id'       => $ctx['technician_id'],
+			'customer_id'     => $ctx['customer_id'],
+			'service_id'     => null,
 			'start_utc'      => $start,
 			'duration_min'   => 60,
-			'tutor_tz'       => 'UTC',
-			'student_tz'     => 'UTC',
+			'technician_tz'       => 'UTC',
+			'customer_tz'     => 'UTC',
 			'price_minor'    => 0,
 			'currency'       => 'USD',
 			'credit_id'      => $credit_id,
@@ -377,7 +376,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 
 		$this->assertTrue( $this->booking_service()->reschedule( $old_id, $new_start ) );
 		$new_rows = $this->bookings->find_in_range(
-			$ctx['tutor_id'],
+			$ctx['technician_id'],
 			$new_start->format( 'Y-m-d H:i:s' ),
 			$new_start->modify( '+60 minutes' )->format( 'Y-m-d H:i:s' )
 		);
@@ -400,9 +399,9 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$credits    = new CreditRepository();
 		$credit_id  = $credits->create_package(
 			array(
-				'owner_id'    => $ctx['student_id'],
-				'tutor_id'    => $ctx['tutor_id'],
-				'subject_id'  => null,
+				'owner_id'    => $ctx['customer_id'],
+				'technician_id'    => $ctx['technician_id'],
+				'service_id'  => null,
 				'total'       => 1,
 				'price_minor' => 2000,
 				'expires_at'  => null,
@@ -410,14 +409,13 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		);
 		$booking_id = $this->booking_service()->create(
 			array(
-				'tutor_id'       => $ctx['tutor_id'],
-				'student_id'     => $ctx['student_id'],
-				'parent_id'      => null,
-				'subject_id'     => null,
+				'technician_id'       => $ctx['technician_id'],
+				'customer_id'     => $ctx['customer_id'],
+				'service_id'     => null,
 				'start_utc'      => new DateTimeImmutable( '+5 days 11:00:00', new DateTimeZone( 'UTC' ) ),
 				'duration_min'   => 60,
-				'tutor_tz'       => 'UTC',
-				'student_tz'     => 'UTC',
+				'technician_tz'       => 'UTC',
+				'customer_tz'     => 'UTC',
 				'price_minor'    => 0,
 				'currency'       => 'USD',
 				'credit_id'      => $credit_id,
@@ -506,16 +504,16 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @return array{tutor_id:int, student_id:int}
+	 * @return array{technician_id:int, customer_id:int}
 	 */
 	private function seed(): array {
-		$user    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
-		$student = self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) );
-		$tutor   = $this->tutors->create(
+		$user    = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) );
+		$customer = self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) );
+		$technician   = $this->technicians->create(
 			array(
 				'user_id'      => $user,
-				'slug'         => 'pay-tutor-' . $user,
-				'display_name' => 'Pay Tutor',
+				'slug'         => 'pay-technician-' . $user,
+				'display_name' => 'Pay Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
@@ -529,11 +527,11 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 				'end_min'   => 20 * 60,
 			);
 		}
-		$this->availability->replace_week( $tutor, $week );
+		$this->availability->replace_week( $technician, $week );
 
 		return array(
-			'tutor_id'   => $tutor,
-			'student_id' => $student,
+			'technician_id'   => $technician,
+			'customer_id' => $customer,
 		);
 	}
 
@@ -541,14 +539,13 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$start = new DateTimeImmutable( '+3 days 11:00:00', new DateTimeZone( 'UTC' ) );
 		$id    = $this->booking_service()->create(
 			array(
-				'tutor_id'     => $ctx['tutor_id'],
-				'student_id'   => $ctx['student_id'],
-				'parent_id'    => null,
-				'subject_id'   => null,
+				'technician_id'     => $ctx['technician_id'],
+				'customer_id'   => $ctx['customer_id'],
+				'service_id'   => null,
 				'start_utc'    => $start,
 				'duration_min' => 60,
-				'tutor_tz'     => 'UTC',
-				'student_tz'   => 'UTC',
+				'technician_tz'     => 'UTC',
+				'customer_tz'   => 'UTC',
 				'price_minor'  => $amount,
 				'currency'     => 'USD',
 				'credit_id'    => null,

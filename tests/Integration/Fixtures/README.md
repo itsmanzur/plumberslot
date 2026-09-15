@@ -4,7 +4,7 @@
 starting point for upgrade tests. Version 4 was selected because it is the last
 schema before migration step 5 introduced payment and webhook tables.
 
-The snapshot intentionally includes subject status, lock ownership, and the
+The snapshot intentionally includes service status, lock ownership, and the
 non-unique booking start index introduced by steps 2–4. It intentionally omits
 `plumberslot_payments` and `plumberslot_webhook_events`.
 
@@ -13,10 +13,10 @@ integration-test database. The installer replaces current PlumberSlot test table
 and sets `plumberslot_db_version` to `PreviousSchemaFixture::VERSION`.
 
 `Phase8MigrationTest::test_version_four_migrates_to_the_current_schema()` then
-runs the production `Migrator` and verifies the complete v5 table/index contract.
+runs the production `Migrator` and verifies the complete current table/index contract.
 The companion idempotency test fingerprints every current column and index and
 asserts that rerunning the migrator executes no DDL and changes no schema metadata.
-A preservation test seeds representative v4 tutor, subject, credit, booking, and
+A preservation test seeds representative v4 technician, service, credit, booking, and
 lock records plus nested plugin settings, then compares exact before/after snapshots
 around the production migration.
 

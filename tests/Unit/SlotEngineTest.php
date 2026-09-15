@@ -3,7 +3,7 @@
  * Slot engine tests.
  *
  * The two cases worth writing first are the two that quietly break every
- * booking plugin: a DST transition, and a lesson that would start inside the
+ * booking plugin: a DST transition, and an appointment that would start inside the
  * lead-time window.
  *
  * @package PlumberSlot
@@ -33,9 +33,9 @@ final class SlotEngineTest extends TestCase {
 	}
 
 	/**
-	 * A tutor in London who teaches 09:00–12:00 still teaches 09:00–12:00 on
+	 * A technician in London who works 09:00-12:00 still works 09:00-12:00 on
 	 * either side of a DST change. If the engine did its arithmetic in UTC the
-	 * lesson would silently move an hour.
+	 * appointment would silently move an hour.
 	 */
 	public function test_local_hours_survive_a_dst_transition(): void {
 		$zone         = new DateTimeZone( 'Europe/London' );
@@ -115,7 +115,7 @@ final class SlotEngineTest extends TestCase {
 	}
 
 	public function test_a_booked_slot_is_marked_booked_not_omitted(): void {
-		// Students trust a greyed-out slot more than a missing one.
+		// Customers trust a greyed-out slot more than a missing one.
 		$start    = ( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) )->modify( '+7 days' )->setTime( 10, 0 );
 		$booking  = (object) array(
 			'start_utc' => $start->format( 'Y-m-d H:i:s' ),
@@ -242,8 +242,8 @@ final class SlotEngineTest extends TestCase {
 	}
 
 	public function test_slot_starts_step_by_granularity_plus_buffer(): void {
-		// 09:00–12:00 window, 60-minute lessons, 30-minute grid, 10-minute buffer
-		// → step is max(30, 60) + 10 = 70 so lessons never overlap.
+		// 09:00–12:00 window, 60-minute appointments, 30-minute grid, 10-minute buffer
+		// → step is max(30, 60) + 10 = 70 so appointments never overlap.
 		$day = ( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) )->modify( '+14 days' )->setTime( 9, 0 );
 
 		$this->settings(
@@ -267,7 +267,7 @@ final class SlotEngineTest extends TestCase {
 		self::assertNotContains( '11:20', $starts );
 	}
 
-	public function test_lesson_duration_blocks_starts_that_would_overrun_the_window(): void {
+	public function test_appointment_duration_blocks_starts_that_would_overrun_the_window(): void {
 		$day = ( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) )->modify( '+15 days' )->setTime( 9, 0 );
 
 		$this->settings(
@@ -333,25 +333,25 @@ final class SlotEngineTest extends TestCase {
 			 */
 			public function __construct( private readonly array $rules ) {}
 
-			public function rules_for( int $tutor_id ): array {
+			public function rules_for( int $technician_id ): array {
 				++$this->rules_calls;
 
 				return $this->rules;
 			}
 
-			public function exceptions_between( int $tutor_id, string $from_date, string $to_date ): array {
+			public function exceptions_between( int $technician_id, string $from_date, string $to_date ): array {
 				return array();
 			}
 		};
 
 		$bookings = new class implements BookingOccupancySource {
-			public function find_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function find_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return array();
 			}
 		};
 
 		$holds = new class implements HoldOccupancySource {
-			public function held_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function held_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return array();
 			}
 		};
@@ -386,25 +386,25 @@ final class SlotEngineTest extends TestCase {
 				$this->rules = $rules;
 			}
 
-			public function rules_for( int $tutor_id ): array {
+			public function rules_for( int $technician_id ): array {
 				++$this->rules_calls;
 
 				return $this->rules;
 			}
 
-			public function exceptions_between( int $tutor_id, string $from_date, string $to_date ): array {
+			public function exceptions_between( int $technician_id, string $from_date, string $to_date ): array {
 				return array();
 			}
 		};
 
 		$bookings = new class implements BookingOccupancySource {
-			public function find_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function find_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return array();
 			}
 		};
 
 		$holds = new class implements HoldOccupancySource {
-			public function held_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function held_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return array();
 			}
 		};
@@ -412,24 +412,24 @@ final class SlotEngineTest extends TestCase {
 		$engine = new SlotEngine( $availability, $bookings, $holds );
 		$from   = $day;
 		$to     = $day->modify( '+1 second' );
-		$tutor  = 18;
+		$technician  = 18;
 
-		$before = Cache::generation( $tutor );
+		$before = Cache::generation( $technician );
 
-		$engine->slots_for( $tutor, $from, $to, 'UTC', 60 );
-		$engine->slots_for( $tutor, $from, $to, 'UTC', 60 );
+		$engine->slots_for( $technician, $from, $to, 'UTC', 60 );
+		$engine->slots_for( $technician, $from, $to, 'UTC', 60 );
 
 		self::assertSame( 1, $availability->rules_calls );
 
 		// Availability replace and booking write both call this.
-		Cache::forget_tutor( $tutor );
+		Cache::forget_technician( $technician );
 
-		self::assertSame( $before + 1, Cache::generation( $tutor ) );
+		self::assertSame( $before + 1, Cache::generation( $technician ) );
 
 		// Stale rules removed; recompute must see the closed day.
 		$availability->rules = array();
 
-		$after = $engine->slots_for( $tutor, $from, $to, 'UTC', 60 );
+		$after = $engine->slots_for( $technician, $from, $to, 'UTC', 60 );
 
 		self::assertSame( 2, $availability->rules_calls );
 		self::assertSame( array(), $after );
@@ -521,11 +521,11 @@ final class SlotEngineTest extends TestCase {
 				private readonly array $exceptions
 			) {}
 
-			public function rules_for( int $tutor_id ): array {
+			public function rules_for( int $technician_id ): array {
 				return $this->rules;
 			}
 
-			public function exceptions_between( int $tutor_id, string $from_date, string $to_date ): array {
+			public function exceptions_between( int $technician_id, string $from_date, string $to_date ): array {
 				return $this->exceptions;
 			}
 		};
@@ -536,7 +536,7 @@ final class SlotEngineTest extends TestCase {
 			 */
 			public function __construct( private readonly array $bookings ) {}
 
-			public function find_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function find_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return $this->bookings;
 			}
 		};
@@ -547,7 +547,7 @@ final class SlotEngineTest extends TestCase {
 			 */
 			public function __construct( private readonly array $holds ) {}
 
-			public function held_in_range( int $tutor_id, string $from_utc, string $to_utc ): array {
+			public function held_in_range( int $technician_id, string $from_utc, string $to_utc ): array {
 				return $this->holds;
 			}
 		};

@@ -12,7 +12,7 @@ namespace PlumberSlot\Tests\Integration;
 use DateTimeImmutable;
 use DateTimeZone;
 use PlumberSlot\Database\Repository\BookingRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use WP_UnitTestCase;
 
@@ -27,7 +27,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 	private const SAMPLE_COUNT  = 25;
 	private const WINDOW_COUNT  = 744;
 
-	private int $tutor_id;
+	private int $technician_id;
 	private BookingRepository $bookings;
 	private DateTimeImmutable $from;
 	private DateTimeImmutable $to;
@@ -38,13 +38,13 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		Schema::create_all();
 		$this->empty_plumberslot_tables();
 
-		$tutor_user_id  = self::factory()->user->create();
-		$student_id     = self::factory()->user->create();
-		$this->tutor_id = ( new TutorRepository() )->create(
+		$technician_user_id  = self::factory()->user->create();
+		$customer_id     = self::factory()->user->create();
+		$this->technician_id = ( new TechnicianRepository() )->create(
 			array(
-				'user_id'      => $tutor_user_id,
-				'slug'         => 'calendar-performance-tutor',
-				'display_name' => 'Calendar Performance Tutor',
+				'user_id'      => $technician_user_id,
+				'slug'         => 'calendar-performance-technician',
+				'display_name' => 'Calendar Performance Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
@@ -53,8 +53,8 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		$this->from     = new DateTimeImmutable( '2026-01-01 00:00:00', new DateTimeZone( 'UTC' ) );
 		$this->to       = $this->from->modify( '+1 month' );
 
-		self::assertGreaterThan( 0, $this->tutor_id );
-		$this->seed_bookings( $student_id );
+		self::assertGreaterThan( 0, $this->technician_id );
+		$this->seed_bookings( $customer_id );
 		self::assertSame( self::BOOKING_COUNT, $this->booking_count() );
 	}
 
@@ -67,14 +67,14 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		$from = $this->from->format( 'Y-m-d H:i:s' );
 		$to   = $this->to->format( 'Y-m-d H:i:s' );
 
-		$warm = $this->bookings->find_in_range( $this->tutor_id, $from, $to );
+		$warm = $this->bookings->find_in_range( $this->technician_id, $from, $to );
 		self::assertCount( self::WINDOW_COUNT, $warm );
-		$this->assert_calendar_query_uses_tutor_start_index();
+		$this->assert_calendar_query_uses_technician_start_index();
 
 		$samples = array();
 		for ( $sample = 0; $sample < self::SAMPLE_COUNT; $sample++ ) {
 			$started = hrtime( true );
-			$rows    = $this->bookings->find_in_range( $this->tutor_id, $from, $to );
+			$rows    = $this->bookings->find_in_range( $this->technician_id, $from, $to );
 			$elapsed = ( hrtime( true ) - $started ) / 1_000_000;
 
 			self::assertCount( self::WINDOW_COUNT, $rows );
@@ -105,7 +105,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		);
 	}
 
-	private function seed_bookings( int $student_id ): void {
+	private function seed_bookings( int $customer_id ): void {
 		global $wpdb;
 
 		$table       = Schema::table( Schema::BOOKINGS );
@@ -125,8 +125,8 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 					$start = $base + ( ( $offset + $index ) * HOUR_IN_SECONDS );
 					array_push(
 						$values,
-						$this->tutor_id,
-						$student_id,
+						$this->technician_id,
+						$customer_id,
 						gmdate( 'Y-m-d H:i:s', $start ),
 						gmdate( 'Y-m-d H:i:s', $start + ( 45 * MINUTE_IN_SECONDS ) ),
 						'UTC',
@@ -139,7 +139,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 				}
 
 				$sql = 'INSERT INTO ' . $table
-					. ' ( tutor_id, student_id, start_utc, end_utc, student_tz, status, price_minor, currency, created_at, updated_at ) VALUES '
+					. ' ( technician_id, customer_id, start_utc, end_utc, customer_tz, status, price_minor, currency, created_at, updated_at ) VALUES '
 					. implode( ', ', array_fill( 0, $rows, $placeholder ) );
 
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- generated placeholders and isolated fixture values are prepared here.
@@ -156,7 +156,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		}
 	}
 
-	private function assert_calendar_query_uses_tutor_start_index(): void {
+	private function assert_calendar_query_uses_technician_start_index(): void {
 		global $wpdb;
 
 		$query = (string) $wpdb->last_query;
@@ -165,7 +165,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- EXPLAIN runs the already prepared internal query captured above.
 		$plan = $wpdb->get_row( 'EXPLAIN ' . $query );
 		self::assertNotNull( $plan );
-		self::assertSame( 'idx_tutor_end', (string) $plan->key );
+		self::assertSame( 'idx_technician_end', (string) $plan->key );
 		self::assertLessThan( self::BOOKING_COUNT, (int) $plan->rows );
 	}
 

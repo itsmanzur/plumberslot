@@ -19,19 +19,19 @@ final class CacheTest extends TestCase {
 		$GLOBALS['plumberslot_test_transients'] = array();
 	}
 
-	public function test_dashboard_aggregate_is_cached_then_invalidated_with_tutor_state(): void {
-		$tutor_id = 41;
-		$payload  = array(
+	public function test_dashboard_aggregate_is_cached_then_invalidated_with_technician_state(): void {
+		$technician_id = 41;
+		$payload       = array(
 			'today'   => array(),
 			'next_up' => array( array( 'id' => 7 ) ),
 		);
 
-		self::assertNull( Cache::dashboard( $tutor_id ) );
+		self::assertNull( Cache::dashboard( $technician_id ) );
 
-		Cache::set_dashboard( $tutor_id, $payload );
-		self::assertSame( $payload, Cache::dashboard( $tutor_id ) );
+		Cache::set_dashboard( $technician_id, $payload );
+		self::assertSame( $payload, Cache::dashboard( $technician_id ) );
 
-		Cache::forget_tutor( $tutor_id );
-		self::assertNull( Cache::dashboard( $tutor_id ) );
+		Cache::forget_technician( $technician_id );
+		self::assertNull( Cache::dashboard( $technician_id ) );
 	}
 }

@@ -43,13 +43,13 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 		set_transient( 'plumberslot_show_onboarding', 1, DAY_IN_SECONDS );
 
 		$user_id      = self::factory()->user->create();
-		$tutors_table = Schema::table( Schema::TUTORS );
+		$technicians_table = Schema::table( Schema::TECHNICIANS );
 		$inserted     = $wpdb->insert(
-			$tutors_table,
+			$technicians_table,
 			array(
 				'user_id'      => $user_id,
 				'slug'         => 'deactivation-smoke-' . $user_id,
-				'display_name' => 'Deactivation Smoke Tutor',
+				'display_name' => 'Deactivation Smoke Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 				'created_at'   => gmdate( 'Y-m-d H:i:s' ),
@@ -58,7 +58,7 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 		self::assertSame( 1, $inserted );
-		$tutor_id = (int) $wpdb->insert_id;
+		$technician_id = (int) $wpdb->insert_id;
 
 		wp_cache_set( 'deactivation-smoke', 'present', 'plumberslot', HOUR_IN_SECONDS );
 		self::assertTrue( $this->schedule_smoke_action() );
@@ -77,13 +77,12 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- schema-whitelisted integration assertion.
-		$stored_tutor = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$tutors_table} WHERE id = %d", $tutor_id ), ARRAY_A );
-		self::assertIsArray( $stored_tutor );
-		self::assertSame( $user_id, (int) $stored_tutor['user_id'] );
+		$stored_technician = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$technicians_table} WHERE id = %d", $technician_id ), ARRAY_A );
+		self::assertIsArray( $stored_technician );
+		self::assertSame( $user_id, (int) $stored_technician['user_id'] );
 
-		self::assertNotNull( get_role( Capabilities::ROLE_TUTOR ) );
-		self::assertNotNull( get_role( Capabilities::ROLE_STUDENT ) );
-		self::assertNotNull( get_role( Capabilities::ROLE_PARENT ) );
+		self::assertNotNull( get_role( Capabilities::ROLE_TECHNICIAN ) );
+		self::assertNotNull( get_role( Capabilities::ROLE_CUSTOMER ) );
 		self::assertTrue( get_role( 'administrator' )->has_cap( Capabilities::MANAGE_ALL ) );
 	}
 

@@ -33,11 +33,11 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 	}
 
 	public function test_replace_week_swaps_the_full_schedule_atomically(): void {
-		$tutor_id = 41;
+		$technician_id = 41;
 
 		self::assertTrue(
 			$this->availability->replace_week(
-				$tutor_id,
+				$technician_id,
 				array(
 					array(
 						'weekday'   => 1,
@@ -53,11 +53,11 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 			)
 		);
 
-		$generation_before = Cache::generation( $tutor_id );
+		$generation_before = Cache::generation( $technician_id );
 
 		self::assertTrue(
 			$this->availability->replace_week(
-				$tutor_id,
+				$technician_id,
 				array(
 					array(
 						'weekday'   => 2,
@@ -78,7 +78,7 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 			)
 		);
 
-		$rules = $this->availability->rules_for( $tutor_id );
+		$rules = $this->availability->rules_for( $technician_id );
 
 		self::assertCount( 3, $rules );
 		self::assertSame(
@@ -90,17 +90,17 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 			array_map( static fn ( object $rule ): int => (int) $rule->start_min, $rules )
 		);
 		self::assertSame( array(), $this->availability->rules_for( 42 ) );
-		self::assertSame( $generation_before + 1, Cache::generation( $tutor_id ) );
+		self::assertSame( $generation_before + 1, Cache::generation( $technician_id ) );
 	}
 
 	public function test_replace_week_rolls_back_when_an_insert_fails(): void {
 		global $wpdb;
 
-		$tutor_id = 43;
+		$technician_id = 43;
 
 		self::assertTrue(
 			$this->availability->replace_week(
-				$tutor_id,
+				$technician_id,
 				array(
 					array(
 						'weekday'   => 0,
@@ -124,7 +124,7 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 
 		try {
 			$result = $this->availability->replace_week(
-				$tutor_id,
+				$technician_id,
 				array(
 					array(
 						'weekday'   => 4,
@@ -138,7 +138,7 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 			$wpdb->suppress_errors( $previous_errors );
 		}
 
-		$rules = $this->availability->rules_for( $tutor_id );
+		$rules = $this->availability->rules_for( $technician_id );
 
 		self::assertFalse( $result );
 		self::assertCount( 1, $rules );
