@@ -19,10 +19,10 @@ afterEach( () => {
 	delete window.__plumberslotXss;
 } );
 
-test( 'renders stored tutor, subject, and review payloads as text', () => {
+test( 'renders stored technician, service, and review payloads as text', () => {
 	render(
 		h( ProfileView, {
-			tutor: {
+			technician: {
 				initials: 'TS',
 				display_name: PAYLOAD,
 				from_price_minor: 0,
@@ -32,7 +32,7 @@ test( 'renders stored tutor, subject, and review payloads as text', () => {
 				years_teaching: 1,
 				response_time: PAYLOAD,
 				languages: [ PAYLOAD ],
-				subjects: [ { id: 1, name: PAYLOAD } ],
+				services: [ { id: 1, name: PAYLOAD } ],
 				bio: PAYLOAD,
 				reviews: [
 					{
@@ -59,13 +59,13 @@ test( 'renders stored tutor, subject, and review payloads as text', () => {
 test( 'does not expose an executable meeting URL', () => {
 	render(
 		h( DoneView, {
-			tutor: {
-				display_name: 'Tutor',
+			technician: {
+				display_name: 'Technician',
 				default_duration: 60,
 				meeting_provider: 'Online',
 				currency: 'USD',
 			},
-			subject: { name: 'Math', duration_min: 60 },
+			service: { name: 'Math', duration_min: 60 },
 			booking: {
 				id: 1,
 				start_utc: '2030-01-01T10:00:00Z',

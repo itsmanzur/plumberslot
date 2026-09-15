@@ -5,8 +5,8 @@ import { getBoot } from '../api';
 import { formatInZone, icsDownload, money } from '../lib';
 
 export function DoneView( {
-	tutor,
-	subject,
+	technician,
+	service,
 	booking,
 	timezone,
 	context = 'booking',
@@ -21,8 +21,8 @@ export function DoneView( {
 		? formatInZone( booking.reschedule_deadline, timezone )
 		: '';
 	const duration =
-		booking.duration_min || subject?.duration_min || tutor.default_duration;
-	const student = booking.student || 'You';
+		booking.duration_min || service?.duration_min || technician.default_duration;
+	const customer = booking.customer || 'You';
 	const joinUrl = safeUrl( booking.join_url, { sameOrigin: true } );
 	const dashboardUrl = safeUrl( booking.dashboard_url || boot.dashboardUrl, {
 		sameOrigin: true,
@@ -30,11 +30,11 @@ export function DoneView( {
 	const dateShort = shortDate( start, timezone );
 	const heading =
 		context === 'payment'
-			? `Payment confirmed. ${ student } is booked${ weekdayHint(
+			? `Payment confirmed. ${ customer } is booked${ weekdayHint(
 					start,
 					timezone
 			  ) }.`
-			: `Booked. ${ student } is set${ weekdayHint( start, timezone ) }.`;
+			: `Booked. ${ customer } is set${ weekdayHint( start, timezone ) }.`;
 
 	useEffect( () => {
 		titleRef.current?.focus();
@@ -47,8 +47,8 @@ export function DoneView( {
 
 	const addCalendar = () => {
 		icsDownload( {
-			title: `${ subject?.name || 'Lesson' } with ${
-				tutor.display_name
+			title: `${ service?.name || 'Lesson' } with ${
+				technician.display_name
 			}`,
 			startIso: start,
 			endIso: end || start,
@@ -100,8 +100,8 @@ export function DoneView( {
 				h(
 					'span',
 					null,
-					`${ subject?.name || 'Lesson' } with ${
-						tutor.display_name
+					`${ service?.name || 'Lesson' } with ${
+						technician.display_name
 					}`
 				),
 				h( 'span', { class: 'plumberslot-mono' }, dateShort )
@@ -126,8 +126,8 @@ export function DoneView( {
 						)
 					),
 					kv( 'Runs for', `${ duration } minutes` ),
-					kv( 'Join', meetingDetails( booking, tutor ) ),
-					kv( 'Payment', completionPaymentLabel( booking, tutor ) ),
+					kv( 'Join', meetingDetails( booking, technician ) ),
+					kv( 'Payment', completionPaymentLabel( booking, technician ) ),
 					booking.series_label
 						? kv( 'Series', booking.series_label )
 						: null
@@ -189,7 +189,7 @@ function kv( label, value ) {
 	return h( 'div', null, h( 'dt', null, label ), h( 'dd', null, value ) );
 }
 
-function meetingDetails( booking, tutor ) {
+function meetingDetails( booking, technician ) {
 	const joinUrl = safeUrl( booking.join_url, { sameOrigin: true } );
 	if ( joinUrl ) {
 		return h(
@@ -203,11 +203,11 @@ function meetingDetails( booking, tutor ) {
 	}
 
 	return `${
-		booking.meeting_provider || tutor.meeting_provider || 'Online lesson'
+		booking.meeting_provider || technician.meeting_provider || 'Online lesson'
 	} · link before the lesson`;
 }
 
-function completionPaymentLabel( booking, tutor ) {
+function completionPaymentLabel( booking, technician ) {
 	if ( booking.payment === 'credit' ) {
 		return 'Package credit';
 	}
@@ -220,7 +220,7 @@ function completionPaymentLabel( booking, tutor ) {
 	) {
 		return 'Payment pending';
 	}
-	return money( booking.price_minor, booking.currency || tutor.currency );
+	return money( booking.price_minor, booking.currency || technician.currency );
 }
 
 function calendarDescription( joinUrl, reference ) {

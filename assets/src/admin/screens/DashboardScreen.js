@@ -69,7 +69,7 @@ export function DashboardScreen() {
 		( async () => {
 			try {
 				const payload = await get( 'dashboard', {
-					tutor_id: config.tutorId || undefined,
+					technician_id: config.technicianId || undefined,
 				} );
 
 				if ( alive ) {
@@ -87,7 +87,7 @@ export function DashboardScreen() {
 		return () => {
 			alive = false;
 		};
-	}, [ config.tutorId, initialData ] );
+	}, [ config.technicianId, initialData ] );
 
 	const adminUrl = ( page ) => `${ config.urls.admin }?page=${ page }`;
 	const openAdmin = ( page ) => {
@@ -251,12 +251,12 @@ export function DashboardScreen() {
 														h(
 															'th',
 															null,
-															'Student'
+															'Customer'
 														),
 														h(
 															'th',
 															null,
-															'Subject'
+															'Service'
 														),
 														h( 'th', null, 'When' ),
 														h(
@@ -300,7 +300,7 @@ export function DashboardScreen() {
 																			{
 																				class: 'ts-dashboard__person-name',
 																			},
-																			row.student
+																			row.customer
 																		),
 																		h(
 																			'small',
@@ -315,7 +315,7 @@ export function DashboardScreen() {
 															h(
 																'td',
 																null,
-																row.subject
+																row.service
 															),
 															h(
 																'td',

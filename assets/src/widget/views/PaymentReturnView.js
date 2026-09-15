@@ -126,10 +126,10 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 	const state = paymentState( booking, outcome );
 	if ( state === 'confirmed' ) {
 		return h( DoneView, {
-			tutor: bookingTutor( booking ),
-			subject: bookingSubject( booking ),
+			technician: bookingTechnician( booking ),
+			service: bookingService( booking ),
 			booking,
-			timezone: timezone || booking.tutor_timezone || 'UTC',
+			timezone: timezone || booking.technician_timezone || 'UTC',
 			context: 'payment',
 		} );
 	}
@@ -165,13 +165,13 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 			'dl',
 			{ class: 'ts-book__result-details ts-book__kv' },
 			resultRow( 'Booking', bookingReference( booking.id ) ),
-			resultRow( 'Lesson', booking.subject || 'Lesson' ),
+			resultRow( 'Lesson', booking.service || 'Lesson' ),
 			resultRow(
 				'When',
 				booking.when ||
 					formatInZone(
 						booking.start_utc,
-						timezone || booking.tutor_timezone || 'UTC'
+						timezone || booking.technician_timezone || 'UTC'
 					)
 			),
 			resultRow( 'Payment', paymentLabel( booking, state ) )
@@ -306,18 +306,18 @@ function resultRow( label, value ) {
 	return h( 'div', null, h( 'dt', null, label ), h( 'dd', null, value ) );
 }
 
-function bookingTutor( booking ) {
+function bookingTechnician( booking ) {
 	return {
-		display_name: booking.tutor || 'your tutor',
+		display_name: booking.technician || 'your technician',
 		default_duration: booking.duration_min || 60,
 		meeting_provider: booking.meeting_provider || 'Online lesson',
 		currency: booking.currency || 'USD',
 	};
 }
 
-function bookingSubject( booking ) {
+function bookingService( booking ) {
 	return {
-		name: booking.subject || 'Lesson',
+		name: booking.service || 'Lesson',
 		duration_min: booking.duration_min || 60,
 	};
 }

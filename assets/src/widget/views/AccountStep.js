@@ -1,15 +1,15 @@
 import { h } from 'preact';
 import { Button, Callout, WizardRail, navigateTo } from '../../shared';
 import { formatInZone } from '../lib';
-import { RAIL } from './SubjectStep';
+import { RAIL } from './ServiceStep';
 
 /**
  * Soft account gate between Time and Confirm.
  * Keeps the chosen slot in a draft so WP login can return to Confirm.
  *
  * @param {Object}   root0            Component properties.
- * @param {Object}   root0.tutor      Selected tutor.
- * @param {Object}   root0.subject    Selected subject.
+ * @param {Object}   root0.technician      Selected technician.
+ * @param {Object}   root0.service    Selected service.
  * @param {string}   root0.start      Selected start time.
  * @param {string}   root0.timezone   Display timezone.
  * @param {string}   root0.loginUrl   WordPress login URL.
@@ -17,8 +17,8 @@ import { RAIL } from './SubjectStep';
  * @param {Function} root0.onSignedIn Signed-in callback.
  */
 export function AccountStep( {
-	tutor,
-	subject,
+	technician,
+	service,
 	start,
 	timezone,
 	loginUrl,
@@ -47,14 +47,14 @@ export function AccountStep( {
 			h(
 				Callout,
 				{ title: 'Ready to book:' },
-				[ subject?.name || 'Lesson', tutor?.display_name, when ]
+				[ service?.name || 'Lesson', technician?.display_name, when ]
 					.filter( Boolean )
 					.join( ' · ' )
 			),
 			h(
 				'p',
 				{ class: 'ts-book__muted' },
-				'After sign-in you will return here to confirm — your subject and time stay selected.'
+				'After sign-in you will return here to confirm — your service and time stay selected.'
 			)
 		),
 		h(

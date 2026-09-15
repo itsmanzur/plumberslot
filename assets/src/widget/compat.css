@@ -22,7 +22,7 @@
 .plumberslot-widget :where(
 .ts-btn,
 .ts-tz__change,
-.ts-book__subject,
+.ts-book__service,
 .ts-book__who-option,
 .ts-day,
 .ts-slot,
@@ -100,10 +100,10 @@
 	box-shadow: none !important;
 }
 
-/* Subject and learner selection cards. */
-.plumberslot-widget .ts-book__subject,
-.plumberslot-widget .ts-book__subject:hover,
-.plumberslot-widget .ts-book__subject:focus,
+/* Service and learner selection cards. */
+.plumberslot-widget .ts-book__service,
+.plumberslot-widget .ts-book__service:hover,
+.plumberslot-widget .ts-book__service:focus,
 .plumberslot-widget .ts-book__who-option,
 .plumberslot-widget .ts-book__who-option:hover,
 .plumberslot-widget .ts-book__who-option:focus {
@@ -113,16 +113,16 @@
 	box-shadow: none !important;
 }
 
-.plumberslot-widget .ts-book__subject:hover,
-.plumberslot-widget .ts-book__subject:focus,
+.plumberslot-widget .ts-book__service:hover,
+.plumberslot-widget .ts-book__service:focus,
 .plumberslot-widget .ts-book__who-option:hover,
 .plumberslot-widget .ts-book__who-option:focus {
 	border-color: var(--ts-mute) !important;
 }
 
-.plumberslot-widget .ts-book__subject.is-selected,
-.plumberslot-widget .ts-book__subject.is-selected:hover,
-.plumberslot-widget .ts-book__subject.is-selected:focus,
+.plumberslot-widget .ts-book__service.is-selected,
+.plumberslot-widget .ts-book__service.is-selected:hover,
+.plumberslot-widget .ts-book__service.is-selected:focus,
 .plumberslot-widget .ts-book__who-option.is-selected,
 .plumberslot-widget .ts-book__who-option.is-selected:hover,
 .plumberslot-widget .ts-book__who-option.is-selected:focus {

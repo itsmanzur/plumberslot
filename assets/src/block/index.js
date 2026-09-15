@@ -18,9 +18,9 @@ import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 /* eslint-enable import/no-unresolved */
 function Edit( { attributes, setAttributes } ) {
-	const { tutor = '', subject = 0 } = attributes;
-	const [ tutors, setTutors ] = useState( [] );
-	const [ subjects, setSubjects ] = useState( [] );
+	const { technician = '', service = 0 } = attributes;
+	const [ technicians, setTechnicians ] = useState( [] );
+	const [ services, setServices ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 	const blockProps = useBlockProps( {
 		className: 'plumberslot-block-preview',
@@ -30,13 +30,13 @@ function Edit( { attributes, setAttributes } ) {
 		let alive = true;
 		( async () => {
 			try {
-				const data = await apiFetch( { path: '/plumberslot/v1/tutors' } );
+				const data = await apiFetch( { path: '/plumberslot/v1/technicians' } );
 				if ( alive ) {
-					setTutors( data.tutors || [] );
+					setTechnicians( data.technicians || [] );
 				}
 			} catch {
 				if ( alive ) {
-					setTutors( [] );
+					setTechnicians( [] );
 				}
 			} finally {
 				if ( alive ) {
@@ -50,11 +50,11 @@ function Edit( { attributes, setAttributes } ) {
 	}, [] );
 
 	useEffect( () => {
-		if ( ! tutor ) {
-			setSubjects( [] );
+		if ( ! technician ) {
+			setServices( [] );
 			return undefined;
 		}
-		const match = tutors.find( ( row ) => row.slug === tutor );
+		const match = technicians.find( ( row ) => row.slug === technician );
 		if ( ! match ) {
 			return undefined;
 		}
@@ -62,33 +62,33 @@ function Edit( { attributes, setAttributes } ) {
 		( async () => {
 			try {
 				const data = await apiFetch( {
-					path: `/plumberslot/v1/tutors/${ match.id }/subjects`,
+					path: `/plumberslot/v1/technicians/${ match.id }/services`,
 				} );
 				if ( alive ) {
-					setSubjects( data.subjects || [] );
+					setServices( data.services || [] );
 				}
 			} catch {
 				if ( alive ) {
-					setSubjects( [] );
+					setServices( [] );
 				}
 			}
 		} )();
 		return () => {
 			alive = false;
 		};
-	}, [ tutor, tutors ] );
+	}, [ technician, technicians ] );
 
-	const tutorOptions = [
-		{ label: __( 'Select a tutor', 'plumberslot' ), value: '' },
-		...tutors.map( ( row ) => ( {
+	const technicianOptions = [
+		{ label: __( 'Select a technician', 'plumberslot' ), value: '' },
+		...technicians.map( ( row ) => ( {
 			label: row.display_name,
 			value: row.slug,
 		} ) ),
 	];
 
-	const subjectOptions = [
-		{ label: __( 'Any subject', 'plumberslot' ), value: '0' },
-		...subjects.map( ( row ) => ( {
+	const serviceOptions = [
+		{ label: __( 'Any service', 'plumberslot' ), value: '0' },
+		...services.map( ( row ) => ( {
 			label: row.name,
 			value: String( row.id ),
 		} ) ),
@@ -106,38 +106,38 @@ function Edit( { attributes, setAttributes } ) {
 					) : (
 						<>
 							<SelectControl
-								label={ __( 'Tutor', 'plumberslot' ) }
-								value={ tutor }
-								options={ tutorOptions }
+								label={ __( 'Technician', 'plumberslot' ) }
+								value={ technician }
+								options={ technicianOptions }
 								onChange={ ( value ) =>
 									setAttributes( {
-										tutor: value,
-										subject: 0,
+										technician: value,
+										service: 0,
 									} )
 								}
 							/>
 							<SelectControl
 								label={ __(
-									'Subject (optional)',
+									'Service (optional)',
 									'plumberslot'
 								) }
-								value={ String( subject || 0 ) }
-								options={ subjectOptions }
+								value={ String( service || 0 ) }
+								options={ serviceOptions }
 								onChange={ ( value ) =>
 									setAttributes( {
-										subject: Number( value ) || 0,
+										service: Number( value ) || 0,
 									} )
 								}
 							/>
 							<TextControl
-								label={ __( 'Tutor slug', 'plumberslot' ) }
+								label={ __( 'Technician slug', 'plumberslot' ) }
 								help={ __(
-									'Used if the tutor list is unavailable.',
+									'Used if the technician list is unavailable.',
 									'plumberslot'
 								) }
-								value={ tutor }
+								value={ technician }
 								onChange={ ( value ) =>
-									setAttributes( { tutor: value } )
+									setAttributes( { technician: value } )
 								}
 							/>
 						</>
@@ -147,9 +147,9 @@ function Edit( { attributes, setAttributes } ) {
 			<div className="plumberslot-block-preview__card">
 				<strong>{ __( 'PlumberSlot booking', 'plumberslot' ) }</strong>
 				<p>
-					{ tutor
-						? __( 'Tutor:', 'plumberslot' ) + ' ' + tutor
-						: __( 'Choose a tutor in the sidebar.', 'plumberslot' ) }
+					{ technician
+						? __( 'Technician:', 'plumberslot' ) + ' ' + technician
+						: __( 'Choose a technician in the sidebar.', 'plumberslot' ) }
 				</p>
 			</div>
 		</div>

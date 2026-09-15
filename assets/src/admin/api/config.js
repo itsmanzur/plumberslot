@@ -8,14 +8,14 @@ const boot =
 		: {
 				root: '/wp-json/plumberslot/v1',
 				nonce: '',
-				tutorId: 0,
+				technicianId: 0,
 				timezone: 'UTC',
 				version: '0.1.0',
 				initialDashboard: null,
 				user: { id: 0, name: '' },
 				caps: {
 					manageOwn: true,
-					manageTutors: false,
+					manageTechnicians: false,
 					manageAll: false,
 					viewReports: false,
 				},

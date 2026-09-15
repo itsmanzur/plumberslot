@@ -14,19 +14,18 @@ import { PageHeader, ScreenState } from '../components/PageHeader';
 
 const emptyForm = () => ( {
 	name: '',
-	level: '',
-	curriculum: '',
+	category: '',
 	duration_min: 60,
 	price_major: '',
-	is_trial: false,
+	is_free_estimate: false,
 	status: 'active',
 } );
 
-export function SubjectsScreen() {
+export function ServicesScreen() {
 	const config = getConfig();
-	const manageTutors = can( 'manageTutors' );
-	const [ tutorId, setTutorId ] = useState( config.tutorId || 0 );
-	const [ tutors, setTutors ] = useState( [] );
+	const manageTechnicians = can( 'manageTechnicians' );
+	const [ technicianId, setTechnicianId ] = useState( config.technicianId || 0 );
+	const [ technicians, setTechnicians ] = useState( [] );
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
 	const [ rows, setRows ] = useState( [] );
@@ -39,40 +38,40 @@ export function SubjectsScreen() {
 	const [ deleting, setDeleting ] = useState( false );
 
 	useEffect( () => {
-		if ( ! manageTutors ) {
+		if ( ! manageTechnicians ) {
 			return;
 		}
 		( async () => {
 			try {
-				const data = await get( 'tutors' );
-				const list = data.tutors || [];
-				setTutors( list );
-				if ( ! tutorId && list.length ) {
-					setTutorId( list[ 0 ].id );
+				const data = await get( 'technicians' );
+				const list = data.technicians || [];
+				setTechnicians( list );
+				if ( ! technicianId && list.length ) {
+					setTechnicianId( list[ 0 ].id );
 				}
 			} catch {
-				/* keep own tutorId */
+				/* keep own technicianId */
 			}
 		} )();
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- mount resolve
 	}, [] );
 
 	const load = async () => {
-		if ( ! tutorId ) {
+		if ( ! technicianId ) {
 			setError(
-				'No tutor profile is linked yet. Finish setup first, or pick a tutor.'
+				'No technician profile is linked yet. Finish setup first, or pick a technician.'
 			);
 			setStatus( 'error' );
 			return;
 		}
 		setStatus( 'loading' );
 		try {
-			const data = await get( `tutors/${ tutorId }/subjects` );
-			setRows( data.subjects || [] );
+			const data = await get( `technicians/${ technicianId }/services` );
+			setRows( data.services || [] );
 			setCurrency( data.currency || 'USD' );
 			setStatus( 'ready' );
 		} catch ( err ) {
-			setError( err.message || 'Could not load subjects.' );
+			setError( err.message || 'Could not load services.' );
 			setStatus( 'error' );
 		}
 	};
@@ -80,7 +79,7 @@ export function SubjectsScreen() {
 	useEffect( () => {
 		load();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ tutorId ] );
+	}, [ technicianId ] );
 
 	const openCreate = () => {
 		setEditingId( 0 );
@@ -92,11 +91,10 @@ export function SubjectsScreen() {
 		setEditingId( row.id );
 		setForm( {
 			name: row.name || '',
-			level: row.level || '',
-			curriculum: row.curriculum || '',
+			category: row.category || '',
 			duration_min: row.duration_min || 60,
 			price_major: String( ( Number( row.price_minor ) || 0 ) / 100 ),
-			is_trial: Boolean( row.is_trial ),
+			is_free_estimate: Boolean( row.is_free_estimate ),
 			status: row.status || 'active',
 		} );
 		setModal( 'edit' );
@@ -105,34 +103,33 @@ export function SubjectsScreen() {
 	const onSave = async () => {
 		const name = form.name.trim();
 		if ( ! name ) {
-			announce( 'Subject name is required.' );
+			announce( 'Service name is required.' );
 			return;
 		}
 		setSaving( true );
 		const payload = {
 			name,
-			level: form.level.trim(),
-			curriculum: form.curriculum.trim(),
+			category: form.category.trim(),
 			duration_min: Math.max( 15, Number( form.duration_min ) || 60 ),
 			price_minor: majorToMinor( form.price_major ),
-			is_trial: Boolean( form.is_trial ),
+			is_free_estimate: Boolean( form.is_free_estimate ),
 			status: form.status === 'inactive' ? 'inactive' : 'active',
 		};
 		try {
 			if ( modal === 'edit' && editingId ) {
 				await patch(
-					`tutors/${ tutorId }/subjects/${ editingId }`,
+					`technicians/${ technicianId }/services/${ editingId }`,
 					payload
 				);
-				announce( 'Subject updated.' );
+				announce( 'Service updated.' );
 			} else {
-				await post( `tutors/${ tutorId }/subjects`, payload );
-				announce( 'Subject added.' );
+				await post( `technicians/${ technicianId }/services`, payload );
+				announce( 'Service added.' );
 			}
 			setModal( null );
 			await load();
 		} catch ( err ) {
-			announce( err.message || 'Could not save subject.' );
+			announce( err.message || 'Could not save service.' );
 		} finally {
 			setSaving( false );
 		}
@@ -146,12 +143,12 @@ export function SubjectsScreen() {
 		}
 		setDeleting( true );
 		try {
-			await del( `tutors/${ tutorId }/subjects/${ deleteTarget.id }` );
-			announce( 'Subject removed.' );
+			await del( `technicians/${ technicianId }/services/${ deleteTarget.id }` );
+			announce( 'Service removed.' );
 			setDeleteTarget( null );
 			await load();
 		} catch ( err ) {
-			announce( err.message || 'Could not remove subject.' );
+			announce( err.message || 'Could not remove service.' );
 		} finally {
 			setDeleting( false );
 		}
@@ -159,47 +156,47 @@ export function SubjectsScreen() {
 
 	const countLabel =
 		rows.length === 1
-			? 'One subject on your booking page.'
-			: `${ rows.length || 'No' } subjects on your booking page.`;
+			? 'One service on your booking page.'
+			: `${ rows.length || 'No' } services on your booking page.`;
 
 	return h(
 		'div',
-		{ class: 'ts-admin-screen', 'data-screen': 'subjects' },
+		{ class: 'ts-admin-screen', 'data-screen': 'services' },
 		h( PageHeader, {
 			eyebrow: 'Offerings',
-			title: 'Subjects & pricing',
+			title: 'Services & pricing',
 			subtitle: `${ countLabel } Set what parents can book and what each lesson costs.`,
-			actions: tutorId
+			actions: technicianId
 				? [
 						{
 							id: 'add',
-							label: 'Add subject',
+							label: 'Add service',
 							variant: 'primary',
 							onClick: openCreate,
 						},
 				  ]
 				: [],
 		} ),
-		manageTutors && tutors.length > 1
+		manageTechnicians && technicians.length > 1
 			? h(
 					'div',
-					{ class: 'ts-admin-card ts-subjects__tutor-pick' },
+					{ class: 'ts-admin-card ts-services__technician-pick' },
 					h(
 						'label',
 						{ class: 'ts-admin-field' },
-						h( 'span', null, 'Tutor' ),
+						h( 'span', null, 'Technician' ),
 						h(
 							'select',
 							{
-								value: tutorId,
+								value: technicianId,
 								onChange: ( event ) =>
-									setTutorId( Number( event.target.value ) ),
+									setTechnicianId( Number( event.target.value ) ),
 							},
-							tutors.map( ( tutor ) =>
+							technicians.map( ( technician ) =>
 								h(
 									'option',
-									{ key: tutor.id, value: tutor.id },
-									tutor.display_name
+									{ key: technician.id, value: technician.id },
+									technician.display_name
 								)
 							)
 						)
@@ -211,10 +208,10 @@ export function SubjectsScreen() {
 			{ status, error },
 			status === 'ready' && rows.length === 0
 				? h( EmptyState, {
-						title: 'No subjects yet',
+						title: 'No services yet',
 						description:
 							'Add what you teach — name, length, and price. Parents pick one when they book.',
-						actionLabel: 'Add subject',
+						actionLabel: 'Add service',
 						onAction: openCreate,
 				  } )
 				: null,
@@ -234,7 +231,7 @@ export function SubjectsScreen() {
 									h(
 										'tr',
 										null,
-										h( 'th', null, 'Subject' ),
+										h( 'th', null, 'Service' ),
 										h( 'th', null, 'Length' ),
 										h( 'th', null, 'Price' ),
 										h( 'th', null, 'Status' ),
@@ -254,34 +251,25 @@ export function SubjectsScreen() {
 												h(
 													'div',
 													{
-														class: 'ts-subjects__name',
+														class: 'ts-services__name',
 													},
 													h( 'b', null, row.name ),
-													row.level || row.curriculum
+													row.category
 														? h(
 																'small',
 																{
 																	class: 'ts-admin__muted',
 																},
-																[
-																	row.level,
-																	row.curriculum,
-																]
-																	.filter(
-																		Boolean
-																	)
-																	.join(
-																		' · '
-																	)
+																row.category
 														  )
 														: null,
-													row.is_trial
+													row.is_free_estimate
 														? h(
 																'small',
 																{
-																	class: 'ts-subjects__trial',
+																	class: 'ts-services__free-estimate',
 																},
-																'Trial'
+																'Free estimate'
 														  )
 														: null
 												)
@@ -354,7 +342,7 @@ export function SubjectsScreen() {
 			Modal,
 			{
 				open: Boolean( modal ),
-				title: modal === 'edit' ? 'Edit subject' : 'Add subject',
+				title: modal === 'edit' ? 'Edit service' : 'Add service',
 				onClose: () => setModal( null ),
 				primaryLabel: saving ? 'Saving…' : 'Save',
 				primaryDisabled: saving,
@@ -366,11 +354,8 @@ export function SubjectsScreen() {
 				field( 'Name', form.name, ( v ) =>
 					setForm( { ...form, name: v } )
 				),
-				field( 'Level (optional)', form.level, ( v ) =>
-					setForm( { ...form, level: v } )
-				),
-				field( 'Curriculum (optional)', form.curriculum, ( v ) =>
-					setForm( { ...form, curriculum: v } )
+				field( 'Category (optional)', form.category, ( v ) =>
+					setForm( { ...form, category: v } )
 				),
 				field(
 					'Lesson length (minutes)',
@@ -389,12 +374,12 @@ export function SubjectsScreen() {
 					'number'
 				),
 				h( Toggle, {
-					label: 'Offer as a trial lesson',
+					label: 'Offer as a free estimate',
 					explanation:
-						'Trial subjects are marked on the booking page so parents can try you first.',
-					checked: form.is_trial,
+						'Free-estimate services are marked on the booking page so customers can try you first.',
+					checked: form.is_free_estimate,
 					onChange: ( checked ) =>
-						setForm( { ...form, is_trial: checked } ),
+						setForm( { ...form, is_free_estimate: checked } ),
 				} ),
 				h(
 					'label',
@@ -424,7 +409,7 @@ export function SubjectsScreen() {
 			Modal,
 			{
 				open: Boolean( deleteTarget ),
-				title: 'Remove subject?',
+				title: 'Remove service?',
 				onClose: () => setDeleteTarget( null ),
 				primaryLabel: deleting ? 'Removing…' : 'Remove',
 				primaryDisabled: deleting,

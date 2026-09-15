@@ -10,7 +10,7 @@
 	gap: var(--ts-sp-4);
 }
 
-/* ---- Step card chrome (Subject / Time / Confirm) ---- */
+/* ---- Step card chrome (Service / Time / Confirm) ---- */
 .ts-book--step {
 	display: block;
 	max-width: 660px;
@@ -377,13 +377,13 @@
 	text-align: right;
 }
 
-.ts-book__subjects {
+.ts-book__services {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 12px;
 }
 
-.ts-book__subject {
+.ts-book__service {
 	text-align: left;
 	padding: 16px 18px;
 	border: 1.5px solid var(--ts-rule);
@@ -396,35 +396,35 @@
 	color: inherit;
 }
 
-.plumberslot-widget .ts-book__subject:hover,
-.plumberslot-widget .ts-book__subject:focus {
+.plumberslot-widget .ts-book__service:hover,
+.plumberslot-widget .ts-book__service:focus {
 	border-color: var(--ts-mute);
 	background: var(--ts-card) !important;
 	color: var(--ts-ink);
 }
 
-.plumberslot-widget .ts-book__subject.is-selected,
-.plumberslot-widget .ts-book__subject.is-selected:hover,
-.plumberslot-widget .ts-book__subject.is-selected:focus {
+.plumberslot-widget .ts-book__service.is-selected,
+.plumberslot-widget .ts-book__service.is-selected:hover,
+.plumberslot-widget .ts-book__service.is-selected:focus {
 	border-color: var(--ts-primary);
 	background: var(--ts-primary-wash) !important;
 	color: var(--ts-ink);
 }
 
-.plumberslot-widget .ts-book__subject strong {
+.plumberslot-widget .ts-book__service strong {
 	font-family: var(--ts-font-display);
 	font-size: 15.5px;
 	color: var(--ts-ink);
 }
 
-.ts-book__subject-price {
+.ts-book__service-price {
 	display: block;
 	margin-top: 9px;
 	font: 600 13px / 1 var(--ts-font-mono);
 	color: var(--ts-ink);
 }
 
-.ts-book__subject-price s {
+.ts-book__service-price s {
 	color: var(--ts-mute);
 	font-weight: 400;
 	margin-right: 6px;
@@ -908,7 +908,7 @@
 	}
 
 	.ts-book__fields--two,
-	.ts-book__subjects,
+	.ts-book__services,
 	.ts-book__who {
 		grid-template-columns: 1fr;
 	}

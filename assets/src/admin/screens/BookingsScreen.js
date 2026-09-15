@@ -42,7 +42,7 @@ export function BookingsScreen() {
 
 	const tz = useMemo(
 		() =>
-			reschedule?.tutor_timezone ||
+			reschedule?.technician_timezone ||
 			getConfig().timezone ||
 			detectTimezone(),
 		[ reschedule ]
@@ -143,7 +143,7 @@ export function BookingsScreen() {
 				from.setHours( 0, 0, 0, 0 );
 				const to = new Date( from.getTime() + 8 * 86400000 );
 				const data = await get( 'slots', {
-					tutor_id: reschedule.tutor_id,
+					technician_id: reschedule.technician_id,
 					from: from.toISOString(),
 					to: to.toISOString(),
 					duration: reschedule.duration_min || 60,
@@ -328,7 +328,7 @@ export function BookingsScreen() {
 								},
 								h( 'input', {
 									type: 'search',
-									placeholder: 'Search student or subject',
+									placeholder: 'Search customer or service',
 									value: search,
 									onInput: ( event ) =>
 										setSearch( event.target.value ),
@@ -357,8 +357,8 @@ export function BookingsScreen() {
 									h(
 										'tr',
 										null,
-										h( 'th', null, 'Student' ),
-										h( 'th', null, 'Subject' ),
+										h( 'th', null, 'Customer' ),
+										h( 'th', null, 'Service' ),
 										h( 'th', null, 'When' ),
 										h( 'th', null, 'Series' ),
 										h( 'th', null, 'Payment' ),
@@ -377,7 +377,7 @@ export function BookingsScreen() {
 												'td',
 												null,
 												h( PersonCell, {
-													name: row.student,
+													name: row.customer,
 													context:
 														row.parent ||
 														row.payer ||
@@ -385,7 +385,7 @@ export function BookingsScreen() {
 													initials: row.initials,
 												} )
 											),
-											h( 'td', null, row.subject ),
+											h( 'td', null, row.service ),
 											h(
 												'td',
 												{ class: 'plumberslot-mono' },
@@ -536,8 +536,8 @@ export function BookingsScreen() {
 						h(
 							'p',
 							null,
-							h( 'b', null, detail.student ),
-							` · ${ detail.subject }`
+							h( 'b', null, detail.customer ),
+							` · ${ detail.service }`
 						),
 						h(
 							'p',
@@ -602,7 +602,7 @@ export function BookingsScreen() {
 			{
 				open: Boolean( reschedule ),
 				title: reschedule
-					? `Move ${ reschedule.student }’s lesson`
+					? `Move ${ reschedule.customer }’s lesson`
 					: 'Reschedule',
 				onClose: closeReschedule,
 				primaryLabel: savingMove ? 'Saving…' : 'Save new time',
@@ -754,7 +754,7 @@ async function resolveBookingUrl() {
 	const config = getConfig();
 	try {
 		const dash = await get( 'dashboard', {
-			tutor_id: config.tutorId || undefined,
+			technician_id: config.technicianId || undefined,
 		} );
 		if ( dash?.booking_url ) {
 			return dash.booking_url;

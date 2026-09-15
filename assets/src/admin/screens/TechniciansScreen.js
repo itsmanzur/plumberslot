@@ -12,20 +12,19 @@ import { can } from '../api/config';
 import { get, patch, post } from '../api/client';
 import { PageHeader, ScreenState } from '../components/PageHeader';
 
-export function TutorsScreen() {
-	const allowed = can( 'manageTutors' );
+export function TechniciansScreen() {
+	const allowed = can( 'manageTechnicians' );
 	const [ status, setStatus ] = useState( allowed ? 'loading' : 'error' );
 	const [ error, setError ] = useState(
 		allowed
 			? ''
-			: 'You need the manage-tutors capability to open this screen.'
+			: 'You need the manage-technicians capability to open this screen.'
 	);
-	const [ tutors, setTutors ] = useState( [] );
+	const [ technicians, setTechnicians ] = useState( [] );
 	const [ inviteOpen, setInviteOpen ] = useState( false );
 	const [ email, setEmail ] = useState( '' );
 	const [ name, setName ] = useState( '' );
 	const [ rate, setRate ] = useState( '' );
-	const [ payout, setPayout ] = useState( 100 );
 	const [ edit, setEdit ] = useState( null );
 
 	const load = async () => {
@@ -34,11 +33,11 @@ export function TutorsScreen() {
 		}
 		setStatus( 'loading' );
 		try {
-			const data = await get( 'tutors' );
-			setTutors( data.tutors || [] );
+			const data = await get( 'technicians' );
+			setTechnicians( data.technicians || [] );
 			setStatus( 'ready' );
 		} catch ( err ) {
-			setError( err.message || 'Could not load tutors.' );
+			setError( err.message || 'Could not load technicians.' );
 			setStatus( 'error' );
 		}
 	};
@@ -49,11 +48,10 @@ export function TutorsScreen() {
 	}, [] );
 
 	const onInvite = async () => {
-		await post( 'tutors', {
+		await post( 'technicians', {
 			email,
 			display_name: name,
 			hourly_rate_minor: majorToMinor( rate ),
-			payout_share_pct: Number( payout ) || 100,
 		} );
 		announce( 'Invitation sent.' );
 		setInviteOpen( false );
@@ -64,7 +62,7 @@ export function TutorsScreen() {
 	};
 
 	const onResend = async ( id ) => {
-		await post( `tutors/${ id }/resend` );
+		await post( `technicians/${ id }/resend` );
 		announce( 'Invitation resent.' );
 	};
 
@@ -72,46 +70,45 @@ export function TutorsScreen() {
 		if ( ! edit ) {
 			return;
 		}
-		await patch( `tutors/${ edit.id }`, {
+		await patch( `technicians/${ edit.id }`, {
 			display_name: edit.display_name,
 			hourly_rate_minor: majorToMinor( edit.rate_major ),
-			payout_share_pct: Number( edit.payout_share_pct ) || 0,
 			status: edit.status,
 		} );
-		announce( 'Tutor updated.' );
+		announce( 'Technician updated.' );
 		setEdit( null );
 		load();
 	};
 
-	const openEdit = ( tutor ) => {
+	const openEdit = ( technician ) => {
 		setEdit( {
-			...tutor,
+			...technician,
 			rate_major: String(
-				( Number( tutor.hourly_rate_minor ) || 0 ) / 100
+				( Number( technician.hourly_rate_minor ) || 0 ) / 100
 			),
 		} );
 	};
 
 	const countLabel =
-		tutors.length === 1
-			? 'One tutor on this site.'
-			: `${ tutors.length || 'No' } tutors on this site.`;
+		technicians.length === 1
+			? 'One technician on this site.'
+			: `${ technicians.length || 'No' } technicians on this site.`;
 
 	const currency =
-		tutors[ 0 ]?.currency || tutors.find( ( t ) => t.currency )?.currency;
+		technicians[ 0 ]?.currency || technicians.find( ( t ) => t.currency )?.currency;
 
 	return h(
 		'div',
-		{ class: 'ts-admin-screen', 'data-screen': 'tutors' },
+		{ class: 'ts-admin-screen', 'data-screen': 'technicians' },
 		h( PageHeader, {
 			eyebrow: 'Team',
-			title: 'Tutors',
+			title: 'Technicians',
 			subtitle: `${ countLabel } Invite teachers and set rates.`,
 			actions: allowed
 				? [
 						{
 							id: 'invite',
-							label: 'Invite tutor',
+							label: 'Invite technician',
 							variant: 'primary',
 							onClick: () => setInviteOpen( true ),
 						},
@@ -121,12 +118,12 @@ export function TutorsScreen() {
 		h(
 			ScreenState,
 			{ status, error },
-			status === 'ready' && tutors.length === 0
+			status === 'ready' && technicians.length === 0
 				? h( EmptyState, {
-						title: 'No tutors yet',
+						title: 'No technicians yet',
 						description:
 							'Invite teachers by email. They get a link to set their hours after accepting.',
-						actionLabel: 'Invite tutor',
+						actionLabel: 'Invite technician',
 						onAction: () => setInviteOpen( true ),
 				  } )
 				: h(
@@ -144,10 +141,9 @@ export function TutorsScreen() {
 									h(
 										'tr',
 										null,
-										h( 'th', null, 'Tutor' ),
-										h( 'th', null, 'Subjects' ),
+										h( 'th', null, 'Technician' ),
+										h( 'th', null, 'Services' ),
 										h( 'th', null, 'Rate' ),
-										h( 'th', null, 'Payout' ),
 										h( 'th', null, 'Status' ),
 										h( 'th', null, '' )
 									)
@@ -155,24 +151,24 @@ export function TutorsScreen() {
 								h(
 									'tbody',
 									null,
-									tutors.map( ( tutor ) =>
+									technicians.map( ( technician ) =>
 										h(
 											'tr',
-											{ key: tutor.id },
+											{ key: technician.id },
 											h(
 												'td',
 												null,
 												h( PersonCell, {
-													name: tutor.display_name,
-													context: tutor.email || '',
-													initials: tutor.initials,
+													name: technician.display_name,
+													context: technician.email || '',
+													initials: technician.initials,
 												} )
 											),
 											h(
 												'td',
 												null,
-												Array.isArray( tutor.subjects )
-													? tutor.subjects.join(
+												Array.isArray( technician.services )
+													? technician.services.join(
 															', '
 													  ) || '—'
 													: '—'
@@ -181,14 +177,9 @@ export function TutorsScreen() {
 												'td',
 												{ class: 'plumberslot-mono' },
 												`${
-													( tutor.hourly_rate_minor ||
+													( technician.hourly_rate_minor ||
 														0 ) / 100
-												} ${ tutor.currency }`
-											),
-											h(
-												'td',
-												null,
-												`${ tutor.payout_share_pct }%`
+												} ${ technician.currency }`
 											),
 											h(
 												'td',
@@ -196,11 +187,11 @@ export function TutorsScreen() {
 												h(
 													StatusChip,
 													{
-														tone: tutorTone(
-															tutor.status
+														tone: technicianTone(
+															technician.status
 														),
 													},
-													tutor.status
+													technician.status
 												)
 											),
 											h(
@@ -216,12 +207,12 @@ export function TutorsScreen() {
 															variant: 'ghost',
 															onClick: () =>
 																openEdit(
-																	tutor
+																	technician
 																),
 														},
 														'Edit'
 													),
-													tutor.status === 'invited'
+													technician.status === 'invited'
 														? h(
 																Button,
 																{
@@ -231,7 +222,7 @@ export function TutorsScreen() {
 																	onClick:
 																		() =>
 																			onResend(
-																				tutor.id
+																				technician.id
 																			),
 																},
 																'Resend'
@@ -253,7 +244,7 @@ export function TutorsScreen() {
 									margin: 0,
 								},
 							},
-							'Tutors set their own weekly hours from /tutor-dashboard after accepting the invite.'
+							'Technicians set their own weekly hours from /technician-dashboard after accepting the invite.'
 						)
 				  )
 		),
@@ -261,7 +252,7 @@ export function TutorsScreen() {
 			Modal,
 			{
 				open: inviteOpen,
-				title: 'Invite a tutor',
+				title: 'Invite a technician',
 				onClose: () => setInviteOpen( false ),
 				primaryLabel: 'Send invite',
 				onPrimary: onInvite,
@@ -276,15 +267,14 @@ export function TutorsScreen() {
 					rate,
 					setRate,
 					'number'
-				),
-				field( 'Payout share %', payout, setPayout, 'number' )
+				)
 			)
 		),
 		h(
 			Modal,
 			{
 				open: Boolean( edit ),
-				title: edit ? `Edit ${ edit.display_name }` : 'Edit tutor',
+				title: edit ? `Edit ${ edit.display_name }` : 'Edit technician',
 				onClose: () => setEdit( null ),
 				primaryLabel: 'Save',
 				onPrimary: onSaveEdit,
@@ -302,13 +292,6 @@ export function TutorsScreen() {
 								: 'Hourly rate',
 							edit.rate_major,
 							( v ) => setEdit( { ...edit, rate_major: v } ),
-							'number'
-						),
-						field(
-							'Payout %',
-							edit.payout_share_pct,
-							( v ) =>
-								setEdit( { ...edit, payout_share_pct: v } ),
 							'number'
 						),
 						h(
@@ -358,7 +341,7 @@ function field( label, value, onInput, type = 'text' ) {
 	);
 }
 
-function tutorTone( status ) {
+function technicianTone( status ) {
 	if ( status === 'active' ) {
 		return 'ok';
 	}

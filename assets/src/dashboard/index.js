@@ -5,7 +5,7 @@ import '../shared/components.css';
 import './app.css';
 
 import { ParentDashboard } from './ParentDashboard';
-import { TutorDashboard } from './TutorDashboard';
+import { TechnicianDashboard } from './TechnicianDashboard';
 
 const boot =
 	typeof window !== 'undefined' && window.plumberslotDashboard
@@ -15,7 +15,7 @@ const boot =
 document.querySelectorAll( '.plumberslot-dashboard' ).forEach( ( target ) => {
 	const view = target.dataset.view || boot.view || 'parent';
 	render(
-		h( view === 'tutor' ? TutorDashboard : ParentDashboard, null ),
+		h( view === 'technician' ? TechnicianDashboard : ParentDashboard, null ),
 		target
 	);
 } );

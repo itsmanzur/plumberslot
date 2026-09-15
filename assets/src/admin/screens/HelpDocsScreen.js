@@ -11,7 +11,7 @@ const QUICK_START = [
 		number: '01',
 		title: 'Add your tutor profile',
 		text: 'Choose the tutor, timezone and meeting preference students should see.',
-		screen: 'plumberslot-tutors',
+		screen: 'plumberslot-technicians',
 		action: 'Open tutors',
 	},
 	{
@@ -19,7 +19,7 @@ const QUICK_START = [
 		number: '02',
 		title: 'Create at least one subject',
 		text: 'Give it a clear name, lesson length and price. Keep the first offer simple.',
-		screen: 'plumberslot-subjects',
+		screen: 'plumberslot-services',
 		action: 'Add a subject',
 	},
 	{
@@ -102,7 +102,7 @@ const GUIDES = [
 			'Save, then make sure the subject is active.',
 		],
 		tip: 'Students only see subjects assigned to the tutor they selected.',
-		screen: 'plumberslot-subjects',
+		screen: 'plumberslot-services',
 	},
 	{
 		id: 'booking',

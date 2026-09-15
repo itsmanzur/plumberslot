@@ -14,13 +14,13 @@ import {
 import { cellsToWeek, weekToCells } from '../admin/lib/weekMap';
 import { get, getBoot, post, put } from './api';
 
-export function TutorDashboard() {
+export function TechnicianDashboard() {
 	const boot = getBoot();
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
 	const [ lessons, setLessons ] = useState( [] );
 	const [ attendanceDue, setAttendanceDue ] = useState( [] );
-	const [ tutorId, setTutorId ] = useState( boot.tutorId || 0 );
+	const [ technicianId, setTechnicianId ] = useState( boot.technicianId || 0 );
 	const [ weekCells, setWeekCells ] = useState( null );
 	const [ gridKey, setGridKey ] = useState( 0 );
 	const [ noteDrafts, setNoteDrafts ] = useState( {} );
@@ -48,11 +48,11 @@ export function TutorDashboard() {
 			setLessons( items );
 			setAttendanceDue( ended );
 			const tid =
-				boot.tutorId ||
-				items[ 0 ]?.tutor_id ||
-				ended[ 0 ]?.tutor_id ||
+				boot.technicianId ||
+				items[ 0 ]?.technician_id ||
+				ended[ 0 ]?.technician_id ||
 				0;
-			setTutorId( tid );
+			setTechnicianId( tid );
 			if ( tid ) {
 				const avail = await get( `availability/${ tid }` );
 				setWeekCells( weekToCells( avail.week || [] ) );
@@ -62,7 +62,7 @@ export function TutorDashboard() {
 			}
 			setStatus( 'ready' );
 		} catch ( err ) {
-			setError( err.message || 'Could not load tutor dashboard.' );
+			setError( err.message || 'Could not load technician dashboard.' );
 			setStatus( 'error' );
 		}
 	};
@@ -109,12 +109,12 @@ export function TutorDashboard() {
 	};
 
 	const onSaveWeek = async ( cells ) => {
-		if ( ! tutorId ) {
-			announce( 'No tutor profile is linked to this account yet.' );
+		if ( ! technicianId ) {
+			announce( 'No technician profile is linked to this account yet.' );
 			return;
 		}
 		try {
-			await put( `availability/${ tutorId }`, {
+			await put( `availability/${ technicianId }`, {
 				week: cellsToWeek( cells ),
 			} );
 			setWeekCells( cells );
@@ -133,7 +133,7 @@ export function TutorDashboard() {
 			h(
 				Callout,
 				{ title: 'Sign in:' },
-				'Tutors manage lessons from this page, not wp-admin.'
+				'Technicians manage lessons from this page, not wp-admin.'
 			),
 			h(
 				Button,
@@ -167,13 +167,13 @@ export function TutorDashboard() {
 		h(
 			'header',
 			{ class: 'ts-dash__hero' },
-			h( 'p', { class: 'ts-dash__eyebrow' }, boot.user?.name || 'Tutor' ),
+			h( 'p', { class: 'ts-dash__eyebrow' }, boot.user?.name || 'Technician' ),
 			h( 'h1', null, 'Your teaching schedule' )
 		),
 		error ? h( Callout, { tone: 'warn', title: 'Notice:' }, error ) : null,
 		h(
 			'div',
-			{ class: 'ts-dash__grid ts-dash__grid--tutor' },
+			{ class: 'ts-dash__grid ts-dash__grid--technician' },
 			h(
 				'section',
 				{ class: 'ts-dash__panel' },
@@ -182,14 +182,14 @@ export function TutorDashboard() {
 					? h( EmptyState, {
 							title: 'No lessons booked',
 							description:
-								'When students book you, they appear here.',
+								'When customers book you, they appear here.',
 					  } )
 					: lessons.map( ( row ) =>
 							h(
 								'article',
 								{
 									key: row.id,
-									class: 'ts-dash__lesson ts-dash__lesson--tutor',
+									class: 'ts-dash__lesson ts-dash__lesson--technician',
 								},
 								h(
 									'div',
@@ -197,7 +197,7 @@ export function TutorDashboard() {
 									h(
 										'b',
 										null,
-										`${ row.subject } · ${ row.student }`
+										`${ row.service } · ${ row.customer }`
 									),
 									h(
 										'small',
@@ -252,7 +252,7 @@ export function TutorDashboard() {
 								'article',
 								{
 									key: `attendance-${ row.id }`,
-									class: 'ts-dash__lesson ts-dash__lesson--tutor',
+									class: 'ts-dash__lesson ts-dash__lesson--technician',
 								},
 								h(
 									'div',
@@ -260,7 +260,7 @@ export function TutorDashboard() {
 									h(
 										'b',
 										null,
-										`${ row.subject } · ${ row.student }`
+										`${ row.service } · ${ row.customer }`
 									),
 									h(
 										'small',
@@ -315,7 +315,7 @@ export function TutorDashboard() {
 							h(
 								'p',
 								{ class: 'ts-dash__hint' },
-								'Paint the hours students can book, then save. This pattern repeats every week.'
+								'Paint the hours customers can book, then save. This pattern repeats every week.'
 							),
 							h( TimetableGrid, {
 								key: gridKey,
@@ -325,7 +325,7 @@ export function TutorDashboard() {
 							} )
 					  )
 					: h( EmptyState, {
-							title: 'No tutor profile yet',
+							title: 'No technician profile yet',
 							description:
 								'Accept your invite or ask the site manager to finish linking your account.',
 					  } )

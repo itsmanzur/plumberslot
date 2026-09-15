@@ -1,19 +1,19 @@
 const DRAFT_KEY = 'plumberslot_booking_draft';
 
 /**
- * @param {number} tutorId
+ * @param {number} technicianId
  * @param {Object} draft
  */
-export function saveBookingDraft( tutorId, draft ) {
-	if ( typeof sessionStorage === 'undefined' || ! tutorId ) {
+export function saveBookingDraft( technicianId, draft ) {
+	if ( typeof sessionStorage === 'undefined' || ! technicianId ) {
 		return;
 	}
 	try {
 		sessionStorage.setItem(
 			DRAFT_KEY,
 			JSON.stringify( {
-				tutorId: Number( tutorId ),
-				subjectId: Number( draft.subjectId ) || 0,
+				technicianId: Number( technicianId ),
+				serviceId: Number( draft.serviceId ) || 0,
 				start: draft.start || '',
 				timezone: draft.timezone || '',
 				step: draft.step || 'confirm',
@@ -26,11 +26,11 @@ export function saveBookingDraft( tutorId, draft ) {
 }
 
 /**
- * @param {number} tutorId
+ * @param {number} technicianId
  * @return {Object|null} The saved draft, or null when none is available.
  */
-export function readBookingDraft( tutorId ) {
-	if ( typeof sessionStorage === 'undefined' || ! tutorId ) {
+export function readBookingDraft( technicianId ) {
+	if ( typeof sessionStorage === 'undefined' || ! technicianId ) {
 		return null;
 	}
 	try {
@@ -39,7 +39,7 @@ export function readBookingDraft( tutorId ) {
 			return null;
 		}
 		const draft = JSON.parse( raw );
-		if ( Number( draft.tutorId ) !== Number( tutorId ) ) {
+		if ( Number( draft.technicianId ) !== Number( technicianId ) ) {
 			return null;
 		}
 		// Drop drafts older than 2 hours.

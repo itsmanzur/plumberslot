@@ -94,7 +94,7 @@
 	gap: 20px;
 }
 
-.ts-dash__grid--tutor {
+.ts-dash__grid--technician {
 	grid-template-columns: 1fr 1fr;
 }
 
@@ -135,7 +135,7 @@
 	border-top: 1px solid var(--ts-rule, #e7ebf3);
 }
 
-.ts-dash__lesson--tutor {
+.ts-dash__lesson--technician {
 	grid-template-columns: 1fr;
 }
 
@@ -193,7 +193,7 @@
 @media (max-width: 800px) {
 
 	.ts-dash__grid,
-	.ts-dash__grid--tutor {
+	.ts-dash__grid--technician {
 		grid-template-columns: 1fr;
 	}
 

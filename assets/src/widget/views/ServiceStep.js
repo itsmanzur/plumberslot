@@ -4,29 +4,29 @@ import { handleListboxKeyDown } from '../a11y';
 import { money } from '../lib';
 
 const RAIL = [
-	{ id: 'subject', label: 'Subject' },
+	{ id: 'service', label: 'Service' },
 	{ id: 'time', label: 'Time' },
 	{ id: 'confirm', label: 'Confirm' },
 ];
 
-export function SubjectStep( {
-	tutor,
+export function ServiceStep( {
+	technician,
 	selectedId,
 	onSelect,
 	onContinue,
 	onBack,
 } ) {
-	const subjects = tutor.subjects || [];
+	const services = technician.services || [];
 
-	if ( ! subjects.length ) {
+	if ( ! services.length ) {
 		return h( EmptyState, {
-			title: 'No subjects yet',
-			description: 'This tutor has not published lesson subjects.',
+			title: 'No services yet',
+			description: 'This technician has not published lesson services.',
 		} );
 	}
 
-	const selected = subjects.find( ( s ) => s.id === selectedId );
-	const selectedIndex = subjects.findIndex( ( s ) => s.id === selectedId );
+	const selected = services.find( ( s ) => s.id === selectedId );
+	const selectedIndex = services.findIndex( ( s ) => s.id === selectedId );
 
 	return h(
 		'div',
@@ -43,32 +43,30 @@ export function SubjectStep( {
 			h(
 				'p',
 				{ class: 'ts-book__sub' },
-				'Pick a subject. Prices and lesson length can differ.'
+				'Pick a service. Prices and lesson length can differ.'
 			),
 			h(
 				'div',
 				{
-					class: 'ts-book__subjects',
+					class: 'ts-book__services',
 					role: 'listbox',
-					'aria-label': 'Subjects',
+					'aria-label': 'Services',
 				},
-				subjects.map( ( subject, index ) => {
-					const selectedTone = subject.id === selectedId;
-					const details = [ subject.level, subject.curriculum ]
-						.filter( Boolean )
-						.join( ' · ' );
+				services.map( ( service, index ) => {
+					const selectedTone = service.id === selectedId;
+					const details = service.category || '';
 					const price =
-						Number( subject.price_minor ) > 0
+						Number( service.price_minor ) > 0
 							? `${ money(
-									subject.price_minor,
-									subject.currency
+									service.price_minor,
+									service.currency
 							  ) } / lesson`
 							: 'Free';
 					return h(
 						'button',
 						{
 							type: 'button',
-							key: subject.id,
+							key: service.id,
 							role: 'option',
 							'aria-selected': selectedTone ? 'true' : 'false',
 							tabIndex:
@@ -77,31 +75,31 @@ export function SubjectStep( {
 									? 0
 									: -1,
 							class: [
-								'ts-book__subject',
+								'ts-book__service',
 								selectedTone ? 'is-selected' : '',
-								subject.is_trial ? 'is-trial' : '',
+								service.is_free_estimate ? 'is-free-estimate' : '',
 							]
 								.filter( Boolean )
 								.join( ' ' ),
-							onClick: () => onSelect( subject.id ),
+							onClick: () => onSelect( service.id ),
 							onKeyDown: ( event ) =>
 								handleListboxKeyDown( event, {
-									items: subjects,
+									items: services,
 									currentIndex: index,
-									onSelect: ( nextSubject ) =>
-										onSelect( nextSubject.id ),
+									onSelect: ( nextService ) =>
+										onSelect( nextService.id ),
 								} ),
 						},
-						h( 'strong', null, subject.name ),
+						h( 'strong', null, service.name ),
 						h(
 							'p',
 							{ class: 'ts-book__muted' },
-							details || `${ subject.duration_min } minute lesson`
+							details || `${ service.duration_min } minute lesson`
 						),
 						h(
 							'span',
-							{ class: 'ts-book__subject-price' },
-							subject.is_trial
+							{ class: 'ts-book__service-price' },
+							service.is_free_estimate
 								? h(
 										'span',
 										null,
@@ -109,12 +107,12 @@ export function SubjectStep( {
 											's',
 											null,
 											money(
-												subject.price_minor ||
-													tutor.from_price_minor,
-												subject.currency
+												service.price_minor ||
+													technician.from_price_minor,
+												service.currency
 											)
 										),
-										' Free trial'
+										' Free estimate'
 								  )
 								: price
 						)
@@ -136,7 +134,7 @@ export function SubjectStep( {
 					{ class: 'ts-book__muted' },
 					selected
 						? `${ selected.name } selected`
-						: 'Choose a subject'
+						: 'Choose a service'
 				),
 				h(
 					Button,

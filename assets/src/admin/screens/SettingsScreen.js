@@ -20,18 +20,18 @@ const BOOKING_TOGGLES = [
 			'Turn this off if you would rather approve each request yourself.',
 	},
 	{
-		key: 'allow_student_reschedule',
-		label: 'Let students reschedule',
+		key: 'allow_customer_reschedule',
+		label: 'Let customers reschedule',
 		explanation: 'Up to the reschedule window before the lesson starts.',
 	},
 	{
-		key: 'offer_free_trial',
-		label: 'Offer a free trial lesson',
-		explanation: 'One per student, ever. Applied at checkout.',
+		key: 'offer_free_estimate',
+		label: 'Offer a free estimate',
+		explanation: 'One per customer, ever. Applied at checkout.',
 	},
 	{
-		key: 'show_student_timezone',
-		label: "Show times in the student's own timezone",
+		key: 'show_customer_timezone',
+		label: "Show times in the customer's own timezone",
 		explanation: 'Detected from their browser, with a visible override.',
 	},
 ];
@@ -39,7 +39,7 @@ const BOOKING_TOGGLES = [
 const REMINDER_TOGGLES = [
 	{
 		key: 'reminder_email_24h',
-		label: 'Email the student 24 hours before',
+		label: 'Email the customer 24 hours before',
 		explanation: 'And again 1 hour before, with the meeting link.',
 	},
 	{
@@ -53,7 +53,7 @@ const REMINDER_TOGGLES = [
 		explanation: 'Needs an SMS provider under Connections.',
 	},
 	{
-		key: 'notify_tutor_on_book',
+		key: 'notify_technician_on_book',
 		label: 'Tell me when someone books',
 		explanation: 'Sent to your WordPress account email.',
 	},
@@ -164,7 +164,7 @@ export function SettingsScreen() {
 		h( PageHeader, {
 			title: 'Settings',
 			subtitle:
-				'Eight things most tutors change. Everything else is tucked away below.',
+				'Eight things most technicians change. Everything else is tucked away below.',
 		} ),
 		h(
 			ScreenState,
@@ -319,7 +319,7 @@ export function SettingsScreen() {
 										tone: 'warn',
 										title: 'Online payments need a gateway:',
 									},
-									'Payments are enabled, but Stripe and bKash are not connected yet. Parents will only see “pay the tutor directly” or lesson packages until you add API keys below.'
+									'Payments are enabled, but Stripe and bKash are not connected yet. Parents will only see “pay the technician directly” or lesson packages until you add API keys below.'
 							  )
 							: null,
 						h(

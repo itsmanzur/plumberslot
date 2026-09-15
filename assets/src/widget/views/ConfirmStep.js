@@ -11,11 +11,11 @@ import {
 import { ApiError, get, getBoot, post, remove } from '../api';
 import { clearBookingDraft } from '../draft';
 import { formatInZone, money } from '../lib';
-import { RAIL } from './SubjectStep';
+import { RAIL } from './ServiceStep';
 
 export function ConfirmStep( {
-	tutor,
-	subject,
+	technician,
+	service,
 	start,
 	timezone,
 	onBack,
@@ -45,17 +45,17 @@ export function ConfirmStep( {
 	const [ error, setError ] = useState( '' );
 	const holdTokenRef = useRef( '' );
 
-	const price = subject?.is_trial ? 0 : subject?.price_minor || 0;
+	const price = service?.is_free_estimate ? 0 : service?.price_minor || 0;
 	const useCredit = payMethod === 'package';
 	const accountName = boot.user?.name || '';
 	const selectedChild = children.find(
-		( child ) => child.student_id === childId
+		( child ) => child.customer_id === childId
 	);
-	const studentName = selectedChild?.student_name || '';
+	const customerName = selectedChild?.customer_name || '';
 
 	const payOptions = useMemo(
-		() => buildPayOptions( boot.payments, tutor.display_name ),
-		[ boot.payments, tutor.display_name ]
+		() => buildPayOptions( boot.payments, technician.display_name ),
+		[ boot.payments, technician.display_name ]
 	);
 
 	const toggleDay = ( value ) => {
@@ -74,14 +74,14 @@ export function ConfirmStep( {
 		setHoldStatus( 'loading' );
 		try {
 			const data = await post( 'bookings/hold', {
-				tutor_id: tutor.id,
+				technician_id: technician.id,
 				start,
 			} );
 			holdTokenRef.current = data.token || '';
 			setHold( data );
 			setHoldStatus( 'ready' );
 			setSeconds(
-				Number( data.expires_in ) || tutor.hold_minutes * 60 || 600
+				Number( data.expires_in ) || technician.hold_minutes * 60 || 600
 			);
 			announce( 'Slot held for you.' );
 		} catch ( err ) {
@@ -107,7 +107,7 @@ export function ConfirmStep( {
 				}
 				const items = data.items || [];
 				setChildren( items );
-				setChildId( items[ 0 ]?.student_id || 0 );
+				setChildId( items[ 0 ]?.customer_id || 0 );
 				setChildrenStatus( 'ready' );
 			} )
 			.catch( () => {
@@ -171,7 +171,7 @@ export function ConfirmStep( {
 		acquireHold();
 		return undefined;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ start, tutor.id, seriesOn ] );
+	}, [ start, technician.id, seriesOn ] );
 
 	useEffect( () => {
 		if ( seconds <= 0 ) {
@@ -197,8 +197,8 @@ export function ConfirmStep( {
 			return;
 		}
 		if ( forChild && ! childId ) {
-			announce( 'Choose a linked student.' );
-			setError( 'Choose a linked student to continue.' );
+			announce( 'Choose a linked customer.' );
+			setError( 'Choose a linked customer to continue.' );
 			return;
 		}
 		if ( ! seriesOn && ( seconds <= 0 || ! hold?.token ) ) {
@@ -211,7 +211,7 @@ export function ConfirmStep( {
 		try {
 			const composedNotes = composeNotes( {
 				forChild,
-				studentName,
+				customerName,
 				accountName,
 				notes,
 				payMethod,
@@ -219,14 +219,14 @@ export function ConfirmStep( {
 
 			if ( seriesOn ) {
 				const result = await post( 'series', {
-					tutor_id: tutor.id,
-					subject_id: subject.id,
+					technician_id: technician.id,
+					service_id: service.id,
 					start,
 					timezone,
 					days: seriesDays,
 					count: seriesCount,
 					notes: composedNotes,
-					student_id: forChild ? childId : undefined,
+					customer_id: forChild ? childId : undefined,
 					use_credit: useCredit,
 				} );
 				if ( ( result.skipped || [] ).length ) {
@@ -243,20 +243,20 @@ export function ConfirmStep( {
 					id: result.booked?.[ 0 ],
 					series_label: result.label,
 					dashboard_url: boot.dashboardUrl,
-					subject: subject?.name,
-					tutor: tutor.display_name,
+					service: service?.name,
+					technician: technician.display_name,
 					start_utc: start,
 					status: 'confirmed',
 				} );
 			} else {
 				const result = await post( 'bookings', {
-					tutor_id: tutor.id,
-					subject_id: subject.id,
+					technician_id: technician.id,
+					service_id: service.id,
 					start,
 					timezone,
 					lock_token: hold.token,
 					notes: composedNotes,
-					student_id: forChild ? childId : undefined,
+					customer_id: forChild ? childId : undefined,
 					use_credit: useCredit,
 				} );
 
@@ -314,12 +314,12 @@ export function ConfirmStep( {
 
 	const mm = String( Math.floor( seconds / 60 ) ).padStart( 2, '0' );
 	const ss = String( seconds % 60 ).padStart( 2, '0' );
-	const subjectLine = [ subject?.name, subject?.level ]
+	const serviceLine = [ service?.name, service?.category ]
 		.filter( Boolean )
 		.join( ' · ' );
 	const priceLabel =
 		price > 0
-			? money( price, subject?.currency || tutor.currency )
+			? money( price, service?.currency || technician.currency )
 			: 'Free';
 	const holdNotice = renderHoldNotice(
 		seriesOn,
@@ -356,12 +356,12 @@ export function ConfirmStep( {
 			h(
 				'dl',
 				{ key: 'sum', class: 'ts-book__summary' },
-				row( 'Subject', subjectLine || subject?.name ),
+				row( 'Service', serviceLine || service?.name ),
 				row( 'When', formatInZone( start, timezone ) ),
 				row(
 					'Where',
 					`${ meetingLabel(
-						tutor.meeting_provider
+						technician.meeting_provider
 					) } · link after confirm`
 				),
 				row( 'Total', priceLabel, true )
@@ -390,7 +390,7 @@ export function ConfirmStep( {
 						'For me',
 						accountName
 							? `Booked as ${ accountName }`
-							: 'You are the student'
+							: 'You are the customer'
 					),
 					whoOption(
 						forChild,
@@ -405,7 +405,7 @@ export function ConfirmStep( {
 				? h(
 						'label',
 						{ key: 'child', class: 'ts-book__field' },
-						h( 'span', null, 'Linked student' ),
+						h( 'span', null, 'Linked customer' ),
 						h(
 							'select',
 							{
@@ -422,10 +422,10 @@ export function ConfirmStep( {
 								h(
 									'option',
 									{
-										key: child.student_id,
-										value: child.student_id,
+										key: child.customer_id,
+										value: child.customer_id,
 									},
-									child.student_name
+									child.customer_name
 								)
 							)
 						)
@@ -437,7 +437,7 @@ export function ConfirmStep( {
 				h(
 					'span',
 					null,
-					`Note for ${ firstName( tutor.display_name ) }`,
+					`Note for ${ firstName( technician.display_name ) }`,
 					h( 'small', null, 'Optional' )
 				),
 				h( 'textarea', {
@@ -568,8 +568,8 @@ export function ConfirmStep( {
 					seconds,
 					busy,
 					price,
-					subject,
-					tutor,
+					service,
+					technician,
 					seriesOn,
 					seriesCount
 				)
@@ -630,14 +630,14 @@ function renderHoldNotice( seriesOn, holdStatus, seconds, mm, ss ) {
 
 function composeNotes( {
 	forChild,
-	studentName,
+	customerName,
 	accountName,
 	notes,
 	payMethod,
 } ) {
 	const lines = [];
 	if ( forChild ) {
-		lines.push( `Student: ${ studentName.trim() }` );
+		lines.push( `Customer: ${ customerName.trim() }` );
 		if ( accountName ) {
 			lines.push( `Parent: ${ accountName }` );
 		}
@@ -666,7 +666,7 @@ function paymentReadinessNote( payments = {} ) {
 				tone: 'warn',
 				title: 'Online checkout is not connected:',
 			},
-			'Card and bKash are not set up on this site yet. Choose pay the tutor directly, or use a lesson package if you have one.'
+			'Card and bKash are not set up on this site yet. Choose pay the technician directly, or use a lesson package if you have one.'
 		);
 	}
 	if ( payments.enabled === false ) {
@@ -676,7 +676,7 @@ function paymentReadinessNote( payments = {} ) {
 				key: 'pay-off',
 				title: 'Online payments are off:',
 			},
-			'Pay the tutor directly after booking, or use a lesson package.'
+			'Pay the technician directly after booking, or use a lesson package.'
 		);
 	}
 	return null;
@@ -695,7 +695,7 @@ function defaultPayMethod( payments = {} ) {
 	return 'direct';
 }
 
-function buildPayOptions( payments = {}, tutorName = '' ) {
+function buildPayOptions( payments = {}, technicianName = '' ) {
 	const opts = [];
 	if ( payments.enabled !== false ) {
 		if ( payments.bkash ) {
@@ -716,7 +716,7 @@ function buildPayOptions( payments = {}, tutorName = '' ) {
 	} );
 	opts.push( {
 		id: 'direct',
-		label: `Pay ${ firstName( tutorName ) } directly`,
+		label: `Pay ${ firstName( technicianName ) } directly`,
 		badge: 'After confirm',
 	} );
 	return opts;
@@ -741,17 +741,17 @@ function whoOption( selected, onSelect, label, hint, disabled = false ) {
 
 function childOptionHint( status, children ) {
 	if ( status === 'loading' ) {
-		return 'Loading linked students…';
+		return 'Loading linked customers…';
 	}
 	if ( status === 'error' ) {
-		return 'Linked students unavailable';
+		return 'Linked customers unavailable';
 	}
 	if ( ! children.length ) {
-		return 'No confirmed student link';
+		return 'No confirmed customer link';
 	}
 	return 1 === children.length
-		? children[ 0 ].student_name
-		: `${ children.length } linked students`;
+		? children[ 0 ].customer_name
+		: `${ children.length } linked customers`;
 }
 
 function releaseHoldToken( token ) {
@@ -796,8 +796,8 @@ function confirmLabel(
 	seconds,
 	busy,
 	price,
-	subject,
-	tutor,
+	service,
+	technician,
 	seriesOn = false,
 	seriesCount = 1
 ) {
@@ -807,7 +807,7 @@ function confirmLabel(
 	if ( busy ) {
 		return 'Booking…';
 	}
-	const amount = money( price, subject?.currency || tutor.currency );
+	const amount = money( price, service?.currency || technician.currency );
 	if ( seriesOn ) {
 		return `Book ${ seriesCount } lessons · ${ amount } each`;
 	}
@@ -818,7 +818,7 @@ function confirmLabel(
 }
 
 function firstName( name = '' ) {
-	return String( name ).trim().split( /\s+/ )[ 0 ] || 'the tutor';
+	return String( name ).trim().split( /\s+/ )[ 0 ] || 'the technician';
 }
 
 function meetingLabel( provider = '' ) {

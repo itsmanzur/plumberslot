@@ -8,7 +8,7 @@ import { cellsToWeek, weekToCells } from '../lib/weekMap';
 
 export function AvailabilityScreen() {
 	const config = getConfig();
-	const tutorId = config.tutorId;
+	const technicianId = config.technicianId;
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
 	const [ initialCells, setInitialCells ] = useState( {} );
@@ -24,16 +24,16 @@ export function AvailabilityScreen() {
 	const [ exceptionNote, setExceptionNote ] = useState( '' );
 
 	const load = async () => {
-		if ( ! tutorId ) {
+		if ( ! technicianId ) {
 			setError(
-				'No tutor profile is linked to this account yet. Finish setup first.'
+				'No technician profile is linked to this account yet. Finish setup first.'
 			);
 			setStatus( 'error' );
 			return;
 		}
 		setStatus( 'loading' );
 		try {
-			const data = await get( `availability/${ tutorId }` );
+			const data = await get( `availability/${ technicianId }` );
 			setInitialCells( weekToCells( data.week || [] ) );
 			setDefaults(
 				data.defaults || {
@@ -55,7 +55,7 @@ export function AvailabilityScreen() {
 	useEffect( () => {
 		load();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ tutorId ] );
+	}, [ technicianId ] );
 
 	useEffect( () => {
 		const onBeforeUnload = ( event ) => {
@@ -71,13 +71,13 @@ export function AvailabilityScreen() {
 
 	const onSaveWeek = async ( cells ) => {
 		const week = cellsToWeek( cells );
-		await put( `availability/${ tutorId }`, { week } );
+		await put( `availability/${ technicianId }`, { week } );
 		announce( 'Availability saved.' );
 		setInitialCells( weekToCells( week ) );
 	};
 
 	const onSaveDefaults = async () => {
-		await post( `availability/${ tutorId }/defaults`, defaults );
+		await post( `availability/${ technicianId }/defaults`, defaults );
 		setDirtyDefaults( false );
 		announce( 'Lesson defaults saved.' );
 	};
@@ -86,7 +86,7 @@ export function AvailabilityScreen() {
 		if ( ! exceptionDate ) {
 			return;
 		}
-		await post( `availability/${ tutorId }/exceptions`, {
+		await post( `availability/${ technicianId }/exceptions`, {
 			on_date: exceptionDate,
 			kind: 'closed',
 			note: exceptionNote,
@@ -98,7 +98,7 @@ export function AvailabilityScreen() {
 	};
 
 	const onDeleteException = async ( id ) => {
-		await del( `availability/${ tutorId }/exceptions/${ id }` );
+		await del( `availability/${ technicianId }/exceptions/${ id }` );
 		announce( 'Time off removed.' );
 		await load();
 	};
@@ -110,9 +110,9 @@ export function AvailabilityScreen() {
 		{ class: 'ts-admin-screen', 'data-screen': 'availability' },
 		h( PageHeader, {
 			eyebrow: 'Your week',
-			title: 'When can students book you?',
+			title: 'When can customers book you?',
 			subtitle:
-				'Paint open hours on the grid. Students see the same shape when they book.',
+				'Paint open hours on the grid. Customers see the same shape when they book.',
 			actions: [
 				{
 					id: 'defaults',

@@ -9,16 +9,16 @@ import { ConfirmStep } from './views/ConfirmStep';
 import { DoneView } from './views/DoneView';
 import { PaymentReturnView } from './views/PaymentReturnView';
 import { ProfileView } from './views/ProfileView';
-import { SubjectStep } from './views/SubjectStep';
+import { ServiceStep } from './views/ServiceStep';
 import { TimeStep } from './views/TimeStep';
 
 /**
  * @param {Object} props
- * @param {number} props.tutorId
- * @param {number} props.subjectId
+ * @param {number} props.technicianId
+ * @param {number} props.serviceId
  * @param {string} props.view
  */
-export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
+export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) {
 	const boot = getBoot();
 	const payReturn =
 		typeof window !== 'undefined'
@@ -37,12 +37,12 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			: 0;
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
-	const [ tutor, setTutor ] = useState( null );
+	const [ technician, setTechnician ] = useState( null );
 	const [ step, setStep ] = useState(
-		view === 'profile' ? 'profile' : 'subject'
+		view === 'profile' ? 'profile' : 'service'
 	);
-	const [ selectedSubjectId, setSelectedSubjectId ] = useState(
-		subjectId || 0
+	const [ selectedServiceId, setSelectedServiceId ] = useState(
+		serviceId || 0
 	);
 	const [ timezone, setTimezone ] = useState( detectTimezone() );
 	const [ selectedStart, setSelectedStart ] = useState( '' );
@@ -50,22 +50,22 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	const [ draftRestored, setDraftRestored ] = useState( false );
 
 	useEffect( () => {
-		if ( ! tutorId ) {
+		if ( ! technicianId ) {
 			setStatus( 'empty' );
 			return;
 		}
 		( async () => {
 			try {
-				const data = await get( `public/tutors/${ tutorId }`, {
+				const data = await get( `public/technicians/${ technicianId }`, {
 					timezone,
 				} );
-				setTutor( data );
-				if ( subjectId ) {
-					const exists = ( data.subjects || [] ).some(
-						( s ) => s.id === subjectId
+				setTechnician( data );
+				if ( serviceId ) {
+					const exists = ( data.services || [] ).some(
+						( s ) => s.id === serviceId
 					);
 					if ( exists ) {
-						setSelectedSubjectId( subjectId );
+						setSelectedServiceId( serviceId );
 						if ( view !== 'profile' ) {
 							setStep( 'time' );
 						}
@@ -73,36 +73,36 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 				}
 				setStatus( 'ready' );
 			} catch ( err ) {
-				setError( err.message || 'Tutor unavailable.' );
+				setError( err.message || 'Technician unavailable.' );
 				setStatus( 'error' );
 			}
 		} )();
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once per tutor mount
-	}, [ tutorId ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once per technician mount
+	}, [ technicianId ] );
 
 	useEffect( () => {
 		if (
 			status !== 'ready' ||
-			! tutor ||
+			! technician ||
 			draftRestored ||
 			view === 'profile'
 		) {
 			return;
 		}
-		const draft = readBookingDraft( tutorId );
-		if ( ! draft?.start || ! draft?.subjectId ) {
+		const draft = readBookingDraft( technicianId );
+		if ( ! draft?.start || ! draft?.serviceId ) {
 			setDraftRestored( true );
 			return;
 		}
-		const exists = ( tutor.subjects || [] ).some(
-			( s ) => s.id === draft.subjectId
+		const exists = ( technician.services || [] ).some(
+			( s ) => s.id === draft.serviceId
 		);
 		if ( ! exists ) {
 			clearBookingDraft();
 			setDraftRestored( true );
 			return;
 		}
-		setSelectedSubjectId( draft.subjectId );
+		setSelectedServiceId( draft.serviceId );
 		setSelectedStart( draft.start );
 		if ( draft.timezone ) {
 			setTimezone( draft.timezone );
@@ -115,7 +115,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			setStep( 'account' );
 		}
 		setDraftRestored( true );
-	}, [ status, tutor, tutorId, draftRestored, view, boot.loggedIn ] );
+	}, [ status, technician, technicianId, draftRestored, view, boot.loggedIn ] );
 
 	useEffect( () => {
 		if ( step === 'account' && boot.loggedIn ) {
@@ -123,17 +123,17 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 		}
 	}, [ step, boot.loggedIn ] );
 
-	const subject = useMemo(
+	const service = useMemo(
 		() =>
-			( tutor?.subjects || [] ).find(
-				( s ) => s.id === selectedSubjectId
+			( technician?.services || [] ).find(
+				( s ) => s.id === selectedServiceId
 			),
-		[ tutor, selectedSubjectId ]
+		[ technician, selectedServiceId ]
 	);
 
 	const persistAndAccount = () => {
-		saveBookingDraft( tutorId, {
-			subjectId: selectedSubjectId,
+		saveBookingDraft( technicianId, {
+			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
 			step: 'account',
@@ -146,8 +146,8 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			persistAndAccount();
 			return;
 		}
-		saveBookingDraft( tutorId, {
-			subjectId: selectedSubjectId,
+		saveBookingDraft( technicianId, {
+			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
 			step: 'confirm',
@@ -180,14 +180,14 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
 			h( EmptyState, {
-				title: 'Choose a tutor',
+				title: 'Choose a technician',
 				description:
-					'Add a tutor slug to the shortcode to open booking.',
+					'Add a technician slug to the shortcode to open booking.',
 			} )
 		);
 	}
 
-	if ( status === 'error' || ! tutor ) {
+	if ( status === 'error' || ! technician ) {
 		return h(
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
@@ -202,7 +202,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 		return h(
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
-			h( DoneView, { tutor, subject, booking, timezone } )
+			h( DoneView, { technician, service, booking, timezone } )
 		);
 	}
 
@@ -211,20 +211,20 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
 			h( ProfileView, {
-				tutor,
-				onBook: () => setStep( 'subject' ),
+				technician,
+				onBook: () => setStep( 'service' ),
 			} )
 		);
 	}
 
-	if ( step === 'subject' ) {
+	if ( step === 'service' ) {
 		return h(
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
-			h( SubjectStep, {
-				tutor,
-				selectedId: selectedSubjectId,
-				onSelect: setSelectedSubjectId,
+			h( ServiceStep, {
+				technician,
+				selectedId: selectedServiceId,
+				onSelect: setSelectedServiceId,
 				onContinue: () => setStep( 'time' ),
 				onBack: view === 'profile' ? () => setStep( 'profile' ) : null,
 			} )
@@ -236,8 +236,8 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
 			h( TimeStep, {
-				tutor,
-				subject,
+				technician,
+				service,
 				timezone,
 				onTimezone: setTimezone,
 				selectedStart,
@@ -246,7 +246,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 				continueLabel: boot.loggedIn
 					? 'Continue →'
 					: 'Sign in to continue →',
-				onBack: () => setStep( 'subject' ),
+				onBack: () => setStep( 'service' ),
 			} )
 		);
 	}
@@ -256,8 +256,8 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
 			h( AccountStep, {
-				tutor,
-				subject,
+				technician,
+				service,
 				start: selectedStart,
 				timezone,
 				loginUrl: boot.loginUrl,
@@ -271,8 +271,8 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 		'div',
 		{ class: 'plumberslot-widget plumberslot-root' },
 		h( ConfirmStep, {
-			tutor,
-			subject,
+			technician,
+			service,
 			start: selectedStart,
 			timezone,
 			onBack: () => setStep( 'time' ),

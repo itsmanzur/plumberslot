@@ -16,11 +16,11 @@ import {
 	detectTimezone,
 	formatInZone,
 } from '../lib';
-import { RAIL } from './SubjectStep';
+import { RAIL } from './ServiceStep';
 
 export function TimeStep( {
-	tutor,
-	subject,
+	technician,
+	service,
 	timezone,
 	onTimezone,
 	selectedStart,
@@ -49,10 +49,10 @@ export function TimeStep( {
 			from.setHours( 0, 0, 0, 0 );
 			const to = new Date( from.getTime() + 8 * 86400000 );
 			const data = await get( 'slots', {
-				tutor_id: tutor.id,
+				technician_id: technician.id,
 				from: from.toISOString(),
 				to: to.toISOString(),
-				duration: subject?.duration_min || tutor.default_duration || 60,
+				duration: service?.duration_min || technician.default_duration || 60,
 				timezone: tz,
 			} );
 			setSlots( data.slots || [] );
@@ -72,7 +72,7 @@ export function TimeStep( {
 		);
 		return () => window.clearInterval( timer );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ tutor.id, subject?.id, tz ] );
+	}, [ technician.id, service?.id, tz ] );
 
 	const byDay = useMemo( () => {
 		const map = {};
@@ -112,7 +112,7 @@ export function TimeStep( {
 	}, [ day, dayItems, firstOpenDayId, status ] );
 
 	const daySlots = byDay[ day ] || [];
-	const duration = subject?.duration_min || tutor.default_duration || 60;
+	const duration = service?.duration_min || technician.default_duration || 60;
 	const selectedLabel = selectedStart
 		? formatRange( selectedStart, duration, tz )
 		: 'Pick a time';

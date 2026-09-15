@@ -33,7 +33,7 @@ const SUGGESTIONS = [
 
 const STEPS = [
 	{ id: 'who', label: 'Who teaches' },
-	{ id: 'subjects', label: 'Subjects' },
+	{ id: 'services', label: 'Services' },
 	{ id: 'hours', label: 'Your hours' },
 	{ id: 'pay', label: 'Payments' },
 ];
@@ -86,7 +86,7 @@ export function SetupWizardScreen() {
 
 	const finish = async () => {
 		if ( ! tags.length ) {
-			announce( 'Add at least one subject before finishing.' );
+			announce( 'Add at least one service before finishing.' );
 			setStep( 1 );
 			return;
 		}
@@ -99,7 +99,7 @@ export function SetupWizardScreen() {
 		try {
 			const payload = await post( 'setup', {
 				mode,
-				subjects: tags,
+				services: tags,
 				week: cellsToWeek( cells ),
 				payments_enabled: payments,
 				started_at: startedAt,
@@ -141,8 +141,8 @@ export function SetupWizardScreen() {
 		}
 	};
 
-	const goTutors = () => {
-		const page = config.screens?.tutors || 'plumberslot-tutors';
+	const goTechnicians = () => {
+		const page = config.screens?.technicians || 'plumberslot-technicians';
 		navigateTo( `${ config.urls.admin }?page=${ page }`, {
 			sameOrigin: true,
 		} );
@@ -191,8 +191,8 @@ export function SetupWizardScreen() {
 					isCentre
 						? h(
 								Button,
-								{ variant: 'secondary', onClick: goTutors },
-								'Invite tutors'
+								{ variant: 'secondary', onClick: goTechnicians },
+								'Invite technicians'
 						  )
 						: null
 				),
@@ -251,7 +251,7 @@ export function SetupWizardScreen() {
 									.join( ' ' ),
 								onClick: () => setMode( 'solo' ),
 							},
-							h( 'strong', null, 'Solo tutor' ),
+							h( 'strong', null, 'Solo technician' ),
 							h(
 								'span',
 								null,
@@ -274,7 +274,7 @@ export function SetupWizardScreen() {
 							h(
 								'span',
 								null,
-								'Several tutors. Invite them after setup.'
+								'Several technicians. Invite them after setup.'
 							)
 						)
 					)
@@ -284,7 +284,7 @@ export function SetupWizardScreen() {
 			? h(
 					'section',
 					{ class: 'ts-admin-card' },
-					h( 'h2', null, 'Subjects you teach' ),
+					h( 'h2', null, 'Services you teach' ),
 					h(
 						'div',
 						{ class: 'ts-ds__row' },
@@ -312,7 +312,7 @@ export function SetupWizardScreen() {
 						h(
 							'label',
 							{ class: 'ts-admin-field' },
-							h( 'span', null, 'Add a subject' ),
+							h( 'span', null, 'Add a service' ),
 							h( 'input', {
 								type: 'text',
 								value: draft,
@@ -332,7 +332,7 @@ export function SetupWizardScreen() {
 						: h(
 								'p',
 								{ class: 'ts-admin__muted' },
-								'Pick at least one subject so parents have something to book.'
+								'Pick at least one service so parents have something to book.'
 						  )
 			  )
 			: null,
@@ -340,7 +340,7 @@ export function SetupWizardScreen() {
 			? h(
 					'section',
 					{ class: 'ts-admin-card' },
-					h( 'h2', null, 'Paint the hours students can book' ),
+					h( 'h2', null, 'Paint the hours customers can book' ),
 					h(
 						'div',
 						{
@@ -418,7 +418,7 @@ export function SetupWizardScreen() {
 									title: 'Connect a gateway next:',
 									style: { marginTop: '14px' },
 								},
-								'Online payments are on, but Stripe/bKash are not set yet. Until then parents will book with “pay tutor directly” or lesson packages. Add keys under Settings → Connections after you finish.'
+								'Online payments are on, but Stripe/bKash are not set yet. Until then parents will book with “pay technician directly” or lesson packages. Add keys under Settings → Connections after you finish.'
 						  )
 						: null
 			  )

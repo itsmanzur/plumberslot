@@ -673,27 +673,27 @@
 }
 
 
-.ts-subjects__tutor-pick {
+.ts-services__technician-pick {
 	margin-bottom: var(--ts-sp-4);
 	padding: 14px 18px;
 }
 
-.ts-subjects__tutor-pick .ts-admin-field {
+.ts-services__technician-pick .ts-admin-field {
 	margin: 0;
 	max-width: 320px;
 }
 
-.ts-subjects__name {
+.ts-services__name {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.ts-subjects__name b {
+.ts-services__name b {
 	font-weight: 650;
 }
 
-.ts-subjects__trial {
+.ts-services__free-estimate {
 	color: var(--ts-accent, #0b6e4f);
 	font-weight: 600;
 }

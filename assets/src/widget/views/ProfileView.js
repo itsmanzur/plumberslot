@@ -2,9 +2,9 @@ import { h } from 'preact';
 import { Button, StatusChip } from '../../shared';
 import { money } from '../lib';
 
-export function ProfileView( { tutor, onBook } ) {
-	const from = money( tutor.from_price_minor, tutor.currency );
-	const rating = Number( tutor.rating ) || 0;
+export function ProfileView( { technician, onBook } ) {
+	const from = money( technician.from_price_minor, technician.currency );
+	const rating = Number( technician.rating ) || 0;
 	const stars = rating
 		? `${ '★'.repeat( Math.round( Math.min( 5, rating ) ) ) }`
 		: '';
@@ -21,12 +21,12 @@ export function ProfileView( { tutor, onBook } ) {
 				h(
 					'div',
 					{ class: 'ts-book__avatar', 'aria-hidden': 'true' },
-					tutor.initials
+					technician.initials
 				),
 				h(
 					'div',
 					null,
-					h( 'h1', null, tutor.display_name ),
+					h( 'h1', null, technician.display_name ),
 					h(
 						'p',
 						{ class: 'ts-book__rating' },
@@ -44,11 +44,11 @@ export function ProfileView( { tutor, onBook } ) {
 										'span',
 										{ class: 'ts-book__muted' },
 										`${ rating } · ${
-											tutor.lesson_count || 0
+											technician.lesson_count || 0
 										} lessons taught`
 									)
 							  )
-							: `${ tutor.lesson_count || 0 } lessons taught`
+							: `${ technician.lesson_count || 0 } lessons taught`
 					)
 				)
 			),
@@ -58,38 +58,38 @@ export function ProfileView( { tutor, onBook } ) {
 				h(
 					'li',
 					null,
-					h( 'b', null, `${ tutor.years_teaching } years` ),
+					h( 'b', null, `${ technician.years_teaching } years` ),
 					' teaching'
 				),
 				h(
 					'li',
 					null,
 					'Replies in ',
-					h( 'b', null, tutor.response_time )
+					h( 'b', null, technician.response_time )
 				),
-				h( 'li', null, ( tutor.languages || [] ).join( ', ' ) )
+				h( 'li', null, ( technician.languages || [] ).join( ', ' ) )
 			),
 			h(
 				'div',
 				{ class: 'ts-book__pills' },
-				( tutor.subjects || [] ).map( ( s ) =>
+				( technician.services || [] ).map( ( s ) =>
 					h( StatusChip, { key: s.id, tone: 'open' }, s.name )
 				)
 			),
-			tutor.bio
+			technician.bio
 				? h(
 						'section',
 						{ class: 'ts-book__bio' },
 						h( 'h2', null, 'About' ),
-						h( 'p', null, tutor.bio )
+						h( 'p', null, technician.bio )
 				  )
 				: null,
-			tutor.reviews?.length
+			technician.reviews?.length
 				? h(
 						'section',
 						{ class: 'ts-book__reviews' },
 						h( 'h2', null, 'What families say' ),
-						tutor.reviews.map( ( r ) =>
+						technician.reviews.map( ( r ) =>
 							h(
 								'article',
 								{ key: r.id, class: 'ts-book__review' },
@@ -120,11 +120,11 @@ export function ProfileView( { tutor, onBook } ) {
 				from,
 				h( 'span', { class: 'ts-book__price-unit' }, 'per hour' )
 			),
-			tutor.offer_trial
+			technician.offer_free_estimate
 				? h(
 						'p',
 						{ class: 'ts-book__muted' },
-						'First lesson can be free'
+						'First estimate can be free'
 				  )
 				: null,
 			h(
@@ -138,7 +138,7 @@ export function ProfileView( { tutor, onBook } ) {
 						disabled: true,
 						title: 'Messaging arrives in a later release',
 					},
-					`Message ${ firstName( tutor.display_name ) }`
+					`Message ${ firstName( technician.display_name ) }`
 				)
 			),
 			h(
@@ -153,19 +153,19 @@ export function ProfileView( { tutor, onBook } ) {
 					'div',
 					null,
 					h( 'dt', null, 'Next opening' ),
-					h( 'dd', null, tutor.next_opening?.label || '—' )
+					h( 'dd', null, technician.next_opening?.label || '—' )
 				),
 				h(
 					'div',
 					null,
 					h( 'dt', null, 'Lesson length' ),
-					h( 'dd', null, `${ tutor.default_duration } min` )
+					h( 'dd', null, `${ technician.default_duration } min` )
 				),
 				h(
 					'div',
 					null,
 					h( 'dt', null, 'Where' ),
-					h( 'dd', null, tutor.meeting_provider )
+					h( 'dd', null, technician.meeting_provider )
 				)
 			)
 		)
@@ -173,5 +173,5 @@ export function ProfileView( { tutor, onBook } ) {
 }
 
 function firstName( name = '' ) {
-	return String( name ).trim().split( /\s+/ )[ 0 ] || 'tutor';
+	return String( name ).trim().split( /\s+/ )[ 0 ] || 'technician';
 }
