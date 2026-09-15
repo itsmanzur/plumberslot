@@ -10,7 +10,7 @@ const boot =
 				user: null,
 				payments: { stripe: false, bkash: false },
 				i18n: {},
-		  };
+			};
 
 export function getBoot() {
 	return boot;

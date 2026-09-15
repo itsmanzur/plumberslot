@@ -185,7 +185,9 @@ test( 'booking states respect reduced-motion preference', async ( {
 		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
 		expect( ( await technicianResponse ).status() ).toBe( 200 );

@@ -299,7 +299,7 @@ export function ConfirmStep( {
 						key: 'err',
 						title: 'Could not book',
 						description: error,
-				  } )
+					} )
 				: null,
 			skipped.length
 				? h(
@@ -312,7 +312,7 @@ export function ConfirmStep( {
 						skipped
 							.map( ( s ) => formatInZone( s, timezone ) )
 							.join( ', ' )
-				  )
+					)
 				: null,
 			h(
 				'dl',
@@ -374,7 +374,7 @@ export function ConfirmStep( {
 								)
 							)
 						)
-				  )
+					)
 				: null,
 			h(
 				'details',
@@ -447,7 +447,7 @@ export function ConfirmStep( {
 											),
 									} )
 								)
-						  )
+							)
 						: null
 				)
 			),

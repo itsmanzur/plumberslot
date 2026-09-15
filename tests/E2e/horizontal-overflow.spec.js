@@ -115,9 +115,10 @@ async function expectNoHorizontalOverflow( page, rootSelector, state ) {
 		};
 	}, rootSelector );
 
-	expect( metrics.rootFound, `${ state }: PlumberSlot root is missing.` ).toBe(
-		true
-	);
+	expect(
+		metrics.rootFound,
+		`${ state }: PlumberSlot root is missing.`
+	).toBe( true );
 	expect(
 		metrics.documentWidth,
 		`${ state }: document is ${ metrics.documentWidth }px wide at a ${ metrics.viewport }px viewport.`
@@ -141,7 +142,9 @@ test( 'public booking flow contains every state at 390px', async ( {
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
 		expect( ( await technicianResponse ).status() ).toBe( 200 );
@@ -261,7 +264,9 @@ test( 'availability timetable is contained at 390px', async ( {
 		await logIn( page, seed.technicianLogin, seed.password );
 		const availabilityResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( `/availability/${ seed.technicianId }` ) &&
+				response
+					.url()
+					.includes( `/availability/${ seed.technicianId }` ) &&
 				'GET' === response.request().method()
 		);
 		await goTo( page, '/wp-admin/admin.php?page=plumberslot-availability' );

@@ -61,7 +61,7 @@ export function ServiceStep( {
 							? `${ money(
 									service.price_minor,
 									service.currency
-							  ) } / appointment`
+								) } / appointment`
 							: 'Free';
 					return h(
 						'button',
@@ -78,7 +78,9 @@ export function ServiceStep( {
 							class: [
 								'ts-book__service',
 								selectedTone ? 'is-selected' : '',
-								service.is_free_estimate ? 'is-free-estimate' : '',
+								service.is_free_estimate
+									? 'is-free-estimate'
+									: '',
 							]
 								.filter( Boolean )
 								.join( ' ' ),
@@ -95,7 +97,8 @@ export function ServiceStep( {
 						h(
 							'p',
 							{ class: 'ts-book__muted' },
-							details || `${ service.duration_min } minute appointment`
+							details ||
+								`${ service.duration_min } minute appointment`
 						),
 						h(
 							'span',
@@ -114,7 +117,7 @@ export function ServiceStep( {
 											)
 										),
 										' Free estimate'
-								  )
+									)
 								: price
 						)
 					);

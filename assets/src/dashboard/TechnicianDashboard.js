@@ -20,7 +20,9 @@ export function TechnicianDashboard() {
 	const [ error, setError ] = useState( '' );
 	const [ jobs, setJobs ] = useState( [] );
 	const [ attendanceDue, setAttendanceDue ] = useState( [] );
-	const [ technicianId, setTechnicianId ] = useState( boot.technicianId || 0 );
+	const [ technicianId, setTechnicianId ] = useState(
+		boot.technicianId || 0
+	);
 	const [ weekCells, setWeekCells ] = useState( null );
 	const [ gridKey, setGridKey ] = useState( 0 );
 	const [ noteDrafts, setNoteDrafts ] = useState( {} );
@@ -167,7 +169,11 @@ export function TechnicianDashboard() {
 		h(
 			'header',
 			{ class: 'ts-dash__hero' },
-			h( 'p', { class: 'ts-dash__eyebrow' }, boot.user?.name || 'Technician' ),
+			h(
+				'p',
+				{ class: 'ts-dash__eyebrow' },
+				boot.user?.name || 'Technician'
+			),
 			h( 'h1', null, 'Your job schedule' )
 		),
 		error ? h( Callout, { tone: 'warn', title: 'Notice:' }, error ) : null,
@@ -183,7 +189,7 @@ export function TechnicianDashboard() {
 							title: 'No jobs booked',
 							description:
 								'When customers book you, they appear here.',
-					  } )
+						} )
 					: jobs.map( ( row ) =>
 							h(
 								'article',
@@ -239,14 +245,14 @@ export function TechnicianDashboard() {
 									)
 								)
 							)
-					  ),
+						),
 				h( 'h2', null, 'Attendance due' ),
 				attendanceDue.length === 0
 					? h( EmptyState, {
 							title: 'No attendance to record',
 							description:
 								'Completed job times that need an outcome appear here.',
-					  } )
+						} )
 					: attendanceDue.map( ( row ) =>
 							h(
 								'article',
@@ -298,7 +304,7 @@ export function TechnicianDashboard() {
 									)
 								)
 							)
-					  )
+						)
 			),
 			h(
 				'section',
@@ -323,12 +329,12 @@ export function TechnicianDashboard() {
 								onSave: onSaveWeek,
 								saveLabel: 'Save hours',
 							} )
-					  )
+						)
 					: h( EmptyState, {
 							title: 'No technician profile yet',
 							description:
 								'Accept your invite or ask the site manager to finish linking your account.',
-					  } )
+						} )
 			)
 		)
 	);

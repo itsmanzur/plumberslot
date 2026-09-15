@@ -284,7 +284,7 @@ export function BookingsScreen() {
 						onAction: copyLink,
 						secondaryLabel: 'Open booking page',
 						onSecondary: openBookingPage,
-				  } )
+					} )
 				: h(
 						'div',
 						{ class: 'ts-admin-card ts-admin-card--flush' },
@@ -402,10 +402,10 @@ export function BookingsScreen() {
 														? `Weekly ${
 																row.series_index ||
 																1
-														  }/${
+															}/${
 																row.series_total ||
 																'?'
-														  }`
+															}`
 														: '—' )
 											),
 											h(
@@ -458,7 +458,7 @@ export function BookingsScreen() {
 																			),
 																},
 																'Join'
-														  )
+															)
 														: null,
 													h(
 														Button,
@@ -516,7 +516,7 @@ export function BookingsScreen() {
 							},
 							'Series appointments stay linked. Moving one week leaves the others alone.'
 						)
-				  )
+					)
 		),
 		h(
 			Modal,
@@ -563,7 +563,7 @@ export function BookingsScreen() {
 												} ),
 										},
 										'Join appointment'
-								  )
+									)
 								: null,
 							h(
 								Button,
@@ -595,10 +595,10 @@ export function BookingsScreen() {
 											},
 										},
 										'Refund payment'
-								  )
+									)
 								: null
 						)
-				  )
+					)
 				: null
 		),
 		h(
@@ -635,7 +635,7 @@ export function BookingsScreen() {
 										class: 'ts-admin__state ts-admin__state--error',
 									},
 									slotError
-							  )
+								)
 							: null,
 						slotStatus === 'ready'
 							? h(
@@ -648,7 +648,7 @@ export function BookingsScreen() {
 												'p',
 												{ class: 'ts-admin__muted' },
 												'No open slots in the next week. Add availability first, then try again.'
-										  )
+											)
 										: h(
 												'div',
 												{
@@ -690,18 +690,18 @@ export function BookingsScreen() {
 																		}
 																	)
 															)
-													  )
+														)
 													: h(
 															'p',
 															{
 																class: 'ts-admin__muted',
 															},
 															'No open slots this day. Try another day.'
-													  )
-										  )
-							  )
+														)
+											)
+								)
 							: null
-				  )
+					)
 				: null
 		)
 	);

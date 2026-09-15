@@ -133,7 +133,9 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 		).toBeVisible();
 		await page.getByText( 'WordPress shortcode' ).click();
 		await expect(
-			page.getByText( `[plumberslot technician="${ seed.technicianSlug }"]` )
+			page.getByText(
+				`[plumberslot technician="${ seed.technicianSlug }"]`
+			)
 		).toBeVisible();
 
 		const database = await fixture( 'inspect-onboarding', fixtureKey );

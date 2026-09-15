@@ -21,7 +21,7 @@ const boot =
 				},
 				urls: { admin: '', home: '/', bookingPage: '/book/' },
 				docs: { videoUrl: '' },
-		  };
+			};
 
 export function getConfig() {
 	return boot;

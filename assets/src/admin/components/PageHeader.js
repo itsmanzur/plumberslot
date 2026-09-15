@@ -29,7 +29,7 @@ export function PageHeader( { title, subtitle, eyebrow = '', actions = [] } ) {
 							action.label
 						)
 					)
-			  )
+				)
 			: null
 	);
 }

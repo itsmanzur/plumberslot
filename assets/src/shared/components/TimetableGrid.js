@@ -365,7 +365,7 @@ export function TimetableGrid( {
 												el && el.closest
 													? el.closest(
 															'.ts-tt__cell'
-													  )
+														)
 													: null;
 											if ( cell && cell.dataset.k ) {
 												applyPaint( cell.dataset.k );
@@ -452,9 +452,9 @@ export function TimetableGrid( {
 								'span',
 								{ class: 'ts-tt__dirty', role: 'status' },
 								'Unsaved changes'
-						  )
+							)
 						: null
-			  )
+				)
 			: null
 	);
 }

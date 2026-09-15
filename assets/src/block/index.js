@@ -30,7 +30,9 @@ function Edit( { attributes, setAttributes } ) {
 		let alive = true;
 		( async () => {
 			try {
-				const data = await apiFetch( { path: '/plumberslot/v1/technicians' } );
+				const data = await apiFetch( {
+					path: '/plumberslot/v1/technicians',
+				} );
 				if ( alive ) {
 					setTechnicians( data.technicians || [] );
 				}
@@ -149,7 +151,10 @@ function Edit( { attributes, setAttributes } ) {
 				<p>
 					{ technician
 						? __( 'Technician:', 'plumberslot' ) + ' ' + technician
-						: __( 'Choose a technician in the sidebar.', 'plumberslot' ) }
+						: __(
+								'Choose a technician in the sidebar.',
+								'plumberslot'
+							) }
 				</p>
 			</div>
 		</div>

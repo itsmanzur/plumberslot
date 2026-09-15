@@ -24,7 +24,9 @@ const emptyForm = () => ( {
 export function ServicesScreen() {
 	const config = getConfig();
 	const manageTechnicians = can( 'manageTechnicians' );
-	const [ technicianId, setTechnicianId ] = useState( config.technicianId || 0 );
+	const [ technicianId, setTechnicianId ] = useState(
+		config.technicianId || 0
+	);
 	const [ technicians, setTechnicians ] = useState( [] );
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
@@ -143,7 +145,9 @@ export function ServicesScreen() {
 		}
 		setDeleting( true );
 		try {
-			await del( `technicians/${ technicianId }/services/${ deleteTarget.id }` );
+			await del(
+				`technicians/${ technicianId }/services/${ deleteTarget.id }`
+			);
 			announce( 'Service removed.' );
 			setDeleteTarget( null );
 			await load();
@@ -174,7 +178,7 @@ export function ServicesScreen() {
 							variant: 'primary',
 							onClick: openCreate,
 						},
-				  ]
+					]
 				: [],
 		} ),
 		manageTechnicians && technicians.length > 1
@@ -190,18 +194,23 @@ export function ServicesScreen() {
 							{
 								value: technicianId,
 								onChange: ( event ) =>
-									setTechnicianId( Number( event.target.value ) ),
+									setTechnicianId(
+										Number( event.target.value )
+									),
 							},
 							technicians.map( ( technician ) =>
 								h(
 									'option',
-									{ key: technician.id, value: technician.id },
+									{
+										key: technician.id,
+										value: technician.id,
+									},
 									technician.display_name
 								)
 							)
 						)
 					)
-			  )
+				)
 			: null,
 		h(
 			ScreenState,
@@ -213,7 +222,7 @@ export function ServicesScreen() {
 							'Add what you teach — name, length, and price. Parents pick one when they book.',
 						actionLabel: 'Add service',
 						onAction: openCreate,
-				  } )
+					} )
 				: null,
 			status === 'ready' && rows.length > 0
 				? h(
@@ -261,7 +270,7 @@ export function ServicesScreen() {
 																	class: 'ts-admin__muted',
 																},
 																row.category
-														  )
+															)
 														: null,
 													row.is_free_estimate
 														? h(
@@ -270,7 +279,7 @@ export function ServicesScreen() {
 																	class: 'ts-services__free-estimate',
 																},
 																'Free estimate'
-														  )
+															)
 														: null
 												)
 											),
@@ -335,7 +344,7 @@ export function ServicesScreen() {
 								)
 							)
 						)
-				  )
+					)
 				: null
 		),
 		h(

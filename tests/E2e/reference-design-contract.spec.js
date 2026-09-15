@@ -228,7 +228,9 @@ test( 'technician dashboard cards match the public reference surface', async ( {
 		'.ts-dash__job',
 	] );
 
-	expect( styles[ '.plumberslot-dashboard' ].color ).toBe( 'rgb(60, 71, 89)' );
+	expect( styles[ '.plumberslot-dashboard' ].color ).toBe(
+		'rgb(60, 71, 89)'
+	);
 	expect( styles[ '.ts-dash__tabs' ].columnGap ).toBe( '7px' );
 	expect( styles[ '.ts-dash__tab' ] ).toMatchObject( {
 		backgroundColor: 'rgb(255, 255, 255)',

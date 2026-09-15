@@ -116,7 +116,9 @@ async function openConfirmStep( page, seed ) {
 	await firstOpenTime.click();
 	const holdResponse = page.waitForResponse(
 		( response ) =>
-			response.url().includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
+			response
+				.url()
+				.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 			'POST' === response.request().method()
 	);
 	await widget.getByRole( 'button', { name: 'Continue →' } ).click();

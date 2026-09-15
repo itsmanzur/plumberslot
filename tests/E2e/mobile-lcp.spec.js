@@ -32,7 +32,7 @@ async function installLcpObserver( page ) {
 								text: ( element.textContent || '' )
 									.trim()
 									.slice( 0, 100 ),
-						  }
+							}
 						: null,
 					size: entry.size,
 					startTime: entry.startTime,

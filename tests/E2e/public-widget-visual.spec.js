@@ -67,7 +67,9 @@ test( 'public booking widget matches its visual baseline', async ( {
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await page.goto( seed.pagePath );
 		expect( ( await technicianResponse ).status() ).toBe( 200 );

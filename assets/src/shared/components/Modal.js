@@ -98,7 +98,7 @@ export function Modal( {
 								disabled: primaryDisabled,
 							},
 							primaryLabel
-					  )
+						)
 					: null
 			)
 		)

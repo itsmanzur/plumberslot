@@ -110,7 +110,7 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 					? () => setReloadKey( ( value ) => value + 1 )
 					: () => {
 							navigateTo( boot.loginUrl, { sameOrigin: true } );
-					  },
+						},
 			} ),
 			h(
 				Button,
@@ -187,12 +187,12 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 								setReloadKey( ( value ) => value + 1 ),
 						},
 						'Refresh status'
-				  )
+					)
 				: h(
 						Button,
 						{ onClick: clearPaymentReturn },
 						'Return to booking'
-				  ),
+					),
 			h(
 				Button,
 				{

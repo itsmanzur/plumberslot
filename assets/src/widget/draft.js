@@ -28,7 +28,7 @@ export function saveBookingDraft( technicianId, draft ) {
 
 /**
  * @param {Object} [address]
- * @return {{line1:string,line2:string,city:string,state:string,zip:string}}
+ * @return {{line1:string,line2:string,city:string,state:string,zip:string}} Address with every field defaulted to an empty string.
  */
 function normalizeAddress( address ) {
 	const a = address || {};

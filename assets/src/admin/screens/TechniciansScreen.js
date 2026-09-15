@@ -95,7 +95,8 @@ export function TechniciansScreen() {
 			: `${ technicians.length || 'No' } technicians on this site.`;
 
 	const currency =
-		technicians[ 0 ]?.currency || technicians.find( ( t ) => t.currency )?.currency;
+		technicians[ 0 ]?.currency ||
+		technicians.find( ( t ) => t.currency )?.currency;
 
 	return h(
 		'div',
@@ -112,7 +113,7 @@ export function TechniciansScreen() {
 							variant: 'primary',
 							onClick: () => setInviteOpen( true ),
 						},
-				  ]
+					]
 				: [],
 		} ),
 		h(
@@ -125,7 +126,7 @@ export function TechniciansScreen() {
 							'Invite teachers by email. They get a link to set their hours after accepting.',
 						actionLabel: 'Invite technician',
 						onAction: () => setInviteOpen( true ),
-				  } )
+					} )
 				: h(
 						'div',
 						{ class: 'ts-admin-card ts-admin-card--flush' },
@@ -160,17 +161,21 @@ export function TechniciansScreen() {
 												null,
 												h( PersonCell, {
 													name: technician.display_name,
-													context: technician.email || '',
-													initials: technician.initials,
+													context:
+														technician.email || '',
+													initials:
+														technician.initials,
 												} )
 											),
 											h(
 												'td',
 												null,
-												Array.isArray( technician.services )
+												Array.isArray(
+													technician.services
+												)
 													? technician.services.join(
 															', '
-													  ) || '—'
+														) || '—'
 													: '—'
 											),
 											h(
@@ -212,7 +217,8 @@ export function TechniciansScreen() {
 														},
 														'Edit'
 													),
-													technician.status === 'invited'
+													technician.status ===
+														'invited'
 														? h(
 																Button,
 																{
@@ -226,7 +232,7 @@ export function TechniciansScreen() {
 																			),
 																},
 																'Resend'
-														  )
+															)
 														: null
 												)
 											)
@@ -246,7 +252,7 @@ export function TechniciansScreen() {
 							},
 							'Technicians set their own weekly hours from /technician-dashboard after accepting the invite.'
 						)
-				  )
+					)
 		),
 		h(
 			Modal,
@@ -314,7 +320,7 @@ export function TechniciansScreen() {
 								)
 							)
 						)
-				  )
+					)
 				: null
 		)
 	);

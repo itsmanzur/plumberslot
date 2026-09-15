@@ -69,7 +69,9 @@ test( 'customer completes the public booking flow', async ( {
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponsePromise = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await page.goto( seed.pagePath );
 		const technicianResponse = await technicianResponsePromise;

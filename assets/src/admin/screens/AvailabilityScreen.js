@@ -282,12 +282,12 @@ export function AvailabilityScreen() {
 											)
 										)
 									)
-							  )
+								)
 							: h(
 									'p',
 									{ class: 'ts-admin__muted' },
 									'No exceptions yet.'
-							  )
+								)
 					)
 				)
 			)

@@ -302,15 +302,15 @@ export function DashboardScreen() {
 																			},
 																			row.customer
 																		),
-																	row.address
-																		? h(
-																			'small',
-																			{
-																				class: 'ts-dashboard__person-address',
-																			},
-																			row.address
-																		)
-																		: null
+																		row.address
+																			? h(
+																					'small',
+																					{
+																						class: 'ts-dashboard__person-address',
+																					},
+																					row.address
+																				)
+																			: null
 																	)
 																)
 															),
@@ -364,12 +364,12 @@ export function DashboardScreen() {
 													)
 												)
 											)
-									  )
+										)
 									: h(
 											'p',
 											{ class: 'ts-dashboard__empty' },
 											'No upcoming appointments.'
-									  )
+										)
 							),
 							h(
 								'div',
@@ -418,12 +418,12 @@ export function DashboardScreen() {
 														)
 													)
 												)
-										  )
+											)
 										: h(
 												'p',
 												{ class: 'ts-admin__muted' },
 												'Nothing waiting on you.'
-										  )
+											)
 								),
 								h(
 									'section',
@@ -474,7 +474,7 @@ export function DashboardScreen() {
 								)
 							)
 						)
-				  )
+					)
 				: null
 		)
 	);

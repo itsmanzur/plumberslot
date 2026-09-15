@@ -19,13 +19,17 @@ import { TimeStep } from './views/TimeStep';
  * @param {number} props.serviceId
  * @param {string} props.view
  */
-export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) {
+export function BookingApp( {
+	technicianId,
+	serviceId = 0,
+	view = 'booking',
+} ) {
 	const boot = getBoot();
 	const payReturn =
 		typeof window !== 'undefined'
 			? new URLSearchParams( window.location.search ).get(
 					'plumberslot_pay'
-			  )
+				)
 			: null;
 	const returnBookingId =
 		typeof window !== 'undefined'
@@ -34,7 +38,7 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 						'booking'
 					) || '0',
 					10
-			  )
+				)
 			: 0;
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
@@ -64,9 +68,12 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 		}
 		( async () => {
 			try {
-				const data = await get( `public/technicians/${ technicianId }`, {
-					timezone,
-				} );
+				const data = await get(
+					`public/technicians/${ technicianId }`,
+					{
+						timezone,
+					}
+				);
 				setTechnician( data );
 				if ( serviceId ) {
 					const exists = ( data.services || [] ).some(
@@ -142,7 +149,14 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 			setStep( 'account' );
 		}
 		setDraftRestored( true );
-	}, [ status, technician, technicianId, draftRestored, view, boot.loggedIn ] );
+	}, [
+		status,
+		technician,
+		technicianId,
+		draftRestored,
+		view,
+		boot.loggedIn,
+	] );
 
 	useEffect( () => {
 		if ( step === 'account' && boot.loggedIn ) {

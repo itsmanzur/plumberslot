@@ -329,7 +329,7 @@ export function HelpDocsScreen() {
 								ActionLink,
 								{ href: bookingUrl },
 								'Preview booking page'
-						  )
+							)
 						: null
 				)
 			),
@@ -397,7 +397,7 @@ export function HelpDocsScreen() {
 							ActionLink,
 							{ href: videoUrl, external: true, primary: true },
 							'Watch video ↗'
-					  )
+						)
 					: h( 'em', null, 'Video link coming soon' )
 			),
 			h(
@@ -616,20 +616,20 @@ export function HelpDocsScreen() {
 														primary: true,
 													},
 													`Open ${ guide.label }`
-											  )
+												)
 											: null,
 										guide.booking && bookingUrl
 											? h(
 													ActionLink,
 													{ href: bookingUrl },
 													'Preview booking page'
-											  )
+												)
 											: null
 									)
 								)
 							)
 						)
-				  )
+					)
 				: h(
 						'div',
 						{ class: 'ts-docs__no-results', role: 'status' },
@@ -639,7 +639,7 @@ export function HelpDocsScreen() {
 							null,
 							'Try a shorter word, such as “time”, “credit”, “meeting” or “pay”.'
 						)
-				  ),
+					),
 			h(
 				'div',
 				{ class: 'ts-docs__shortcode' },
@@ -653,7 +653,11 @@ export function HelpDocsScreen() {
 						'Replace the example slug with the technician slug from Technicians.'
 					)
 				),
-				h( 'code', null, '[plumberslot technician="your-technician-slug"]' ),
+				h(
+					'code',
+					null,
+					'[plumberslot technician="your-technician-slug"]'
+				),
 				h(
 					'button',
 					{
@@ -707,7 +711,11 @@ export function HelpDocsScreen() {
 				h(
 					'ol',
 					null,
-					h( 'li', null, 'Confirm the technician has an active service.' ),
+					h(
+						'li',
+						null,
+						'Confirm the technician has an active service.'
+					),
 					h(
 						'li',
 						null,

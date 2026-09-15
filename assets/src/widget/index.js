@@ -10,7 +10,10 @@ import { BookingApp } from './App';
 document.querySelectorAll( '.plumberslot-widget' ).forEach( ( target ) => {
 	render(
 		h( BookingApp, {
-			technicianId: Number.parseInt( target.dataset.technician || '0', 10 ),
+			technicianId: Number.parseInt(
+				target.dataset.technician || '0',
+				10
+			),
 			serviceId: Number.parseInt( target.dataset.service || '0', 10 ),
 			view: target.dataset.view || 'booking',
 		} ),

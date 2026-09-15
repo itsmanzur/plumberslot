@@ -133,7 +133,9 @@ test( 'customer completes booking with keyboard only', async ( {
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
 		expect( ( await technicianResponse ).status() ).toBe( 200 );

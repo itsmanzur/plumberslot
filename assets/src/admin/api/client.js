@@ -39,7 +39,7 @@ export async function api( path, options = {} ) {
 		: `${ config.root.replace( /\/$/, '' ) }/${ path.replace(
 				/^\//,
 				''
-		  ) }`;
+			) }`;
 
 	const response = await fetch( url, {
 		credentials: 'same-origin',

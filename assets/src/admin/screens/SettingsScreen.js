@@ -22,7 +22,8 @@ const BOOKING_TOGGLES = [
 	{
 		key: 'allow_customer_reschedule',
 		label: 'Let customers reschedule',
-		explanation: 'Up to the reschedule window before the appointment starts.',
+		explanation:
+			'Up to the reschedule window before the appointment starts.',
 	},
 	{
 		key: 'offer_free_estimate',
@@ -315,7 +316,7 @@ export function SettingsScreen() {
 										title: 'Online payments need a gateway:',
 									},
 									'Payments are enabled, but Stripe and bKash are not connected yet. Customers will only see “pay the technician directly” or service plans until you add API keys below.'
-							  )
+								)
 							: null,
 						h(
 							'dl',

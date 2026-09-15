@@ -21,7 +21,9 @@ export function DoneView( {
 		? formatInZone( booking.reschedule_deadline, timezone )
 		: '';
 	const duration =
-		booking.duration_min || service?.duration_min || technician.default_duration;
+		booking.duration_min ||
+		service?.duration_min ||
+		technician.default_duration;
 	const customer = booking.customer || 'You';
 	const joinUrl = safeUrl( booking.join_url, { sameOrigin: true } );
 	const dashboardUrl = safeUrl( booking.dashboard_url || boot.dashboardUrl, {
@@ -33,7 +35,7 @@ export function DoneView( {
 			? `Payment confirmed. ${ customer } is booked${ weekdayHint(
 					start,
 					timezone
-			  ) }.`
+				) }.`
 			: `Booked. ${ customer } is set${ weekdayHint( start, timezone ) }.`;
 
 	useEffect( () => {
@@ -127,7 +129,10 @@ export function DoneView( {
 					),
 					kv( 'Runs for', `${ duration } minutes` ),
 					kv( 'Join', meetingDetails( booking, technician ) ),
-					kv( 'Payment', completionPaymentLabel( booking, technician ) ),
+					kv(
+						'Payment',
+						completionPaymentLabel( booking, technician )
+					),
 					booking.series_label
 						? kv( 'Series', booking.series_label )
 						: null
@@ -145,7 +150,7 @@ export function DoneView( {
 								navigateTo( joinUrl, { sameOrigin: true } ),
 						},
 						'Join appointment'
-				  )
+					)
 				: null,
 			h(
 				Button,
@@ -170,7 +175,7 @@ export function DoneView( {
 					'p',
 					{ class: 'ts-book__muted' },
 					`Need a different time? You can move this appointment yourself until ${ deadline }.`
-			  )
+				)
 			: null
 	);
 }
@@ -203,7 +208,9 @@ function meetingDetails( booking, technician ) {
 	}
 
 	return `${
-		booking.meeting_provider || technician.meeting_provider || 'Online appointment'
+		booking.meeting_provider ||
+		technician.meeting_provider ||
+		'Online appointment'
 	} · link before the appointment`;
 }
 
@@ -220,7 +227,10 @@ function completionPaymentLabel( booking, technician ) {
 	) {
 		return 'Payment pending';
 	}
-	return money( booking.price_minor, booking.currency || technician.currency );
+	return money(
+		booking.price_minor,
+		booking.currency || technician.currency
+	);
 }
 
 function calendarDescription( joinUrl, reference ) {

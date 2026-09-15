@@ -36,7 +36,7 @@ export function SlotButton( {
 				? {
 						role: 'option',
 						'aria-selected': selected ? 'true' : 'false',
-				  }
+					}
 				: { 'aria-pressed': selected ? 'true' : 'false' } ),
 			onClick,
 			...rest,

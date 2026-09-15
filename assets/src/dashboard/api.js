@@ -7,7 +7,7 @@ const boot =
 				loggedIn: false,
 				loginUrl: '/wp-login.php',
 				user: null,
-		  };
+			};
 
 export function getBoot() {
 	return boot;

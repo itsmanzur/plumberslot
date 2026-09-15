@@ -191,9 +191,12 @@ export function SetupWizardScreen() {
 					isCentre
 						? h(
 								Button,
-								{ variant: 'secondary', onClick: goTechnicians },
+								{
+									variant: 'secondary',
+									onClick: goTechnicians,
+								},
 								'Invite technicians'
-						  )
+							)
 						: null
 				),
 				h(
@@ -278,7 +281,7 @@ export function SetupWizardScreen() {
 							)
 						)
 					)
-			  )
+				)
 			: null,
 		step === 1
 			? h(
@@ -333,8 +336,8 @@ export function SetupWizardScreen() {
 								'p',
 								{ class: 'ts-admin__muted' },
 								'Pick at least one service so parents have something to book.'
-						  )
-			  )
+							)
+				)
 			: null,
 		step === 2
 			? h(
@@ -396,7 +399,7 @@ export function SetupWizardScreen() {
 							announce( 'Hours captured for setup.' );
 						},
 					} )
-			  )
+				)
 			: null,
 		step === 3
 			? h(
@@ -419,9 +422,9 @@ export function SetupWizardScreen() {
 									style: { marginTop: '14px' },
 								},
 								'Online payments are on, but Stripe/bKash are not set yet. Until then customers will book with “pay technician directly” or job packages. Add keys under Settings → Connections after you finish.'
-						  )
+							)
 						: null
-			  )
+				)
 			: null,
 		h(
 			'div',
@@ -434,7 +437,7 @@ export function SetupWizardScreen() {
 							onClick: () => setStep( ( s ) => s - 1 ),
 						},
 						'Back'
-				  )
+					)
 				: null,
 			step > 0 && step < 3
 				? h(
@@ -444,7 +447,7 @@ export function SetupWizardScreen() {
 							onClick: () => setStep( ( s ) => s + 1 ),
 						},
 						'Skip for now'
-				  )
+					)
 				: null,
 			h(
 				Button,

@@ -47,7 +47,7 @@ export function ProfileView( { technician, onBook } ) {
 											technician.job_count || 0
 										} jobs completed`
 									)
-							  )
+								)
 							: `${ technician.job_count || 0 } jobs completed`
 					)
 				)
@@ -82,7 +82,7 @@ export function ProfileView( { technician, onBook } ) {
 						{ class: 'ts-book__bio' },
 						h( 'h2', null, 'About' ),
 						h( 'p', null, technician.bio )
-				  )
+					)
 				: null,
 			technician.reviews?.length
 				? h(
@@ -107,7 +107,7 @@ export function ProfileView( { technician, onBook } ) {
 								h( 'p', null, r.body )
 							)
 						)
-				  )
+					)
 				: null
 		),
 		h(
@@ -125,7 +125,7 @@ export function ProfileView( { technician, onBook } ) {
 						'p',
 						{ class: 'ts-book__muted' },
 						'First estimate can be free'
-				  )
+					)
 				: null,
 			h(
 				'div',

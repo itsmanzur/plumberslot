@@ -8,7 +8,7 @@ import { RAIL } from './ServiceStep';
  * Keeps the chosen slot in a draft so WP login can return to Confirm.
  *
  * @param {Object}   root0            Component properties.
- * @param {Object}   root0.technician      Selected technician.
+ * @param {Object}   root0.technician Selected technician.
  * @param {Object}   root0.service    Selected service.
  * @param {string}   root0.start      Selected start time.
  * @param {string}   root0.timezone   Display timezone.
@@ -47,7 +47,11 @@ export function AccountStep( {
 			h(
 				Callout,
 				{ title: 'Ready to book:' },
-				[ service?.name || 'Appointment', technician?.display_name, when ]
+				[
+					service?.name || 'Appointment',
+					technician?.display_name,
+					when,
+				]
 					.filter( Boolean )
 					.join( ' · ' )
 			),
@@ -76,7 +80,7 @@ export function AccountStep( {
 								},
 							},
 							'Sign in to continue'
-					  )
+						)
 			)
 		)
 	);

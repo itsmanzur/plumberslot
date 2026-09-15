@@ -41,7 +41,7 @@ export function AddressStep( { address, onChange, onContinue, onBack } ) {
 			h(
 				'p',
 				{ class: 'ts-book__sub' },
-				"Tell us the service address so the technician knows where to go."
+				'Tell us the service address so the technician knows where to go.'
 			),
 			h(
 				'div',

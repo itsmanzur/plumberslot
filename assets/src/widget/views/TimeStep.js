@@ -52,7 +52,8 @@ export function TimeStep( {
 				technician_id: technician.id,
 				from: from.toISOString(),
 				to: to.toISOString(),
-				duration: service?.duration_min || technician.default_duration || 60,
+				duration:
+					service?.duration_min || technician.default_duration || 60,
 				timezone: tz,
 			} );
 			setSlots( data.slots || [] );
@@ -159,7 +160,7 @@ export function TimeStep( {
 								onChange: ( event ) =>
 									onTimezone( event.target.value ),
 							} )
-					  )
+						)
 					: null
 			),
 			status === 'error'
@@ -168,7 +169,7 @@ export function TimeStep( {
 						description: error,
 						actionLabel: 'Retry',
 						onAction: () => load(),
-				  } )
+					} )
 				: null,
 			status !== 'error'
 				? h(
@@ -193,7 +194,7 @@ export function TimeStep( {
 									Callout,
 									{ tone: 'warn', title: 'Updated:' },
 									'Some slots were taken. Pick again.'
-							  )
+								)
 							: null,
 						h( 'h3', null, 'Pick a time' ),
 						h(
@@ -208,21 +209,21 @@ export function TimeStep( {
 										'p',
 										{ class: 'ts-book__muted' },
 										'Loading times…'
-								  )
+									)
 								: renderSlots(
 										daySlots,
 										tz,
 										selectedStart,
 										onSelectStart,
 										setStale
-								  )
+									)
 						),
 						h(
 							'p',
 							{ class: 'ts-book__muted' },
 							`Each appointment runs ${ duration } minutes. Taken slots update live.`
 						)
-				  )
+					)
 				: null
 		),
 		h(

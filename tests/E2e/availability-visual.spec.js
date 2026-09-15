@@ -68,7 +68,9 @@ test( 'availability timetable matches its visual baseline', async ( {
 		await logIn( page, seed.technicianLogin, seed.password );
 		const availabilityResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( `/availability/${ seed.technicianId }` ) &&
+				response
+					.url()
+					.includes( `/availability/${ seed.technicianId }` ) &&
 				'GET' === response.request().method()
 		);
 		await page.goto( '/wp-admin/admin.php?page=plumberslot-availability' );

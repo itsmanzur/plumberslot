@@ -19,7 +19,7 @@ export function EmptyState( {
 					Button,
 					{ variant: 'secondary', onClick: onSecondary },
 					secondaryLabel
-			  )
+				)
 			: null;
 
 	return h(
@@ -46,7 +46,7 @@ export function ErrorState( { title, description, actionLabel, onAction } ) {
 					Button,
 					{ variant: 'secondary', onClick: onAction },
 					actionLabel
-			  )
+				)
 			: null
 	);
 }

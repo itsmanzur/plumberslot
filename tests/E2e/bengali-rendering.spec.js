@@ -151,7 +151,9 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 	try {
 		await logIn( page, seed.aliceLogin, seed.password );
 		const technicianResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( `/public/technicians/${ seed.technicianId }` )
+			response
+				.url()
+				.includes( `/public/technicians/${ seed.technicianId }` )
 		);
 		await goTo( page, seed.pagePath );
 		expect( ( await technicianResponse ).status() ).toBe( 200 );
