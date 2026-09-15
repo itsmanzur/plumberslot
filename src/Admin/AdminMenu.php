@@ -33,7 +33,7 @@ final class AdminMenu {
 			Capabilities::MANAGE_OWN,
 			self::SLUG,
 			array( $this, 'render' ),
-			'dashicons-welcome-learn-more',
+			'dashicons-admin-tools',
 			26
 		);
 
