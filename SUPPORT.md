@@ -31,8 +31,8 @@ to [`SECURITY.md`](SECURITY.md).
   disabled on staging.
 
 Remove API keys, nonces, cookies, authorization headers, payment/meeting
-references and all student or parent personal data. Never post a database dump
-or production access credentials.
+references and all customer personal data, including service addresses.
+Never post a database dump or production access credentials.
 
 ## Common checks
 
@@ -44,11 +44,12 @@ or production access credentials.
 - Check the browser console and the failed `/wp-json/plumberslot/v1/` request.
 - Temporarily reproduce with a default theme to isolate CSS/JavaScript conflicts.
 
-### No tutor, subject or time appears
+### No technician, service or time appears
 
-- Confirm the tutor is active and has a subject assigned to that same tutor.
+- Confirm the technician is active and has a service assigned to that same
+  technician.
 - Save at least one weekly availability cell and check one-off closed dates.
-- Check tutor timezone, subject duration, lead time and buffer settings.
+- Check technician timezone, service duration, lead time and buffer settings.
 - Clear persistent object/page caches after changing availability.
 
 ### A customer cannot confirm
@@ -78,10 +79,10 @@ renew the REST nonce and choose an open time again if the hold expired.
 - Define a stable `PLUMBERSLOT_ENCRYPTION_KEY` or confirm WordPress `AUTH_KEY` has
   not changed since credentials were saved.
 - Verify OAuth callback URLs and required provider permissions.
-- Reconnect Google for the affected tutor, or recheck the Zoom account/client
+- Reconnect Google for the affected technician, or recheck the Zoom account/client
   credentials.
 - Signed join URLs are account-bound and time-limited; test with an authorized
-  participant near the lesson time.
+  participant near the appointment time.
 
 ### Dashboard or join URL returns 404
 

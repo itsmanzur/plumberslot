@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       PlumberSlot
  * Plugin URI:        https://plumberslot.com
- * Description:       Scheduling for tutors with weekly availability, recurring lessons, parent accounts, lesson packages, optional payments and online meetings.
+ * Description:       Scheduling for plumbing businesses with technician-owned availability, service addresses, recurring appointments, Service Plans, optional payments and virtual estimates.
  * Version:           0.1.0
  * Requires at least: 6.4
  * Requires PHP:      8.1

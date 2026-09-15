@@ -1,9 +1,10 @@
 # PlumberSlot
 
-PlumberSlot is a WordPress lesson-scheduling plugin for tutors, students and
-parents. It provides weekly availability, tutor-owned subjects, single and
-recurring bookings, lesson credits, optional payments, online meetings and
-role-aware dashboards.
+PlumberSlot is a WordPress appointment-scheduling plugin for plumbing
+businesses. It provides per-technician weekly availability, technician-owned
+services, single and recurring bookings with a structured job-site address,
+Service Plan credits, optional payments, virtual estimates and a role-aware
+technician dashboard.
 
 The project is currently an unreleased `0.1.0` pre-release. Installable release
 artifacts have not been published yet.
@@ -72,9 +73,10 @@ public YouTube, Vimeo or similar HTTPS watch-page URL with the
 `plumberslot_help_video_url` filter; when it is empty, the page keeps the written
 walkthrough and shows a clear coming-soon state.
 
-The database stores booking times in UTC. Tutor/student timezones are converted
-at the application boundary. Request IDs are never treated as ownership proof;
-protected routes apply the relevant capability and account relationship checks.
+The database stores booking times in UTC. Technician/customer timezones are
+converted at the application boundary. Request IDs are never treated as
+ownership proof; protected routes apply the relevant capability and account
+relationship checks.
 
 ## Documentation
 

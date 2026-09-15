@@ -1,6 +1,6 @@
 {
   "name": "plumberslot/plumberslot",
-  "description": "Lesson booking built for teaching.",
+  "description": "Appointment booking built for on-site trades.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require": {

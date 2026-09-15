@@ -1,8 +1,8 @@
 # PlumberSlot security policy
 
-PlumberSlot handles lesson schedules, parent/student relationships, payment
-references and meeting links. Please report security issues privately so they
-can be investigated and fixed before public disclosure.
+PlumberSlot handles appointment schedules, customer contact and service-address
+details, payment references and meeting links. Please report security issues
+privately so they can be investigated and fixed before public disclosure.
 
 ## Supported versions
 
@@ -35,8 +35,9 @@ Please include as much of the following as is safe:
 - suggested mitigations or fixes, if known;
 - how you would like to be credited, or whether you prefer anonymity.
 
-Never send real student, parent, payment or meeting credentials. Replace them
-with synthetic values and redact logs before attaching them.
+Never send real customer, payment or meeting credentials, or a real service
+address. Replace them with synthetic values and redact logs before attaching
+them.
 
 ## What happens next
 
@@ -87,10 +88,11 @@ of scope:
 ## Responsible testing
 
 Use an isolated test installation and synthetic accounts. Do not access,
-modify, retain or disclose another person's data. Do not test with real minors,
-live payment methods or production meeting-provider accounts. Avoid destructive
-actions, persistence, automated traffic that affects availability and any
-attempt to move beyond the minimum proof required to demonstrate the issue.
+modify, retain or disclose another person's data, including a real service
+address. Do not test with real customer accounts, live payment methods or
+production meeting-provider accounts. Avoid destructive actions, persistence,
+automated traffic that affects availability and any attempt to move beyond the
+minimum proof required to demonstrate the issue.
 
 Stop testing and report immediately if you encounter real personal data,
 credentials or an active compromise. This policy does not authorize activity
