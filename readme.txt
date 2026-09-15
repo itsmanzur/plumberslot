@@ -1,6 +1,6 @@
 === PlumberSlot ===
 Contributors: plumberslot
-Tags: booking, tutor, appointment, lessons, scheduling
+Tags: booking, plumber, appointment, field-service, scheduling
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
@@ -8,59 +8,67 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Scheduling for tutors with weekly availability, recurring lessons, parent
-accounts, lesson packages, optional payments and online meetings.
+Scheduling for plumbing businesses with technician-owned availability, service
+addresses, service plans, optional payments and virtual estimates.
 
 == Description ==
 
-Most booking plugins were built for salons and grew a tutoring page later. It
-shows: they call your subject a "Service", your student a "Customer", and they
-have no idea that the person paying and the person attending are usually two
-different people.
+Most booking plugins were built for salons and grew a "services" page later.
+It shows: every job is treated as if it happens at the business's own counter,
+one calendar covers everyone on staff, and there is nowhere to put the
+customer's address — even though the whole job happens there.
 
-PlumberSlot starts from how teaching actually works.
+PlumberSlot starts from how field-service booking actually works.
 
-* **Visual weekly availability** — paint 30-minute cells and add one-off closed
-  dates without rebuilding the whole timetable.
-* **Tutor-specific subjects** — set level, curriculum, duration, price and an
-  optional trial subject.
+* **Visual weekly availability** — paint 30-minute cells per technician and
+  add one-off closed dates without rebuilding the whole timetable.
+* **Technician-specific services** — set category, duration, price and an
+  optional free-estimate flag on each service a technician offers.
 * **Public booking flow** — publish it with the PlumberSlot block or the
-  `[plumberslot]` shortcode. Visitors can browse tutors and open times; a
+  `[plumberslot]` shortcode. Visitors can browse services and open times; a
   WordPress account is required to confirm a booking.
-* **Single and recurring lessons** — book one lesson or choose multiple
-  weekdays and a course length for a weekly series. Individual lessons can be
-  moved without moving the remaining series.
-* **Parent and student accounts** — a parent links existing student accounts,
-  books for a child and sees family lessons from the parent dashboard.
-* **Lesson packages** — issue tutor/subject credits, spend them atomically with
-  a booking and track balances, expiry, refunds and rollover policy. Package
-  issuance is separate from online gateway checkout in this release.
-* **Booking lifecycle tools** — tutors can manage bookings, reschedule or
-  cancel, record attendance, save lesson notes and export booking CSV data.
+* **Service address on every booking** — a dedicated widget step collects the
+  job site's address (line 1, line 2, city, state, zip). It travels with the
+  booking to the technician's dashboard and the confirmation email so the
+  right crew shows up at the right door.
+* **Single and recurring appointments** — book one appointment or choose
+  multiple weekdays and a series length for a recurring job. Individual
+  appointments can be moved without moving the remaining series.
+* **Multiple technicians, independent calendars** — a solo plumber or a small
+  team; each technician keeps their own weekly availability, services and
+  bookings.
+* **Service Plans** — issue technician/service credits, spend them atomically
+  with a booking and track balances, expiry, refunds and rollover policy.
+  Plan issuance is separate from online gateway checkout in this release.
+* **Booking lifecycle tools** — technicians can manage bookings, reschedule or
+  cancel, record job completion, save job notes and export booking CSV data.
 * **Optional payments** — Stripe and bKash are built in. Sites can also allow
-  direct payment to the tutor or package credits; WooCommerce is not required.
-* **Optional online meetings** — connect Google Meet or configure Zoom.
-  Participant join links are signed and time-limited.
-* **Notifications and privacy** — scheduled 24-hour and 1-hour email reminders,
-  parent copies, WordPress personal-data export/erasure and suggested privacy
-  policy text. SMS delivery is available through a developer hook and requires
-  a separate provider integration.
+  direct payment to the technician or Service Plan credits; WooCommerce is
+  not required.
+* **Optional virtual estimates** — connect Google Meet or configure Zoom for a
+  video consultation before an on-site visit. Participant join links are
+  signed and time-limited.
+* **Notifications and privacy** — scheduled 24-hour and 1-hour email
+  reminders that include the job's service address, WordPress personal-data
+  export/erasure and suggested privacy policy text. SMS delivery is available
+  through a developer hook and requires a separate provider integration.
 * **Role-aware REST API** — public availability is intentionally readable;
-  protected booking, family, tutor, payment and administration operations use
+  protected booking, technician, payment and administration operations use
   nonce, capability and ownership checks.
 * **Interactive Help & Docs** — a plain-English in-product guide introduces
-  PlumberSlot, explains its tutor-first differences, saves four-step setup
-  progress, searches feature walkthroughs and links to an externally hosted
-  quick-tour video while keeping a written outline in the plugin.
+  PlumberSlot, explains its field-service-first differences, saves four-step
+  setup progress, searches feature walkthroughs and links to an externally
+  hosted quick-tour video while keeping a written outline in the plugin.
 
 = Security =
 
-Booking plugins hold minors' names, schedules and guardians' contact details.
-PlumberSlot treats that as the sensitive data it is:
+Booking plugins hold customers' names, contact details and, for on-site
+trades, the address of the property they'll be visiting. PlumberSlot treats
+that as the sensitive data it is:
 
-* Public REST access is limited to tutor profiles, subjects and open slots.
-  Protected reads are account-scoped; state-changing routes validate a REST
-  nonce plus the applicable capability and ownership rules.
+* Public REST access is limited to technician profiles, services and open
+  slots. Protected reads are account-scoped; state-changing routes validate a
+  REST nonce plus the applicable capability and ownership rules.
 * Dynamic SQL values are prepared and table identifiers come from an internal
   schema whitelist.
 * Rendered PHP output is escaped, and the Preact interfaces render remote data
@@ -82,27 +90,28 @@ policy is at https://github.com/itsmanzur/plumberslot/blob/main/SECURITY.md.
 1. Install and activate.
 2. The setup wizard opens automatically — four steps, about ninety seconds.
 3. Add the PlumberSlot booking block to a page, or paste
-   `[plumberslot tutor="your-name"]` into a shortcode block.
+   `[plumberslot technician="your-name"]` into a shortcode block.
 4. Configure Stripe, bKash, Google Meet or Zoom under PlumberSlot settings only
    when those optional services are needed.
-5. Customers sign in to confirm lessons and use student or parent dashboards.
+5. Customers sign in to confirm appointments; technicians use their own
+   dashboard.
 
 == External services ==
 
-PlumberSlot can schedule lessons without contacting any payment or meeting
-provider. The following optional services are contacted only after a site
-administrator configures them and a user invokes the related feature. The site
-owner is responsible for providing any notices or obtaining any consent required
-for its use of these services.
+PlumberSlot can schedule appointments without contacting any payment or
+meeting provider. The following optional services are contacted only after a
+site administrator configures them and a user invokes the related feature. The
+site owner is responsible for providing any notices or obtaining any consent
+required for its use of these services.
 
 = Stripe =
 
 When a customer chooses card payment, PlumberSlot creates a Stripe-hosted Checkout
 session. It sends the site's Stripe credential, booking identifier, amount,
-currency, a generic "Lesson" item name and success/cancel URLs. Refund requests
-send the payment reference and refund amount. Card details are entered on
-Stripe's hosted page and do not pass through or get stored by PlumberSlot. Stripe
-also sends signed payment-status webhooks back to the site.
+currency, a generic "Service Call" item name and success/cancel URLs. Refund
+requests send the payment reference and refund amount. Card details are
+entered on Stripe's hosted page and do not pass through or get stored by
+PlumberSlot. Stripe also sends signed payment-status webhooks back to the site.
 
 Privacy policy: https://stripe.com/privacy
 Services agreement: https://stripe.com/legal/ssa
@@ -113,22 +122,25 @@ When a customer chooses bKash, PlumberSlot authenticates with the configured
 merchant credentials and sends a booking-derived payer reference and invoice
 number, amount in BDT and a callback URL to bKash Tokenized Checkout. Completing,
 checking or refunding a payment sends its bKash payment/transaction reference;
-refunds also include the amount and a cancellation reason. Account, OTP and PIN
-details are handled on bKash's pages and are not stored by PlumberSlot.
+refunds also include the amount, a `service_call` line reference and a
+cancellation reason. Account, OTP and PIN details are handled on bKash's pages
+and are not stored by PlumberSlot.
 
 Privacy notice: https://www.bkash.com/en/page/privacy-notice
 Payment gateway terms: https://www.bkash.com/en/page/tokenized_checkout
 
 = Google Calendar and Google Meet =
 
-When a tutor chooses to connect Google Meet, PlumberSlot uses Google OAuth with the
-`calendar.events` permission. OAuth exchanges send the configured client
-credentials, authorization or refresh token and this site's callback URL. For a
-confirmed lesson, PlumberSlot sends the student's WordPress display name in the
-event title, lesson start/end time and a booking-derived conference request
-identifier to Google Calendar. It later sends the event identifier when resolving
-the Meet join URL. PlumberSlot does not add student or parent email addresses as
-Google Calendar attendees.
+When a technician chooses to connect Google Meet, PlumberSlot uses Google
+OAuth with the `calendar.events` permission. OAuth exchanges send the
+configured client credentials, authorization or refresh token and this site's
+callback URL. For a confirmed appointment that includes a virtual estimate,
+PlumberSlot sends the customer's WordPress display name in the event title,
+appointment start/end time and a booking-derived conference request
+identifier to Google Calendar. It later sends the event identifier when
+resolving the Meet join URL. PlumberSlot does not add customer email
+addresses as Google Calendar attendees, and does not send the job's service
+address to Google.
 
 Privacy policy: https://policies.google.com/privacy
 Terms of service: https://policies.google.com/terms
@@ -136,11 +148,12 @@ Terms of service: https://policies.google.com/terms
 = Zoom =
 
 When Zoom is configured, PlumberSlot exchanges the site's server-to-server OAuth
-account/client credentials for an access token. It sends the student's WordPress
-display name in the meeting topic, lesson start time and duration, and secure
-meeting settings to create a meeting. The returned meeting identifier is sent
-again when resolving a join URL or deleting a cancelled meeting. PlumberSlot sets
-automatic recording to "none".
+account/client credentials for an access token. It sends the customer's
+WordPress display name in the meeting topic, appointment start time and
+duration, and secure meeting settings to create a meeting. The returned
+meeting identifier is sent again when resolving a join URL or deleting a
+cancelled meeting. PlumberSlot sets automatic recording to "none" and does not
+send the job's service address to Zoom.
 
 Privacy statement: https://www.zoom.com/en/trust/privacy/privacy-statement/
 Terms of service: https://www.zoom.com/en/trust/terms/
@@ -148,46 +161,51 @@ Terms of service: https://www.zoom.com/en/trust/terms/
 = Email and SMS delivery =
 
 Email is sent through the site's standard WordPress `wp_mail` configuration;
-PlumberSlot does not bundle an external email delivery service. PlumberSlot also does
-not contact an SMS provider itself. If the site enables SMS and installs code that
-handles the `plumberslot_send_sms` action, that code receives the recipient's mobile
-number, the reminder or cancellation message and the booking record. The site
-owner must document the selected email/SMS provider and its data practices.
+PlumberSlot does not bundle an external email delivery service. PlumberSlot also
+does not contact an SMS provider itself. If the site enables SMS and installs
+code that handles the `plumberslot_send_sms` action, that code receives the
+recipient's mobile number, the reminder or cancellation message and the
+booking record (which includes the service address). The site owner must
+document the selected email/SMS provider and its data practices.
 
 == Screenshots ==
 
-1. Students choose a tutor-specific subject in the responsive public booking widget.
-2. Tutors paint weekly open hours and manage lesson defaults from one timetable.
-3. Students review the held time, lesson details and learner before confirming.
+1. Customers choose a technician-specific service in the responsive public booking widget.
+2. Technicians paint weekly open hours and manage service defaults from one timetable.
+3. Customers enter the job's service address before reviewing the held time and appointment details.
 4. The completion screen presents the booking summary, calendar action and dashboard link.
-5. Parents see family lessons, lesson credits and tutor progress notes in one dashboard.
-6. The public subject picker stays touch-friendly and readable on a 390px mobile viewport.
+5. Technicians see their assigned jobs, service addresses and job notes in one dashboard.
+6. The public service picker stays touch-friendly and readable on a 390px mobile viewport.
 
 == Frequently Asked Questions ==
 
-= Does it work with Tutor LMS or LearnDash? =
+= Can I run this with more than one technician? =
 
-There is no direct Tutor LMS or LearnDash bridge in this release. You can place
-the PlumberSlot block or shortcode on a course-related WordPress page and link to
-it from the LMS. A dedicated instructor bridge remains a future integration.
+Yes. Each technician keeps independent weekly availability, services and
+bookings. Administrators manage technician accounts and site-wide settings;
+technicians only manage their own schedule and jobs.
 
 = Do I need WooCommerce? =
 
 No. Payments are optional entirely, and when you do turn them on you can use
-Stripe or bKash directly without WooCommerce. You can also accept payment to the
-tutor outside the site or use lesson-package credits.
+Stripe or bKash directly without WooCommerce. You can also accept payment to
+the technician outside the site or use Service Plan credits.
 
 = Can visitors book without an account? =
 
-Visitors can view tutor details, subjects and open times. They must sign in to
-hold a time and confirm a single or recurring booking. This lets PlumberSlot apply
-ownership checks and connect lessons to student and parent dashboards.
+Visitors can view technician details, services and open times. They must sign
+in to hold a time and confirm a single or recurring appointment. This lets
+PlumberSlot apply ownership checks and connect appointments to the correct
+customer and technician dashboards.
 
-= Which meeting providers are included? =
+= Which meeting providers are included, and are they the on-site visit? =
 
-Google Meet uses a tutor OAuth connection and Google Calendar. Zoom uses a
-server-to-server OAuth application configured by the site. Meetings are
-optional; bookings also work without a connected meeting provider.
+No — the meeting providers are for an optional virtual estimate or
+consultation, not the on-site job itself. Google Meet uses a technician OAuth
+connection and Google Calendar. Zoom uses a server-to-server OAuth application
+configured by the site. Virtual estimates are optional; the on-site
+appointment and its service address work without a connected meeting
+provider.
 
 = Does PlumberSlot send SMS messages itself? =
 
@@ -213,14 +231,16 @@ non-sensitive bugs. Send vulnerabilities privately to security@plumberslot.com.
 
 = 0.1.0 =
 * Initial pre-release build of the PlumberSlot booking platform.
-* Added visual weekly availability, one-off closures and tutor-specific subjects.
-* Added single and recurring lesson booking with overlap and booking-race protection.
-* Added student and parent dashboards, linked learners and family booking support.
-* Added lesson packages, atomic credit spending, expiry, rollover and refund handling.
-* Added tutor-managed rescheduling, cancellation, attendance, lesson notes and CSV export.
-* Added optional Stripe and bKash payments, offline payment and package-credit checkout.
-* Added optional Google Meet and Zoom meetings with signed, expiring join links.
-* Added scheduled email reminders, parent copies and an SMS provider integration hook.
+* Added visual weekly availability, one-off closures and technician-specific services.
+* Added single and recurring appointment booking with overlap and booking-race protection.
+* Added a structured service address on every booking, surfaced on the technician
+  dashboard and in confirmation emails.
+* Added multi-technician support, with independent per-technician calendars and services.
+* Added Service Plans with atomic credit spending, expiry, rollover and refund handling.
+* Added technician-managed rescheduling, cancellation, job completion, job notes and CSV export.
+* Added optional Stripe and bKash payments, offline payment and Service Plan checkout.
+* Added optional Google Meet and Zoom virtual estimates with signed, expiring join links.
+* Added scheduled email reminders with service-address details and an SMS provider integration hook.
 * Added WordPress privacy policy text, personal-data export and erasure support.
 * Hardened REST authorization, booking ownership, webhook replay protection, secret masking,
   SQL boundaries, output escaping, audit logging and plugin lifecycle cleanup.
