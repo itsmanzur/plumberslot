@@ -359,6 +359,7 @@ export function BookingsScreen() {
 										null,
 										h( 'th', null, 'Customer' ),
 										h( 'th', null, 'Service' ),
+										h( 'th', null, 'Address' ),
 										h( 'th', null, 'When' ),
 										h( 'th', null, 'Series' ),
 										h( 'th', null, 'Payment' ),
@@ -383,6 +384,11 @@ export function BookingsScreen() {
 												} )
 											),
 											h( 'td', null, row.service ),
+											h(
+												'td',
+												{ class: 'plumberslot-mono' },
+												formatCityZip( row )
+											),
 											h(
 												'td',
 												{ class: 'plumberslot-mono' },
@@ -541,6 +547,7 @@ export function BookingsScreen() {
 							{ class: 'ts-bookings__when' },
 							detail.when || formatWhen( detail )
 						),
+						h( 'p', null, `Address: ${ formatAddress( detail ) }` ),
 						h( 'p', null, `Payment: ${ detail.payment }` ),
 						h( 'p', null, `Status: ${ detail.status }` ),
 						h(
@@ -715,6 +722,27 @@ function formatWhen( row ) {
 	} catch {
 		return row.start_utc;
 	}
+}
+
+function formatCityZip( row ) {
+	const city = ( row.address_city || '' ).trim();
+	const zip = ( row.address_zip || '' ).trim();
+	return [ city, zip ].filter( Boolean ).join( ' ' ) || '—';
+}
+
+function formatAddress( row ) {
+	const streetLine = [ row.address_line1, row.address_line2 ]
+		.map( ( part ) => ( part || '' ).trim() )
+		.filter( Boolean )
+		.join( ', ' );
+	const stateZip = [ row.address_state, row.address_zip ]
+		.map( ( part ) => ( part || '' ).trim() )
+		.filter( Boolean )
+		.join( ' ' );
+	const cityLine = [ ( row.address_city || '' ).trim(), stateZip ]
+		.filter( Boolean )
+		.join( ', ' );
+	return [ streetLine, cityLine ].filter( Boolean ).join( ', ' ) || '—';
 }
 
 function canReschedule( row ) {
