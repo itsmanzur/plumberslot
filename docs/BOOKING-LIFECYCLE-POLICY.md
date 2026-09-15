@@ -2,31 +2,33 @@
 
 This document records the business rules that lifecycle code and tests must enforce.
 
-## Past confirmed lessons
+## Past confirmed appointments
 
 Decision: a `confirmed` booking does **not** become `completed` merely because its
 `end_utc` time has passed.
 
-`completed` means that the lesson was delivered. The passage of time proves only
-that the scheduled window ended; it does not prove attendance. Automatic completion
-could therefore inflate completed-lesson reporting and make later review, refund,
-credit, or dispute decisions rely on a false attendance record.
+`completed` means that the job was done. The passage of time proves only
+that the scheduled window ended; it does not prove the technician showed up or
+finished the work. Automatic completion could therefore inflate completed-job
+reporting and make later review, refund, credit, or dispute decisions rely on a
+false completion record.
 
-After `end_utc`, an unresolved booking remains `confirmed` until an authorized tutor
-or site manager records one of the attendance outcomes:
+After `end_utc`, an unresolved booking remains `confirmed` until an authorized
+technician or site manager records one of the outcomes:
 
-- `completed` when the lesson was delivered;
-- `no_show` when the student did not attend.
+- `completed` when the job was done;
+- `no_show` when the customer was not available for the appointment.
 
-The tutor-facing application should treat such records as **attendance due** so they
-can be resolved, rather than silently changing their status in a scheduled job.
+The technician-facing application should treat such records as **outcome due**
+so they can be resolved, rather than silently changing their status in a
+scheduled job.
 
 ## Implementation contract
 
 - No cron or Action Scheduler task may perform `confirmed -> completed`.
-- Attendance transitions must start from the exact `confirmed` state.
-- Attendance may be recorded only after the lesson's `end_utc` time.
-- The tutor who owns the booking or a site manager may record attendance.
+- Outcome transitions must start from the exact `confirmed` state.
+- An outcome may be recorded only after the appointment's `end_utc` time.
+- The technician who owns the booking or a site manager may record the outcome.
 - Every accepted transition must be idempotent and audit logged.
 - A rejected transition must leave the booking unchanged.
 
@@ -43,8 +45,8 @@ The integration suite locks every supported booking lifecycle edge:
 | `pending_payment` | `confirmed` | verified payment event and replay tests |
 | `pending_payment` | `payment_failed` | failed-payment and safe-retry test |
 | `pending_payment` | `payment_expired` | exact-attempt expiry, rollback, and late-capture tests |
-| `confirmed` | `completed` | tutor/manager, lesson-end, replay, and authorization tests |
-| `confirmed` | `no_show` | tutor/manager, lesson-end, replay, and cross-outcome tests |
+| `confirmed` | `completed` | technician/manager, appointment-end, replay, and authorization tests |
+| `confirmed` | `no_show` | technician/manager, appointment-end, replay, and cross-outcome tests |
 | `confirmed` | `moved` plus replacement `confirmed` | atomic reschedule, authorization, and rollback tests |
 | `confirmed` | `cancelled` | authorization, credit rollback, replay, and cleanup tests |
 | `completed` | `refunded` | paid/credit atomicity, retry, and rescheduled-payment tests |
@@ -52,8 +54,8 @@ The integration suite locks every supported booking lifecycle edge:
 
 Closed-state matrix coverage additionally verifies that `completed`, `no_show`,
 `moved`, `cancelled`, `refunded`, and `payment_expired` cannot be changed by an
-attendance, cancellation, or reschedule request. Replaying the already-applied
-attendance/cancellation outcome remains a successful no-op.
+outcome, cancellation, or reschedule request. Replaying the already-applied
+outcome/cancellation outcome remains a successful no-op.
 
 ## Lifecycle side-effect contract
 

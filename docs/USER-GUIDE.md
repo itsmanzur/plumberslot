@@ -9,8 +9,9 @@ PlumberSlot requires WordPress 6.4+ and PHP 8.1+. Install a complete release ZIP
 then activate **PlumberSlot** under **Plugins**. A source checkout also needs
 `composer install`, `npm ci` and `npm run build` before it is feature-complete.
 
-Activation creates PlumberSlot's database tables and the Tutor, Student and Parent
-roles. The setup wizard opens once for a user who can manage PlumberSlot.
+Activation creates PlumberSlot's database tables and the Technician and
+Customer roles. The setup wizard opens once for a user who can manage
+PlumberSlot.
 
 For optional payment or meeting credentials, first add a stable encryption key
 to `wp-config.php`:
@@ -26,13 +27,13 @@ configured services. WordPress `AUTH_KEY` is used as a fallback.
 
 The four-step wizard asks for:
 
-1. **Teaching mode** — solo tutor or coaching centre.
-2. **Subjects** — choose suggested subjects or add your own.
-3. **Availability** — paint the weekly cells students may book.
+1. **Business mode** — solo technician or a small team.
+2. **Services** — choose suggested services or add your own.
+3. **Availability** — paint the weekly cells customers may book.
 4. **Payments** — enable online payments now or configure them later.
 
-Finishing setup creates or updates the tutor profile and publishes a **Book a
-lesson** page containing the tutor-specific shortcode.
+Finishing setup creates or updates the technician profile and publishes a
+**Book an appointment** page containing the technician-specific shortcode.
 
 ## 3. Configure the timetable
 
@@ -40,63 +41,68 @@ Open **PlumberSlot → Availability**.
 
 - Paint open weekly cells and save the timetable.
 - Add one-off closed dates for holidays or exceptions.
-- Confirm the tutor timezone before publishing slots.
-- Remember that lead time, lesson duration and buffer settings can remove an
+- Confirm the technician timezone before publishing slots.
+- Remember that lead time, service duration and buffer settings can remove an
   apparently open time from the public list.
 
-PlumberSlot stores times in UTC and displays them in the applicable tutor/student
-timezone.
+PlumberSlot stores times in UTC and displays them in the applicable
+technician/customer timezone.
 
-## 4. Configure subjects
+## 4. Configure services
 
-Open **PlumberSlot → Subjects**. Each subject belongs to one tutor and can define
-its level, curriculum, duration, price and trial status. A booking request is
-rejected if the requested subject does not belong to the selected tutor.
+Open **PlumberSlot → Services**. Each service belongs to one technician and can
+define its category, duration, price and free-estimate status. A booking
+request is rejected if the requested service does not belong to the selected
+technician.
 
-For multi-tutor sites, administrators manage tutor accounts under **PlumberSlot →
-Tutors**. Tutors can manage their own availability, subjects and bookings but do
-not receive site-wide settings access.
+For multi-technician sites, administrators manage technician accounts under
+**PlumberSlot → Technicians**. Technicians can manage their own availability,
+services and bookings but do not receive site-wide settings access.
 
 ## 5. Publish booking
 
 Use the **PlumberSlot booking** block, or add a shortcode:
 
 ```text
-[plumberslot tutor="tutor-slug"]
+[plumberslot technician="technician-slug"]
 ```
 
 Optional shortcode attributes:
 
 ```text
-[plumberslot tutor="tutor-slug" subject="123"]
+[plumberslot technician="technician-slug" service="123"]
 ```
 
-Visitors can browse the tutor, subject and open times. A WordPress account with
-booking permission is required before a slot can be held or confirmed.
+Visitors can browse the technician, service and open times. A WordPress
+account with booking permission is required before a slot can be held or
+confirmed. Confirming a booking also collects the job's service address
+(street, unit/line 2, city, state and zip) in a dedicated widget step.
 
-The booking flow supports one lesson or a recurring weekly series. A recurring
-series may include multiple weekdays and a lesson count; an individual lesson
-can later be moved without shifting the remaining series.
+The booking flow supports one appointment or a recurring weekly series. A
+recurring series may include multiple weekdays and an appointment count; an
+individual appointment can later be moved without shifting the remaining
+series.
 
-## 6. Student, parent and tutor access
+## 6. Customer and technician access
 
-PlumberSlot registers Student, Parent and Tutor roles.
+PlumberSlot registers Customer and Technician roles.
 
-- Parents link an existing student account, book for that learner and see family
-  lessons and credit balances.
-- Tutors manage their own schedule, bookings, attendance and lesson notes.
-- Administrators manage all tutors and global settings.
+- Customers book for themselves through the public widget; there is no
+  separate family or multi-person account — each booking belongs to the
+  signed-in customer. Confirmation emails include the appointment details and
+  service address.
+- Technicians manage their own schedule, bookings, job outcomes and job notes
+  from their dashboard.
+- Administrators manage all technicians and global settings.
 
-Front-end dashboards are available at `/parent-dashboard/` and
-`/tutor-dashboard/` after WordPress permalinks are active. They may also be
-embedded with:
+The technician front-end dashboard is available at `/technician-dashboard/`
+after WordPress permalinks are active. It may also be embedded with:
 
 ```text
-[plumberslot_dashboard view="parent"]
-[plumberslot_dashboard view="tutor"]
+[plumberslot_dashboard]
 ```
 
-## 7. Payments and lesson credits
+## 7. Payments and Service Plans
 
 Open **PlumberSlot → Settings → Connections** to configure optional Stripe or
 bKash credentials. Online payments remain unavailable until payments are
@@ -104,31 +110,34 @@ enabled and a gateway is fully configured.
 
 - Stripe uses hosted Checkout; PlumberSlot does not collect raw card details.
 - bKash Tokenized Checkout accepts BDT only.
-- Sites may allow payment directly to the tutor.
-- Lesson-package credits can be issued and spent against an eligible
-  tutor/subject; package issuance is separate from gateway checkout in this
+- Sites may allow payment directly to the technician.
+- Service Plan credits can be issued and spent against an eligible
+  technician/service; plan issuance is separate from gateway checkout in this
   release.
 
 Configure gateway webhooks/callbacks on the site's canonical HTTPS URL. See the
 [external-service disclosure](../readme.txt) before enabling a
 provider.
 
-## 8. Online meetings and notifications
+## 8. Virtual estimates and notifications
 
-Google Meet uses a tutor OAuth connection and Google Calendar. Zoom uses a
-site-configured server-to-server OAuth application. PlumberSlot creates meetings
-after eligible bookings are confirmed and sends participants a signed,
-time-limited PlumberSlot join URL instead of the raw provider URL.
+Google Meet uses a technician OAuth connection and Google Calendar. Zoom uses a
+site-configured server-to-server OAuth application. These providers create a
+virtual meeting for an optional video estimate or consultation — not the
+on-site job itself. PlumberSlot creates meetings after eligible bookings are
+confirmed and sends participants a signed, time-limited PlumberSlot join URL
+instead of the raw provider URL.
 
-Email uses the site's WordPress mail configuration. Reminder jobs require
-Action Scheduler and a functioning WordPress cron runner. SMS is not delivered
-by PlumberSlot itself; an add-on must handle the `plumberslot_send_sms` action.
+Email uses the site's WordPress mail configuration and includes the job's
+service address. Reminder jobs require Action Scheduler and a functioning
+WordPress cron runner. SMS is not delivered by PlumberSlot itself; an add-on
+must handle the `plumberslot_send_sms` action.
 
 ## 9. Manage a booking
 
-Open **PlumberSlot → Bookings** to view lessons, reschedule or cancel, record
-attendance, save lesson notes and export CSV data. State transitions are
-restricted by role and the current booking status. See the
+Open **PlumberSlot → Bookings** to view appointments, reschedule or cancel,
+record job completion, save job notes and export CSV data. State transitions
+are restricted by role and the current booking status. See the
 [booking lifecycle policy](BOOKING-LIFECYCLE-POLICY.md) for the supported
 transitions and side effects.
 
