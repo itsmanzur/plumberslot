@@ -276,6 +276,30 @@ final class BookingsController extends AbstractController {
 				'type'    => 'boolean',
 				'default' => false,
 			),
+			'address_line1' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'address_line2' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'address_city'  => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'address_state' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'address_zip'   => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
 		);
 	}
 
@@ -457,7 +481,7 @@ final class BookingsController extends AbstractController {
 
 		$list  = $this->index( $request );
 		$data  = $list->get_data();
-		$lines = array( 'id,customer,service,start_utc,status,price_minor,currency,series_id,payment_ref' );
+		$lines = array( 'id,customer,service,start_utc,status,price_minor,currency,series_id,payment_ref,address_line1,address_line2,address_city,address_state,address_zip' );
 
 		foreach ( (array) ( $data['bookings'] ?? array() ) as $row ) {
 			$lines[] = implode(
@@ -472,6 +496,11 @@ final class BookingsController extends AbstractController {
 					$this->csv_escape( (string) $row['currency'] ),
 					(int) ( $row['series_id'] ?? 0 ),
 					$this->csv_escape( (string) ( $row['payment_ref'] ?? '' ) ),
+					$this->csv_escape( (string) ( $row['address_line1'] ?? '' ) ),
+					$this->csv_escape( (string) ( $row['address_line2'] ?? '' ) ),
+					$this->csv_escape( (string) ( $row['address_city'] ?? '' ) ),
+					$this->csv_escape( (string) ( $row['address_state'] ?? '' ) ),
+					$this->csv_escape( (string) ( $row['address_zip'] ?? '' ) ),
 				)
 			);
 		}
@@ -598,6 +627,11 @@ final class BookingsController extends AbstractController {
 			'payment'        => $payment,
 			'payment_ref'    => $row->payment_ref,
 			'notes'          => $row->notes,
+			'address_line1'  => (string) ( $row->address_line1 ?? '' ),
+			'address_line2'  => $row->address_line2 ?? null,
+			'address_city'   => (string) ( $row->address_city ?? '' ),
+			'address_state'  => (string) ( $row->address_state ?? '' ),
+			'address_zip'    => (string) ( $row->address_zip ?? '' ),
 			'meeting_ready'  => $meeting_ready && '' !== $join_url,
 			'join_url'       => $join_url,
 		);
@@ -792,6 +826,11 @@ final class BookingsController extends AbstractController {
 				'consume_credit' => null !== $credit_id,
 				'lock_token'     => $request['lock_token'] ? (string) $request['lock_token'] : null,
 				'notes'          => $request['notes'] ? (string) $request['notes'] : null,
+				'address_line1'  => (string) $request['address_line1'],
+				'address_line2'  => $request['address_line2'] ? (string) $request['address_line2'] : null,
+				'address_city'   => (string) $request['address_city'],
+				'address_state'  => (string) $request['address_state'],
+				'address_zip'    => (string) $request['address_zip'],
 			)
 		);
 
@@ -822,6 +861,11 @@ final class BookingsController extends AbstractController {
 				'meeting_provider'    => $provider ? $provider : 'Google Meet',
 				'reschedule_deadline' => gmdate( 'c', max( time(), $deadline ) ),
 				'dashboard_url'       => home_url( '/my-account/' ),
+				'address_line1'       => (string) $request['address_line1'],
+				'address_line2'       => $request['address_line2'] ? (string) $request['address_line2'] : null,
+				'address_city'        => (string) $request['address_city'],
+				'address_state'       => (string) $request['address_state'],
+				'address_zip'         => (string) $request['address_zip'],
 				// Join links are never returned raw on create — they are issued
 				// behind a signed short-lived URL after confirmation.
 				'meeting_ready'       => false,

@@ -43,7 +43,9 @@ final class BookingService {
 	 *   technician_id:int, customer_id:int, service_id:?int,
 	 *   start_utc:DateTimeImmutable, duration_min:int, technician_tz:string,
 	 *   customer_tz:string, price_minor:int, currency:string,
-	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string
+	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string,
+	 *   address_line1:string, address_line2:?string, address_city:string,
+	 *   address_state:string, address_zip:string
 	 * } $args Booking arguments, already validated by the controller.
 	 * @return int|WP_Error Booking id, or an error.
 	 */
@@ -185,6 +187,11 @@ final class BookingService {
 			'payment_ref'    => $booking->payment_ref ? (string) $booking->payment_ref : null,
 			'lock_token'     => null,
 			'notes'          => $booking->notes,
+			'address_line1'  => (string) $booking->address_line1,
+			'address_line2'  => $booking->address_line2 ? (string) $booking->address_line2 : null,
+			'address_city'   => (string) $booking->address_city,
+			'address_state'  => (string) $booking->address_state,
+			'address_zip'    => (string) $booking->address_zip,
 		);
 
 		$allowed = $this->policy->can_be_booked( $technician_id, $new_start_utc );
@@ -285,6 +292,11 @@ final class BookingService {
 			'payment_ref'   => $args['payment_ref'] ?? null,
 			'meeting_token' => bin2hex( random_bytes( 32 ) ),
 			'notes'         => $args['notes'] ?? null,
+			'address_line1' => $args['address_line1'] ?? '',
+			'address_line2' => $args['address_line2'] ?? null,
+			'address_city'  => $args['address_city'] ?? '',
+			'address_state' => $args['address_state'] ?? '',
+			'address_zip'   => $args['address_zip'] ?? '',
 		);
 	}
 

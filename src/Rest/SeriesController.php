@@ -86,6 +86,30 @@ final class SeriesController extends AbstractController {
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
+					'address_line1' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'address_line2' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'address_city'  => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'address_state' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'address_zip'   => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 				),
 			)
 		);
@@ -232,6 +256,11 @@ final class SeriesController extends AbstractController {
 				'credit_id'      => $credit_id,
 				'consume_credit' => null !== $credit_id,
 				'notes'          => (string) ( $request['notes'] ?? '' ),
+				'address_line1'  => (string) $request['address_line1'],
+				'address_line2'  => $request['address_line2'] ? (string) $request['address_line2'] : null,
+				'address_city'   => (string) $request['address_city'],
+				'address_state'  => (string) $request['address_state'],
+				'address_zip'    => (string) $request['address_zip'],
 			),
 			$days,
 			(int) $request['count']
