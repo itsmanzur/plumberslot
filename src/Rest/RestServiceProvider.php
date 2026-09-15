@@ -14,7 +14,6 @@ use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\AvailabilityRepository;
 use PlumberSlot\Database\Repository\CreditRepository;
 use PlumberSlot\Database\Repository\LockRepository;
-use PlumberSlot\Database\Repository\RelationRepository;
 use PlumberSlot\Database\Repository\ReviewRepository;
 use PlumberSlot\Database\Repository\SeriesRepository;
 use PlumberSlot\Database\Repository\ServiceRepository;
@@ -73,10 +72,6 @@ final class RestServiceProvider {
 				$guard,
 				$this->container->get( CreditService::class ),
 				$this->container->get( CreditRepository::class )
-			),
-			new RelationsController(
-				$guard,
-				$this->container->get( RelationRepository::class )
 			),
 			new PaymentsController(
 				$guard,

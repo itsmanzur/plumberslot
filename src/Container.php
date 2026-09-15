@@ -65,7 +65,6 @@ final class Container {
 		$this->set( Database\Repository\BookingRepository::class, static fn () => new Database\Repository\BookingRepository() );
 		$this->set( Database\Repository\CreditRepository::class, static fn () => new Database\Repository\CreditRepository() );
 		$this->set( Database\Repository\SeriesRepository::class, static fn () => new Database\Repository\SeriesRepository() );
-		$this->set( Database\Repository\RelationRepository::class, static fn () => new Database\Repository\RelationRepository() );
 		$this->set( Database\Repository\LockRepository::class, static fn () => new Database\Repository\LockRepository() );
 		$this->set( Database\Repository\ServiceRepository::class, static fn () => new Database\Repository\ServiceRepository() );
 		$this->set( Database\Repository\ReviewRepository::class, static fn () => new Database\Repository\ReviewRepository() );
