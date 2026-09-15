@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TutorSlot — Admin Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TutorSlot design tokens
+   Palette derives from a school exercise book: blue-black ink,
+   pale ruled lines, and a highlighter swipe for "available".
+   ============================================================ */
+:root{
+  --ink:#141B2D;          /* fountain-pen blue-black: headings, wp bar */
+  --ink-2:#3C4759;        /* body text */
+  --slate:#6A7488;        /* secondary text */
+  --mute:#98A1B2;         /* tertiary / placeholder */
+  --rule:#E4E7EE;         /* ruled line: borders, grid */
+  --rule-2:#F0F2F6;       /* faint rule */
+  --paper:#F8F9FB;        /* page background, cool not cream */
+  --card:#FFFFFF;
+
+  --indigo:#2F4BA8;       /* primary action, booked state */
+  --indigo-d:#243B84;
+  --indigo-w:#EDF0FA;     /* wash */
+
+  --hl:#DCEE7A;           /* highlighter: available slot fill */
+  --hl-d:#C8DE59;         /* highlighter edge */
+  --hl-w:#F5FADF;
+
+  --ok:#2C7351; --ok-w:#E7F3EC;
+  --warn:#9C6212; --warn-w:#FBF1DF;
+  --danger:#B3302B; --danger-w:#FBEBEA;
+
+  --r-sm:6px; --r:10px; --r-lg:16px;
+  --sp:8px;
+  --shadow:0 1px 2px rgba(20,27,45,.05), 0 8px 24px -12px rgba(20,27,45,.18);
+  --shadow-lg:0 2px 4px rgba(20,27,45,.06), 0 24px 48px -20px rgba(20,27,45,.28);
+
+  --f-display:'Instrument Sans','Noto Sans Bengali',system-ui,sans-serif;
+  --f-body:'Inter','Noto Sans Bengali',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--f-body); background:var(--paper); color:var(--ink-2);
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--f-display); color:var(--ink); margin:0; letter-spacing:-.015em}
+h1{font-size:26px; font-weight:600; letter-spacing:-.025em}
+h2{font-size:18px; font-weight:600}
+h3{font-size:15px; font-weight:600}
+.mono{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- mockup shell chrome ---------- */
+.mock-bar{
+  position:sticky; top:0; z-index:60; background:var(--ink); color:#fff;
+  display:flex; align-items:center; gap:14px; padding:10px 18px; flex-wrap:wrap;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.mock-bar .tag{
+  font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--hl); border:1px solid rgba(220,238,122,.35); padding:3px 8px; border-radius:4px;
+}
+.mock-bar strong{font-family:var(--f-display); font-weight:600; font-size:14px}
+.mock-nav{display:flex; gap:2px; margin-left:auto; flex-wrap:wrap}
+.mock-nav button{
+  font:500 12.5px/1 var(--f-body); color:rgba(255,255,255,.62); background:none;
+  border:0; padding:7px 11px; border-radius:6px; cursor:pointer; transition:.16s;
+}
+.mock-nav button:hover{color:#fff; background:rgba(255,255,255,.08)}
+.mock-nav button[aria-current="true"]{color:var(--ink); background:var(--hl); font-weight:600}
+.mock-nav button:focus-visible{outline:2px solid var(--hl); outline-offset:2px}
+
+/* ---------- fake wp-admin frame ---------- */
+.wp{display:grid; grid-template-columns:172px 1fr; min-height:calc(100vh - 44px)}
+.wp-side{background:#1d2327; padding-top:8px}
+.wp-side a{
+  display:flex; align-items:center; gap:9px; padding:9px 12px; color:#c3c4c7;
+  text-decoration:none; font-size:13px;
+}
+.wp-side a.on{background:#2271b1; color:#fff; font-weight:500}
+.wp-side .ic{width:16px; text-align:center; opacity:.85; font-size:13px}
+.wp-side .grp{margin-top:14px; padding:6px 12px; color:#6c7781; font-size:10px;
+  letter-spacing:.12em; text-transform:uppercase}
+.wp-main{padding:26px 30px 60px; min-width:0}
+
+/* ---------- layout atoms ---------- */
+.row{display:flex; gap:14px; align-items:center}
+.between{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+.stack{display:grid; gap:14px}
+.eyebrow{
+  font-family:var(--f-mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--slate);
+}
+.sub{color:var(--slate); font-size:13px; margin:5px 0 0}
+.card{background:var(--card); border:1px solid var(--rule); border-radius:var(--r-lg); box-shadow:var(--shadow)}
+.card-pad{padding:20px 22px}
+.card-hd{padding:16px 22px; border-bottom:1px solid var(--rule-2); display:flex;
+  align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.divider{height:1px; background:var(--rule-2); margin:18px 0}
+
+.btn{
+  font:600 13px/1 var(--f-body); border-radius:8px; padding:10px 15px; cursor:pointer;
+  border:1px solid transparent; display:inline-flex; align-items:center; gap:7px; transition:.15s;
+}
+.btn:focus-visible{outline:2px solid var(--indigo); outline-offset:2px}
+.btn-p{background:var(--indigo); color:#fff}
+.btn-p:hover{background:var(--indigo-d)}
+.btn-s{background:#fff; color:var(--ink); border-color:var(--rule)}
+.btn-s:hover{border-color:var(--mute); background:#fcfcfd}
+.btn-g{background:transparent; color:var(--slate)}
+.btn-g:hover{color:var(--ink); background:var(--rule-2)}
+.btn-sm{padding:7px 11px; font-size:12px}
+
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+  padding:3px 9px; border-radius:99px; letter-spacing:.01em;
+}
+.chip::before{content:''; width:5px; height:5px; border-radius:99px; background:currentColor}
+.c-ok{background:var(--ok-w); color:var(--ok)}
+.c-wait{background:var(--warn-w); color:var(--warn)}
+.c-off{background:var(--danger-w); color:var(--danger)}
+.c-idle{background:var(--rule-2); color:var(--slate)}
+
+/* ---------- today strip: horizontal timeline ---------- */
+.strip{position:relative; padding:22px 22px 26px; overflow-x:auto}
+.strip-line{position:relative; height:66px; min-width:640px}
+.strip-line::before{
+  content:''; position:absolute; left:0; right:0; top:34px; height:2px;
+  background:repeating-linear-gradient(90deg,var(--rule) 0 6px, transparent 6px 12px);
+}
+.now{position:absolute; top:14px; bottom:6px; width:2px; background:var(--danger); border-radius:2px}
+.now::after{
+  content:'now'; position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+  font:600 9.5px/1 var(--f-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--danger);
+}
+.ses{
+  position:absolute; top:20px; height:32px; border-radius:7px; padding:0 10px;
+  display:flex; align-items:center; gap:7px; white-space:nowrap; font-size:12px; font-weight:600;
+  color:var(--ink); background:var(--hl); border:1px solid var(--hl-d); cursor:pointer;
+}
+.ses.done{background:var(--rule-2); border-color:var(--rule); color:var(--slate); font-weight:500}
+.ses .t{font-family:var(--f-mono); font-size:11px; opacity:.75}
+.strip-ticks{display:flex; min-width:640px; margin-top:4px}
+.strip-ticks span{flex:1; font:400 10.5px/1 var(--f-mono); color:var(--mute)}
+
+/* ---------- stat tiles ---------- */
+.tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+.tile{background:var(--card); border:1px solid var(--rule); border-radius:var(--r); padding:16px 18px}
+.tile .k{font:600 10.5px/1 var(--f-mono); letter-spacing:.13em; text-transform:uppercase; color:var(--slate)}
+.tile .v{font-family:var(--f-display); font-size:28px; font-weight:600; color:var(--ink);
+  letter-spacing:-.03em; margin-top:8px; line-height:1}
+.tile .d{font-size:12px; color:var(--slate); margin-top:5px}
+.tile .d b{color:var(--ok)}
+
+/* ============================================================
+   SIGNATURE ELEMENT — the timetable grid
+   Availability is painted onto a week grid the way a teacher
+   marks free periods on a school timetable.
+   ============================================================ */
+.grid-wrap{overflow-x:auto; padding:4px 2px 2px}
+.tt{border-collapse:separate; border-spacing:0; width:100%; min-width:620px}
+.tt th{
+  font:600 11px/1 var(--f-mono); letter-spacing:.11em; text-transform:uppercase;
+  color:var(--slate); padding:0 0 10px; text-align:center; font-weight:600;
+}
+.tt th.h-time{width:58px; text-align:right; padding-right:12px}
+.tt th span{display:block; font-family:var(--f-display); font-size:13px; letter-spacing:-.01em;
+  color:var(--ink); text-transform:none; margin-top:3px}
+.tt td.t-time{
+  font:400 11px/1 var(--f-mono); color:var(--mute); text-align:right; padding-right:12px;
+  vertical-align:top; transform:translateY(-6px); width:58px; white-space:nowrap;
+}
+.cell{
+  height:26px; border:1px solid var(--rule-2); border-top:0; border-left:0;
+  background:#fff; cursor:pointer; position:relative; transition:background .12s;
+}
+.tt tr td:nth-child(2) .cell, .tt tr td:nth-child(2){border-left:1px solid var(--rule-2)}
+.tt tr:first-child .cell{border-top:1px solid var(--rule-2)}
+.cell:hover{background:var(--hl-w)}
+/* available = highlighter swipe */
+.cell.on{background:var(--hl); border-color:var(--hl-d)}
+.cell.on:hover{background:var(--hl-d)}
+/* booked = ink */
+.cell.bk{background:var(--indigo); border-color:var(--indigo-d)}
+.cell.bk::after{
+  content:attr(data-who); position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:center; font:600 10px/1 var(--f-body); color:#fff; letter-spacing:.01em;
+  overflow:hidden; padding:0 4px;
+}
+.cell.pd{background:repeating-linear-gradient(45deg,var(--warn-w) 0 5px,#fff 5px 10px);
+  border-color:#E8D6AE}
+.cell:focus-visible{outline:2px solid var(--indigo); outline-offset:-2px; z-index:2}
+.legend{display:flex; gap:18px; flex-wrap:wrap; margin-top:16px}
+.legend i{width:13px; height:13px; border-radius:3px; display:inline-block; vertical-align:-2px;
+  margin-right:6px; border:1px solid var(--rule)}
+.legend span{font-size:12px; color:var(--slate)}
+
+/* ---------- table ---------- */
+table.list{width:100%; border-collapse:collapse}
+table.list th{
+  text-align:left; font:600 10.5px/1 var(--f-mono); letter-spacing:.13em; text-transform:uppercase;
+  color:var(--slate); padding:0 14px 11px; border-bottom:1px solid var(--rule);
+}
+table.list td{padding:13px 14px; border-bottom:1px solid var(--rule-2); font-size:13px; vertical-align:middle}
+table.list tr:last-child td{border-bottom:0}
+table.list tr:hover td{background:#FCFCFE}
+.who{display:flex; align-items:center; gap:10px}
+.av{width:30px; height:30px; border-radius:8px; background:var(--indigo-w); color:var(--indigo);
+  display:grid; place-items:center; font:600 11.5px/1 var(--f-body); flex:none}
+.who b{color:var(--ink); font-weight:600; display:block; font-size:13px}
+.who small{color:var(--mute); font-size:11.5px}
+
+/* ---------- forms ---------- */
+label.fld{display:block; margin-bottom:16px}
+label.fld > span{display:block; font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:6px}
+label.fld small{display:block; font-weight:400; color:var(--slate); font-size:11.5px; margin-top:2px}
+input[type=text],input[type=number],select,textarea{
+  width:100%; font:400 13.5px/1.4 var(--f-body); color:var(--ink); padding:10px 12px;
+  border:1px solid var(--rule); border-radius:8px; background:#fff;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--indigo); outline-offset:-1px; border-color:var(--indigo)}
+.toggle{display:flex; align-items:flex-start; gap:11px; padding:13px 0; border-bottom:1px solid var(--rule-2)}
+.toggle:last-child{border-bottom:0}
+.sw{width:36px; height:21px; border-radius:99px; background:var(--rule); position:relative; flex:none;
+  cursor:pointer; transition:.18s; margin-top:1px}
+.sw::after{content:''; position:absolute; top:2px; left:2px; width:17px; height:17px; border-radius:99px;
+  background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.22); transition:.18s}
+.sw.on{background:var(--indigo)}
+.sw.on::after{transform:translateX(15px)}
+.toggle b{display:block; color:var(--ink); font-size:13px; font-weight:600}
+.toggle p{margin:2px 0 0; color:var(--slate); font-size:12px}
+
+details.adv{border:1px solid var(--rule); border-radius:var(--r); margin-top:18px; background:#fff}
+details.adv summary{
+  padding:13px 18px; cursor:pointer; font:600 13px/1 var(--f-body); color:var(--ink);
+  list-style:none; display:flex; align-items:center; justify-content:space-between;
+}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary::after{content:'▾'; color:var(--slate); font-size:12px}
+details.adv[open] summary{border-bottom:1px solid var(--rule-2)}
+details.adv .body{padding:18px}
+details.adv summary small{font-weight:400; color:var(--slate); font-size:11.5px; margin-left:8px}
+
+/* ---------- wizard ---------- */
+.wiz{max-width:660px; margin:0 auto}
+.steps{display:flex; align-items:center; gap:0; margin-bottom:30px}
+.steps div{flex:1; text-align:center; position:relative; padding-top:26px}
+.steps div::before{
+  content:attr(data-n); position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:22px; height:22px; border-radius:99px; background:#fff; border:1.5px solid var(--rule);
+  font:600 11px/19px var(--f-mono); color:var(--mute);
+}
+.steps div::after{content:''; position:absolute; top:11px; left:50%; width:100%; height:1.5px; background:var(--rule)}
+.steps div:last-child::after{display:none}
+.steps div.done::before{content:'✓'; background:var(--indigo); border-color:var(--indigo); color:#fff}
+.steps div.done::after{background:var(--indigo)}
+.steps div.at::before{background:var(--hl); border-color:var(--hl-d); color:var(--ink)}
+.steps div span{font-size:11.5px; color:var(--slate); font-weight:500}
+.steps div.at span{color:var(--ink); font-weight:600}
+
+.pick{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.pick button{
+  text-align:left; padding:18px; border:1.5px solid var(--rule); border-radius:var(--r);
+  background:#fff; cursor:pointer; font-family:var(--f-body); transition:.15s;
+}
+.pick button:hover{border-color:var(--mute)}
+.pick button.sel{border-color:var(--indigo); background:var(--indigo-w)}
+.pick b{display:block; font-family:var(--f-display); font-size:15px; color:var(--ink); margin-bottom:4px}
+.pick p{margin:0; font-size:12.5px; color:var(--slate)}
+
+.tagin{display:flex; flex-wrap:wrap; gap:7px; padding:9px; border:1px solid var(--rule);
+  border-radius:8px; background:#fff; min-height:44px}
+.tagin .tg{background:var(--indigo-w); color:var(--indigo); font-size:12px; font-weight:600;
+  padding:4px 8px; border-radius:6px; display:inline-flex; gap:6px; align-items:center}
+.tagin .tg button{border:0; background:none; color:var(--indigo); cursor:pointer; padding:0; font-size:13px; opacity:.6}
+.tagin input{border:0; outline:0; flex:1; min-width:120px; padding:4px; font-size:13px}
+
+.done-box{text-align:center; padding:8px 0 4px}
+.shortcode{
+  font-family:var(--f-mono); font-size:14px; background:var(--ink); color:var(--hl);
+  padding:14px 18px; border-radius:var(--r); display:inline-flex; align-items:center; gap:14px;
+  margin:16px 0 6px;
+}
+.shortcode button{background:rgba(255,255,255,.12); color:#fff; border:0; border-radius:6px;
+  padding:6px 10px; font:600 11px/1 var(--f-body); cursor:pointer}
+
+/* ---------- empty state ---------- */
+.empty{text-align:center; padding:52px 24px}
+.empty .mark{
+  width:64px; height:52px; margin:0 auto 18px; border:1.5px solid var(--rule); border-radius:8px;
+  background:
+    linear-gradient(var(--hl),var(--hl)) 8px 10px/16px 8px no-repeat,
+    linear-gradient(var(--rule-2),var(--rule-2)) 8px 24px/34px 6px no-repeat,
+    linear-gradient(var(--rule-2),var(--rule-2)) 8px 36px/22px 6px no-repeat;
+}
+.empty h3{margin-bottom:6px}
+.empty p{color:var(--slate); font-size:13px; max-width:340px; margin:0 auto 18px}
+
+/* ---------- panels / screens ---------- */
+.screen{display:none}
+.screen.live{display:block}
+.note{
+  background:var(--indigo-w); border-left:3px solid var(--indigo); border-radius:0 8px 8px 0;
+  padding:11px 14px; font-size:12.5px; color:var(--ink-2); margin-top:16px;
+}
+.note b{color:var(--indigo)}
+.two{display:grid; grid-template-columns:1fr 296px; gap:16px; align-items:start}
+.two > *{min-width:0}
+.tiles > *{min-width:0}
+.stack > *{min-width:0}
+.side-h{font:600 10.5px/1 var(--f-mono); letter-spacing:.13em; text-transform:uppercase;
+  color:var(--slate); margin-bottom:12px}
+.kv{display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--rule-2); font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--slate)}
+.kv b{color:var(--ink); font-weight:600}
+
+.scroll-x{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table.list{min-width:640px}
+
+@media (max-width:1080px){
+  .tiles{grid-template-columns:1fr 1fr}
+  .two{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .wp{grid-template-columns:1fr}
+  .wp-side{display:none}
+  .wp-main{padding:18px 14px 50px; max-width:100vw}
+  .pick{grid-template-columns:1fr}
+  .tiles{grid-template-columns:1fr}
+  .card-hd input[type=text]{width:100% !important}
+  h1{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <span class="tag">Mockup</span>
+  <strong>TutorSlot — Admin</strong>
+  <nav class="mock-nav" id="nav">
+    <button data-s="dash" aria-current="true">Dashboard</button>
+    <button data-s="avail">Availability</button>
+    <button data-s="book">Bookings</button>
+    <button data-s="tutors">Tutors</button>
+    <button data-s="wizard">Setup wizard</button>
+    <button data-s="settings">Settings</button>
+    <button data-s="empty">Empty state</button>
+  </nav>
+</div>
+
+<div class="wp">
+  <aside class="wp-side">
+    <a href="#"><span class="ic">⌂</span> Dashboard</a>
+    <a href="#"><span class="ic">✎</span> Posts</a>
+    <a href="#"><span class="ic">▤</span> Pages</a>
+    <div class="grp">Teaching</div>
+    <a href="#" class="on"><span class="ic">▦</span> TutorSlot</a>
+    <a href="#"><span class="ic">◷</span> Availability</a>
+    <a href="#"><span class="ic">✓</span> Bookings</a>
+    <a href="#"><span class="ic">☺</span> Tutors</a>
+    <a href="#"><span class="ic">⚙</span> Settings</a>
+    <div class="grp">WordPress</div>
+    <a href="#"><span class="ic">◈</span> Appearance</a>
+    <a href="#"><span class="ic">⚡</span> Plugins</a>
+  </aside>
+
+  <main class="wp-main">
+
+  <!-- ================= DASHBOARD ================= -->
+  <section class="screen live" id="s-dash">
+    <div class="between" style="margin-bottom:20px">
+      <div>
+        <p class="eyebrow" style="margin:0 0 6px">Monday, 27 July</p>
+        <h1>Good morning, Farhana</h1>
+        <p class="sub">Four sessions today. The next one starts in 38 minutes.</p>
+      </div>
+      <div class="row">
+        <button class="btn btn-s">Block time off</button>
+        <button class="btn btn-p">Add a session</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd">
+        <h2>Today</h2>
+        <span class="eyebrow">Asia/Dhaka · GMT+6</span>
+      </div>
+      <div class="strip">
+        <div class="strip-line">
+          <div class="ses done" style="left:0%;width:15%"><span class="t">08:00</span> Rafi · Math</div>
+          <div class="ses done" style="left:17%;width:15%"><span class="t">09:30</span> Nusrat · Physics</div>
+          <div class="now" style="left:41%"></div>
+          <div class="ses" style="left:44%;width:16%"><span class="t">11:00</span> Ayaan · Chemistry</div>
+          <div class="ses" style="left:63%;width:17%"><span class="t">16:00</span> Tasnim · IELTS</div>
+        </div>
+        <div class="strip-ticks">
+          <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tiles" style="margin-bottom:16px">
+      <div class="tile"><div class="k">This week</div><div class="v">18</div><div class="d">sessions booked · <b>+4</b> vs last week</div></div>
+      <div class="tile"><div class="k">Earnings</div><div class="v">৳24,500</div><div class="d">7 paid, 2 awaiting payment</div></div>
+      <div class="tile"><div class="k">Fill rate</div><div class="v">72%</div><div class="d">of the hours you opened</div></div>
+      <div class="tile"><div class="k">Credits held</div><div class="v">31</div><div class="d">lessons prepaid by 9 families</div></div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div class="card-hd">
+          <h2>Next up</h2>
+          <button class="btn btn-g btn-sm">See all bookings →</button>
+        </div>
+        <div class="scroll-x" style="padding:6px 8px 8px">
+          <table class="list">
+            <thead><tr><th>Student</th><th>Subject</th><th>When</th><th>Payment</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="who"><span class="av">AH</span><span><b>Ayaan Hossain</b><small>Parent: Shirin Hossain</small></span></div></td>
+                <td>Chemistry · Class 10</td>
+                <td class="mono">11:00 – 12:00</td>
+                <td><span class="chip c-ok">Paid</span></td>
+                <td style="text-align:right"><button class="btn btn-s btn-sm">Join</button></td>
+              </tr>
+              <tr>
+                <td><div class="who"><span class="av">TK</span><span><b>Tasnim Kabir</b><small>Books her own lessons</small></span></div></td>
+                <td>IELTS Speaking</td>
+                <td class="mono">16:00 – 17:00</td>
+                <td><span class="chip c-idle">Credit used</span></td>
+                <td style="text-align:right"><button class="btn btn-s btn-sm">Join</button></td>
+              </tr>
+              <tr>
+                <td><div class="who"><span class="av">RM</span><span><b>Rafi Mahmud</b><small>Weekly · 9 of 12</small></span></div></td>
+                <td>Mathematics · Class 9</td>
+                <td class="mono">Tue 08:00</td>
+                <td><span class="chip c-wait">Due</span></td>
+                <td style="text-align:right"><button class="btn btn-s btn-sm">Remind</button></td>
+              </tr>
+              <tr>
+                <td><div class="who"><span class="av">NS</span><span><b>Nusrat Sultana</b><small>First lesson</small></span></div></td>
+                <td>Physics · HSC</td>
+                <td class="mono">Tue 09:30</td>
+                <td><span class="chip c-ok">Paid</span></td>
+                <td style="text-align:right"><button class="btn btn-s btn-sm">Open</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card card-pad">
+          <div class="side-h">Needs your attention</div>
+          <div class="kv"><span>Reschedule requests</span><b>2</b></div>
+          <div class="kv"><span>Unpaid sessions</span><b>৳3,000</b></div>
+          <div class="kv"><span>Credits expiring in 14 days</span><b>6</b></div>
+          <div class="kv"><span>Reviews awaiting reply</span><b>1</b></div>
+        </div>
+        <div class="card card-pad">
+          <div class="side-h">Your booking page</div>
+          <p style="font-size:12.5px; color:var(--slate); margin:0 0 12px">
+            Anyone with this link can see your open hours and book.
+          </p>
+          <div class="mono" style="font-size:12px; background:var(--paper); border:1px solid var(--rule);
+            border-radius:8px; padding:10px 12px; color:var(--ink-2); word-break:break-all">
+            farhana.edu/book
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-s btn-sm">Copy link</button>
+            <button class="btn btn-g btn-sm">Preview</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AVAILABILITY ================= -->
+  <section class="screen" id="s-avail">
+    <div class="between" style="margin-bottom:20px">
+      <div>
+        <p class="eyebrow" style="margin:0 0 6px">Signature screen</p>
+        <h1>When can students book you?</h1>
+        <p class="sub">Drag across the grid to open hours. Drag again over a green block to close it.</p>
+      </div>
+      <div class="row">
+        <select style="width:auto"><option>Repeats every week</option><option>Only this week</option></select>
+        <button class="btn btn-p">Save schedule</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div class="card-hd">
+          <h2>Week of 27 July</h2>
+          <div class="row">
+            <span class="eyebrow">Asia/Dhaka · GMT+6</span>
+            <button class="btn btn-g btn-sm">← Prev</button>
+            <button class="btn btn-g btn-sm">Next →</button>
+          </div>
+        </div>
+        <div class="card-pad">
+          <div class="grid-wrap">
+            <table class="tt" id="tt">
+              <thead>
+                <tr>
+                  <th class="h-time">Time</th>
+                  <th>Mon<span>27</span></th><th>Tue<span>28</span></th><th>Wed<span>29</span></th>
+                  <th>Thu<span>30</span></th><th>Fri<span>31</span></th><th>Sat<span>01</span></th><th>Sun<span>02</span></th>
+                </tr>
+              </thead>
+              <tbody id="ttb"></tbody>
+            </table>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--hl);border-color:var(--hl-d)"></i>Open for booking</span>
+            <span><i style="background:var(--indigo);border-color:var(--indigo-d)"></i>Already booked</span>
+            <span><i style="background:repeating-linear-gradient(45deg,var(--warn-w) 0 4px,#fff 4px 8px)"></i>Held for payment</span>
+            <span><i style="background:#fff"></i>Closed</span>
+          </div>
+          <div class="note">
+            <b>Why a grid, not dropdowns.</b> Every competitor asks you to add time ranges one row at a time.
+            A teacher already reads a timetable in one glance — so setting availability should take one gesture, not twelve clicks.
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card card-pad">
+          <div class="side-h">Lesson defaults</div>
+          <label class="fld"><span>Lesson length</span>
+            <select><option>60 minutes</option><option>45 minutes</option><option>90 minutes</option></select>
+          </label>
+          <label class="fld"><span>Gap between lessons<small>Time to reset before the next student</small></span>
+            <select><option>10 minutes</option><option>None</option><option>15 minutes</option></select>
+          </label>
+          <label class="fld" style="margin-bottom:0"><span>Latest a student can book<small>Counted back from the start time</small></span>
+            <select><option>4 hours before</option><option>1 hour before</option><option>24 hours before</option></select>
+          </label>
+        </div>
+        <div class="card card-pad">
+          <div class="side-h">Time off</div>
+          <div class="kv"><span>Eid holiday</span><b class="mono">6–9 Aug</b></div>
+          <div class="kv"><span>Friday afternoons</span><b class="mono">Every week</b></div>
+          <button class="btn btn-s btn-sm" style="margin-top:12px; width:100%; justify-content:center">Add time off</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BOOKINGS ================= -->
+  <section class="screen" id="s-book">
+    <div class="between" style="margin-bottom:20px">
+      <div><h1>Bookings</h1><p class="sub">Everything scheduled, past and upcoming.</p></div>
+      <div class="row">
+        <button class="btn btn-s">Export CSV</button>
+        <button class="btn btn-p">Add a session</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="row">
+          <button class="btn btn-s btn-sm">Upcoming · 18</button>
+          <button class="btn btn-g btn-sm">Past · 214</button>
+          <button class="btn btn-g btn-sm">Cancelled · 7</button>
+          <button class="btn btn-g btn-sm">Needs action · 2</button>
+        </div>
+        <input type="text" placeholder="Search student, subject or parent" style="width:250px">
+      </div>
+      <div class="scroll-x" style="padding:6px 8px 8px">
+        <table class="list">
+          <thead><tr><th>Student</th><th>Subject</th><th>When</th><th>Series</th><th>Payment</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="who"><span class="av">AH</span><span><b>Ayaan Hossain</b><small>Paid by Shirin Hossain</small></span></div></td>
+              <td>Chemistry · Class 10</td><td class="mono">27 Jul · 11:00</td>
+              <td><span class="chip c-idle">One-off</span></td>
+              <td><span class="chip c-ok">৳1,500 paid</span></td>
+              <td><span class="chip c-ok">Confirmed</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">RM</span><span><b>Rafi Mahmud</b><small>Paid by Kamal Mahmud</small></span></div></td>
+              <td>Mathematics · Class 9</td><td class="mono">28 Jul · 08:00</td>
+              <td><span class="chip c-idle">Weekly 9/12</span></td>
+              <td><span class="chip c-wait">৳1,500 due</span></td>
+              <td><span class="chip c-ok">Confirmed</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">TK</span><span><b>Tasnim Kabir</b><small>Books her own lessons</small></span></div></td>
+              <td>IELTS Speaking</td><td class="mono">27 Jul · 16:00</td>
+              <td><span class="chip c-idle">One-off</span></td>
+              <td><span class="chip c-idle">1 credit used</span></td>
+              <td><span class="chip c-ok">Confirmed</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">SI</span><span><b>Sadia Islam</b><small>Paid by Rehana Islam</small></span></div></td>
+              <td>Biology · HSC</td><td class="mono">29 Jul · 17:00</td>
+              <td><span class="chip c-idle">Weekly 2/8</span></td>
+              <td><span class="chip c-ok">Package</span></td>
+              <td><span class="chip c-wait">Reschedule asked</span></td>
+              <td style="text-align:right"><button class="btn btn-s btn-sm">Review</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">MZ</span><span><b>Mahin Zaman</b><small>Trial lesson</small></span></div></td>
+              <td>Mathematics · Class 8</td><td class="mono">30 Jul · 18:00</td>
+              <td><span class="chip c-idle">Trial</span></td>
+              <td><span class="chip c-idle">Free</span></td>
+              <td><span class="chip c-wait">Awaiting payment</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note"><b>Series column.</b> A weekly student shows as “Weekly 9/12”, so you can see the arc of a course
+    at a glance instead of reading twelve identical rows. Cancelling one lesson never touches the other eleven.</div>
+  </section>
+
+  <!-- ================= TUTORS ================= -->
+  <section class="screen" id="s-tutors">
+    <div class="between" style="margin-bottom:20px">
+      <div><h1>Tutors</h1><p class="sub">Four tutors teaching on this site.</p></div>
+      <button class="btn btn-p">Invite a tutor</button>
+    </div>
+    <div class="card">
+      <div class="scroll-x" style="padding:14px 8px 8px">
+        <table class="list">
+          <thead><tr><th>Tutor</th><th>Subjects</th><th>Rate</th><th>This week</th><th>Payout share</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="who"><span class="av">FA</span><span><b>Farhana Akter</b><small>farhana@example.com</small></span></div></td>
+              <td>Chemistry, Biology</td><td class="mono">৳1,500/hr</td><td class="mono">18 sessions</td>
+              <td class="mono">80%</td><td><span class="chip c-ok">Active</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">IR</span><span><b>Imran Rahman</b><small>imran@example.com</small></span></div></td>
+              <td>Mathematics, Physics</td><td class="mono">৳1,800/hr</td><td class="mono">22 sessions</td>
+              <td class="mono">80%</td><td><span class="chip c-ok">Active</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">SN</span><span><b>Sabrina Noor</b><small>sabrina@example.com</small></span></div></td>
+              <td>IELTS, Spoken English</td><td class="mono">৳2,200/hr</td><td class="mono">11 sessions</td>
+              <td class="mono">75%</td><td><span class="chip c-ok">Active</span></td>
+              <td style="text-align:right"><button class="btn btn-g btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><div class="who"><span class="av">TH</span><span><b>Tanvir Hasan</b><small>tanvir@example.com</small></span></div></td>
+              <td>Accounting</td><td class="mono">৳1,200/hr</td><td class="mono">0 sessions</td>
+              <td class="mono">75%</td><td><span class="chip c-wait">Invited</span></td>
+              <td style="text-align:right"><button class="btn btn-s btn-sm">Resend</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note"><b>Tutors never touch wp-admin.</b> An invited tutor gets a front-end dashboard at
+    <span class="mono">/tutor-dashboard</span> with only their own students and hours. Fewer WordPress capabilities handed out
+    means a much smaller attack surface.</div>
+  </section>
+
+  <!-- ================= WIZARD ================= -->
+  <section class="screen" id="s-wizard">
+    <div class="wiz">
+      <div class="steps">
+        <div class="done" data-n="1"><span>Who teaches</span></div>
+        <div class="done" data-n="2"><span>Subjects</span></div>
+        <div class="at" data-n="3"><span>Your hours</span></div>
+        <div data-n="4"><span>Payments</span></div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px">
+        <h2 style="margin-bottom:4px">Paint the hours you're free</h2>
+        <p class="sub" style="margin-bottom:18px">Drag across the grid. You can change any of this later — nothing here is permanent.</p>
+        <div class="grid-wrap">
+          <table class="tt" id="tt2">
+            <thead>
+              <tr><th class="h-time">Time</th>
+                <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
+            </thead>
+            <tbody id="ttb2"></tbody>
+          </table>
+        </div>
+        <div class="row" style="margin-top:18px">
+          <button class="btn btn-s btn-sm">Weekday evenings</button>
+          <button class="btn btn-s btn-sm">Weekend mornings</button>
+          <button class="btn btn-g btn-sm">Clear all</button>
+        </div>
+      </div>
+
+      <div class="between">
+        <button class="btn btn-g">← Back</button>
+        <div class="row">
+          <button class="btn btn-g">Skip for now</button>
+          <button class="btn btn-p">Continue →</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card card-pad done-box">
+        <p class="eyebrow" style="margin:0 0 8px">Step 4 of 4 · what the finish looks like</p>
+        <h2>You're bookable.</h2>
+        <p class="sub" style="max-width:400px; margin:6px auto 0">
+          Paste this anywhere on your site — a page, a post, a widget — and students can start booking.
+        </p>
+        <div class="shortcode">[tutorslot tutor="farhana"] <button>Copy</button></div>
+        <p style="font-size:12px; color:var(--mute); margin:8px 0 0">Elapsed: 1 min 12 sec</p>
+      </div>
+      <div class="note"><b>The metric that matters.</b> Time to first bookable slot, under 90 seconds. Every screen in this
+      wizard is judged against that number — anything that doesn't move a new tutor closer to a working booking link gets cut.</div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="screen" id="s-settings">
+    <div style="margin-bottom:20px"><h1>Settings</h1>
+      <p class="sub">Eight things most tutors change. Everything else is tucked away below.</p></div>
+
+    <div class="two">
+      <div class="stack">
+        <div class="card">
+          <div class="card-hd"><h2>Booking</h2></div>
+          <div class="card-pad" style="padding-top:4px">
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Confirm bookings automatically</b><p>Turn this off if you'd rather approve each request yourself.</p></div></div>
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Let students reschedule</b><p>Up to 12 hours before the lesson starts.</p></div></div>
+            <div class="toggle"><div class="sw"></div>
+              <div><b>Offer a free trial lesson</b><p>One per student, ever. Applied at checkout.</p></div></div>
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Show times in the student's own timezone</b><p>Detected from their browser, with a visible override.</p></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><h2>Reminders</h2></div>
+          <div class="card-pad" style="padding-top:4px">
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Email the student 24 hours before</b><p>And again 1 hour before, with the meeting link.</p></div></div>
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Copy the parent on everything</b><p>Confirmations, reminders, receipts and cancellations.</p></div></div>
+            <div class="toggle"><div class="sw"></div>
+              <div><b>Send an SMS 1 hour before</b><p>Needs an SMS provider. <a href="#" style="color:var(--indigo)">Set one up</a>.</p></div></div>
+            <div class="toggle"><div class="sw on"></div>
+              <div><b>Tell me when someone books</b><p>Sent to farhana@example.com.</p></div></div>
+          </div>
+        </div>
+
+        <details class="adv">
+          <summary>Advanced <small>Slot granularity, cache, webhooks, data export, uninstall behaviour</small></summary>
+          <div class="body">
+            <label class="fld"><span>Slot granularity<small>How finely the grid is divided. Smaller means more slots to compute.</small></span>
+              <select><option>30 minutes</option><option>15 minutes</option><option>60 minutes</option></select></label>
+            <label class="fld"><span>Slot cache lifetime<small>Cleared automatically whenever a booking changes.</small></span>
+              <select><option>15 minutes</option><option>5 minutes</option><option>1 hour</option></select></label>
+            <label class="fld"><span>Booking hold window<small>How long a slot stays reserved while a student is paying.</small></span>
+              <select><option>10 minutes</option><option>5 minutes</option><option>20 minutes</option></select></label>
+            <div class="toggle"><div class="sw"></div>
+              <div><b>Delete all TutorSlot data when the plugin is removed</b><p>Off by default. Bookings and credits survive a reinstall.</p></div></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="stack">
+        <div class="card card-pad">
+          <div class="side-h">Security</div>
+          <div class="kv"><span>Plugin version</span><b class="mono">1.4.2</b></div>
+          <div class="kv"><span>Known vulnerabilities</span><b style="color:var(--ok)">None</b></div>
+          <div class="kv"><span>Last scan</span><b class="mono">26 Jul</b></div>
+          <div class="kv"><span>Audit log</span><b>4,182 entries</b></div>
+          <button class="btn btn-s btn-sm" style="margin-top:12px; width:100%; justify-content:center">Open audit log</button>
+        </div>
+        <div class="card card-pad">
+          <div class="side-h">Connections</div>
+          <div class="kv"><span>Google Meet</span><span class="chip c-ok">Connected</span></div>
+          <div class="kv"><span>Stripe</span><span class="chip c-ok">Connected</span></div>
+          <div class="kv"><span>bKash</span><span class="chip c-idle">Not set up</span></div>
+          <div class="kv"><span>Tutor LMS</span><span class="chip c-ok">Detected</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EMPTY ================= -->
+  <section class="screen" id="s-empty">
+    <div style="margin-bottom:20px"><h1>Bookings</h1></div>
+    <div class="card">
+      <div class="empty">
+        <div class="mark"></div>
+        <h3>No bookings yet</h3>
+        <p>Your schedule is saved and your link works. The next step is getting it in front of students.</p>
+        <div class="row" style="justify-content:center">
+          <button class="btn btn-p">Copy your booking link</button>
+          <button class="btn btn-s">Add a session by hand</button>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>An empty screen is an invitation to act.</b> It names the next step instead of apologising for
+    the absence of data — this is the first screen every new user sees, so it does the most onboarding work.</div>
+  </section>
+
+  </main>
+</div>
+
+<script>
+/* ---- screen switcher ---- */
+const nav = document.getElementById('nav');
+nav.addEventListener('click', e => {
+  const b = e.target.closest('button[data-s]'); if(!b) return;
+  nav.querySelectorAll('button').forEach(x => x.setAttribute('aria-current','false'));
+  b.setAttribute('aria-current','true');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('live'));
+  document.getElementById('s-' + b.dataset.s).classList.add('live');
+  window.scrollTo({top:0, behavior:'instant'});
+});
+
+/* ---- timetable builder ---- */
+const HOURS = [8,9,10,11,12,13,14,15,16,17,18,19];
+function buildGrid(tbodyId, seed){
+  const tb = document.getElementById(tbodyId);
+  let html = '';
+  HOURS.forEach(h => {
+    for(let half=0; half<2; half++){
+      const label = half === 0 ? String(h).padStart(2,'0') + ':00' : '';
+      html += '<tr><td class="t-time">' + label + '</td>';
+      for(let d=0; d<7; d++){
+        const key = d + '-' + h + '-' + half;
+        const s = seed[key] || '';
+        html += '<td><div class="cell ' + s + '" tabindex="0" data-k="' + key + '"' +
+                (s === 'bk' ? ' data-who="' + seed['w' + key] + '"' : '') + '></div></td>';
+      }
+      html += '</tr>';
+    }
+  });
+  tb.innerHTML = html;
+}
+
+const seedA = {};
+/* open weekday afternoons + Sat morning */
+[0,1,2,3,4].forEach(d => [15,16,17,18].forEach(h => {seedA[d+'-'+h+'-0']='on'; seedA[d+'-'+h+'-1']='on';}));
+[5].forEach(d => [9,10,11].forEach(h => {seedA[d+'-'+h+'-0']='on'; seedA[d+'-'+h+'-1']='on';}));
+[0,1].forEach(d => [8,9].forEach(h => {seedA[d+'-'+h+'-0']='on'; seedA[d+'-'+h+'-1']='on';}));
+/* booked cells */
+seedA['0-11-0']='bk'; seedA['w0-11-0']='Ayaan'; seedA['0-11-1']='bk'; seedA['w0-11-1']='';
+seedA['0-16-0']='bk'; seedA['w0-16-0']='Tasnim'; seedA['0-16-1']='bk'; seedA['w0-16-1']='';
+seedA['1-8-0']='bk';  seedA['w1-8-0']='Rafi';   seedA['1-8-1']='bk';  seedA['w1-8-1']='';
+seedA['2-17-0']='bk'; seedA['w2-17-0']='Sadia'; seedA['2-17-1']='bk'; seedA['w2-17-1']='';
+seedA['3-18-0']='pd';
+buildGrid('ttb', seedA);
+
+const seedB = {};
+[0,2,4].forEach(d => [17,18].forEach(h => {seedB[d+'-'+h+'-0']='on'; seedB[d+'-'+h+'-1']='on';}));
+buildGrid('ttb2', seedB);
+
+/* ---- drag to paint ---- */
+let painting = false, mode = 'on';
+function paint(cell){
+  if(!cell || cell.classList.contains('bk') || cell.classList.contains('pd')) return;
+  cell.classList.toggle('on', mode === 'on');
+}
+document.addEventListener('mousedown', e => {
+  const c = e.target.closest('.cell'); if(!c) return;
+  if(c.classList.contains('bk') || c.classList.contains('pd')) return;
+  painting = true; mode = c.classList.contains('on') ? 'off' : 'on';
+  paint(c); e.preventDefault();
+});
+document.addEventListener('mouseover', e => {
+  if(!painting) return;
+  paint(e.target.closest('.cell'));
+});
+document.addEventListener('mouseup', () => painting = false);
+document.addEventListener('keydown', e => {
+  if(e.key !== ' ' && e.key !== 'Enter') return;
+  const c = document.activeElement;
+  if(c && c.classList.contains('cell')){ mode = c.classList.contains('on') ? 'off' : 'on'; paint(c); e.preventDefault(); }
+});
+
+/* ---- toggles ---- */
+document.addEventListener('click', e => {
+  const s = e.target.closest('.sw'); if(s) s.classList.toggle('on');
+});
+</script>
+</body>
+</html>
