@@ -46,7 +46,7 @@ final class AvailabilityController extends AbstractController {
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
 						'technician_id' => array( 'sanitize_callback' => 'absint' ),
-						'week'     => array(
+						'week'          => array(
 							'required'          => true,
 							'type'              => 'array',
 							'sanitize_callback' => array( Validate::class, 'sanitize_week' ),
@@ -71,23 +71,23 @@ final class AvailabilityController extends AbstractController {
 					'callback'            => array( $this, 'add_exception' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
-						'technician_id'  => array( 'sanitize_callback' => 'absint' ),
-						'on_date'   => array(
+						'technician_id' => array( 'sanitize_callback' => 'absint' ),
+						'on_date'       => array(
 							'required'          => true,
 							'type'              => 'string',
 							'validate_callback' => array( Validate::class, 'is_date' ),
 						),
-						'kind'      => array(
+						'kind'          => array(
 							'type'    => 'string',
 							'enum'    => array( 'closed', 'open' ),
 							'default' => 'closed',
 						),
-						'note'      => array(
+						'note'          => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'start_min' => array( 'type' => 'integer' ),
-						'end_min'   => array( 'type' => 'integer' ),
+						'start_min'     => array( 'type' => 'integer' ),
+						'end_min'       => array( 'type' => 'integer' ),
 					),
 				),
 			)
@@ -102,7 +102,7 @@ final class AvailabilityController extends AbstractController {
 				'permission_callback' => array( $this, 'can_manage' ),
 				'args'                => array(
 					'technician_id' => array( 'sanitize_callback' => 'absint' ),
-					'id'       => array( 'sanitize_callback' => 'absint' ),
+					'id'            => array( 'sanitize_callback' => 'absint' ),
 				),
 			)
 		);
@@ -193,7 +193,7 @@ final class AvailabilityController extends AbstractController {
 
 	public function add_exception( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$technician_id = (int) $request['technician_id'];
-		$id       = $this->availability->add_exception(
+		$id            = $this->availability->add_exception(
 			$technician_id,
 			array(
 				'on_date'   => (string) $request['on_date'],
@@ -219,7 +219,7 @@ final class AvailabilityController extends AbstractController {
 
 	public function delete_exception( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$technician_id = (int) $request['technician_id'];
-		$id       = (int) $request['id'];
+		$id            = (int) $request['id'];
 
 		if ( ! $this->availability->delete_exception( $technician_id, $id ) ) {
 			return $this->guard->deny();

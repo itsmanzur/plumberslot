@@ -76,14 +76,14 @@ final class SetupController extends AbstractController {
 	public function status(): WP_REST_Response {
 		$technician_id = $this->technicians->technician_id_for_user( get_current_user_id() );
 		$technician    = $technician_id ? $this->technicians->find( $technician_id ) : null;
-		$started  = (int) get_user_meta( get_current_user_id(), 'plumberslot_setup_started_at', true );
+		$started       = (int) get_user_meta( get_current_user_id(), 'plumberslot_setup_started_at', true );
 
 		return $this->ok(
 			array(
 				'completed'   => (bool) get_user_meta( get_current_user_id(), 'plumberslot_setup_completed', true ),
 				'started_at'  => $started ? $started : null,
 				'setup_mode'  => Settings::string( 'setup_mode', 'solo' ),
-				'technician'       => $technician ? array(
+				'technician'  => $technician ? array(
 					'id'           => (int) $technician->id,
 					'slug'         => (string) $technician->slug,
 					'display_name' => (string) $technician->display_name,
@@ -111,7 +111,7 @@ final class SetupController extends AbstractController {
 
 		update_user_meta( $user_id, 'plumberslot_setup_started_at', $started );
 
-		$user  = wp_get_current_user();
+		$user       = wp_get_current_user();
 		$technician = $this->technicians->find_by_user( $user_id );
 
 		if ( ! $technician ) {
@@ -124,11 +124,11 @@ final class SetupController extends AbstractController {
 
 			$id = $this->technicians->create(
 				array(
-					'user_id'          => $user_id,
-					'slug'             => $slug,
-					'display_name'     => $display,
-					'timezone'         => wp_timezone_string(),
-					'status'           => 'active',
+					'user_id'      => $user_id,
+					'slug'         => $slug,
+					'display_name' => $display,
+					'timezone'     => wp_timezone_string(),
+					'status'       => 'active',
 				)
 			);
 			$user->add_role( Capabilities::ROLE_TECHNICIAN );
@@ -137,7 +137,7 @@ final class SetupController extends AbstractController {
 			$this->technicians->update(
 				(int) $technician->id,
 				array(
-					'status'           => 'active',
+					'status' => 'active',
 				)
 			);
 			$technician = $this->technicians->find( (int) $technician->id );
@@ -199,7 +199,7 @@ final class SetupController extends AbstractController {
 				'elapsed_seconds'             => $elapsed,
 				'time_to_first_bookable_slot' => $elapsed,
 				'completed_at'                => gmdate( 'c' ),
-				'technician_id'                    => $technician_id,
+				'technician_id'               => $technician_id,
 				'mode'                        => $mode,
 			),
 			false
@@ -224,7 +224,7 @@ final class SetupController extends AbstractController {
 				'setup_mode'                  => $mode,
 				'shortcode'                   => sprintf( '[plumberslot technician="%s"]', esc_attr( (string) $technician->slug ) ),
 				'booking_url'                 => $booking_url,
-				'technician_id'                    => $technician_id,
+				'technician_id'               => $technician_id,
 			)
 		);
 	}

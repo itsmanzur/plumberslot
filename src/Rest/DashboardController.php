@@ -161,7 +161,7 @@ final class DashboardController extends AbstractController {
 			$end    = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
 			$width  = max( 4, (int) round( ( ( $end->getTimestamp() - $start->getTimestamp() ) / $day_span ) * 100 ) );
 
-			$customer       = get_userdata( (int) $row->customer_id );
+			$customer      = get_userdata( (int) $row->customer_id );
 			$service       = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$today_items[] = array(
 				'id'       => (int) $row->id,
@@ -186,7 +186,7 @@ final class DashboardController extends AbstractController {
 				continue;
 			}
 			$booking_id = (int) $row->id;
-			$customer    = get_userdata( (int) $row->customer_id );
+			$customer   = get_userdata( (int) $row->customer_id );
 			$service    = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$start      = new \DateTimeImmutable( (string) $row->start_utc, new \DateTimeZone( 'UTC' ) );
 			$end        = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
@@ -199,7 +199,7 @@ final class DashboardController extends AbstractController {
 					: __( 'Due', 'plumberslot' ) );
 			$next_up[]  = array(
 				'id'            => $booking_id,
-				'customer'       => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
+				'customer'      => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
 				'address'       => $this->short_address( $row ),
 				'service'       => $service ? (string) $service->name : __( 'Service call', 'plumberslot' ),
@@ -230,7 +230,7 @@ final class DashboardController extends AbstractController {
 
 		foreach ( $pending['items'] as $row ) {
 			$customer = get_userdata( (int) $row->customer_id );
-			$needs[] = array(
+			$needs[]  = array(
 				'id'         => (int) $row->id,
 				'booking_id' => (int) $row->id,
 				'label'      => sprintf(

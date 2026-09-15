@@ -86,14 +86,14 @@ final class CreditRepository extends AbstractRepository {
 		$this->db->insert(
 			$this->table(),
 			array(
-				'owner_id'    => (int) $data['owner_id'],
-				'technician_id'    => $data['technician_id'] ?? null,
-				'service_id'  => $data['service_id'] ?? null,
-				'total'       => (int) $data['total'],
-				'used'        => 0,
-				'price_minor' => (int) $data['price_minor'],
-				'expires_at'  => $data['expires_at'] ?? null,
-				'created_at'  => $this->now(),
+				'owner_id'      => (int) $data['owner_id'],
+				'technician_id' => $data['technician_id'] ?? null,
+				'service_id'    => $data['service_id'] ?? null,
+				'total'         => (int) $data['total'],
+				'used'          => 0,
+				'price_minor'   => (int) $data['price_minor'],
+				'expires_at'    => $data['expires_at'] ?? null,
+				'created_at'    => $this->now(),
 			)
 		);
 

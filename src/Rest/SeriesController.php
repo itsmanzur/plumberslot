@@ -49,40 +49,40 @@ final class SeriesController extends AbstractController {
 				'callback'            => array( $this, 'create' ),
 				'permission_callback' => array( $this, 'can_create' ),
 				'args'                => array(
-					'technician_id'   => array(
+					'technician_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'service_id' => array(
+					'service_id'    => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'start'      => array(
+					'start'         => array(
 						'required'          => true,
 						'type'              => 'string',
 						'validate_callback' => array( Validate::class, 'is_iso8601' ),
 					),
-					'days'       => array(
+					'days'          => array(
 						'required' => true,
 						'type'     => 'array',
 						'items'    => array( 'type' => 'integer' ),
 					),
-					'count'      => array(
+					'count'         => array(
 						'required' => true,
 						'type'     => 'integer',
 						'minimum'  => 1,
 						'maximum'  => 104,
 					),
-					'use_credit' => array(
+					'use_credit'    => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
-					'notes'      => array(
+					'notes'         => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
-					'timezone'   => array(
+					'timezone'      => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
@@ -240,17 +240,17 @@ final class SeriesController extends AbstractController {
 		}
 
 		$customer_tz = (string) ( $request['timezone'] ? $request['timezone'] : $technician->timezone );
-		$currency   = (string) $technician->currency;
+		$currency    = (string) $technician->currency;
 
 		$result = $this->recurrence->create_series(
 			array(
-				'technician_id'       => (int) $technician->id,
-				'customer_id'     => $customer_id,
+				'technician_id'  => (int) $technician->id,
+				'customer_id'    => $customer_id,
 				'service_id'     => $service_id,
 				'start_utc'      => $start,
 				'duration_min'   => $duration,
-				'technician_tz'       => (string) $technician->timezone,
-				'customer_tz'     => $customer_tz,
+				'technician_tz'  => (string) $technician->timezone,
+				'customer_tz'    => $customer_tz,
 				'price_minor'    => $price,
 				'currency'       => $currency,
 				'credit_id'      => $credit_id,
@@ -296,7 +296,7 @@ final class SeriesController extends AbstractController {
 		}
 
 		$appointments = $this->bookings->find_for_series( (int) $series->id );
-		$active  = array_values(
+		$active       = array_values(
 			array_filter(
 				$appointments,
 				static fn ( object $b ): bool => ! in_array( (string) $b->status, array( 'cancelled', 'refunded', 'moved', 'payment_expired' ), true )
@@ -305,19 +305,19 @@ final class SeriesController extends AbstractController {
 
 		return $this->ok(
 			array(
-				'id'          => (int) $series->id,
-				'technician_id'    => (int) $series->technician_id,
-				'customer_id'  => (int) $series->customer_id,
-				'rrule'       => (string) $series->rrule,
-				'total_count' => (int) $series->total_count,
-				'active'      => count( $active ),
-				'label'       => sprintf(
+				'id'            => (int) $series->id,
+				'technician_id' => (int) $series->technician_id,
+				'customer_id'   => (int) $series->customer_id,
+				'rrule'         => (string) $series->rrule,
+				'total_count'   => (int) $series->total_count,
+				'active'        => count( $active ),
+				'label'         => sprintf(
 					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
 					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					count( $active ),
 					(int) $series->total_count
 				),
-				'appointments' => array_map(
+				'appointments'  => array_map(
 					static function ( object $b ): array {
 						return array(
 							'id'           => (int) $b->id,

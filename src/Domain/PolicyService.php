@@ -97,7 +97,7 @@ final class PolicyService {
 	}
 
 	public function technician_timezone( int $technician_id ): string {
-		$repo  = new \PlumberSlot\Database\Repository\TechnicianRepository();
+		$repo       = new \PlumberSlot\Database\Repository\TechnicianRepository();
 		$technician = $repo->find( $technician_id );
 
 		return $technician->timezone ?? wp_timezone_string();

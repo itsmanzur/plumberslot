@@ -102,10 +102,10 @@ final class CreditService {
 	 * @return object|\WP_Error
 	 */
 	public function purchase( array $args ) {
-		$owner_id = (int) $args['owner_id'];
-		$total    = max( 1, min( 100, (int) $args['total'] ) );
+		$owner_id      = (int) $args['owner_id'];
+		$total         = max( 1, min( 100, (int) $args['total'] ) );
 		$technician_id = isset( $args['technician_id'] ) && $args['technician_id'] ? (int) $args['technician_id'] : null;
-		$service  = isset( $args['service_id'] ) && $args['service_id'] ? (int) $args['service_id'] : null;
+		$service       = isset( $args['service_id'] ) && $args['service_id'] ? (int) $args['service_id'] : null;
 
 		$rollover = 0;
 		if ( Settings::bool( 'credit_rollover_enabled', true ) && null !== $technician_id ) {
@@ -118,12 +118,12 @@ final class CreditService {
 
 		$id = $this->credits->create_package(
 			array(
-				'owner_id'    => $owner_id,
-				'technician_id'    => $technician_id,
-				'service_id'  => $service,
-				'total'       => $total,
-				'price_minor' => (int) ( $args['price_minor'] ?? 0 ),
-				'expires_at'  => $expires_at,
+				'owner_id'      => $owner_id,
+				'technician_id' => $technician_id,
+				'service_id'    => $service,
+				'total'         => $total,
+				'price_minor'   => (int) ( $args['price_minor'] ?? 0 ),
+				'expires_at'    => $expires_at,
 			)
 		);
 
@@ -140,8 +140,8 @@ final class CreditService {
 			'credit',
 			$id,
 			array(
-				'total'    => $total,
-				'rollover' => $rollover,
+				'total'         => $total,
+				'rollover'      => $rollover,
 				'technician_id' => $technician_id,
 			)
 		);

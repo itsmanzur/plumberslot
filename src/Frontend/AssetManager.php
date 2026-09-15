@@ -92,26 +92,26 @@ final class AssetManager {
 	 * @return array<string, mixed>
 	 */
 	private function boot_payload( string $surface ): array {
-		$user        = wp_get_current_user();
-		$technician_id    = 0;
-		$current_url = $this->current_public_url();
+		$user          = wp_get_current_user();
+		$technician_id = 0;
+		$current_url   = $this->current_public_url();
 
 		if ( is_user_logged_in() ) {
 			$technician_id = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->technician_id_for_user( get_current_user_id() );
 		}
 
 		return array(
-			'root'         => esc_url_raw( rest_url( 'plumberslot/v1' ) ),
-			'nonce'        => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
-			'loggedIn'     => is_user_logged_in(),
-			'loginUrl'     => wp_login_url( $current_url ),
-			'dashboardUrl' => home_url( '/technician-dashboard/' ),
+			'root'              => esc_url_raw( rest_url( 'plumberslot/v1' ) ),
+			'nonce'             => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
+			'loggedIn'          => is_user_logged_in(),
+			'loginUrl'          => wp_login_url( $current_url ),
+			'dashboardUrl'      => home_url( '/technician-dashboard/' ),
 			'technicianDashUrl' => home_url( '/technician-dashboard/' ),
-			'bookingUrl'   => $this->booking_page_url(),
-			'view'         => $this->dashboard_view,
-			'surface'      => $surface,
-			'technicianId' => $technician_id,
-			'user'         => is_user_logged_in()
+			'bookingUrl'        => $this->booking_page_url(),
+			'view'              => $this->dashboard_view,
+			'surface'           => $surface,
+			'technicianId'      => $technician_id,
+			'user'              => is_user_logged_in()
 				? array(
 					'id'    => get_current_user_id(),
 					'name'  => $user->display_name,
@@ -119,8 +119,8 @@ final class AssetManager {
 					'roles' => array_values( (array) $user->roles ),
 				)
 				: null,
-			'payments'     => $this->configured_payments(),
-			'i18n'         => array(
+			'payments'          => $this->configured_payments(),
+			'i18n'              => array(
 				/* translators: %s: viewer's timezone name. */
 				'timezoneNotice' => __( 'Times shown in %s', 'plumberslot' ),
 			),

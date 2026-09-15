@@ -88,13 +88,13 @@ final class AdminMenu {
 			return;
 		}
 
-		$asset_file = PLUMBERSLOT_PATH . 'assets/dist/admin.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
+		$asset_file    = PLUMBERSLOT_PATH . 'assets/dist/admin.asset.php';
+		$asset         = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(),
 			'version'      => \PlumberSlot\VERSION,
 		);
-		$technician_id   = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->technician_id_for_user( get_current_user_id() );
-		$page       = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing.
+		$technician_id = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->technician_id_for_user( get_current_user_id() );
+		$page          = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing.
 
 		/**
 		 * Filters the externally hosted Help & Docs product-tour URL.
@@ -128,10 +128,10 @@ final class AdminMenu {
 					'name' => wp_get_current_user()->display_name,
 				),
 				'caps'             => array(
-					'manageOwn'    => current_user_can( Capabilities::MANAGE_OWN ),
+					'manageOwn'         => current_user_can( Capabilities::MANAGE_OWN ),
 					'manageTechnicians' => current_user_can( Capabilities::MANAGE_TECHNICIANS ),
-					'manageAll'    => current_user_can( Capabilities::MANAGE_ALL ),
-					'viewReports'  => current_user_can( Capabilities::VIEW_REPORTS ),
+					'manageAll'         => current_user_can( Capabilities::MANAGE_ALL ),
+					'viewReports'       => current_user_can( Capabilities::VIEW_REPORTS ),
 				),
 				'canAll'           => current_user_can( Capabilities::MANAGE_ALL ),
 				'screens'          => array(
@@ -139,7 +139,7 @@ final class AdminMenu {
 					'availability' => 'plumberslot-availability',
 					'services'     => 'plumberslot-services',
 					'bookings'     => 'plumberslot-bookings',
-					'technicians'       => 'plumberslot-technicians',
+					'technicians'  => 'plumberslot-technicians',
 					'settings'     => 'plumberslot-settings',
 					'setup'        => 'plumberslot-setup',
 					'help'         => 'plumberslot-help',

@@ -63,11 +63,11 @@ final class BlockRegistrar {
 				'icon'            => 'calendar-alt',
 				'description'     => __( 'Let visitors see your open hours and book an appointment.', 'plumberslot' ),
 				'attributes'      => array(
-					'technician'   => array(
+					'technician' => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'service' => array(
+					'service'    => array(
 						'type'    => 'number',
 						'default' => 0,
 					),
@@ -85,8 +85,8 @@ final class BlockRegistrar {
 	public function render( array $attributes ): string {
 		return $this->shortcode->render(
 			array(
-				'technician'   => (string) ( $attributes['technician'] ?? '' ),
-				'service' => (string) ( $attributes['service'] ?? 0 ),
+				'technician' => (string) ( $attributes['technician'] ?? '' ),
+				'service'    => (string) ( $attributes['service'] ?? 0 ),
 			)
 		);
 	}

@@ -44,31 +44,31 @@ final class ServicesController extends AbstractController {
 					'callback'            => array( $this, 'create' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
-						'technician_id'     => array( 'sanitize_callback' => 'absint' ),
-						'name'         => array(
+						'technician_id'    => array( 'sanitize_callback' => 'absint' ),
+						'name'             => array(
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'duration_min' => array(
+						'duration_min'     => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'default'           => 60,
 						),
-						'price_minor'  => array(
+						'price_minor'      => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'default'           => 0,
 						),
-						'is_free_estimate'     => array(
+						'is_free_estimate' => array(
 							'type'    => 'boolean',
 							'default' => false,
 						),
-						'category'     => array(
+						'category'         => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'status'       => array(
+						'status'           => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
 						),
@@ -87,7 +87,7 @@ final class ServicesController extends AbstractController {
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
 						'technician_id' => array( 'sanitize_callback' => 'absint' ),
-						'id'       => array( 'sanitize_callback' => 'absint' ),
+						'id'            => array( 'sanitize_callback' => 'absint' ),
 					),
 				),
 				array(
@@ -96,7 +96,7 @@ final class ServicesController extends AbstractController {
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
 						'technician_id' => array( 'sanitize_callback' => 'absint' ),
-						'id'       => array( 'sanitize_callback' => 'absint' ),
+						'id'            => array( 'sanitize_callback' => 'absint' ),
 					),
 				),
 			)
@@ -151,12 +151,12 @@ final class ServicesController extends AbstractController {
 		$id = $this->services->create(
 			$technician_id,
 			array(
-				'name'         => (string) $request['name'],
-				'duration_min' => (int) $request['duration_min'],
-				'price_minor'  => (int) $request['price_minor'],
-				'is_free_estimate'     => $request['is_free_estimate'] ? 1 : 0,
-				'category'     => (string) ( $request['category'] ?? '' ),
-				'status'       => (string) ( $request['status'] ?? 'active' ),
+				'name'             => (string) $request['name'],
+				'duration_min'     => (int) $request['duration_min'],
+				'price_minor'      => (int) $request['price_minor'],
+				'is_free_estimate' => $request['is_free_estimate'] ? 1 : 0,
+				'category'         => (string) ( $request['category'] ?? '' ),
+				'status'           => (string) ( $request['status'] ?? 'active' ),
 			)
 		);
 
@@ -175,10 +175,10 @@ final class ServicesController extends AbstractController {
 	}
 
 	public function update( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$technician_id   = (int) $request['technician_id'];
-		$service_id = (int) $request['id'];
-		$technician      = $this->technicians->find( $technician_id );
-		$existing   = $this->services->find_for_technician( $service_id, $technician_id );
+		$technician_id = (int) $request['technician_id'];
+		$service_id    = (int) $request['id'];
+		$technician    = $this->technicians->find( $technician_id );
+		$existing      = $this->services->find_for_technician( $service_id, $technician_id );
 
 		if ( ! $technician || ! $existing ) {
 			return $this->guard->deny();
@@ -201,8 +201,8 @@ final class ServicesController extends AbstractController {
 	}
 
 	public function destroy( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$technician_id   = (int) $request['technician_id'];
-		$service_id = (int) $request['id'];
+		$technician_id = (int) $request['technician_id'];
+		$service_id    = (int) $request['id'];
 
 		if ( ! $this->services->find_for_technician( $service_id, $technician_id ) ) {
 			return $this->guard->deny();
@@ -230,16 +230,16 @@ final class ServicesController extends AbstractController {
 		}
 
 		return array(
-			'id'           => (int) $row->id,
-			'technician_id'     => (int) $row->technician_id,
-			'name'         => (string) $row->name,
-			'category'     => $row->category,
-			'duration_min' => (int) $row->duration_min,
-			'price_minor'  => (int) $row->price_minor,
-			'currency'     => $technician ? (string) $technician->currency : 'USD',
-			'is_free_estimate'     => (bool) $row->is_free_estimate,
-			'status'       => (string) $row->status,
-			'sort_order'   => (int) $row->sort_order,
+			'id'               => (int) $row->id,
+			'technician_id'    => (int) $row->technician_id,
+			'name'             => (string) $row->name,
+			'category'         => $row->category,
+			'duration_min'     => (int) $row->duration_min,
+			'price_minor'      => (int) $row->price_minor,
+			'currency'         => $technician ? (string) $technician->currency : 'USD',
+			'is_free_estimate' => (bool) $row->is_free_estimate,
+			'status'           => (string) $row->status,
+			'sort_order'       => (int) $row->sort_order,
 		);
 	}
 }

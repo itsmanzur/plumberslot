@@ -107,13 +107,13 @@ final class PublicTechnicianController extends AbstractController {
 			}
 
 			$services[] = array(
-				'id'           => (int) $service->id,
-				'name'         => (string) $service->name,
-				'category'     => $service->category,
-				'duration_min' => (int) $service->duration_min,
-				'price_minor'  => (int) $service->price_minor,
-				'currency'     => (string) $technician->currency,
-				'is_free_estimate'     => (bool) $service->is_free_estimate,
+				'id'               => (int) $service->id,
+				'name'             => (string) $service->name,
+				'category'         => $service->category,
+				'duration_min'     => (int) $service->duration_min,
+				'price_minor'      => (int) $service->price_minor,
+				'currency'         => (string) $technician->currency,
+				'is_free_estimate' => (bool) $service->is_free_estimate,
 			);
 		}
 

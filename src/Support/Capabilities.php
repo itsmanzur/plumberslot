@@ -17,10 +17,10 @@ defined( 'ABSPATH' ) || exit;
 
 final class Capabilities {
 
-	public const BOOK              = 'plumberslot_book';
-	public const MANAGE_OWN        = 'plumberslot_manage_own';
-	public const MANAGE_ALL        = 'plumberslot_manage_all';
-	public const VIEW_REPORTS      = 'plumberslot_view_reports';
+	public const BOOK               = 'plumberslot_book';
+	public const MANAGE_OWN         = 'plumberslot_manage_own';
+	public const MANAGE_ALL         = 'plumberslot_manage_all';
+	public const VIEW_REPORTS       = 'plumberslot_view_reports';
 	public const MANAGE_TECHNICIANS = 'plumberslot_manage_technicians';
 
 	public const ROLE_TECHNICIAN = 'plumberslot_technician';

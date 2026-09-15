@@ -50,10 +50,10 @@ final class RecurrenceService {
 
 		$series_id = $this->series->create(
 			array(
-				'technician_id'    => (int) $args['technician_id'],
-				'customer_id'  => (int) $args['customer_id'],
-				'rrule'       => $this->to_rrule( $days, $count ),
-				'total_count' => $count,
+				'technician_id' => (int) $args['technician_id'],
+				'customer_id'   => (int) $args['customer_id'],
+				'rrule'         => $this->to_rrule( $days, $count ),
+				'total_count'   => $count,
 			)
 		);
 
@@ -99,10 +99,10 @@ final class RecurrenceService {
 			'series',
 			$series_id,
 			array(
-				'booked'    => count( $booked ),
-				'requested' => $count,
-				'skipped'   => count( $skipped ),
-				'technician_id'  => (int) $args['technician_id'],
+				'booked'        => count( $booked ),
+				'requested'     => $count,
+				'skipped'       => count( $skipped ),
+				'technician_id' => (int) $args['technician_id'],
 			)
 		);
 

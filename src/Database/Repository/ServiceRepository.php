@@ -50,7 +50,7 @@ final class ServiceRepository extends AbstractRepository {
 	 * @param array<string, mixed> $data Service values.
 	 */
 	public function create( int $technician_id, array $data ): int {
-		$values             = $this->writable_data( $data, true );
+		$values                  = $this->writable_data( $data, true );
 		$values['technician_id'] = $technician_id;
 
 		$inserted = $this->db->insert( $this->table(), $values );
@@ -80,7 +80,7 @@ final class ServiceRepository extends AbstractRepository {
 			$this->table(),
 			$values,
 			array(
-				'id'       => $service_id,
+				'id'            => $service_id,
 				'technician_id' => $technician_id,
 			)
 		);
@@ -98,7 +98,7 @@ final class ServiceRepository extends AbstractRepository {
 		$deleted = $this->db->delete(
 			$this->table(),
 			array(
-				'id'       => $service_id,
+				'id'            => $service_id,
 				'technician_id' => $technician_id,
 			),
 			array( '%d', '%d' )
@@ -137,10 +137,10 @@ final class ServiceRepository extends AbstractRepository {
 		}
 
 		foreach ( array(
-			'duration_min' => 60,
-			'price_minor'  => 0,
-			'is_free_estimate'     => 0,
-			'sort_order'   => 0,
+			'duration_min'     => 60,
+			'price_minor'      => 0,
+			'is_free_estimate' => 0,
+			'sort_order'       => 0,
 		) as $field => $default ) {
 			if ( ! $include_defaults && ! array_key_exists( $field, $data ) ) {
 				continue;

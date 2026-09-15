@@ -228,7 +228,7 @@ final class TechniciansController extends AbstractController {
 	}
 
 	public function update( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$id    = (int) $request['id'];
+		$id         = (int) $request['id'];
 		$technician = $this->technicians->find( $id );
 
 		if ( ! $technician ) {

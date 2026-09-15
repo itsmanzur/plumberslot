@@ -80,7 +80,7 @@ final class MeetingsController extends AbstractController {
 		}
 
 		$technician_user_id = get_current_user_id();
-		$out           = array();
+		$out                = array();
 
 		foreach ( $this->providers->all() as $provider ) {
 			$out[] = array(

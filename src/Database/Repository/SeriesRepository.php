@@ -26,11 +26,11 @@ final class SeriesRepository extends AbstractRepository {
 		$this->db->insert(
 			$this->table(),
 			array(
-				'technician_id'    => (int) $data['technician_id'],
-				'customer_id'  => (int) $data['customer_id'],
-				'rrule'       => (string) $data['rrule'],
-				'total_count' => (int) $data['total_count'],
-				'created_at'  => $this->now(),
+				'technician_id' => (int) $data['technician_id'],
+				'customer_id'   => (int) $data['customer_id'],
+				'rrule'         => (string) $data['rrule'],
+				'total_count'   => (int) $data['total_count'],
+				'created_at'    => $this->now(),
 			),
 			array( '%d', '%d', '%s', '%d', '%s' )
 		);

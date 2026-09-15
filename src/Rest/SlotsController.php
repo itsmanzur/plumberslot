@@ -44,7 +44,7 @@ final class SlotsController extends AbstractController {
 				'callback'            => array( $this, 'index' ),
 				'permission_callback' => array( $this, 'can_read' ),
 				'args'                => array(
-					'technician_id'        => array(
+					'technician_id'   => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
@@ -143,10 +143,10 @@ final class SlotsController extends AbstractController {
 
 		return $this->ok(
 			array(
-				'timezone'       => $display_tz,
+				'timezone'            => $display_tz,
 				'technician_timezone' => $technician->timezone,
-				'hold_minutes'   => Settings::int( 'hold_window_minutes', 10 ),
-				'slots'          => $slots,
+				'hold_minutes'        => Settings::int( 'hold_window_minutes', 10 ),
+				'slots'               => $slots,
 			)
 		);
 	}

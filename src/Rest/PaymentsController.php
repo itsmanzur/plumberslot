@@ -269,7 +269,7 @@ final class PaymentsController extends AbstractController {
 				add_query_arg(
 					array(
 						'plumberslot_pay' => 'cancel',
-						'booking'       => $booking_id,
+						'booking'         => $booking_id,
 					),
 					$cancel
 				)
@@ -284,7 +284,7 @@ final class PaymentsController extends AbstractController {
 			add_query_arg(
 				array(
 					'plumberslot_pay' => $flag,
-					'booking'       => $booking_id,
+					'booking'         => $booking_id,
 				),
 				'success' === $flag ? $return : $cancel
 			)

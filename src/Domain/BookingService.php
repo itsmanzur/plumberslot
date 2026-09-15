@@ -166,19 +166,19 @@ final class BookingService {
 			return $window;
 		}
 
-		$duration = ( strtotime( $booking->end_utc ) - strtotime( $booking->start_utc ) ) / MINUTE_IN_SECONDS;
+		$duration      = ( strtotime( $booking->end_utc ) - strtotime( $booking->start_utc ) ) / MINUTE_IN_SECONDS;
 		$technician_id = (int) $booking->technician_id;
-		$end      = $new_start_utc->modify( '+' . $duration . ' minutes' );
-		$args     = array(
-			'technician_id'       => $technician_id,
-			'customer_id'     => (int) $booking->customer_id,
+		$end           = $new_start_utc->modify( '+' . $duration . ' minutes' );
+		$args          = array(
+			'technician_id'  => $technician_id,
+			'customer_id'    => (int) $booking->customer_id,
 			'service_id'     => $booking->service_id ? (int) $booking->service_id : null,
 			'series_id'      => $booking->series_id ? (int) $booking->series_id : null,
 			'series_index'   => $booking->series_index ? (int) $booking->series_index : null,
 			'start_utc'      => $new_start_utc,
 			'duration_min'   => (int) $duration,
-			'technician_tz'       => $this->policy->technician_timezone( $technician_id ),
-			'customer_tz'     => (string) $booking->customer_tz,
+			'technician_tz'  => $this->policy->technician_timezone( $technician_id ),
+			'customer_tz'    => (string) $booking->customer_tz,
 			'price_minor'    => (int) $booking->price_minor,
 			'currency'       => (string) $booking->currency,
 			'credit_id'      => $booking->credit_id ? (int) $booking->credit_id : null,
@@ -277,14 +277,14 @@ final class BookingService {
 	 */
 	private function booking_row( array $args, DateTimeImmutable $start, DateTimeImmutable $end ): array {
 		return array(
-			'technician_id'      => $args['technician_id'],
-			'customer_id'    => $args['customer_id'],
+			'technician_id' => $args['technician_id'],
+			'customer_id'   => $args['customer_id'],
 			'service_id'    => $args['service_id'] ?? null,
 			'series_id'     => $args['series_id'] ?? null,
 			'series_index'  => $args['series_index'] ?? null,
 			'start_utc'     => Time::sql( $start ),
 			'end_utc'       => Time::sql( $end ),
-			'customer_tz'    => $args['customer_tz'],
+			'customer_tz'   => $args['customer_tz'],
 			'status'        => $args['status'] ?? $this->policy->initial_status( $args ),
 			'price_minor'   => $args['price_minor'],
 			'currency'      => $args['currency'],

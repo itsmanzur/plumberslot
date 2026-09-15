@@ -81,12 +81,12 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 		$inserted = $this->db->insert(
 			$table,
 			array(
-				'technician_id'  => $technician_id,
-				'on_date'   => (string) $data['on_date'],
-				'kind'      => $kind,
-				'start_min' => isset( $data['start_min'] ) ? (int) $data['start_min'] : null,
-				'end_min'   => isset( $data['end_min'] ) ? (int) $data['end_min'] : null,
-				'note'      => isset( $data['note'] ) ? sanitize_text_field( (string) $data['note'] ) : null,
+				'technician_id' => $technician_id,
+				'on_date'       => (string) $data['on_date'],
+				'kind'          => $kind,
+				'start_min'     => isset( $data['start_min'] ) ? (int) $data['start_min'] : null,
+				'end_min'       => isset( $data['end_min'] ) ? (int) $data['end_min'] : null,
+				'note'          => isset( $data['note'] ) ? sanitize_text_field( (string) $data['note'] ) : null,
 			)
 		);
 
@@ -104,7 +104,7 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 		$deleted = $this->db->delete(
 			$table,
 			array(
-				'id'       => $exception_id,
+				'id'            => $exception_id,
 				'technician_id' => $technician_id,
 			),
 			array( '%d', '%d' )
@@ -144,10 +144,10 @@ final class AvailabilityRepository extends AbstractRepository implements Availab
 			$inserted = $this->db->insert(
 				$this->table(),
 				array(
-					'technician_id'  => $technician_id,
-					'weekday'   => $rule['weekday'],
-					'start_min' => $rule['start_min'],
-					'end_min'   => $rule['end_min'],
+					'technician_id' => $technician_id,
+					'weekday'       => $rule['weekday'],
+					'start_min'     => $rule['start_min'],
+					'end_min'       => $rule['end_min'],
 				),
 				array( '%d', '%d', '%d', '%d' )
 			);

@@ -58,35 +58,35 @@ final class BookingsController extends AbstractController {
 					'callback'            => array( $this, 'index' ),
 					'permission_callback' => array( $this, 'can_list' ),
 					'args'                => array(
-						'scope'    => array(
+						'scope'         => array(
 							'type'    => 'string',
 							'enum'    => array( 'mine', 'teaching' ),
 							'default' => 'mine',
 						),
-						'from'     => array(
+						'from'          => array(
 							'type'              => 'string',
 							'validate_callback' => array( Validate::class, 'is_iso8601' ),
 						),
-						'to'       => array(
+						'to'            => array(
 							'type'              => 'string',
 							'validate_callback' => array( Validate::class, 'is_iso8601' ),
 						),
-						'status'   => array(
+						'status'        => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
 						),
-						'page'     => array(
+						'page'          => array(
 							'type'    => 'integer',
 							'default' => 1,
 							'minimum' => 1,
 						),
-						'per_page' => array(
+						'per_page'      => array(
 							'type'    => 'integer',
 							'default' => 20,
 							'minimum' => 1,
 							'maximum' => 100,
 						),
-						'search'   => array(
+						'search'        => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
@@ -94,7 +94,7 @@ final class BookingsController extends AbstractController {
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
-						'tab'      => array(
+						'tab'           => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
 						),
@@ -177,7 +177,7 @@ final class BookingsController extends AbstractController {
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
-						'start'    => array(
+						'start'         => array(
 							'required'          => true,
 							'type'              => 'string',
 							'validate_callback' => array( Validate::class, 'is_iso8601' ),
@@ -246,33 +246,33 @@ final class BookingsController extends AbstractController {
 	 */
 	private function create_args(): array {
 		return array(
-			'technician_id'   => array(
+			'technician_id' => array(
 				'required'          => true,
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
-			'service_id' => array(
+			'service_id'    => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
-			'start'      => array(
+			'start'         => array(
 				'required'          => true,
 				'type'              => 'string',
 				'validate_callback' => array( Validate::class, 'is_iso8601' ),
 			),
-			'timezone'   => array(
+			'timezone'      => array(
 				'type'              => 'string',
 				'validate_callback' => array( Validate::class, 'is_timezone' ),
 			),
-			'lock_token' => array(
+			'lock_token'    => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
-			'notes'      => array(
+			'notes'         => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_textarea_field',
 			),
-			'use_credit' => array(
+			'use_credit'    => array(
 				'type'    => 'boolean',
 				'default' => false,
 			),
@@ -547,7 +547,7 @@ final class BookingsController extends AbstractController {
 	 */
 	private function present_booking( object $row ): array {
 		$booking_id = (int) $row->id;
-		$customer    = get_userdata( (int) $row->customer_id );
+		$customer   = get_userdata( (int) $row->customer_id );
 		$service    = null;
 
 		if ( ! empty( $row->service_id ) ) {
@@ -605,35 +605,35 @@ final class BookingsController extends AbstractController {
 		}
 
 		return array(
-			'id'             => $booking_id,
+			'id'                  => $booking_id,
 			'technician_id'       => (int) $row->technician_id,
 			'technician'          => $technician ? (string) $technician->display_name : '',
 			'technician_timezone' => $tz,
-			'customer_id'     => (int) $row->customer_id,
-			'customer'        => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
-			'service_id'     => $row->service_id ? (int) $row->service_id : null,
-			'service'        => $service ? (string) $service->name : '—',
-			'start_utc'      => (string) $row->start_utc,
-			'end_utc'        => (string) $row->end_utc,
-			'when'           => $when,
-			'duration_min'   => $duration,
-			'status'         => (string) $row->status,
-			'series_id'      => $row->series_id ? (int) $row->series_id : null,
-			'series_index'   => $row->series_index ? (int) $row->series_index : null,
-			'series_total'   => $series_total,
-			'series_label'   => $series_label,
-			'price_minor'    => (int) $row->price_minor,
-			'currency'       => (string) $row->currency,
-			'payment'        => $payment,
-			'payment_ref'    => $row->payment_ref,
-			'notes'          => $row->notes,
-			'address_line1'  => (string) ( $row->address_line1 ?? '' ),
-			'address_line2'  => $row->address_line2 ?? null,
-			'address_city'   => (string) ( $row->address_city ?? '' ),
-			'address_state'  => (string) ( $row->address_state ?? '' ),
-			'address_zip'    => (string) ( $row->address_zip ?? '' ),
-			'meeting_ready'  => $meeting_ready && '' !== $join_url,
-			'join_url'       => $join_url,
+			'customer_id'         => (int) $row->customer_id,
+			'customer'            => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
+			'service_id'          => $row->service_id ? (int) $row->service_id : null,
+			'service'             => $service ? (string) $service->name : '—',
+			'start_utc'           => (string) $row->start_utc,
+			'end_utc'             => (string) $row->end_utc,
+			'when'                => $when,
+			'duration_min'        => $duration,
+			'status'              => (string) $row->status,
+			'series_id'           => $row->series_id ? (int) $row->series_id : null,
+			'series_index'        => $row->series_index ? (int) $row->series_index : null,
+			'series_total'        => $series_total,
+			'series_label'        => $series_label,
+			'price_minor'         => (int) $row->price_minor,
+			'currency'            => (string) $row->currency,
+			'payment'             => $payment,
+			'payment_ref'         => $row->payment_ref,
+			'notes'               => $row->notes,
+			'address_line1'       => (string) ( $row->address_line1 ?? '' ),
+			'address_line2'       => $row->address_line2 ?? null,
+			'address_city'        => (string) ( $row->address_city ?? '' ),
+			'address_state'       => (string) ( $row->address_state ?? '' ),
+			'address_zip'         => (string) ( $row->address_zip ?? '' ),
+			'meeting_ready'       => $meeting_ready && '' !== $join_url,
+			'join_url'            => $join_url,
 		);
 	}
 
@@ -813,13 +813,13 @@ final class BookingsController extends AbstractController {
 
 		$result = $this->bookings->create(
 			array(
-				'technician_id'       => (int) $technician->id,
-				'customer_id'     => $customer_id,
+				'technician_id'  => (int) $technician->id,
+				'customer_id'    => $customer_id,
 				'service_id'     => $service_id,
 				'start_utc'      => Time::from_iso( (string) $request['start'] ),
 				'duration_min'   => $duration,
-				'technician_tz'       => (string) $technician->timezone,
-				'customer_tz'     => (string) ( $request['timezone'] ?? $technician->timezone ),
+				'technician_tz'  => (string) $technician->timezone,
+				'customer_tz'    => (string) ( $request['timezone'] ?? $technician->timezone ),
 				'price_minor'    => $price,
 				'currency'       => $currency,
 				'credit_id'      => $credit_id,
@@ -839,7 +839,7 @@ final class BookingsController extends AbstractController {
 		}
 
 		$booking  = $this->repo->find( (int) $result );
-		$customer  = get_userdata( $customer_id );
+		$customer = get_userdata( $customer_id );
 		$window   = Settings::int( 'reschedule_window_minutes', 720 );
 		$start    = Time::from_iso( (string) $request['start'] );
 		$deadline = $start->getTimestamp() - ( $window * MINUTE_IN_SECONDS );
@@ -856,8 +856,8 @@ final class BookingsController extends AbstractController {
 				'currency'            => $currency,
 				'payment'             => $credit_id ? 'credit' : ( 0 === $price ? 'free' : 'unpaid' ),
 				'service'             => $service ? (string) $service->name : '',
-				'technician'               => (string) $technician->display_name,
-				'customer'             => $customer ? $customer->display_name : '',
+				'technician'          => (string) $technician->display_name,
+				'customer'            => $customer ? $customer->display_name : '',
 				'meeting_provider'    => $provider ? $provider : 'Google Meet',
 				'reschedule_deadline' => gmdate( 'c', max( time(), $deadline ) ),
 				'dashboard_url'       => home_url( '/my-account/' ),

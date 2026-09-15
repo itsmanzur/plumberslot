@@ -50,20 +50,20 @@ final class CreditsController extends AbstractController {
 					'callback'            => array( $this, 'purchase' ),
 					'permission_callback' => array( $this, 'can_act' ),
 					'args'                => array(
-						'technician_id'   => array(
+						'technician_id' => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
-						'service_id' => array(
+						'service_id'    => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
-						'total'      => array(
+						'total'         => array(
 							'type'    => 'integer',
 							'minimum' => 1,
 							'maximum' => 100,
 						),
-						'owner_id'   => array(
+						'owner_id'      => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
@@ -128,9 +128,9 @@ final class CreditsController extends AbstractController {
 	}
 
 	public function index( WP_REST_Request $request ): WP_REST_Response {
-		$owner_id = get_current_user_id();
+		$owner_id      = get_current_user_id();
 		$technician_id = $request['technician_id'] ? (int) $request['technician_id'] : null;
-		$rows     = $this->repo->for_owner( $owner_id, $technician_id );
+		$rows          = $this->repo->for_owner( $owner_id, $technician_id );
 
 		return $this->ok(
 			array(
@@ -173,11 +173,11 @@ final class CreditsController extends AbstractController {
 
 		$package = $this->credits->purchase(
 			array(
-				'owner_id'    => $owner_id,
-				'technician_id'    => $request['technician_id'] ? (int) $request['technician_id'] : null,
-				'service_id'  => $request['service_id'] ? (int) $request['service_id'] : null,
-				'total'       => $total,
-				'price_minor' => Settings::int( 'credit_package_price_minor', 0 ),
+				'owner_id'      => $owner_id,
+				'technician_id' => $request['technician_id'] ? (int) $request['technician_id'] : null,
+				'service_id'    => $request['service_id'] ? (int) $request['service_id'] : null,
+				'total'         => $total,
+				'price_minor'   => Settings::int( 'credit_package_price_minor', 0 ),
 			)
 		);
 
@@ -206,16 +206,16 @@ final class CreditsController extends AbstractController {
 	 */
 	private function present( object $row ): array {
 		return array(
-			'id'          => (int) $row->id,
-			'owner_id'    => (int) $row->owner_id,
-			'technician_id'    => $row->technician_id ? (int) $row->technician_id : null,
-			'service_id'  => $row->service_id ? (int) $row->service_id : null,
-			'total'       => (int) $row->total,
-			'used'        => (int) $row->used,
-			'remaining'   => (int) $row->total - (int) $row->used,
-			'price_minor' => (int) $row->price_minor,
-			'expires_at'  => $row->expires_at,
-			'created_at'  => (string) $row->created_at,
+			'id'            => (int) $row->id,
+			'owner_id'      => (int) $row->owner_id,
+			'technician_id' => $row->technician_id ? (int) $row->technician_id : null,
+			'service_id'    => $row->service_id ? (int) $row->service_id : null,
+			'total'         => (int) $row->total,
+			'used'          => (int) $row->used,
+			'remaining'     => (int) $row->total - (int) $row->used,
+			'price_minor'   => (int) $row->price_minor,
+			'expires_at'    => $row->expires_at,
+			'created_at'    => (string) $row->created_at,
 		);
 	}
 }

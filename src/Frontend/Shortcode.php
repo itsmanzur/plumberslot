@@ -28,9 +28,9 @@ final class Shortcode {
 	public function render( array|string $atts = array() ): string {
 		$atts = shortcode_atts(
 			array(
-				'technician'   => '',
-				'service' => '',
-				'view'    => 'booking',
+				'technician' => '',
+				'service'    => '',
+				'view'       => 'booking',
 			),
 			$atts,
 			'plumberslot'
