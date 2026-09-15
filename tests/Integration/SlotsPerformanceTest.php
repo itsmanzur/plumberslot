@@ -12,7 +12,7 @@ namespace PlumberSlot\Tests\Integration;
 use DateTimeImmutable;
 use DateTimeZone;
 use PlumberSlot\Database\Repository\AvailabilityRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Support\Cache;
 use PlumberSlot\Support\RateLimiter;
@@ -30,7 +30,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 	private const UNCACHED_BUDGET_MS = 200.0;
 	private const SAMPLE_COUNT       = 25;
 
-	private int $tutor_id;
+	private int $technician_id;
 	private string $previous_remote_addr = '';
 	private DateTimeImmutable $from;
 	private DateTimeImmutable $to;
@@ -45,18 +45,18 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 		$this->clear_rate_limit();
 		wp_set_current_user( 0 );
 
-		$user_id        = self::factory()->user->create();
-		$this->tutor_id = ( new TutorRepository() )->create(
+		$user_id             = self::factory()->user->create();
+		$this->technician_id = ( new TechnicianRepository() )->create(
 			array(
 				'user_id'      => $user_id,
-				'slug'         => 'slots-performance-tutor',
-				'display_name' => 'Slots Performance Tutor',
+				'slug'         => 'slots-performance-technician',
+				'display_name' => 'Slots Performance Technician',
 				'timezone'     => 'UTC',
 				'status'       => 'active',
 			)
 		);
 
-		self::assertGreaterThan( 0, $this->tutor_id );
+		self::assertGreaterThan( 0, $this->technician_id );
 
 		$rules = array();
 		for ( $weekday = 0; $weekday < 7; $weekday++ ) {
@@ -67,7 +67,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 			);
 		}
 
-		self::assertTrue( ( new AvailabilityRepository() )->replace_week( $this->tutor_id, $rules ) );
+		self::assertTrue( ( new AvailabilityRepository() )->replace_week( $this->technician_id, $rules ) );
 
 		$this->from = ( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) )
 			->modify( '+7 days' )
@@ -158,7 +158,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 			return $query;
 		};
 
-		Cache::forget_tutor( $this->tutor_id );
+		Cache::forget_technician( $this->technician_id );
 		add_filter( 'query', $query_filter );
 		try {
 			$proof = $this->request_slots();
@@ -176,7 +176,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 		$samples = array();
 		for ( $sample = 0; $sample < self::SAMPLE_COUNT; $sample++ ) {
 			// Invalidation is not request work; the generation bump guarantees the next request misses cache.
-			Cache::forget_tutor( $this->tutor_id );
+			Cache::forget_technician( $this->technician_id );
 			$started  = hrtime( true );
 			$response = $this->request_slots();
 			$elapsed  = ( hrtime( true ) - $started ) / 1_000_000;
@@ -210,11 +210,11 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/slots' );
 		$request->set_query_params(
 			array(
-				'tutor_id' => $this->tutor_id,
-				'from'     => $this->from->format( DATE_ATOM ),
-				'to'       => $this->to->format( DATE_ATOM ),
-				'duration' => 60,
-				'timezone' => 'UTC',
+				'technician_id' => $this->technician_id,
+				'from'          => $this->from->format( DATE_ATOM ),
+				'to'            => $this->to->format( DATE_ATOM ),
+				'duration'      => 60,
+				'timezone'      => 'UTC',
 			)
 		);
 

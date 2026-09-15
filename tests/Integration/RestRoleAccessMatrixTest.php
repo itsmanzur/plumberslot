@@ -10,7 +10,7 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Tests\Integration;
 
 use PlumberSlot\Database\Repository\BookingRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Support\Capabilities;
 use WP_REST_Request;
@@ -23,8 +23,8 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 	/** @var array<string, int> */
 	private array $users;
-	private int $owned_tutor_id;
-	private int $foreign_tutor_id;
+	private int $owned_technician_id;
+	private int $foreign_technician_id;
 	private int $booking_id;
 
 	public function set_up(): void {
@@ -35,18 +35,17 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		$this->empty_plumberslot_tables();
 
 		$this->users = array(
-			'administrator' => self::factory()->user->create( array( 'role' => 'administrator' ) ),
-			'tutor'         => self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) ),
-			'other_tutor'   => self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) ),
-			'student'       => self::factory()->user->create( array( 'role' => Capabilities::ROLE_STUDENT ) ),
-			'parent'        => self::factory()->user->create( array( 'role' => Capabilities::ROLE_PARENT ) ),
-			'outsider'      => self::factory()->user->create( array( 'role' => 'subscriber' ) ),
+			'administrator'    => self::factory()->user->create( array( 'role' => 'administrator' ) ),
+			'technician'       => self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) ),
+			'other_technician' => self::factory()->user->create( array( 'role' => Capabilities::ROLE_TECHNICIAN ) ),
+			'customer'         => self::factory()->user->create( array( 'role' => Capabilities::ROLE_CUSTOMER ) ),
+			'outsider'         => self::factory()->user->create( array( 'role' => 'subscriber' ) ),
 		);
 
-		$tutors                 = new TutorRepository();
-		$this->owned_tutor_id   = $this->create_tutor( $tutors, $this->users['tutor'], 'matrix-owner' );
-		$this->foreign_tutor_id = $this->create_tutor( $tutors, $this->users['other_tutor'], 'matrix-foreign' );
-		$this->booking_id       = $this->create_booking();
+		$technicians                  = new TechnicianRepository();
+		$this->owned_technician_id    = $this->create_technician( $technicians, $this->users['technician'], 'matrix-owner' );
+		$this->foreign_technician_id  = $this->create_technician( $technicians, $this->users['other_technician'], 'matrix-foreign' );
+		$this->booking_id             = $this->create_booking();
 	}
 
 	public function tear_down(): void {
@@ -57,40 +56,39 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 	public function test_manager_surfaces_allow_only_administrators(): void {
 		$routes = array(
-			array( 'GET', '/plumberslot/v1/tutors' ),
+			array( 'GET', '/plumberslot/v1/technicians' ),
 			array( 'GET', '/plumberslot/v1/settings' ),
 			array( 'GET', '/plumberslot/v1/audit' ),
 		);
 
 		foreach ( $routes as [$method, $route] ) {
-			foreach ( array( 'administrator', 'tutor', 'student', 'parent', 'outsider' ) as $role ) {
+			foreach ( array( 'administrator', 'technician', 'customer', 'outsider' ) as $role ) {
 				$this->assert_access( $role, $method, $route, array(), 'administrator' === $role );
 			}
 		}
 	}
 
-	public function test_tutor_surfaces_enforce_tutor_ownership(): void {
+	public function test_technician_surfaces_enforce_technician_ownership(): void {
 		$surfaces = array(
-			array( 'GET', '/plumberslot/v1/availability/(?P<tutor_id>\d+)' ),
-			array( 'GET', '/plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects' ),
+			array( 'GET', '/plumberslot/v1/availability/(?P<technician_id>\d+)' ),
+			array( 'GET', '/plumberslot/v1/technicians/(?P<technician_id>\d+)/services' ),
 			array( 'GET', '/plumberslot/v1/dashboard' ),
 		);
 
 		foreach ( $surfaces as [$method, $route] ) {
-			$params = array( 'tutor_id' => $this->owned_tutor_id );
+			$params = array( 'technician_id' => $this->owned_technician_id );
 			$this->assert_access( 'administrator', $method, $route, $params, true );
-			$this->assert_access( 'tutor', $method, $route, $params, true );
-			$this->assert_access( 'other_tutor', $method, $route, $params, false );
-			$this->assert_access( 'student', $method, $route, $params, false );
-			$this->assert_access( 'parent', $method, $route, $params, false );
+			$this->assert_access( 'technician', $method, $route, $params, true );
+			$this->assert_access( 'other_technician', $method, $route, $params, false );
+			$this->assert_access( 'customer', $method, $route, $params, false );
 			$this->assert_access( 'outsider', $method, $route, $params, false );
 		}
 
 		$this->assert_access(
-			'other_tutor',
+			'other_technician',
 			'GET',
-			'/plumberslot/v1/availability/(?P<tutor_id>\d+)',
-			array( 'tutor_id' => $this->foreign_tutor_id ),
+			'/plumberslot/v1/availability/(?P<technician_id>\d+)',
+			array( 'technician_id' => $this->foreign_technician_id ),
 			true
 		);
 	}
@@ -99,32 +97,32 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		$route  = '/plumberslot/v1/bookings/(?P<id>\d+)';
 		$params = array( 'id' => $this->booking_id );
 
-		foreach ( array( 'administrator', 'tutor', 'student', 'parent' ) as $role ) {
+		foreach ( array( 'administrator', 'technician', 'customer' ) as $role ) {
 			$this->assert_access( $role, 'GET', $route, $params, true );
 		}
 
-		$this->assert_access( 'other_tutor', 'GET', $route, $params, false );
+		$this->assert_access( 'other_technician', 'GET', $route, $params, false );
 		$this->assert_access( 'outsider', 'GET', $route, $params, false );
 	}
 
 	public function test_booking_capability_and_self_scoped_listing_cover_every_account_role(): void {
-		foreach ( array( 'administrator', 'tutor', 'student', 'parent' ) as $role ) {
+		foreach ( array( 'administrator', 'technician', 'customer' ) as $role ) {
 			$this->assert_access( $role, 'POST', '/plumberslot/v1/bookings', array(), true );
 		}
 		$this->assert_access( 'outsider', 'POST', '/plumberslot/v1/bookings', array(), false );
 
-		foreach ( array( 'administrator', 'tutor', 'student', 'parent', 'outsider' ) as $role ) {
+		foreach ( array( 'administrator', 'technician', 'customer', 'outsider' ) as $role ) {
 			$this->assert_access( $role, 'GET', '/plumberslot/v1/bookings', array(), true );
 		}
 		$this->assert_access( 'anonymous', 'GET', '/plumberslot/v1/bookings', array(), false );
 	}
 
-	public function test_setup_requires_tutor_management_capability(): void {
-		foreach ( array( 'administrator', 'tutor' ) as $role ) {
+	public function test_setup_requires_technician_management_capability(): void {
+		foreach ( array( 'administrator', 'technician' ) as $role ) {
 			$this->assert_access( $role, 'GET', '/plumberslot/v1/setup', array(), true );
 		}
 
-		foreach ( array( 'student', 'parent', 'outsider' ) as $role ) {
+		foreach ( array( 'customer', 'outsider' ) as $role ) {
 			$this->assert_access( $role, 'GET', '/plumberslot/v1/setup', array(), false );
 		}
 	}
@@ -172,8 +170,8 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		self::fail( 'Missing PlumberSlot REST endpoint: ' . $method . ' ' . $route );
 	}
 
-	private function create_tutor( TutorRepository $tutors, int $user_id, string $slug ): int {
-		$tutor_id = $tutors->create(
+	private function create_technician( TechnicianRepository $technicians, int $user_id, string $slug ): int {
+		$technician_id = $technicians->create(
 			array(
 				'user_id'      => $user_id,
 				'slug'         => $slug,
@@ -183,9 +181,9 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 			)
 		);
 
-		self::assertGreaterThan( 0, $tutor_id );
+		self::assertGreaterThan( 0, $technician_id );
 
-		return $tutor_id;
+		return $technician_id;
 	}
 
 	private function create_booking(): int {
@@ -193,16 +191,15 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		$repo  = new BookingRepository();
 		$id    = $repo->insert_unique(
 			array(
-				'tutor_id'    => $this->owned_tutor_id,
-				'student_id'  => $this->users['student'],
-				'parent_id'   => $this->users['parent'],
-				'subject_id'  => null,
-				'start_utc'   => $start->format( 'Y-m-d H:i:s' ),
-				'end_utc'     => $start->modify( '+60 minutes' )->format( 'Y-m-d H:i:s' ),
-				'student_tz'  => 'UTC',
-				'status'      => 'confirmed',
-				'price_minor' => 0,
-				'currency'    => 'USD',
+				'technician_id' => $this->owned_technician_id,
+				'customer_id'   => $this->users['customer'],
+				'service_id'    => null,
+				'start_utc'     => $start->format( 'Y-m-d H:i:s' ),
+				'end_utc'       => $start->modify( '+60 minutes' )->format( 'Y-m-d H:i:s' ),
+				'customer_tz'   => 'UTC',
+				'status'        => 'confirmed',
+				'price_minor'   => 0,
+				'currency'      => 'USD',
 			)
 		);
 
