@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -54,8 +54,8 @@ async function logIn( page, login, password ) {
 function prepareLifecycleTest( testInfo, state ) {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_LIFECYCLE_READY,
-		'Set TUTORSLOT_E2E_LIFECYCLE_READY=1 to allow isolated lifecycle fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_LIFECYCLE_READY,
+		'Set PLUMBERSLOT_E2E_LIFECYCLE_READY=1 to allow isolated lifecycle fixture rows.'
 	);
 
 	return `${ testInfo.project.name }-${ state }`.replace(
@@ -71,7 +71,7 @@ async function openManagedBooking( page, seed ) {
 			response.url().includes( '/bookings?' ) &&
 			'GET' === response.request().method()
 	);
-	await page.goto( '/wp-admin/admin.php?page=tutorslot-bookings' );
+	await page.goto( '/wp-admin/admin.php?page=plumberslot-bookings' );
 	expect( ( await bookingsResponse ).status() ).toBe( 200 );
 
 	const row = page.locator( '.ts-admin-table tbody tr' ).filter( {

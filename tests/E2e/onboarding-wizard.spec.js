@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -54,8 +54,8 @@ async function logIn( page, login, password ) {
 function prepareOnboardingTest( testInfo ) {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_ONBOARDING_READY,
-		'Set TUTORSLOT_E2E_ONBOARDING_READY=1 to allow isolated onboarding fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_ONBOARDING_READY,
+		'Set PLUMBERSLOT_E2E_ONBOARDING_READY=1 to allow isolated onboarding fixture rows.'
 	);
 
 	return `${ testInfo.project.name }-onboarding`.replace(
@@ -74,10 +74,10 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 		await logIn( page, seed.tutorLogin, seed.password );
 		const statusResponse = page.waitForResponse(
 			( response ) =>
-				response.url().endsWith( '/tutorslot/v1/setup' ) &&
+				response.url().endsWith( '/plumberslot/v1/setup' ) &&
 				'GET' === response.request().method()
 		);
-		await page.goto( '/wp-admin/admin.php?page=tutorslot-setup' );
+		await page.goto( '/wp-admin/admin.php?page=plumberslot-setup' );
 		expect( ( await statusResponse ).status() ).toBe( 200 );
 
 		await expect(
@@ -115,7 +115,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 
 		const completionResponse = page.waitForResponse(
 			( response ) =>
-				response.url().endsWith( '/tutorslot/v1/setup' ) &&
+				response.url().endsWith( '/plumberslot/v1/setup' ) &&
 				'POST' === response.request().method()
 		);
 		await page.getByRole( 'button', { name: 'Finish' } ).click();
@@ -133,7 +133,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 		).toBeVisible();
 		await page.getByText( 'WordPress shortcode' ).click();
 		await expect(
-			page.getByText( `[tutorslot tutor="${ seed.tutorSlug }"]` )
+			page.getByText( `[plumberslot tutor="${ seed.tutorSlug }"]` )
 		).toBeVisible();
 
 		const database = await fixture( 'inspect-onboarding', fixtureKey );
@@ -144,7 +144,7 @@ test( 'manager completes the four-step onboarding wizard', async ( {
 		expect( database.setupMode ).toBe( 'centre' );
 		expect( database.paymentsEnabled ).toBe( false );
 		expect( database.pageContent ).toBe(
-			`[tutorslot tutor="${ seed.tutorSlug }"]`
+			`[plumberslot tutor="${ seed.tutorSlug }"]`
 		);
 		expect( database.auditCount ).toBe( 1 );
 	} finally {

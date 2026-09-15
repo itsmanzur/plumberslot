@@ -2,15 +2,15 @@
 /**
  * Email delivery.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Notifications\Channel;
+namespace PlumberSlot\Notifications\Channel;
 
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Time;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Time;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ final class EmailChannel implements ChannelInterface {
 	}
 
 	public function is_enabled( string $event ): bool {
-		return (bool) apply_filters( 'tutorslot_email_enabled', true, $event );
+		return (bool) apply_filters( 'plumberslot_email_enabled', true, $event );
 	}
 
 	/**
@@ -52,13 +52,13 @@ final class EmailChannel implements ChannelInterface {
 
 	private function subject( string $event, string $when ): string {
 		return match ( $event ) {
-			'booking_created'     => sprintf( /* translators: %s: date and time. */ __( 'Lesson requested for %s', 'tutorslot' ), $when ),
-			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Lesson confirmed for %s', 'tutorslot' ), $when ),
-			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'Lesson on %s is cancelled', 'tutorslot' ), $when ),
-			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'Lesson moved to %s', 'tutorslot' ), $when ),
-			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'Tomorrow: your lesson at %s', 'tutorslot' ), $when ),
-			'reminder_1h'         => __( 'Your lesson starts in an hour', 'tutorslot' ),
-			default               => __( 'Lesson update', 'tutorslot' ),
+			'booking_created'     => sprintf( /* translators: %s: date and time. */ __( 'Lesson requested for %s', 'plumberslot' ), $when ),
+			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Lesson confirmed for %s', 'plumberslot' ), $when ),
+			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'Lesson on %s is cancelled', 'plumberslot' ), $when ),
+			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'Lesson moved to %s', 'plumberslot' ), $when ),
+			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'Tomorrow: your lesson at %s', 'plumberslot' ), $when ),
+			'reminder_1h'         => __( 'Your lesson starts in an hour', 'plumberslot' ),
+			default               => __( 'Lesson update', 'plumberslot' ),
 		};
 	}
 
@@ -80,7 +80,7 @@ final class EmailChannel implements ChannelInterface {
 			$lines[] = sprintf(
 				'<p><a href="%s">%s</a></p>',
 				esc_url( $join ),
-				esc_html__( 'Open your lesson', 'tutorslot' )
+				esc_html__( 'Open your lesson', 'plumberslot' )
 			);
 		}
 
@@ -91,17 +91,17 @@ final class EmailChannel implements ChannelInterface {
 		 * @param string $event   Event key.
 		 * @param object $booking Booking row.
 		 */
-		return apply_filters( 'tutorslot_email_body', implode( "\n", $lines ), $event, $booking );
+		return apply_filters( 'plumberslot_email_body', implode( "\n", $lines ), $event, $booking );
 	}
 
 	private function sentence( string $event, string $when ): string {
 		return match ( $event ) {
-			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Your lesson is confirmed for %s.', 'tutorslot' ), $when ),
-			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'The lesson on %s has been cancelled. Nothing further is needed from you.', 'tutorslot' ), $when ),
-			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'The lesson has moved to %s.', 'tutorslot' ), $when ),
-			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'A reminder that your lesson is tomorrow at %s.', 'tutorslot' ), $when ),
-			'reminder_1h'         => __( 'Your lesson starts in an hour.', 'tutorslot' ),
-			default               => sprintf( /* translators: %s: date and time. */ __( 'Your lesson is booked for %s.', 'tutorslot' ), $when ),
+			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Your lesson is confirmed for %s.', 'plumberslot' ), $when ),
+			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'The lesson on %s has been cancelled. Nothing further is needed from you.', 'plumberslot' ), $when ),
+			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'The lesson has moved to %s.', 'plumberslot' ), $when ),
+			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'A reminder that your lesson is tomorrow at %s.', 'plumberslot' ), $when ),
+			'reminder_1h'         => __( 'Your lesson starts in an hour.', 'plumberslot' ),
+			default               => sprintf( /* translators: %s: date and time. */ __( 'Your lesson is booked for %s.', 'plumberslot' ), $when ),
 		};
 	}
 }

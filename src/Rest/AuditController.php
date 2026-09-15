@@ -1,16 +1,16 @@
 <?php
 /**
- * /tutorslot/v1/audit — manager-only audit viewer.
+ * /plumberslot/v1/audit — manager-only audit viewer.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Capabilities;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -68,7 +68,7 @@ final class AuditController extends AbstractController {
 			$rows[] = array(
 				'id'          => (int) $row->id,
 				'actor_id'    => (int) $row->actor_id,
-				'actor_name'  => $actor ? $actor->display_name : __( 'System', 'tutorslot' ),
+				'actor_name'  => $actor ? $actor->display_name : __( 'System', 'plumberslot' ),
 				'action'      => (string) $row->action,
 				'object_type' => (string) $row->object_type,
 				'object_id'   => (int) $row->object_id,

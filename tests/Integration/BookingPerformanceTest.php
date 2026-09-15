@@ -2,24 +2,24 @@
 /**
  * Performance gate for synchronous booking creation.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_UnitTestCase;
@@ -43,7 +43,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 
 		Schema::create_all();
 		Capabilities::add_all();
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 
 		Settings::update(
 			array(
@@ -97,7 +97,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	public function tear_down(): void {
 		$this->clear_rate_limit();
 		wp_set_current_user( 0 );
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 
 		parent::tear_down();
 	}
@@ -165,7 +165,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	}
 
 	private function post_booking( DateTimeImmutable $start, string $token ): WP_REST_Response {
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -195,7 +195,7 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	}
 
 	private function clear_rate_limit(): void {
-		$key = 'tutorslot_rl_' . md5( 'create_booking|u' . $this->student_id );
+		$key = 'plumberslot_rl_' . md5( 'create_booking|u' . $this->student_id );
 		delete_transient( $key );
 	}
 
@@ -222,14 +222,14 @@ final class BookingPerformanceTest extends WP_UnitTestCase {
 	private function assert_reminders_were_synchronously_scheduled( int $booking_id ): void {
 		self::assertTrue( function_exists( 'as_has_scheduled_action' ) );
 		self::assertNotFalse(
-			as_has_scheduled_action( 'tutorslot_send_reminder', array( $booking_id, '24h' ), 'tutorslot' )
+			as_has_scheduled_action( 'plumberslot_send_reminder', array( $booking_id, '24h' ), 'plumberslot' )
 		);
 		self::assertNotFalse(
-			as_has_scheduled_action( 'tutorslot_send_reminder', array( $booking_id, '1h' ), 'tutorslot' )
+			as_has_scheduled_action( 'plumberslot_send_reminder', array( $booking_id, '1h' ), 'plumberslot' )
 		);
 	}
 
-	private function empty_tutorslot_tables(): void {
+	private function empty_plumberslot_tables(): void {
 		global $wpdb;
 
 		foreach ( array_reverse( Schema::all_keys() ) as $key ) {

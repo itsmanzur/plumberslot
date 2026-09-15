@@ -288,12 +288,12 @@ export function SubjectsScreen() {
 											),
 											h(
 												'td',
-												{ class: 'tutorslot-mono' },
+												{ class: 'plumberslot-mono' },
 												`${ row.duration_min } min`
 											),
 											h(
 												'td',
-												{ class: 'tutorslot-mono' },
+												{ class: 'plumberslot-mono' },
 												formatMoney(
 													row.price_minor,
 													row.currency || currency

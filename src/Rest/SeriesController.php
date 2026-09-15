@@ -1,24 +1,24 @@
 <?php
 /**
- * /tutorslot/v1/series — weekly courses.
+ * /plumberslot/v1/series — weekly courses.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\SeriesRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\RecurrenceService;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\SeriesRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\RecurrenceService;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -165,8 +165,8 @@ final class SeriesController extends AbstractController {
 
 		if ( array() === $days ) {
 			return new WP_Error(
-				'tutorslot_bad_days',
-				__( 'Pick at least one weekday for the course.', 'tutorslot' ),
+				'plumberslot_bad_days',
+				__( 'Pick at least one weekday for the course.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -206,8 +206,8 @@ final class SeriesController extends AbstractController {
 			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $tutor->id, $subject_id );
 			if ( ! $credit ) {
 				return new WP_Error(
-					'tutorslot_no_credits',
-					__( 'There are no lessons left on this package.', 'tutorslot' ),
+					'plumberslot_no_credits',
+					__( 'There are no lessons left on this package.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -261,7 +261,7 @@ final class SeriesController extends AbstractController {
 				'skipped'     => $result['skipped'],
 				'label'       => sprintf(
 					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
-					__( 'Weekly %1$d/%2$d', 'tutorslot' ),
+					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					count( $result['booked'] ),
 					(int) $request['count']
 				),
@@ -294,7 +294,7 @@ final class SeriesController extends AbstractController {
 				'active'      => count( $active ),
 				'label'       => sprintf(
 					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
-					__( 'Weekly %1$d/%2$d', 'tutorslot' ),
+					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					count( $active ),
 					(int) $series->total_count
 				),

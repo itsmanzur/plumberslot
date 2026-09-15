@@ -9,7 +9,7 @@
 	cacheResultFile=".phpunit.integration.result.cache"
 >
 	<testsuites>
-		<testsuite name="TutorSlot integration tests">
+		<testsuite name="PlumberSlot integration tests">
 			<directory suffix="Test.php">tests/Integration</directory>
 		</testsuite>
 	</testsuites>

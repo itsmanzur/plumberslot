@@ -6,20 +6,20 @@
  * target under ninety seconds. Anything that does not move a new tutor closer
  * to a link they can paste does not belong in the wizard.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Admin;
+namespace PlumberSlot\Admin;
 
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
 final class OnboardingWizard {
 
-	private const SLUG = 'tutorslot-setup';
+	private const SLUG = 'plumberslot-setup';
 
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_page' ) );
@@ -30,8 +30,8 @@ final class OnboardingWizard {
 		// Registered without a parent so it never clutters the menu.
 		add_submenu_page(
 			'',
-			__( 'Set up TutorSlot', 'tutorslot' ),
-			__( 'Set up TutorSlot', 'tutorslot' ),
+			__( 'Set up PlumberSlot', 'plumberslot' ),
+			__( 'Set up PlumberSlot', 'plumberslot' ),
 			Capabilities::MANAGE_OWN,
 			self::SLUG,
 			array( $this, 'render' )
@@ -42,14 +42,14 @@ final class OnboardingWizard {
 	 * Send a freshly activated site straight into the wizard, exactly once.
 	 */
 	public function maybe_redirect(): void {
-		if ( ! get_transient( 'tutorslot_show_onboarding' ) ) {
+		if ( ! get_transient( 'plumberslot_show_onboarding' ) ) {
 			return;
 		}
 		if ( wp_doing_ajax() || ! current_user_can( Capabilities::MANAGE_OWN ) ) {
 			return;
 		}
 
-		delete_transient( 'tutorslot_show_onboarding' );
+		delete_transient( 'plumberslot_show_onboarding' );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG ) );
 		exit;
@@ -61,6 +61,6 @@ final class OnboardingWizard {
 			return;
 		}
 
-		echo '<div class="wrap"><div id="tutorslot-setup-root" data-screen="tutorslot-setup"></div></div>';
+		echo '<div class="wrap"><div id="plumberslot-setup-root" data-screen="plumberslot-setup"></div></div>';
 	}
 }

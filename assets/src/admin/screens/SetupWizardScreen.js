@@ -142,7 +142,7 @@ export function SetupWizardScreen() {
 	};
 
 	const goTutors = () => {
-		const page = config.screens?.tutors || 'tutorslot-tutors';
+		const page = config.screens?.tutors || 'plumberslot-tutors';
 		navigateTo( `${ config.urls.admin }?page=${ page }`, {
 			sameOrigin: true,
 		} );
@@ -170,7 +170,7 @@ export function SetupWizardScreen() {
 				),
 				h(
 					'div',
-					{ class: 'ts-admin-done__url tutorslot-mono' },
+					{ class: 'ts-admin-done__url plumberslot-mono' },
 					result.booking_url || '—'
 				),
 				h(
@@ -202,7 +202,7 @@ export function SetupWizardScreen() {
 					h( 'summary', null, 'WordPress shortcode' ),
 					h(
 						'div',
-						{ class: 'ts-admin-done__shortcode tutorslot-mono' },
+						{ class: 'ts-admin-done__shortcode plumberslot-mono' },
 						result.shortcode
 					),
 					h(
@@ -227,7 +227,7 @@ export function SetupWizardScreen() {
 		},
 		h( PageHeader, {
 			eyebrow: 'Setup',
-			title: 'Set up TutorSlot',
+			title: 'Set up PlumberSlot',
 			subtitle: 'Four steps to a link you can paste.',
 		} ),
 		h( WizardRail, { steps: STEPS, current: step } ),

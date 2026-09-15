@@ -2,16 +2,16 @@
 /**
  * Availability repository integration tests.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Cache;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Cache;
 use WP_UnitTestCase;
 
 final class AvailabilityRepositoryTest extends WP_UnitTestCase {
@@ -113,7 +113,7 @@ final class AvailabilityRepositoryTest extends WP_UnitTestCase {
 
 		$filter = static function ( $query ) {
 			if ( is_string( $query ) && str_contains( $query, 'INSERT INTO' ) && str_contains( $query, Schema::AVAILABILITY ) ) {
-				return 'INSERT INTO tutorslot_missing_availability (id) VALUES (1)';
+				return 'INSERT INTO plumberslot_missing_availability (id) VALUES (1)';
 			}
 
 			return $query;

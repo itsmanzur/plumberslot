@@ -83,7 +83,7 @@ test( 'time step selects an available day and clears stale time choices', async 
 test( 'widget actions meet the 44px touch-target floor', async () => {
 	const css = fs.readFileSync( distCss, 'utf8' );
 	expect( css ).toMatch(
-		/\.tutorslot-widget \.ts-btn[^}]*min-height:\s*44px/s
+		/\.plumberslot-widget \.ts-btn[^}]*min-height:\s*44px/s
 	);
 	expect( css ).toMatch( /\.ts-tz__change[^}]*min-height:\s*44px/s );
 	expect( css ).toMatch( /\.ts-book__more summary[^}]*min-height:\s*44px/s );
@@ -99,17 +99,17 @@ test( 'subject step uses polished fallback copy and left alignment', async () =>
 	expect( source ).toContain( '/ lesson' );
 	expect( css ).toMatch( /\.ts-book--step[^}]*margin:\s*0/s );
 	expect( css ).toMatch(
-		/\.tutorslot-widget \.ts-book__subject\.is-selected[^}]*background:\s*var\(--ts-primary-wash\)\s*!important/s
+		/\.plumberslot-widget \.ts-book__subject\.is-selected[^}]*background:\s*var\(--ts-primary-wash\)\s*!important/s
 	);
 } );
 
 test( 'theme button hover cannot override subject readability', async () => {
 	const css = fs.readFileSync( distCss, 'utf8' );
 	expect( css ).toMatch(
-		/\.tutorslot-widget \.ts-book__subject:hover[^}]*background:\s*var\(--ts-card\)\s*!important/s
+		/\.plumberslot-widget \.ts-book__subject:hover[^}]*background:\s*var\(--ts-card\)\s*!important/s
 	);
 	expect( css ).toMatch(
-		/\.tutorslot-widget \.ts-book__subject:hover[^}]*color:\s*var\(--ts-ink\)/s
+		/\.plumberslot-widget \.ts-book__subject:hover[^}]*color:\s*var\(--ts-ink\)/s
 	);
 } );
 

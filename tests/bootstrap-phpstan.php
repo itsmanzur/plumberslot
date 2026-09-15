@@ -2,8 +2,8 @@
 /**
  * Constants defined dynamically by the WordPress plugin bootstrap.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
-define( 'TUTORSLOT_PATH', dirname( __DIR__ ) . DIRECTORY_SEPARATOR );
-define( 'TUTORSLOT_URL', 'https://example.test/wp-content/plugins/tutorslot/' );
+define( 'PLUMBERSLOT_PATH', dirname( __DIR__ ) . DIRECTORY_SEPARATOR );
+define( 'PLUMBERSLOT_URL', 'https://example.test/wp-content/plugins/plumberslot/' );

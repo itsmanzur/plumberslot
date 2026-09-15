@@ -1,23 +1,23 @@
 <?php
 /**
- * /tutorslot/v1/dashboard — tutor home aggregates.
+ * /plumberslot/v1/dashboard — tutor home aggregates.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Frontend\BookingPage;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Frontend\BookingPage;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -167,8 +167,8 @@ final class DashboardController extends AbstractController {
 				'id'       => (int) $row->id,
 				'title'    => sprintf(
 					'%1$s · %2$s',
-					$student ? $student->display_name : __( 'Student', 'tutorslot' ),
-					$subject ? $subject->name : __( 'Lesson', 'tutorslot' )
+					$student ? $student->display_name : __( 'Student', 'plumberslot' ),
+					$subject ? $subject->name : __( 'Lesson', 'plumberslot' )
 				),
 				'time'     => $local->format( 'H:i' ),
 				'startPct' => (int) round( ( $offset / $day_span ) * 100 ),
@@ -193,23 +193,23 @@ final class DashboardController extends AbstractController {
 			$local      = $start->setTimezone( new \DateTimeZone( $tz ) );
 			$local_end  = $end->setTimezone( new \DateTimeZone( $tz ) );
 			$payment    = ! empty( $row->credit_id )
-				? __( 'Credit used', 'tutorslot' )
+				? __( 'Credit used', 'plumberslot' )
 				: ( ! empty( $row->payment_ref ) || 0 === (int) $row->price_minor
-					? ( 0 === (int) $row->price_minor ? __( 'Free', 'tutorslot' ) : __( 'Paid', 'tutorslot' ) )
-					: __( 'Due', 'tutorslot' ) );
+					? ( 0 === (int) $row->price_minor ? __( 'Free', 'plumberslot' ) : __( 'Paid', 'plumberslot' ) )
+					: __( 'Due', 'plumberslot' ) );
 			$next_up[]  = array(
 				'id'            => $booking_id,
-				'student'       => $student ? $student->display_name : __( 'Student', 'tutorslot' ),
-				'initials'      => $this->initials( $student ? $student->display_name : __( 'Student', 'tutorslot' ) ),
+				'student'       => $student ? $student->display_name : __( 'Student', 'plumberslot' ),
+				'initials'      => $this->initials( $student ? $student->display_name : __( 'Student', 'plumberslot' ) ),
 				'context'       => $parent
-					? sprintf( /* translators: %s: parent display name. */ __( 'Parent: %s', 'tutorslot' ), $parent->display_name )
-					: __( 'Books their own lessons', 'tutorslot' ),
-				'subject'       => $subject ? (string) $subject->name : __( 'Lesson', 'tutorslot' ),
+					? sprintf( /* translators: %s: parent display name. */ __( 'Parent: %s', 'plumberslot' ), $parent->display_name )
+					: __( 'Books their own lessons', 'plumberslot' ),
+				'subject'       => $subject ? (string) $subject->name : __( 'Lesson', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )
 					: $local->format( 'D H:i' ),
 				'payment'       => $payment,
-				'payment_tone'  => __( 'Due', 'tutorslot' ) === $payment ? 'wait' : ( __( 'Credit used', 'tutorslot' ) === $payment ? 'idle' : 'ok' ),
+				'payment_tone'  => __( 'Due', 'plumberslot' ) === $payment ? 'wait' : ( __( 'Credit used', 'plumberslot' ) === $payment ? 'idle' : 'ok' ),
 				'meeting_ready' => ! empty( $row->meeting_ref ),
 				'join_url'      => ( ! empty( $row->meeting_ref ) && ! empty( $row->meeting_token ) )
 					? Crypto::signed_join_url( $booking_id, (string) $row->meeting_token )
@@ -224,7 +224,7 @@ final class DashboardController extends AbstractController {
 		if ( count( $pending['items'] ) > 0 ) {
 			$needs[] = array(
 				'id'    => 'pending',
-				'label' => __( 'Bookings awaiting confirmation', 'tutorslot' ),
+				'label' => __( 'Bookings awaiting confirmation', 'plumberslot' ),
 				'value' => count( $pending['items'] ),
 				'href'  => 'bookings',
 			);
@@ -237,8 +237,8 @@ final class DashboardController extends AbstractController {
 				'booking_id' => (int) $row->id,
 				'label'      => sprintf(
 					/* translators: %s: student name */
-					__( 'Confirm booking for %s', 'tutorslot' ),
-					$student ? $student->display_name : __( 'student', 'tutorslot' )
+					__( 'Confirm booking for %s', 'plumberslot' ),
+					$student ? $student->display_name : __( 'student', 'plumberslot' )
 				),
 				'start'      => (string) $row->start_utc,
 				'value'      => '→',
@@ -264,7 +264,7 @@ final class DashboardController extends AbstractController {
 			'next_up'         => $next_up,
 			'needs_attention' => $needs,
 			'booking_url'     => $this->booking_url( $tutor ),
-			'shortcode'       => sprintf( '[tutorslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
+			'shortcode'       => sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
 			'defaults'        => array(
 				'lesson_minutes'    => Settings::int( 'default_lesson_minutes', 60 ),
 				'buffer_minutes'    => Settings::int( 'buffer_minutes', 0 ),
@@ -282,7 +282,7 @@ final class DashboardController extends AbstractController {
 
 		return sprintf(
 			/* translators: %s: first name */
-			__( 'Good day, %s', 'tutorslot' ),
+			__( 'Good day, %s', 'plumberslot' ),
 			$user->first_name ? $user->first_name : $user->display_name
 		);
 	}

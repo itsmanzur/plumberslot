@@ -6,12 +6,12 @@
  * Storing a local wall clock works until a family moves country or a DST
  * boundary lands mid-course, and then it silently produces lessons an hour off.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 use DateTimeImmutable;
 use DateTimeZone;

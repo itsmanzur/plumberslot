@@ -1,30 +1,30 @@
 <?php
 /**
- * /tutorslot/v1/bookings
+ * /plumberslot/v1/bookings
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\SeriesRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Domain\BookingService;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\RateLimiter;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\SeriesRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Domain\BookingService;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\RateLimiter;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -310,8 +310,8 @@ final class BookingsController extends AbstractController {
 
 		if ( ! RateLimiter::allow( 'create_booking', 10 ) ) {
 			return new WP_Error(
-				'tutorslot_too_many',
-				__( 'Too many booking attempts. Wait a minute and try again.', 'tutorslot' ),
+				'plumberslot_too_many',
+				__( 'Too many booking attempts. Wait a minute and try again.', 'plumberslot' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -382,8 +382,8 @@ final class BookingsController extends AbstractController {
 		}
 
 		return new WP_Error(
-			'tutorslot_reschedule_disabled',
-			__( 'Online rescheduling is disabled. Contact the tutor to move this lesson.', 'tutorslot' ),
+			'plumberslot_reschedule_disabled',
+			__( 'Online rescheduling is disabled. Contact the tutor to move this lesson.', 'plumberslot' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -483,7 +483,7 @@ final class BookingsController extends AbstractController {
 
 		$response = new WP_REST_Response( implode( "\n", $lines ) );
 		$response->header( 'Content-Type', 'text/csv; charset=utf-8' );
-		$response->header( 'Content-Disposition', 'attachment; filename="tutorslot-bookings.csv"' );
+		$response->header( 'Content-Disposition', 'attachment; filename="plumberslot-bookings.csv"' );
 		AuditLog::record(
 			'bookings.exported',
 			'export',
@@ -545,7 +545,7 @@ final class BookingsController extends AbstractController {
 			if ( $series_total ) {
 				$series_label = sprintf(
 					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
-					__( 'Weekly %1$d/%2$d', 'tutorslot' ),
+					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					(int) ( isset( $row->series_index ) && $row->series_index ? $row->series_index : 1 ),
 					$series_total
 				);
@@ -586,7 +586,7 @@ final class BookingsController extends AbstractController {
 			'tutor'          => $tutor ? (string) $tutor->display_name : '',
 			'tutor_timezone' => $tz,
 			'student_id'     => (int) $row->student_id,
-			'student'        => $student ? $student->display_name : __( 'Student', 'tutorslot' ),
+			'student'        => $student ? $student->display_name : __( 'Student', 'plumberslot' ),
 			'subject_id'     => $row->subject_id ? (int) $row->subject_id : null,
 			'subject'        => $subject ? (string) $subject->name : '—',
 			'start_utc'      => (string) $row->start_utc,
@@ -703,8 +703,8 @@ final class BookingsController extends AbstractController {
 
 		if ( ! $released ) {
 			return new WP_Error(
-				'tutorslot_hold_not_found',
-				__( 'That hold is no longer available.', 'tutorslot' ),
+				'plumberslot_hold_not_found',
+				__( 'That hold is no longer available.', 'plumberslot' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -714,8 +714,8 @@ final class BookingsController extends AbstractController {
 
 	private function slot_taken(): WP_Error {
 		return new WP_Error(
-			'tutorslot_slot_taken',
-			__( 'Someone is booking that time right now. Pick another slot.', 'tutorslot' ),
+			'plumberslot_slot_taken',
+			__( 'Someone is booking that time right now. Pick another slot.', 'plumberslot' ),
 			array( 'status' => 409 )
 		);
 	}
@@ -763,8 +763,8 @@ final class BookingsController extends AbstractController {
 
 			if ( ! $credit ) {
 				return new WP_Error(
-					'tutorslot_no_credits',
-					__( 'There are no lessons left on this package.', 'tutorslot' ),
+					'plumberslot_no_credits',
+					__( 'There are no lessons left on this package.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -817,7 +817,7 @@ final class BookingsController extends AbstractController {
 		$window   = Settings::int( 'reschedule_window_minutes', 720 );
 		$start    = Time::from_iso( (string) $request['start'] );
 		$deadline = $start->getTimestamp() - ( $window * MINUTE_IN_SECONDS );
-		$provider = (string) get_user_meta( (int) $tutor->user_id, 'tutorslot_meeting_provider', true );
+		$provider = (string) get_user_meta( (int) $tutor->user_id, 'plumberslot_meeting_provider', true );
 
 		return $this->ok(
 			array(

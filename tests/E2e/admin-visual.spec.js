@@ -7,29 +7,29 @@ const distCss = path.join( __dirname, '../../assets/dist/admin.css' );
 const baselineDir = path.join( __dirname, 'baselines' );
 
 const SCREENS = [
-	{ slug: 'tutorslot', title: 'Dashboard' },
-	{ slug: 'tutorslot-availability', title: 'Availability' },
-	{ slug: 'tutorslot-bookings', title: 'Bookings' },
-	{ slug: 'tutorslot-tutors', title: 'Tutors' },
-	{ slug: 'tutorslot-setup', title: 'Set up TutorSlot' },
-	{ slug: 'tutorslot-settings', title: 'Settings' },
+	{ slug: 'plumberslot', title: 'Dashboard' },
+	{ slug: 'plumberslot-availability', title: 'Availability' },
+	{ slug: 'plumberslot-bookings', title: 'Bookings' },
+	{ slug: 'plumberslot-tutors', title: 'Tutors' },
+	{ slug: 'plumberslot-setup', title: 'Set up PlumberSlot' },
+	{ slug: 'plumberslot-settings', title: 'Settings' },
 	{
-		slug: 'tutorslot-help',
+		slug: 'plumberslot-help',
 		title: 'Teaching time, without scheduling chaos.',
 	},
-	{ slug: 'tutorslot-bookings-empty', title: 'Bookings' },
+	{ slug: 'plumberslot-bookings-empty', title: 'Bookings' },
 ];
 
 test( 'admin bundle exposes all eight reference screens', async () => {
 	const source = fs.readFileSync( distJs, 'utf8' );
 	for ( const marker of [
-		'tutorslot-availability',
-		'tutorslot-subjects',
-		'tutorslot-bookings',
-		'tutorslot-tutors',
-		'tutorslot-settings',
-		'tutorslot-setup',
-		'tutorslot-help',
+		'plumberslot-availability',
+		'plumberslot-subjects',
+		'plumberslot-bookings',
+		'plumberslot-tutors',
+		'plumberslot-settings',
+		'plumberslot-setup',
+		'plumberslot-help',
 		'data-screen',
 		'Dashboard',
 		'Availability',
@@ -53,7 +53,7 @@ test( 'visual-regression HTML baselines for eight screens', async () => {
 		const html = [
 			'<!doctype html>',
 			`<html data-viewport="390,tablet,desktop" data-css-bytes="${ cssHash }">`,
-			'<body class="tutorslot-admin ts-admin">',
+			'<body class="plumberslot-admin ts-admin">',
 			`<section data-screen="${ screen.slug }">`,
 			`<h1>${ screen.title }</h1>`,
 			'<p class="ts-admin__sub">Visual baseline shell</p>',
@@ -85,7 +85,7 @@ test( 'mobile availability keeps timetable overflow inside its card', async ( {
 	await page.setViewportSize( { width: 390, height: 844 } );
 	await page.setContent( `
 		<style>${ css }</style>
-		<main class="tutorslot-admin ts-admin">
+		<main class="plumberslot-admin ts-admin">
 			<div class="ts-admin-two ts-avail">
 				<section class="ts-admin-card ts-admin-card--flush">
 					<div class="ts-admin-card__body">
@@ -120,7 +120,7 @@ test( 'mobile admin controls keep accessible touch targets', async ( {
 	await page.setViewportSize( { width: 390, height: 844 } );
 	await page.setContent( `
 		<style>${ css }</style>
-		<main class="tutorslot-admin ts-admin">
+		<main class="plumberslot-admin ts-admin">
 			<button class="ts-btn ts-btn--ghost ts-btn--sm">Open</button>
 			<div class="ts-admin-tabs"><button>Upcoming</button></div>
 			<div class="ts-toggle">

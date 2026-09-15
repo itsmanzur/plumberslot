@@ -6,14 +6,14 @@
  * per-tutor grant is needed. Meetings use waiting room + auto-passcode so a
  * lesson with a child cannot be a bare open room.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Meetings;
+namespace PlumberSlot\Meetings;
 
-use TutorSlot\Support\Settings;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -28,7 +28,7 @@ final class ZoomProvider implements ProviderInterface {
 	}
 
 	public function label(): string {
-		return __( 'Zoom', 'tutorslot' );
+		return __( 'Zoom', 'plumberslot' );
 	}
 
 	public function is_connected( int $tutor_id ): bool {
@@ -80,18 +80,18 @@ final class ZoomProvider implements ProviderInterface {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'tutorslot_zoom_http', __( 'Could not contact Zoom.', 'tutorslot' ), array( 'status' => 502 ) );
+			return new WP_Error( 'plumberslot_zoom_http', __( 'Could not contact Zoom.', 'plumberslot' ), array( 'status' => 502 ) );
 		}
 
 		$code    = wp_remote_retrieve_response_code( $response );
 		$payload = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $code < 200 || $code >= 300 ) {
-			return new WP_Error( 'tutorslot_zoom_api', __( 'Zoom could not create the meeting.', 'tutorslot' ), array( 'status' => $code ) );
+			return new WP_Error( 'plumberslot_zoom_api', __( 'Zoom could not create the meeting.', 'plumberslot' ), array( 'status' => $code ) );
 		}
 
 		if ( empty( $payload['id'] ) ) {
-			return new WP_Error( 'tutorslot_zoom_response', 'Zoom did not return a meeting id.' );
+			return new WP_Error( 'plumberslot_zoom_response', 'Zoom did not return a meeting id.' );
 		}
 
 		return (string) $payload['id'];
@@ -117,7 +117,7 @@ final class ZoomProvider implements ProviderInterface {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'tutorslot_zoom_http', __( 'Could not contact Zoom.', 'tutorslot' ), array( 'status' => 502 ) );
+			return new WP_Error( 'plumberslot_zoom_http', __( 'Could not contact Zoom.', 'plumberslot' ), array( 'status' => 502 ) );
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
@@ -163,7 +163,7 @@ final class ZoomProvider implements ProviderInterface {
 	 * @return string|WP_Error
 	 */
 	private function access_token(): string|WP_Error {
-		$transient = 'tutorslot_zoom_access_token';
+		$transient = 'plumberslot_zoom_access_token';
 		$cached    = get_transient( $transient );
 
 		if ( is_string( $cached ) && '' !== $cached ) {
@@ -175,7 +175,7 @@ final class ZoomProvider implements ProviderInterface {
 		$client_secret = Settings::string( 'zoom_client_secret' );
 
 		if ( '' === $account_id || '' === $client_id || '' === $client_secret ) {
-			return new WP_Error( 'tutorslot_zoom_not_configured', __( 'Zoom credentials are not configured.', 'tutorslot' ) );
+			return new WP_Error( 'plumberslot_zoom_not_configured', __( 'Zoom credentials are not configured.', 'plumberslot' ) );
 		}
 
 		$response = wp_remote_post(
@@ -197,13 +197,13 @@ final class ZoomProvider implements ProviderInterface {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'tutorslot_zoom_http', __( 'Could not contact Zoom.', 'tutorslot' ), array( 'status' => 502 ) );
+			return new WP_Error( 'plumberslot_zoom_http', __( 'Could not contact Zoom.', 'plumberslot' ), array( 'status' => 502 ) );
 		}
 
 		$payload = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( empty( $payload['access_token'] ) ) {
-			return new WP_Error( 'tutorslot_zoom_token', __( 'Could not obtain a Zoom access token.', 'tutorslot' ) );
+			return new WP_Error( 'plumberslot_zoom_token', __( 'Could not obtain a Zoom access token.', 'plumberslot' ) );
 		}
 
 		$ttl = max( 60, (int) ( $payload['expires_in'] ?? 3600 ) - 120 );

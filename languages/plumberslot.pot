@@ -1,9 +1,9 @@
-# Copyright (C) 2026 TutorSlot
+# Copyright (C) 2026 PlumberSlot
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: TutorSlot 0.1.0\n"
-"Report-Msgid-Bugs-To: https://tutorslot.com\n"
+"Project-Id-Version: PlumberSlot 0.1.0\n"
+"Report-Msgid-Bugs-To: https://plumberslot.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,34 +12,34 @@ msgstr ""
 "POT-Creation-Date: 2026-08-31T09:58:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: tutorslot\n"
+"X-Domain: plumberslot\n"
 
 #. Plugin Name of the plugin
 #. Author of the plugin
-#: tutorslot.php
+#: plumberslot.php
 #: src/Admin/AdminMenu.php:31
 #: src/Admin/AdminMenu.php:32
 #: src/Admin/AdminMenu.php:195
 #: src/Privacy/PrivacyHooks.php:152
-msgid "TutorSlot"
+msgid "PlumberSlot"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: tutorslot.php
-msgid "https://tutorslot.com"
+#: plumberslot.php
+msgid "https://plumberslot.com"
 msgstr ""
 
 #. Description of the plugin
-#: tutorslot.php
+#: plumberslot.php
 msgid "Scheduling for tutors with weekly availability, recurring lessons, parent accounts, lesson packages, optional payments and online meetings."
 msgstr ""
 
 #: src/Activator.php:23
-msgid "TutorSlot needs WordPress 6.4 or newer."
+msgid "PlumberSlot needs WordPress 6.4 or newer."
 msgstr ""
 
 #: src/Activator.php:24
-msgid "Cannot activate TutorSlot"
+msgid "Cannot activate PlumberSlot"
 msgstr ""
 
 #: src/Admin/AdminMenu.php:41
@@ -73,12 +73,12 @@ msgid "The interface assets have not been built yet."
 msgstr ""
 
 #: src/Admin/AdminMenu.php:197
-msgid "Run npm install and npm run build in the TutorSlot plugin directory, then reload this page."
+msgid "Run npm install and npm run build in the PlumberSlot plugin directory, then reload this page."
 msgstr ""
 
 #: src/Admin/OnboardingWizard.php:33
 #: src/Admin/OnboardingWizard.php:34
-msgid "Set up TutorSlot"
+msgid "Set up PlumberSlot"
 msgstr ""
 
 #: src/Domain/BookingService.php:64
@@ -464,7 +464,7 @@ msgid "Refund failed."
 msgstr ""
 
 #: src/Plugin.php:124
-msgid "TutorSlot:"
+msgid "PlumberSlot:"
 msgstr ""
 
 #: src/Plugin.php:125
@@ -473,27 +473,27 @@ msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:38
 #: src/Privacy/PrivacyHooks.php:51
-msgid "TutorSlot lessons"
+msgid "PlumberSlot lessons"
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:130
-msgid "TutorSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records."
+msgid "PlumberSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:157
-msgid "TutorSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons."
+msgid "PlumberSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:158
-msgid "Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed TutorSlot join link rather than the provider’s private meeting URL."
+msgid "Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:159
-msgid "When an optional online payment is selected, TutorSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by TutorSlot."
+msgid "When an optional online payment is selected, PlumberSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by PlumberSlot."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:160
-msgid "When a meeting provider is connected, TutorSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved."
+msgid "When a meeting provider is connected, PlumberSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:161
@@ -501,7 +501,7 @@ msgid "Email uses the site’s WordPress mail configuration. If the site connect
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:162
-msgid "When a verified erasure request is processed, TutorSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution."
+msgid "When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:228
@@ -689,7 +689,7 @@ msgid "Not found."
 msgstr ""
 
 #: src/Rest/MeetingsController.php:108
-msgid "Google client id is not set in TutorSlot settings."
+msgid "Google client id is not set in PlumberSlot settings."
 msgstr ""
 
 #: src/Rest/PublicTutorController.php:75
@@ -744,18 +744,18 @@ msgid "Could not create the tutor account."
 msgstr ""
 
 #: src/Rest/TutorsController.php:203
-msgid "That person is already a TutorSlot tutor."
+msgid "That person is already a PlumberSlot tutor."
 msgstr ""
 
 #: src/Rest/TutorsController.php:348
-msgid "You are invited to teach on TutorSlot"
+msgid "You are invited to teach on PlumberSlot"
 msgstr ""
 
 #. translators: %s: set-password URL
 #: src/Rest/TutorsController.php:351
 #, php-format
 msgid ""
-"You have been invited to teach with TutorSlot.\n"
+"You have been invited to teach with PlumberSlot.\n"
 "\n"
 "Set your password and finish setup:\n"
 "%s\n"
@@ -780,9 +780,9 @@ msgid "Each availability block needs a weekday 0–6 and minutes within 0–1440
 msgstr ""
 
 #. translators: %s: required PHP version.
-#: tutorslot.php:45
+#: plumberslot.php:45
 #, php-format
-msgid "TutorSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again."
+msgid "PlumberSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again."
 msgstr ""
 
 #: assets/src/block/index.js:82
@@ -810,7 +810,7 @@ msgid "Used if the tutor list is unavailable."
 msgstr ""
 
 #: assets/src/block/index.js:148
-msgid "TutorSlot booking"
+msgid "PlumberSlot booking"
 msgstr ""
 
 #: assets/src/block/index.js:151

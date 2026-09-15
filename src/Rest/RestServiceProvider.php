@@ -2,31 +2,31 @@
 /**
  * Registers every REST controller on rest_api_init.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Container;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\RelationRepository;
-use TutorSlot\Database\Repository\ReviewRepository;
-use TutorSlot\Database\Repository\SeriesRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Domain\BookingService;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\RecurrenceService;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Database\Repository\PaymentRepository;
-use TutorSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Container;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\RelationRepository;
+use PlumberSlot\Database\Repository\ReviewRepository;
+use PlumberSlot\Database\Repository\SeriesRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Domain\BookingService;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\RecurrenceService;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Database\Repository\PaymentRepository;
+use PlumberSlot\Meetings\ProviderRegistry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -133,7 +133,7 @@ final class RestServiceProvider {
 		 * @param list<AbstractController> $controllers Controllers to register.
 		 * @param Container                $container   Service container.
 		 */
-		$controllers = apply_filters( 'tutorslot_rest_controllers', $controllers, $this->container );
+		$controllers = apply_filters( 'plumberslot_rest_controllers', $controllers, $this->container );
 
 		foreach ( $controllers as $controller ) {
 			$controller->register_routes();

@@ -2,21 +2,21 @@
 /**
  * Orchestrates start / confirm / fail / refund with server-side amount checks.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\PaymentRepository;
-use TutorSlot\Database\TransactionManager;
-use TutorSlot\Payments\BkashGateway;
-use TutorSlot\Payments\GatewayRegistry;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\PaymentRepository;
+use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Payments\BkashGateway;
+use PlumberSlot\Payments\GatewayRegistry;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -59,13 +59,13 @@ final class PaymentService {
 	public function start( int $booking_id, string $gateway_id, string $success_url, string $cancel_url ): array|WP_Error {
 		$booking = $this->bookings->find( $booking_id );
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', __( 'Booking not found.', 'tutorslot' ), array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', __( 'Booking not found.', 'plumberslot' ), array( 'status' => 404 ) );
 		}
 
 		if ( in_array( (string) $booking->status, array( 'confirmed', 'completed', 'cancelled', 'refunded', 'payment_expired' ), true ) ) {
 			return new WP_Error(
-				'tutorslot_not_payable',
-				__( 'This booking cannot be paid right now.', 'tutorslot' ),
+				'plumberslot_not_payable',
+				__( 'This booking cannot be paid right now.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -75,8 +75,8 @@ final class PaymentService {
 
 		if ( $amount <= 0 ) {
 			return new WP_Error(
-				'tutorslot_zero_amount',
-				__( 'This lesson does not need a payment.', 'tutorslot' ),
+				'plumberslot_zero_amount',
+				__( 'This lesson does not need a payment.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -84,8 +84,8 @@ final class PaymentService {
 		$gateway = $this->gateways->get( $gateway_id );
 		if ( ! $gateway || ! $gateway->is_configured() ) {
 			return new WP_Error(
-				'tutorslot_gateway_unavailable',
-				__( 'That payment method is not available.', 'tutorslot' ),
+				'plumberslot_gateway_unavailable',
+				__( 'That payment method is not available.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -123,7 +123,7 @@ final class PaymentService {
 			)
 		);
 
-		do_action( 'tutorslot_payment_started', $payment_id, $booking_id );
+		do_action( 'plumberslot_payment_started', $payment_id, $booking_id );
 
 		return array(
 			'url'          => (string) $result['url'],
@@ -143,7 +143,7 @@ final class PaymentService {
 	public function apply_event( string $gateway_id, array $event ): array|WP_Error {
 		$key = (string) ( $event['idempotency_key'] ?? '' );
 		if ( '' === $key ) {
-			return new WP_Error( 'tutorslot_bad_webhook', '', array( 'status' => 400 ) );
+			return new WP_Error( 'plumberslot_bad_webhook', '', array( 'status' => 400 ) );
 		}
 
 		if ( $this->payments->webhook_seen( $gateway_id, $key ) ) {
@@ -161,7 +161,7 @@ final class PaymentService {
 		$booking    = $booking_id > 0 ? $this->bookings->find( $booking_id ) : null;
 
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		// Server-side amount/currency check — client cannot underpay.
@@ -177,12 +177,12 @@ final class PaymentService {
 					)
 				);
 
-				return new WP_Error( 'tutorslot_underpay', '', array( 'status' => 409 ) );
+				return new WP_Error( 'plumberslot_underpay', '', array( 'status' => 409 ) );
 			}
 		}
 
 		if ( ! empty( $event['currency'] ) && strtoupper( (string) $event['currency'] ) !== strtoupper( (string) $booking->currency ) ) {
-			return new WP_Error( 'tutorslot_currency_mismatch', '', array( 'status' => 409 ) );
+			return new WP_Error( 'plumberslot_currency_mismatch', '', array( 'status' => 409 ) );
 		}
 
 		if ( 'payment_expired' === (string) $booking->status ) {
@@ -247,7 +247,7 @@ final class PaymentService {
 	public function refund_booking( int $booking_id ): array|WP_Error {
 		$booking = $this->bookings->find( $booking_id );
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		if ( 'refunded' === (string) $booking->status ) {
@@ -256,8 +256,8 @@ final class PaymentService {
 
 		if ( 'completed' !== (string) $booking->status ) {
 			return new WP_Error(
-				'tutorslot_invalid_transition',
-				__( 'Only a completed lesson can be refunded.', 'tutorslot' ),
+				'plumberslot_invalid_transition',
+				__( 'Only a completed lesson can be refunded.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -272,15 +272,15 @@ final class PaymentService {
 		}
 		if ( ! $payment || 'paid' !== (string) $payment->status || empty( $payment->reference ) ) {
 			return new WP_Error(
-				'tutorslot_not_refundable',
-				__( 'No paid payment found to refund.', 'tutorslot' ),
+				'plumberslot_not_refundable',
+				__( 'No paid payment found to refund.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
 
 		$gateway = $this->gateways->get( (string) $payment->gateway );
 		if ( ! $gateway ) {
-			return new WP_Error( 'tutorslot_gateway_unavailable', '', array( 'status' => 422 ) );
+			return new WP_Error( 'plumberslot_gateway_unavailable', '', array( 'status' => 422 ) );
 		}
 
 		$idem = 'ts_refund_' . $booking_id . '_' . (int) $payment->id;
@@ -345,13 +345,13 @@ final class PaymentService {
 
 		Cache::forget_tutor( (int) $booking->tutor_id );
 		AuditLog::record( 'booking.refunded', 'booking', $booking_id, array( 'ref' => $payment_ref ) );
-		do_action( 'tutorslot_booking_refunded', $booking_id, $payment_ref );
+		do_action( 'plumberslot_booking_refunded', $booking_id, $payment_ref );
 	}
 
 	private function refund_persistence_failed(): WP_Error {
 		return new WP_Error(
-			'tutorslot_refund_persistence_failed',
-			__( 'The refund status could not be saved. Retry with the same request.', 'tutorslot' ),
+			'plumberslot_refund_persistence_failed',
+			__( 'The refund status could not be saved. Retry with the same request.', 'plumberslot' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -397,7 +397,7 @@ final class PaymentService {
 		Cache::forget_tutor( (int) $booking->tutor_id );
 		AuditLog::record( 'payment.expired', 'payment', $payment_id, array( 'booking' => $booking_id ), 0 );
 		AuditLog::record( 'booking.payment_expired', 'booking', $booking_id, array( 'payment' => $payment_id ), 0 );
-		do_action( 'tutorslot_booking_payment_expired', $booking_id, $booking );
+		do_action( 'plumberslot_booking_payment_expired', $booking_id, $booking );
 	}
 
 	/**
@@ -423,7 +423,7 @@ final class PaymentService {
 				: $reference;
 
 			if ( ! $gateway || '' === $refund_ref ) {
-				return new WP_Error( 'tutorslot_late_payment_refund_unavailable', '', array( 'status' => 502 ) );
+				return new WP_Error( 'plumberslot_late_payment_refund_unavailable', '', array( 'status' => 502 ) );
 			}
 
 			$refunded = $gateway->refund(
@@ -469,7 +469,7 @@ final class PaymentService {
 	public function bkash_complete( string $payment_id, int $booking_id ): array|WP_Error {
 		$gateway = $this->gateways->get( 'bkash' );
 		if ( ! $gateway instanceof BkashGateway ) {
-			return new WP_Error( 'tutorslot_gateway_unavailable', '', array( 'status' => 422 ) );
+			return new WP_Error( 'plumberslot_gateway_unavailable', '', array( 'status' => 422 ) );
 		}
 
 		$event = $gateway->complete_callback( $payment_id, $booking_id );

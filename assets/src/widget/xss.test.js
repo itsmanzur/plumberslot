@@ -3,20 +3,20 @@ import { DoneView } from './views/DoneView';
 import { ProfileView } from './views/ProfileView';
 
 const PAYLOAD =
-	'<img src=x onerror="window.__tutorslotXss=1"><script>window.__tutorslotXss=1</script>';
+	'<img src=x onerror="window.__plumberslotXss=1"><script>window.__plumberslotXss=1</script>';
 
 let root;
 
 beforeEach( () => {
 	root = document.createElement( 'div' );
 	document.body.appendChild( root );
-	window.__tutorslotXss = 0;
+	window.__plumberslotXss = 0;
 } );
 
 afterEach( () => {
 	render( null, root );
 	root.remove();
-	delete window.__tutorslotXss;
+	delete window.__plumberslotXss;
 } );
 
 test( 'renders stored tutor, subject, and review payloads as text', () => {
@@ -53,7 +53,7 @@ test( 'renders stored tutor, subject, and review payloads as text', () => {
 
 	expect( root.querySelector( 'script, img' ) ).toBeNull();
 	expect( root.textContent ).toContain( PAYLOAD );
-	expect( window.__tutorslotXss ).toBe( 0 );
+	expect( window.__plumberslotXss ).toBe( 0 );
 } );
 
 test( 'does not expose an executable meeting URL', () => {
@@ -70,7 +70,7 @@ test( 'does not expose an executable meeting URL', () => {
 				id: 1,
 				start_utc: '2030-01-01T10:00:00Z',
 				end_utc: '2030-01-01T11:00:00Z',
-				join_url: 'javascript:window.__tutorslotXss=1',
+				join_url: 'javascript:window.__plumberslotXss=1',
 				price_minor: 0,
 				currency: 'USD',
 				payment: 'free',
@@ -83,5 +83,5 @@ test( 'does not expose an executable meeting URL', () => {
 
 	expect( root.querySelector( 'a[href^="javascript:"]' ) ).toBeNull();
 	expect( root.textContent ).not.toContain( 'Join lesson' );
-	expect( window.__tutorslotXss ).toBe( 0 );
+	expect( window.__plumberslotXss ).toBe( 0 );
 } );

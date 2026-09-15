@@ -2,36 +2,36 @@
 /**
  * Booking and credit concurrency integration tests.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Database\TransactionManager;
-use TutorSlot\Domain\BookingService;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Meetings\ProviderInterface;
-use TutorSlot\Meetings\ProviderRegistry;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Domain\BookingService;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Meetings\ProviderInterface;
+use PlumberSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -51,7 +51,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		Schema::create_all();
 		Capabilities::add_all();
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 
 		$this->bookings    = new BookingRepository();
 		$this->locks       = new LockRepository();
@@ -72,12 +72,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			)
 		);
 
-		add_filter( 'tutorslot_email_enabled', '__return_false' );
+		add_filter( 'plumberslot_email_enabled', '__return_false' );
 	}
 
 	public function tear_down(): void {
-		remove_filter( 'tutorslot_email_enabled', '__return_false' );
-		$this->empty_tutorslot_tables();
+		remove_filter( 'plumberslot_email_enabled', '__return_false' );
+		$this->empty_plumberslot_tables();
 
 		parent::tear_down();
 	}
@@ -109,7 +109,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertIsInt( $winner );
 		self::assertInstanceOf( WP_Error::class, $loser );
-		self::assertSame( 'tutorslot_slot_taken', $loser->get_error_code() );
+		self::assertSame( 'plumberslot_slot_taken', $loser->get_error_code() );
 		self::assertSame( 409, $loser->get_error_data()['status'] );
 		self::assertSame( 1, $this->booking_count( $tutor_id, $start ) );
 	}
@@ -129,7 +129,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertIsInt( $winner );
 		self::assertInstanceOf( WP_Error::class, $overlap );
-		self::assertSame( 'tutorslot_slot_taken', $overlap->get_error_code() );
+		self::assertSame( 'plumberslot_slot_taken', $overlap->get_error_code() );
 		self::assertSame( 409, $overlap->get_error_data()['status'] );
 		self::assertIsInt( $adjacent );
 		self::assertSame( 2, $this->booking_total( $tutor_id ) );
@@ -171,7 +171,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		$moved_into_other = $this->service()->reschedule( $second, $start->modify( '+30 minutes' ) );
 		self::assertInstanceOf( WP_Error::class, $moved_into_other );
-		self::assertSame( 'tutorslot_slot_taken', $moved_into_other->get_error_code() );
+		self::assertSame( 'plumberslot_slot_taken', $moved_into_other->get_error_code() );
 
 		$moved_adjacent = $this->service()->reschedule( $second, $start->modify( '+120 minutes' ) );
 		self::assertTrue( $moved_adjacent );
@@ -202,7 +202,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$result = $this->service()->create( $this->booking_args( $tutor_id, $other_id, $start ) );
 
 		self::assertInstanceOf( WP_Error::class, $result );
-		self::assertSame( 'tutorslot_slot_taken', $result->get_error_code() );
+		self::assertSame( 'plumberslot_slot_taken', $result->get_error_code() );
 		self::assertSame( 409, $result->get_error_data()['status'] );
 		self::assertSame( 0, $this->booking_count( $tutor_id, $start ) );
 		self::assertTrue( $this->locks->verify( $token, $tutor_id, $holder_id, $start_sql ) );
@@ -244,7 +244,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$stolen                    = $this->service()->create( $stolen_args );
 
 		self::assertInstanceOf( WP_Error::class, $stolen );
-		self::assertSame( 'tutorslot_lock_expired', $stolen->get_error_code() );
+		self::assertSame( 'plumberslot_lock_expired', $stolen->get_error_code() );
 		self::assertSame( 409, $stolen->get_error_data()['status'] );
 		self::assertTrue( $this->locks->verify( $token, $tutor_id, $holder, $start_sql ) );
 
@@ -265,7 +265,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings/hold' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -279,7 +279,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 409, $response->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_slot_taken', $data['code'] );
+		self::assertSame( 'plumberslot_slot_taken', $data['code'] );
 		self::assertSame( 0, $this->lock_total( $tutor_id ) );
 	}
 
@@ -293,7 +293,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$this->open_window( $tutor_id, $start );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings/hold' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -350,7 +350,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 429, $blocked->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_too_many', $data['code'] );
+		self::assertSame( 'plumberslot_too_many', $data['code'] );
 		self::assertSame( 1, $this->lock_total( $tutor_id ) );
 
 		$separate_bucket = $this->post_hold( $other, $tutor_id, $start->modify( '+60 minutes' ) );
@@ -369,7 +369,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertNotNull( $token );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'DELETE', '/tutorslot/v1/bookings/hold' );
+		$request = new WP_REST_Request( 'DELETE', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params( array( 'token' => $token ) );
 		$response = rest_do_request( $request );
@@ -390,7 +390,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertNotNull( $token );
 		wp_set_current_user( $other_id );
 
-		$request = new WP_REST_Request( 'DELETE', '/tutorslot/v1/bookings/hold' );
+		$request = new WP_REST_Request( 'DELETE', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params( array( 'token' => $token ) );
 		$response = rest_do_request( $request );
@@ -476,7 +476,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$this->open_window( $tutor_id, $start );
 
 		wp_set_current_user( $student_id );
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -512,7 +512,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$this->open_window( $tutor_id, $start, 120, 0 );
 
 		wp_set_current_user( $student_id );
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -548,7 +548,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_not_found', $data['code'] );
+		self::assertSame( 'plumberslot_not_found', $data['code'] );
 		self::assertSame( 0, $this->booking_total( $tutor_id ) );
 	}
 
@@ -563,7 +563,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_not_found', $data['code'] );
+		self::assertSame( 'plumberslot_not_found', $data['code'] );
 		self::assertSame( 0, $this->booking_total( $tutor_id ) );
 	}
 
@@ -579,7 +579,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_not_found', $data['code'] );
+		self::assertSame( 'plumberslot_not_found', $data['code'] );
 		self::assertSame( 0, $this->booking_total( $tutor_id ) );
 	}
 
@@ -601,7 +601,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 404, $response->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_not_found', $data['code'] );
+		self::assertSame( 'plumberslot_not_found', $data['code'] );
 		self::assertSame( 0, $this->booking_total( $tutor_id ) );
 	}
 
@@ -635,7 +635,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		self::assertSame( 409, $second->get_status() );
 		self::assertIsArray( $data );
-		self::assertSame( 'tutorslot_trial_used', $data['code'] );
+		self::assertSame( 'plumberslot_trial_used', $data['code'] );
 		self::assertSame( 1, $this->booking_total( $tutor_id ) );
 	}
 
@@ -650,7 +650,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$_COOKIE[ LOGGED_IN_COOKIE ] = 'integration-test';
 
 		try {
-			$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings' );
+			$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 			$request->set_body_params(
 				array(
 					'tutor_id' => $tutor_id,
@@ -663,7 +663,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 			self::assertSame( 403, $response->get_status() );
 			self::assertIsArray( $data );
-			self::assertSame( 'tutorslot_bad_nonce', $data['code'] );
+			self::assertSame( 'plumberslot_bad_nonce', $data['code'] );
 			self::assertSame( 0, $this->booking_total( $tutor_id ) );
 		} finally {
 			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
@@ -682,25 +682,25 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertIsInt( $booking_id );
 
 		$requests = array(
-			$this->authenticated_request( $outsider, 'GET', '/tutorslot/v1/bookings/' . $booking_id ),
-			$this->authenticated_request( $outsider, 'DELETE', '/tutorslot/v1/bookings/' . $booking_id ),
+			$this->authenticated_request( $outsider, 'GET', '/plumberslot/v1/bookings/' . $booking_id ),
+			$this->authenticated_request( $outsider, 'DELETE', '/plumberslot/v1/bookings/' . $booking_id ),
 			$this->authenticated_request(
 				$outsider,
 				'POST',
-				'/tutorslot/v1/bookings/' . $booking_id . '/reschedule',
+				'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 				array( 'start' => $start->modify( '+2 hours' )->format( DATE_ATOM ) )
 			),
 			$this->authenticated_request(
 				$outsider,
 				'POST',
-				'/tutorslot/v1/payments/start',
+				'/plumberslot/v1/payments/start',
 				array(
 					'booking_id' => $booking_id,
 					'gateway'    => 'stripe',
 				)
 			),
-			$this->authenticated_request( $outsider, 'GET', '/tutorslot/v1/payments/booking/' . $booking_id ),
-			$this->authenticated_request( $outsider, 'POST', '/tutorslot/v1/payments/booking/' . $booking_id . '/cancel' ),
+			$this->authenticated_request( $outsider, 'GET', '/plumberslot/v1/payments/booking/' . $booking_id ),
+			$this->authenticated_request( $outsider, 'POST', '/plumberslot/v1/payments/booking/' . $booking_id . '/cancel' ),
 		);
 
 		foreach ( $requests as $response ) {
@@ -708,10 +708,10 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 			self::assertSame( 404, $response->get_status() );
 			self::assertIsArray( $data );
-			self::assertSame( 'tutorslot_not_found', $data['code'] );
+			self::assertSame( 'plumberslot_not_found', $data['code'] );
 		}
 
-		$missing = $this->authenticated_request( $outsider, 'GET', '/tutorslot/v1/bookings/999999999' );
+		$missing = $this->authenticated_request( $outsider, 'GET', '/plumberslot/v1/bookings/999999999' );
 		self::assertSame( $requests[0]->get_status(), $missing->get_status() );
 		self::assertSame( $requests[0]->get_data()['code'], $missing->get_data()['code'] );
 
@@ -739,16 +739,16 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			$this->authenticated_request(
 				$other_user,
 				'POST',
-				'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+				'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 				array( 'status' => 'completed' )
 			),
 			$this->authenticated_request(
 				$other_user,
 				'POST',
-				'/tutorslot/v1/bookings/' . $booking_id . '/notes',
+				'/plumberslot/v1/bookings/' . $booking_id . '/notes',
 				array( 'notes' => 'Injected by another tutor' )
 			),
-			$this->authenticated_request( $other_user, 'POST', '/tutorslot/v1/payments/booking/' . $booking_id . '/refund' ),
+			$this->authenticated_request( $other_user, 'POST', '/plumberslot/v1/payments/booking/' . $booking_id . '/refund' ),
 		);
 
 		foreach ( $requests as $response ) {
@@ -756,7 +756,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 			self::assertSame( 404, $response->get_status() );
 			self::assertIsArray( $data );
-			self::assertSame( 'tutorslot_not_found', $data['code'] );
+			self::assertSame( 'plumberslot_not_found', $data['code'] );
 		}
 
 		$booking = $this->bookings->find( $booking_id );
@@ -780,12 +780,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$disabled = $this->authenticated_request(
 			$student_id,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/reschedule',
+			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
 		);
 
 		self::assertSame( 403, $disabled->get_status() );
-		self::assertSame( 'tutorslot_reschedule_disabled', $disabled->get_data()['code'] );
+		self::assertSame( 'plumberslot_reschedule_disabled', $disabled->get_data()['code'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
 
@@ -793,7 +793,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$enabled = $this->authenticated_request(
 			$student_id,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/reschedule',
+			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
 		);
 
@@ -817,7 +817,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/reschedule',
+			'/plumberslot/v1/bookings/' . $booking_id . '/reschedule',
 			array( 'start' => $new_start->format( DATE_ATOM ) )
 		);
 
@@ -838,7 +838,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$student_id,
 			'DELETE',
-			'/tutorslot/v1/bookings/' . $booking_id
+			'/plumberslot/v1/bookings/' . $booking_id
 		);
 
 		self::assertSame( 200, $response->get_status() );
@@ -858,7 +858,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
@@ -869,7 +869,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$replay = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
@@ -890,12 +890,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
 		self::assertSame( 409, $response->get_status() );
-		self::assertSame( 'tutorslot_lesson_not_ended', $response->get_data()['code'] );
+		self::assertSame( 'plumberslot_lesson_not_ended', $response->get_data()['code'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->audit_action_count( 'booking.completed', $booking_id ) );
 	}
@@ -917,12 +917,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
 		self::assertSame( 409, $response->get_status() );
-		self::assertSame( 'tutorslot_invalid_transition', $response->get_data()['code'] );
+		self::assertSame( 'plumberslot_invalid_transition', $response->get_data()['code'] );
 		self::assertSame( 'cancelled', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->audit_action_count( 'booking.completed', $booking_id ) );
 	}
@@ -939,7 +939,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$manager_id,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'completed' )
 		);
 
@@ -960,7 +960,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
@@ -971,7 +971,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$replay = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
@@ -992,12 +992,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
 		self::assertSame( 409, $response->get_status() );
-		self::assertSame( 'tutorslot_lesson_not_ended', $response->get_data()['code'] );
+		self::assertSame( 'plumberslot_lesson_not_ended', $response->get_data()['code'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->audit_action_count( 'booking.no_show', $booking_id ) );
 	}
@@ -1019,12 +1019,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$tutor_user,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
 		self::assertSame( 409, $response->get_status() );
-		self::assertSame( 'tutorslot_invalid_transition', $response->get_data()['code'] );
+		self::assertSame( 'plumberslot_invalid_transition', $response->get_data()['code'] );
 		self::assertSame( 'completed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->audit_action_count( 'booking.no_show', $booking_id ) );
 	}
@@ -1041,7 +1041,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$response = $this->authenticated_request(
 			$manager_id,
 			'POST',
-			'/tutorslot/v1/bookings/' . $booking_id . '/attendance',
+			'/plumberslot/v1/bookings/' . $booking_id . '/attendance',
 			array( 'status' => 'no_show' )
 		);
 
@@ -1071,7 +1071,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 					self::assertTrue( $attendance, $status . ' replay must be idempotent' );
 				} else {
 					self::assertInstanceOf( WP_Error::class, $attendance, $status . ' must reject ' . $outcome );
-					self::assertSame( 'tutorslot_invalid_transition', $attendance->get_error_code() );
+					self::assertSame( 'plumberslot_invalid_transition', $attendance->get_error_code() );
 				}
 			}
 
@@ -1080,12 +1080,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 				self::assertTrue( $cancelled, 'cancelled replay must be idempotent' );
 			} else {
 				self::assertInstanceOf( WP_Error::class, $cancelled, $status . ' must reject cancellation' );
-				self::assertSame( 'tutorslot_invalid_transition', $cancelled->get_error_code() );
+				self::assertSame( 'plumberslot_invalid_transition', $cancelled->get_error_code() );
 			}
 
 			$moved = $service->reschedule( $booking_id, $start->modify( '+30 days' ) );
 			self::assertInstanceOf( WP_Error::class, $moved, $status . ' must reject rescheduling' );
-			self::assertSame( 'tutorslot_invalid_transition', $moved->get_error_code() );
+			self::assertSame( 'plumberslot_invalid_transition', $moved->get_error_code() );
 			self::assertSame( $status, $this->bookings->find( $booking_id )->status );
 		}
 	}
@@ -1175,7 +1175,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		self::assertSame( 1, $this->booking_total( $tutor_id ) );
 
 		$this->expectException( \InvalidArgumentException::class );
-		Schema::table( 'tutorslot_bookings; DROP TABLE wp_users' );
+		Schema::table( 'plumberslot_bookings; DROP TABLE wp_users' );
 	}
 
 	public function test_booking_csv_export_records_the_privileged_read(): void {
@@ -1183,7 +1183,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$this->create_tutor_for_user( $tutor_user );
 		wp_set_current_user( $tutor_user );
 
-		$request = new WP_REST_Request( 'GET', '/tutorslot/v1/bookings/export' );
+		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/bookings/export' );
 		$request->set_param( 'scope', 'teaching' );
 		$response = rest_do_request( $request );
 
@@ -1275,7 +1275,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$result                 = $this->service()->create( $args );
 
 		self::assertInstanceOf( WP_Error::class, $result );
-		self::assertSame( 'tutorslot_no_credits', $result->get_error_code() );
+		self::assertSame( 'plumberslot_no_credits', $result->get_error_code() );
 		self::assertSame( 409, $result->get_error_data()['status'] );
 		self::assertSame( 0, $this->booking_count( $tutor_id, $start ) );
 		self::assertSame( 1, $this->credit_used( $credit_id ) );
@@ -1342,7 +1342,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$table           = Schema::table( Schema::BOOKINGS );
 		$fail_moved      = static function ( string $query ) use ( $table ): string {
 			if ( str_contains( $query, "UPDATE {$table} SET status = 'moved'" ) ) {
-				return 'UPDATE `tutorslot_missing_table` SET `status` = \'moved\'';
+				return 'UPDATE `plumberslot_missing_table` SET `status` = \'moved\'';
 			}
 
 			return $query;
@@ -1357,7 +1357,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		}
 
 		self::assertInstanceOf( WP_Error::class, $result );
-		self::assertSame( 'tutorslot_database_error', $result->get_error_code() );
+		self::assertSame( 'plumberslot_database_error', $result->get_error_code() );
 		self::assertSame( 500, $result->get_error_data()['status'] );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
@@ -1378,12 +1378,12 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 		$moved = $this->service()->reschedule( $booking_id, $new_start );
 		self::assertInstanceOf( WP_Error::class, $moved );
-		self::assertSame( 'tutorslot_invalid_transition', $moved->get_error_code() );
+		self::assertSame( 'plumberslot_invalid_transition', $moved->get_error_code() );
 		self::assertSame( 0, $this->booking_count( $tutor_id, $new_start ) );
 
 		$cancelled = $this->service()->cancel( $booking_id );
 		self::assertInstanceOf( WP_Error::class, $cancelled );
-		self::assertSame( 'tutorslot_invalid_transition', $cancelled->get_error_code() );
+		self::assertSame( 'plumberslot_invalid_transition', $cancelled->get_error_code() );
 		self::assertSame( 'completed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 0, $this->audit_action_count( 'booking.cancelled', $booking_id ) );
 	}
@@ -1433,7 +1433,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		$credits_table   = Schema::table( Schema::CREDITS );
 		$fail_refund     = static function ( string $query ) use ( $credits_table ): string {
 			if ( str_contains( $query, "UPDATE {$credits_table} SET used = used - 1" ) ) {
-				return 'UPDATE `tutorslot_missing_table` SET `used` = 0';
+				return 'UPDATE `plumberslot_missing_table` SET `used` = 0';
 			}
 
 			return $query;
@@ -1448,7 +1448,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		}
 
 		self::assertInstanceOf( WP_Error::class, $result );
-		self::assertSame( 'tutorslot_database_error', $result->get_error_code() );
+		self::assertSame( 'plumberslot_database_error', $result->get_error_code() );
 		self::assertSame( 'confirmed', $this->bookings->find( $booking_id )->status );
 		self::assertSame( 1, $this->credit_used( $credit_id ) );
 		self::assertSame( 0, $this->audit_action_count( 'booking.cancelled', $booking_id ) );
@@ -1490,7 +1490,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertSame( 1, $this->audit_action_count( 'booking.cancelled', $booking_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'meeting.cancelled', $booking_id ) );
 		} finally {
-			remove_filter( 'tutorslot_meeting_providers', $filter );
+			remove_filter( 'plumberslot_meeting_providers', $filter );
 		}
 	}
 
@@ -1527,7 +1527,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertSame( 1, $this->audit_action_count( 'booking.rescheduled', $old_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'meeting.cancelled', $old_id ) );
 		} finally {
-			remove_filter( 'tutorslot_meeting_providers', $filter );
+			remove_filter( 'plumberslot_meeting_providers', $filter );
 		}
 	}
 
@@ -1552,7 +1552,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertTrue( $this->reminder_is_scheduled( $booking_id, '24h' ) );
 			self::assertTrue( $this->reminder_is_scheduled( $booking_id, '1h' ) );
 
-			$payments = \TutorSlot\Plugin::instance()->container()->get( PaymentService::class );
+			$payments = \PlumberSlot\Plugin::instance()->container()->get( PaymentService::class );
 			$result   = $payments->refund_booking( $booking_id );
 
 			self::assertIsArray( $result );
@@ -1570,7 +1570,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 			self::assertSame( 1, $this->audit_action_count( 'booking.refunded', $booking_id ) );
 			self::assertSame( 1, $this->audit_action_count( 'meeting.cancelled', $booking_id ) );
 		} finally {
-			remove_filter( 'tutorslot_meeting_providers', $filter );
+			remove_filter( 'plumberslot_meeting_providers', $filter );
 		}
 	}
 
@@ -1766,9 +1766,9 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	private function reminder_is_scheduled( int $booking_id, string $window ): bool {
 		return function_exists( 'as_has_scheduled_action' )
 			&& false !== as_has_scheduled_action(
-				'tutorslot_send_reminder',
+				'plumberslot_send_reminder',
 				array( $booking_id, $window ),
-				'tutorslot'
+				'plumberslot'
 			);
 	}
 
@@ -1780,7 +1780,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	): WP_REST_Response {
 		wp_set_current_user( $student_id );
 
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -1796,7 +1796,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	private function post_hold( int $user_id, int $tutor_id, DateTimeImmutable $start ): WP_REST_Response {
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/bookings/hold' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/bookings/hold' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$request->set_body_params(
 			array(
@@ -1829,7 +1829,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 	private function list_bookings( int $user_id, string $scope, array $params = array() ): WP_REST_Response {
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/tutorslot/v1/bookings' );
+		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/bookings' );
 		$request->set_param( 'scope', $scope );
 
 		foreach ( $params as $key => $value ) {
@@ -1916,7 +1916,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 
 			return $providers;
 		};
-		add_filter( 'tutorslot_meeting_providers', $filter );
+		add_filter( 'plumberslot_meeting_providers', $filter );
 
 		return $filter;
 	}
@@ -1992,7 +1992,7 @@ final class DoubleBookingTest extends WP_UnitTestCase {
 		);
 	}
 
-	private function empty_tutorslot_tables(): void {
+	private function empty_plumberslot_tables(): void {
 		global $wpdb;
 
 		foreach ( array_reverse( Schema::all_keys() ) as $key ) {

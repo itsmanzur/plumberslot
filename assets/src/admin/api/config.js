@@ -3,10 +3,10 @@
  */
 
 const boot =
-	typeof window !== 'undefined' && window.tutorslotAdmin
-		? window.tutorslotAdmin
+	typeof window !== 'undefined' && window.plumberslotAdmin
+		? window.plumberslotAdmin
 		: {
-				root: '/wp-json/tutorslot/v1',
+				root: '/wp-json/plumberslot/v1',
 				nonce: '',
 				tutorId: 0,
 				timezone: 'UTC',

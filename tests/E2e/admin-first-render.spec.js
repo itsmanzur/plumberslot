@@ -10,7 +10,7 @@ const SAMPLE_COUNT = 5;
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -25,7 +25,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -65,23 +65,23 @@ function percentile( values, percentileValue ) {
 
 async function installFirstRenderObserver( page ) {
 	await page.addInitScript( () => {
-		window.__tutorslotAdminFirstRender = 0;
+		window.__plumberslotAdminFirstRender = 0;
 
 		const markReady = () => {
 			if (
-				window.__tutorslotAdminFirstRender > 0 ||
+				window.__plumberslotAdminFirstRender > 0 ||
 				! document.querySelector(
-					'#tutorslot-admin-root .ts-dashboard__today'
+					'#plumberslot-admin-root .ts-dashboard__today'
 				)
 			) {
 				return;
 			}
 
-			window.__tutorslotAdminFirstRender = performance.now();
+			window.__plumberslotAdminFirstRender = performance.now();
 		};
 		const observer = new window.MutationObserver( () => {
 			markReady();
-			if ( window.__tutorslotAdminFirstRender > 0 ) {
+			if ( window.__plumberslotAdminFirstRender > 0 ) {
 				observer.disconnect();
 			}
 		} );
@@ -97,10 +97,10 @@ async function readMetrics( page ) {
 	return page.evaluate( () => {
 		const navigation = performance.getEntriesByType( 'navigation' )[ 0 ];
 		const domContentLoaded = navigation?.domContentLoadedEventEnd || 0;
-		const firstRender = window.__tutorslotAdminFirstRender || 0;
+		const firstRender = window.__plumberslotAdminFirstRender || 0;
 		const mountStart =
 			performance
-				.getEntriesByName( 'tutorslot-admin-mount-start' )
+				.getEntriesByName( 'plumberslot-admin-mount-start' )
 				.at( -1 )?.startTime || 0;
 		const responseStart = navigation?.responseStart || 0;
 
@@ -126,8 +126,8 @@ test( 'admin dashboard first meaningful render p75 stays under one second', asyn
 }, testInfo ) => {
 	testInfo.setTimeout( 120000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_PERF_READY,
-		'Set TUTORSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
+		'1' !== process.env.PLUMBERSLOT_E2E_PERF_READY,
+		'Set PLUMBERSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
 	);
 
 	const fixtureKey = testInfo.project.name.includes( 'mobile' )
@@ -139,9 +139,9 @@ test( 'admin dashboard first meaningful render p75 stays under one second', asyn
 		await installFirstRenderObserver( page );
 		await logIn( page, seed.tutorLogin, seed.password );
 
-		const root = page.locator( '#tutorslot-admin-root' );
+		const root = page.locator( '#plumberslot-admin-root' );
 		await page.goto(
-			'/wp-admin/admin.php?page=tutorslot&tutorslot_perf_warmup=1'
+			'/wp-admin/admin.php?page=plumberslot&plumberslot_perf_warmup=1'
 		);
 		await expect( root.locator( '.ts-dashboard__today' ) ).toBeVisible( {
 			timeout: 15000,
@@ -158,7 +158,7 @@ test( 'admin dashboard first meaningful render p75 stays under one second', asyn
 			await devtools.send( 'Network.clearBrowserCache' );
 
 			await page.goto(
-				`/wp-admin/admin.php?page=tutorslot&tutorslot_perf_sample=${ sample }-${ Date.now() }`,
+				`/wp-admin/admin.php?page=plumberslot&plumberslot_perf_sample=${ sample }-${ Date.now() }`,
 				{ waitUntil: 'domcontentloaded' }
 			);
 			await expect( root.locator( '.ts-dashboard__today' ) ).toBeVisible(
@@ -166,7 +166,7 @@ test( 'admin dashboard first meaningful render p75 stays under one second', asyn
 			);
 			expect(
 				await page.evaluate( () =>
-					Boolean( window.tutorslotAdmin?.initialDashboard )
+					Boolean( window.plumberslotAdmin?.initialDashboard )
 				)
 			).toBe( true );
 			samples.push( await readMetrics( page ) );

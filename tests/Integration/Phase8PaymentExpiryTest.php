@@ -2,19 +2,19 @@
 /**
  * Phase 8 pending-payment expiry scheduler tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\PaymentRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\PaymentRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 
 /**
  * @group integration
@@ -32,14 +32,14 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 
 		$this->bookings = new BookingRepository();
 		$this->payments = new PaymentRepository();
-		$this->service  = \TutorSlot\Plugin::instance()->container()->get( PaymentService::class );
+		$this->service  = \PlumberSlot\Plugin::instance()->container()->get( PaymentService::class );
 
 		Settings::update( array( 'hold_window_minutes' => 10 ) );
 	}
 
 	public function tear_down(): void {
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( 'tutorslot_expire_payment' );
+			as_unschedule_all_actions( 'plumberslot_expire_payment' );
 		}
 		Settings::update( array( 'stripe_secret_key' => '' ) );
 		$this->empty_tables();
@@ -52,12 +52,12 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 		$booking_id = $fixture['booking_id'];
 		$before     = time();
 
-		do_action( 'tutorslot_payment_started', $payment_id, $booking_id );
+		do_action( 'plumberslot_payment_started', $payment_id, $booking_id );
 
 		$scheduled = as_next_scheduled_action(
-			'tutorslot_expire_payment',
+			'plumberslot_expire_payment',
 			array( $payment_id, $booking_id ),
-			'tutorslot'
+			'plumberslot'
 		);
 
 		$this->assertIsInt( $scheduled );
@@ -80,11 +80,11 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 			)
 		);
 
-		do_action( 'tutorslot_expire_payment', $first_id, (int) $booking->id );
+		do_action( 'plumberslot_expire_payment', $first_id, (int) $booking->id );
 		$this->assertSame( 'pending', $this->payments->latest_for_booking( (int) $booking->id )->status );
 		$this->assertSame( 'pending_payment', $this->bookings->find( (int) $booking->id )->status );
 
-		do_action( 'tutorslot_expire_payment', $second_id, (int) $booking->id );
+		do_action( 'plumberslot_expire_payment', $second_id, (int) $booking->id );
 		$this->assertSame( 'expired', $this->payments->latest_for_booking( (int) $booking->id )->status );
 		$this->assertSame( 'payment_expired', $this->bookings->find( (int) $booking->id )->status );
 
@@ -100,18 +100,18 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 	public function test_expiry_unschedules_reminders_and_audits_once(): void {
 		$fixture = $this->create_pending_payment( 3000 );
 
-		do_action( 'tutorslot_booking_created', $fixture['booking_id'], array() );
+		do_action( 'plumberslot_booking_created', $fixture['booking_id'], array() );
 		$this->assertTrue( $this->reminder_is_scheduled( $fixture['booking_id'], '24h' ) );
 		$this->assertTrue( $this->reminder_is_scheduled( $fixture['booking_id'], '1h' ) );
 
-		do_action( 'tutorslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
+		do_action( 'plumberslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
 
 		$this->assertFalse( $this->reminder_is_scheduled( $fixture['booking_id'], '24h' ) );
 		$this->assertFalse( $this->reminder_is_scheduled( $fixture['booking_id'], '1h' ) );
 		$this->assertSame( 1, $this->audit_count( 'payment.expired', 'payment', $fixture['payment_id'] ) );
 		$this->assertSame( 1, $this->audit_count( 'booking.payment_expired', 'booking', $fixture['booking_id'] ) );
 
-		do_action( 'tutorslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
+		do_action( 'plumberslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
 		$this->assertSame( 1, $this->audit_count( 'payment.expired', 'payment', $fixture['payment_id'] ) );
 		$this->assertSame( 1, $this->audit_count( 'booking.payment_expired', 'booking', $fixture['booking_id'] ) );
 	}
@@ -120,7 +120,7 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 		$fixture = $this->create_pending_payment( 4100 );
 		$this->payments->update_status( $fixture['payment_id'], 'paid' );
 
-		do_action( 'tutorslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
+		do_action( 'plumberslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
 
 		$this->assertSame( 'paid', $this->payments->latest_for_booking( $fixture['booking_id'] )->status );
 		$this->assertSame( 'pending_payment', $this->bookings->find( $fixture['booking_id'] )->status );
@@ -142,7 +142,7 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 		$previous = $wpdb->suppress_errors( true );
 		add_filter( 'query', $fail );
 		try {
-			do_action( 'tutorslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
+			do_action( 'plumberslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
 		} finally {
 			remove_filter( 'query', $fail );
 			$wpdb->suppress_errors( $previous );
@@ -154,7 +154,7 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 
 	public function test_late_success_is_refunded_without_reviving_expired_booking(): void {
 		$fixture = $this->create_pending_payment( 4700, 'stripe', 'pi_checkout' );
-		do_action( 'tutorslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
+		do_action( 'plumberslot_expire_payment', $fixture['payment_id'], $fixture['booking_id'] );
 		Settings::update( array( 'stripe_secret_key' => Crypto::encrypt( 'sk_test_expiry' ) ) );
 
 		$http = static function (): array {
@@ -255,9 +255,9 @@ final class Phase8PaymentExpiryTest extends \WP_UnitTestCase {
 
 	private function reminder_is_scheduled( int $booking_id, string $window ): bool {
 		return false !== as_has_scheduled_action(
-			'tutorslot_send_reminder',
+			'plumberslot_send_reminder',
 			array( $booking_id, $window ),
-			'tutorslot'
+			'plumberslot'
 		);
 	}
 

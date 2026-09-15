@@ -4,11 +4,11 @@ import path from 'node:path';
 
 const pluginRoot = path.resolve( __dirname, '..', '..' );
 const frontendReference = fs.readFileSync(
-	path.join( pluginRoot, 'reference-file', 'tutorslot-frontend.html' ),
+	path.join( pluginRoot, 'reference-file', 'plumberslot-frontend.html' ),
 	'utf8'
 );
 const adminReference = fs.readFileSync(
-	path.join( pluginRoot, 'reference-file', 'tutorslot-admin.html' ),
+	path.join( pluginRoot, 'reference-file', 'plumberslot-admin.html' ),
 	'utf8'
 );
 
@@ -63,7 +63,7 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 
 	await page.setContent( `
 		<style>${ readBuiltCss( 'widget' ) }</style>
-		<div class="tutorslot-widget tutorslot-root">
+		<div class="plumberslot-widget plumberslot-root">
 			<section class="ts-book ts-book--step">
 				<header class="ts-book__hd">Steps</header>
 				<div class="ts-book__body">
@@ -84,7 +84,7 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 	` );
 
 	const styles = await stylesOf( page, [
-		'.tutorslot-widget',
+		'.plumberslot-widget',
 		'.ts-book--step',
 		'.ts-book__hd',
 		'.ts-book__body',
@@ -99,7 +99,7 @@ test( 'public colour, spacing, radius and shadow match the reference', async ( {
 		'.ts-btn',
 	] );
 
-	expect( styles[ '.tutorslot-widget' ].color ).toBe( 'rgb(60, 71, 89)' );
+	expect( styles[ '.plumberslot-widget' ].color ).toBe( 'rgb(60, 71, 89)' );
 	expect( styles[ '.ts-book--step' ] ).toMatchObject( {
 		backgroundColor: 'rgb(255, 255, 255)',
 		borderRadius: '14px',
@@ -160,7 +160,7 @@ test( 'admin colour, spacing, radius and shadow match the reference', async ( {
 
 	await page.setContent( `
 		<style>${ readBuiltCss( 'admin' ) }</style>
-		<div class="tutorslot-admin ts-admin tutorslot-root">
+		<div class="plumberslot-admin ts-admin plumberslot-root">
 			<section class="ts-admin-card">
 				<div class="ts-admin-card__header"><h2>Availability</h2></div>
 				<label class="ts-admin-field"><span>Name</span><input value="Tutor"></label>
@@ -170,14 +170,14 @@ test( 'admin colour, spacing, radius and shadow match the reference', async ( {
 	` );
 
 	const styles = await stylesOf( page, [
-		'.tutorslot-admin',
+		'.plumberslot-admin',
 		'.ts-admin-card',
 		'.ts-admin-card__header',
 		'.ts-admin-field input',
 		'.ts-btn',
 	] );
 
-	expect( styles[ '.tutorslot-admin' ].color ).toBe( 'rgb(60, 71, 89)' );
+	expect( styles[ '.plumberslot-admin' ].color ).toBe( 'rgb(60, 71, 89)' );
 	expect( styles[ '.ts-admin-card' ] ).toMatchObject( {
 		backgroundColor: 'rgb(255, 255, 255)',
 		borderRadius: '16px',
@@ -208,7 +208,7 @@ test( 'parent dashboard cards match the public reference surface', async ( {
 } ) => {
 	await page.setContent( `
 		<style>${ readBuiltCss( 'dashboard' ) }</style>
-		<div class="tutorslot-dashboard ts-dash tutorslot-root">
+		<div class="plumberslot-dashboard ts-dash plumberslot-root">
 			<div class="ts-dash__tabs"><button class="ts-dash__tab">Learner</button></div>
 			<div class="ts-dash__grid">
 				<section class="ts-dash__panel">
@@ -220,7 +220,7 @@ test( 'parent dashboard cards match the public reference surface', async ( {
 	` );
 
 	const styles = await stylesOf( page, [
-		'.tutorslot-dashboard',
+		'.plumberslot-dashboard',
 		'.ts-dash__tabs',
 		'.ts-dash__tab',
 		'.ts-dash__grid',
@@ -228,7 +228,7 @@ test( 'parent dashboard cards match the public reference surface', async ( {
 		'.ts-dash__lesson',
 	] );
 
-	expect( styles[ '.tutorslot-dashboard' ].color ).toBe( 'rgb(60, 71, 89)' );
+	expect( styles[ '.plumberslot-dashboard' ].color ).toBe( 'rgb(60, 71, 89)' );
 	expect( styles[ '.ts-dash__tabs' ].columnGap ).toBe( '7px' );
 	expect( styles[ '.ts-dash__tab' ] ).toMatchObject( {
 		backgroundColor: 'rgb(255, 255, 255)',

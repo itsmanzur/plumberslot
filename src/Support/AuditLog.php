@@ -5,14 +5,14 @@
  * Two audiences: support, answering "who cancelled this lesson", and incident
  * response, answering "what did that account touch".
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
-use TutorSlot\Database\Schema;
+use PlumberSlot\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 

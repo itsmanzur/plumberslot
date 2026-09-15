@@ -11,7 +11,7 @@ test.describe.configure( { mode: 'serial' } );
 
 async function fixture( action, ...args ) {
 	const phpArgs = [ fixtureScript, action, ...args ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -59,10 +59,10 @@ async function loginAndOpenFixture( context, login, password, pagePath ) {
 
 	await page.goto( pagePath );
 	await expect(
-		page.locator( '.tutorslot-widget.tutorslot-root' )
+		page.locator( '.plumberslot-widget.plumberslot-root' )
 	).toBeVisible();
 
-	const nonce = await page.evaluate( () => window.tutorslotWidget?.nonce );
+	const nonce = await page.evaluate( () => window.plumberslotWidget?.nonce );
 	expect( nonce ).toBeTruthy();
 
 	return { page, nonce };
@@ -71,7 +71,7 @@ async function loginAndOpenFixture( context, login, password, pagePath ) {
 async function createBooking( page, nonce, seed, start = seed.start ) {
 	return page.evaluate(
 		async ( request ) => {
-			const response = await fetch( '/wp-json/tutorslot/v1/bookings', {
+			const response = await fetch( '/wp-json/plumberslot/v1/bookings', {
 				method: 'POST',
 				credentials: 'same-origin',
 				headers: {
@@ -127,7 +127,7 @@ async function runRace( browser, bobOffsetMinutes ) {
 		expect( statuses ).toEqual( [ 201, 409 ] );
 		expect(
 			results.find( ( result ) => 409 === result.status )?.body.code
-		).toBe( 'tutorslot_slot_taken' );
+		).toBe( 'plumberslot_slot_taken' );
 
 		const database = await fixture( 'inspect' );
 		expect( database.bookingCount ).toBe( 1 );
@@ -143,8 +143,8 @@ async function runRace( browser, bobOffsetMinutes ) {
 function skipUnlessRaceIsReady( testInfo ) {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_RACE_READY,
-		'Set TUTORSLOT_E2E_RACE_READY=1 to allow the isolated fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_RACE_READY,
+		'Set PLUMBERSLOT_E2E_RACE_READY=1 to allow the isolated fixture rows.'
 	);
 	test.skip(
 		'chromium-desktop' !== testInfo.project.name,

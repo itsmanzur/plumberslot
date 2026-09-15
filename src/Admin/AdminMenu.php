@@ -6,20 +6,20 @@
  * a mount point, so the same API the front end uses is the only way data leaves
  * the database — one surface to secure instead of two.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Admin;
+namespace PlumberSlot\Admin;
 
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
 final class AdminMenu {
 
-	private const SLUG = 'tutorslot';
+	private const SLUG = 'plumberslot';
 
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_pages' ) );
@@ -28,8 +28,8 @@ final class AdminMenu {
 
 	public function add_pages(): void {
 		add_menu_page(
-			__( 'TutorSlot', 'tutorslot' ),
-			__( 'TutorSlot', 'tutorslot' ),
+			__( 'PlumberSlot', 'plumberslot' ),
+			__( 'PlumberSlot', 'plumberslot' ),
 			Capabilities::MANAGE_OWN,
 			self::SLUG,
 			array( $this, 'render' ),
@@ -38,10 +38,10 @@ final class AdminMenu {
 		);
 
 		$pages = array(
-			'tutorslot-availability' => __( 'Availability', 'tutorslot' ),
-			'tutorslot-subjects'     => __( 'Subjects', 'tutorslot' ),
-			'tutorslot-bookings'     => __( 'Bookings', 'tutorslot' ),
-			'tutorslot-help'         => __( 'Help & Docs', 'tutorslot' ),
+			'plumberslot-availability' => __( 'Availability', 'plumberslot' ),
+			'plumberslot-subjects'     => __( 'Subjects', 'plumberslot' ),
+			'plumberslot-bookings'     => __( 'Bookings', 'plumberslot' ),
+			'plumberslot-help'         => __( 'Help & Docs', 'plumberslot' ),
 		);
 
 		foreach ( $pages as $slug => $title ) {
@@ -51,19 +51,19 @@ final class AdminMenu {
 		// Tutor and settings management is a site-manager job, not a tutor one.
 		add_submenu_page(
 			self::SLUG,
-			__( 'Tutors', 'tutorslot' ),
-			__( 'Tutors', 'tutorslot' ),
+			__( 'Tutors', 'plumberslot' ),
+			__( 'Tutors', 'plumberslot' ),
 			Capabilities::MANAGE_TUTORS,
-			'tutorslot-tutors',
+			'plumberslot-tutors',
 			array( $this, 'render' )
 		);
 
 		add_submenu_page(
 			self::SLUG,
-			__( 'Settings', 'tutorslot' ),
-			__( 'Settings', 'tutorslot' ),
+			__( 'Settings', 'plumberslot' ),
+			__( 'Settings', 'plumberslot' ),
 			Capabilities::MANAGE_ALL,
-			'tutorslot-settings',
+			'plumberslot-settings',
 			array( $this, 'render' )
 		);
 	}
@@ -76,11 +76,11 @@ final class AdminMenu {
 			return;
 		}
 
-		printf( '<div class="wrap"><div id="tutorslot-admin-root" data-screen="%s"></div></div>', esc_attr( $screen ) );
+		printf( '<div class="wrap"><div id="plumberslot-admin-root" data-screen="%s"></div></div>', esc_attr( $screen ) );
 	}
 
 	public function enqueue( string $hook ): void {
-		if ( ! str_contains( $hook, 'tutorslot' ) ) {
+		if ( ! str_contains( $hook, 'plumberslot' ) ) {
 			return;
 		}
 
@@ -88,40 +88,40 @@ final class AdminMenu {
 			return;
 		}
 
-		$asset_file = TUTORSLOT_PATH . 'assets/dist/admin.asset.php';
+		$asset_file = PLUMBERSLOT_PATH . 'assets/dist/admin.asset.php';
 		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(),
-			'version'      => \TutorSlot\VERSION,
+			'version'      => \PlumberSlot\VERSION,
 		);
-		$tutor_id   = ( new \TutorSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
+		$tutor_id   = ( new \PlumberSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
 		$page       = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing.
 
 		/**
 		 * Filters the externally hosted Help & Docs product-tour URL.
 		 *
-		 * Use a public YouTube, Vimeo or similar HTTPS watch-page URL. TutorSlot
+		 * Use a public YouTube, Vimeo or similar HTTPS watch-page URL. PlumberSlot
 		 * links to the platform and does not bundle or embed the video.
 		 *
 		 * @since 0.1.0
 		 *
 		 * @param string $video_url External product-tour URL. Empty by default.
 		 */
-		$help_video_url = apply_filters( 'tutorslot_help_video_url', '' );
+		$help_video_url = apply_filters( 'plumberslot_help_video_url', '' );
 
-		wp_enqueue_script( 'tutorslot-admin', TUTORSLOT_URL . 'assets/dist/admin.js', $asset['dependencies'], $asset['version'], true );
-		wp_enqueue_style( 'tutorslot-admin', TUTORSLOT_URL . 'assets/dist/admin.css', array(), $asset['version'] );
+		wp_enqueue_script( 'plumberslot-admin', PLUMBERSLOT_URL . 'assets/dist/admin.js', $asset['dependencies'], $asset['version'], true );
+		wp_enqueue_style( 'plumberslot-admin', PLUMBERSLOT_URL . 'assets/dist/admin.css', array(), $asset['version'] );
 
-		wp_set_script_translations( 'tutorslot-admin', 'tutorslot', TUTORSLOT_PATH . 'languages' );
+		wp_set_script_translations( 'plumberslot-admin', 'plumberslot', PLUMBERSLOT_PATH . 'languages' );
 
 		wp_localize_script(
-			'tutorslot-admin',
-			'tutorslotAdmin',
+			'plumberslot-admin',
+			'plumberslotAdmin',
 			array(
-				'root'             => esc_url_raw( rest_url( 'tutorslot/v1' ) ),
+				'root'             => esc_url_raw( rest_url( 'plumberslot/v1' ) ),
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'tutorId'          => $tutor_id,
 				'timezone'         => wp_timezone_string(),
-				'version'          => \TutorSlot\VERSION,
+				'version'          => \PlumberSlot\VERSION,
 				'initialDashboard' => self::SLUG === $page ? $this->preload_dashboard( $tutor_id ) : null,
 				'user'             => array(
 					'id'   => get_current_user_id(),
@@ -135,14 +135,14 @@ final class AdminMenu {
 				),
 				'canAll'           => current_user_can( Capabilities::MANAGE_ALL ),
 				'screens'          => array(
-					'dashboard'    => 'tutorslot',
-					'availability' => 'tutorslot-availability',
-					'subjects'     => 'tutorslot-subjects',
-					'bookings'     => 'tutorslot-bookings',
-					'tutors'       => 'tutorslot-tutors',
-					'settings'     => 'tutorslot-settings',
-					'setup'        => 'tutorslot-setup',
-					'help'         => 'tutorslot-help',
+					'dashboard'    => 'plumberslot',
+					'availability' => 'plumberslot-availability',
+					'subjects'     => 'plumberslot-subjects',
+					'bookings'     => 'plumberslot-bookings',
+					'tutors'       => 'plumberslot-tutors',
+					'settings'     => 'plumberslot-settings',
+					'setup'        => 'plumberslot-setup',
+					'help'         => 'plumberslot-help',
 				),
 				'urls'             => array(
 					'admin'       => admin_url( 'admin.php' ),
@@ -152,7 +152,7 @@ final class AdminMenu {
 				'docs'             => array(
 					'videoUrl' => esc_url_raw( $help_video_url ),
 				),
-				'payments'         => \TutorSlot\Support\PaymentsStatus::snapshot(),
+				'payments'         => \PlumberSlot\Support\PaymentsStatus::snapshot(),
 			)
 		);
 	}
@@ -170,7 +170,7 @@ final class AdminMenu {
 			return null;
 		}
 
-		$request = new \WP_REST_Request( 'GET', '/tutorslot/v1/dashboard' );
+		$request = new \WP_REST_Request( 'GET', '/plumberslot/v1/dashboard' );
 		$request->set_param( 'tutor_id', $tutor_id );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$response = rest_do_request( $request );
@@ -185,16 +185,16 @@ final class AdminMenu {
 	}
 
 	public static function assets_available(): bool {
-		return is_readable( TUTORSLOT_PATH . 'assets/dist/admin.js' )
-			&& is_readable( TUTORSLOT_PATH . 'assets/dist/admin.css' );
+		return is_readable( PLUMBERSLOT_PATH . 'assets/dist/admin.js' )
+			&& is_readable( PLUMBERSLOT_PATH . 'assets/dist/admin.css' );
 	}
 
 	public static function render_missing_assets(): void {
 		printf(
 			'<div class="wrap"><h1>%1$s</h1><div class="notice notice-warning inline"><p><strong>%2$s</strong> %3$s</p></div></div>',
-			esc_html__( 'TutorSlot', 'tutorslot' ),
-			esc_html__( 'The interface assets have not been built yet.', 'tutorslot' ),
-			esc_html__( 'Run npm install and npm run build in the TutorSlot plugin directory, then reload this page.', 'tutorslot' )
+			esc_html__( 'PlumberSlot', 'plumberslot' ),
+			esc_html__( 'The interface assets have not been built yet.', 'plumberslot' ),
+			esc_html__( 'Run npm install and npm run build in the PlumberSlot plugin directory, then reload this page.', 'plumberslot' )
 		);
 	}
 }

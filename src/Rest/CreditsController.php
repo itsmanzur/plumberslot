@@ -1,18 +1,18 @@
 <?php
 /**
- * /tutorslot/v1/credits — packages, purchase, ledger.
+ * /plumberslot/v1/credits — packages, purchase, ledger.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

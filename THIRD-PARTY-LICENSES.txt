@@ -1,7 +1,7 @@
-TutorSlot third-party software notices
+PlumberSlot third-party software notices
 ======================================
 
-This file lists third-party software copied into TutorSlot's distributed
+This file lists third-party software copied into PlumberSlot's distributed
 runtime assets. Build, test and development-only dependencies are not included
 in the release package.
 
@@ -44,7 +44,7 @@ Source: https://github.com/woocommerce/action-scheduler
 License: GPL-3.0-or-later
 Copyright: 2019 Automattic, Inc.
 
-TutorSlot's production ZIP includes Action Scheduler under
+PlumberSlot's production ZIP includes Action Scheduler under
 `vendor/woocommerce/action-scheduler`. The complete GPL version 3 license text
 is bundled with that library in
 `vendor/woocommerce/action-scheduler/license.txt`.

@@ -6,16 +6,16 @@
  * in its core. A series is a first-class row, so a course can be reported on,
  * paused or cancelled as a unit while an individual lesson still moves alone.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\SeriesRepository;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\SeriesRepository;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -42,8 +42,8 @@ final class RecurrenceService {
 	public function create_series( array $args, array $days, int $count ): array|WP_Error {
 		if ( $count < 1 || $count > 104 ) {
 			return new WP_Error(
-				'tutorslot_bad_count',
-				__( 'A course can run between 1 and 104 lessons.', 'tutorslot' ),
+				'plumberslot_bad_count',
+				__( 'A course can run between 1 and 104 lessons.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}

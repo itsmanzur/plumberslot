@@ -1,22 +1,22 @@
 <?php
 /**
- * /tutorslot/v1/setup — onboarding wizard completion + analytics.
+ * /plumberslot/v1/setup — onboarding wizard completion + analytics.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Frontend\BookingPage;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Frontend\BookingPage;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -76,11 +76,11 @@ final class SetupController extends AbstractController {
 	public function status(): WP_REST_Response {
 		$tutor_id = $this->tutors->tutor_id_for_user( get_current_user_id() );
 		$tutor    = $tutor_id ? $this->tutors->find( $tutor_id ) : null;
-		$started  = (int) get_user_meta( get_current_user_id(), 'tutorslot_setup_started_at', true );
+		$started  = (int) get_user_meta( get_current_user_id(), 'plumberslot_setup_started_at', true );
 
 		return $this->ok(
 			array(
-				'completed'   => (bool) get_user_meta( get_current_user_id(), 'tutorslot_setup_completed', true ),
+				'completed'   => (bool) get_user_meta( get_current_user_id(), 'plumberslot_setup_completed', true ),
 				'started_at'  => $started ? $started : null,
 				'setup_mode'  => Settings::string( 'setup_mode', 'solo' ),
 				'tutor'       => $tutor ? array(
@@ -89,9 +89,9 @@ final class SetupController extends AbstractController {
 					'display_name' => (string) $tutor->display_name,
 					'status'       => (string) $tutor->status,
 				) : null,
-				'shortcode'   => $tutor ? sprintf( '[tutorslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ) : '[tutorslot]',
+				'shortcode'   => $tutor ? sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ) : '[plumberslot]',
 				'booking_url' => $tutor ? BookingPage::url_for_tutor( $tutor ) : home_url( '/' ),
-				'payments'    => \TutorSlot\Support\PaymentsStatus::snapshot(),
+				'payments'    => \PlumberSlot\Support\PaymentsStatus::snapshot(),
 			)
 		);
 	}
@@ -103,13 +103,13 @@ final class SetupController extends AbstractController {
 		$subjects = is_array( $body['subjects'] ?? null ) ? $body['subjects'] : array();
 		$week     = $body['week'] ?? array();
 		$payments = ! empty( $body['payments_enabled'] );
-		$started  = (int) ( $body['started_at'] ?? get_user_meta( $user_id, 'tutorslot_setup_started_at', true ) );
+		$started  = (int) ( $body['started_at'] ?? get_user_meta( $user_id, 'plumberslot_setup_started_at', true ) );
 
 		if ( $started <= 0 ) {
 			$started = time();
 		}
 
-		update_user_meta( $user_id, 'tutorslot_setup_started_at', $started );
+		update_user_meta( $user_id, 'plumberslot_setup_started_at', $started );
 
 		$user  = wp_get_current_user();
 		$tutor = $this->tutors->find_by_user( $user_id );
@@ -173,8 +173,8 @@ final class SetupController extends AbstractController {
 
 			if ( ! $this->availability->replace_week( $tutor_id, $clean ) ) {
 				return new WP_Error(
-					'tutorslot_setup_availability_failed',
-					__( 'Could not save your weekly hours.', 'tutorslot' ),
+					'plumberslot_setup_availability_failed',
+					__( 'Could not save your weekly hours.', 'plumberslot' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -193,10 +193,10 @@ final class SetupController extends AbstractController {
 		$elapsed     = max( 0, time() - $started );
 		$bookable_at = time();
 
-		update_user_meta( $user_id, 'tutorslot_setup_completed', 1 );
-		update_user_meta( $user_id, 'tutorslot_setup_elapsed_seconds', $elapsed );
+		update_user_meta( $user_id, 'plumberslot_setup_completed', 1 );
+		update_user_meta( $user_id, 'plumberslot_setup_elapsed_seconds', $elapsed );
 		update_option(
-			'tutorslot_setup_analytics',
+			'plumberslot_setup_analytics',
 			array(
 				'elapsed_seconds'             => $elapsed,
 				'time_to_first_bookable_slot' => $elapsed,
@@ -224,7 +224,7 @@ final class SetupController extends AbstractController {
 				'elapsed_seconds'             => $elapsed,
 				'time_to_first_bookable_slot' => $elapsed,
 				'setup_mode'                  => $mode,
-				'shortcode'                   => sprintf( '[tutorslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
+				'shortcode'                   => sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
 				'booking_url'                 => $booking_url,
 				'tutor_id'                    => $tutor_id,
 			)

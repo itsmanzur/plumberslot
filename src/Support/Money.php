@@ -5,12 +5,12 @@
  * Floats and currency do not mix; a rounding error in a lesson package is a
  * support ticket that costs more than the lesson.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,7 +43,7 @@ final class Money {
 		 * @param string $currency  ISO 4217 code.
 		 */
 		return apply_filters(
-			'tutorslot_format_price',
+			'plumberslot_format_price',
 			number_format_i18n( $amount, $digits ) . ' ' . strtoupper( $currency ),
 			$minor,
 			$currency

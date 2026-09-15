@@ -2,21 +2,21 @@
 /**
  * Public tutor profile + subjects for the booking widget.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\ReviewRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Support\RateLimiter;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\ReviewRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Support\RateLimiter;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -71,8 +71,8 @@ final class PublicTutorController extends AbstractController {
 	public function can_read(): bool|WP_Error {
 		if ( ! RateLimiter::allow( 'read_public_tutor', 60 ) ) {
 			return new WP_Error(
-				'tutorslot_too_many',
-				__( 'Too many requests. Wait a moment and try again.', 'tutorslot' ),
+				'plumberslot_too_many',
+				__( 'Too many requests. Wait a moment and try again.', 'plumberslot' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -139,8 +139,8 @@ final class PublicTutorController extends AbstractController {
 				'id'     => (int) $row->id,
 				'rating' => (int) $row->rating,
 				'body'   => (string) $row->body,
-				'author' => $author ? $author->display_name : __( 'Parent', 'tutorslot' ),
-				'role'   => __( 'Parent', 'tutorslot' ),
+				'author' => $author ? $author->display_name : __( 'Parent', 'plumberslot' ),
+				'role'   => __( 'Parent', 'plumberslot' ),
 			);
 		}
 
@@ -181,10 +181,10 @@ final class PublicTutorController extends AbstractController {
 	 */
 	private function profile_meta( object $tutor ): array {
 		$user_id  = (int) $tutor->user_id;
-		$years    = (int) get_user_meta( $user_id, 'tutorslot_years_teaching', true );
-		$response = (string) get_user_meta( $user_id, 'tutorslot_response_time', true );
-		$langs    = get_user_meta( $user_id, 'tutorslot_languages', true );
-		$provider = (string) get_user_meta( $user_id, 'tutorslot_meeting_provider', true );
+		$years    = (int) get_user_meta( $user_id, 'plumberslot_years_teaching', true );
+		$response = (string) get_user_meta( $user_id, 'plumberslot_response_time', true );
+		$langs    = get_user_meta( $user_id, 'plumberslot_languages', true );
+		$provider = (string) get_user_meta( $user_id, 'plumberslot_meeting_provider', true );
 
 		if ( $years <= 0 && ! empty( $tutor->created_at ) ) {
 			$created = strtotime( (string) $tutor->created_at );
@@ -201,7 +201,7 @@ final class PublicTutorController extends AbstractController {
 
 		return array(
 			'years_teaching'   => max( 1, $years ? $years : 1 ),
-			'response_time'    => '' !== $response ? $response : __( '~2 hours', 'tutorslot' ),
+			'response_time'    => '' !== $response ? $response : __( '~2 hours', 'plumberslot' ),
 			'languages'        => $languages,
 			'meeting_provider' => '' !== $provider ? $provider : 'Google Meet',
 		);

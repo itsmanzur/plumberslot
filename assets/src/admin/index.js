@@ -9,15 +9,15 @@ import { App } from './App';
 
 function mount() {
 	const target =
-		document.getElementById( 'tutorslot-admin-root' ) ||
-		document.getElementById( 'tutorslot-setup-root' );
+		document.getElementById( 'plumberslot-admin-root' ) ||
+		document.getElementById( 'plumberslot-setup-root' );
 
 	if ( ! target ) {
 		return;
 	}
 
-	window.performance?.mark?.( 'tutorslot-admin-mount-start' );
-	const screen = target.dataset.screen || 'tutorslot';
+	window.performance?.mark?.( 'plumberslot-admin-mount-start' );
+	const screen = target.dataset.screen || 'plumberslot';
 	render( h( App, { screen } ), target );
 }
 

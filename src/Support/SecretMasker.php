@@ -2,12 +2,12 @@
 /**
  * Central redaction policy for API responses, errors and audit metadata.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ final class SecretMasker {
 
 	/**
 	 * Final namespace-wide guard, including WP_Error responses and callbacks
-	 * that do not extend TutorSlot's REST controller base.
+	 * that do not extend PlumberSlot's REST controller base.
 	 *
 	 * @param mixed            $response REST response.
 	 * @param mixed            $server   REST server.
@@ -29,7 +29,7 @@ final class SecretMasker {
 	 */
 	public static function filter_response( mixed $response, mixed $server, \WP_REST_Request $request ): mixed {
 		$route = $request->get_route();
-		if ( ! str_starts_with( $route, '/tutorslot/v1/' ) || ! method_exists( $response, 'get_data' ) || ! method_exists( $response, 'set_data' ) ) {
+		if ( ! str_starts_with( $route, '/plumberslot/v1/' ) || ! method_exists( $response, 'get_data' ) || ! method_exists( $response, 'set_data' ) ) {
 			return $response;
 		}
 

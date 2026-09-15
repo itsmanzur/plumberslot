@@ -5,12 +5,12 @@
  * Validation belongs in the route definition, so a malformed request is
  * rejected by WordPress before a single line of business logic runs.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 use WP_Error;
 
@@ -69,8 +69,8 @@ final class Validate {
 	public static function sanitize_week( mixed $value ): array|WP_Error {
 		if ( ! is_array( $value ) ) {
 			return new WP_Error(
-				'tutorslot_invalid_week',
-				__( 'Availability must be sent as a list of weekday blocks.', 'tutorslot' ),
+				'plumberslot_invalid_week',
+				__( 'Availability must be sent as a list of weekday blocks.', 'plumberslot' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -109,8 +109,8 @@ final class Validate {
 
 		if ( self::week_has_overlap( $out ) ) {
 			return new WP_Error(
-				'tutorslot_overlapping_week',
-				__( 'Availability blocks on the same day cannot overlap.', 'tutorslot' ),
+				'plumberslot_overlapping_week',
+				__( 'Availability blocks on the same day cannot overlap.', 'plumberslot' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -158,8 +158,8 @@ final class Validate {
 
 	private static function invalid_week_block(): WP_Error {
 		return new WP_Error(
-			'tutorslot_invalid_week_block',
-			__( 'Each availability block needs a weekday 0–6 and minutes within 0–1440, with start before end.', 'tutorslot' ),
+			'plumberslot_invalid_week_block',
+			__( 'Each availability block needs a weekday 0–6 and minutes within 0–1440, with start before end.', 'plumberslot' ),
 			array( 'status' => 400 )
 		);
 	}

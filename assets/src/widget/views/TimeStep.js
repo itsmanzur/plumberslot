@@ -136,7 +136,7 @@ export function TimeStep( {
 					'div',
 					{ class: 'ts-tz', role: 'status' },
 					h( 'span', null, 'Times shown in ' ),
-					h( 'strong', { class: 'tutorslot-mono' }, tz ),
+					h( 'strong', { class: 'plumberslot-mono' }, tz ),
 					h(
 						'button',
 						{
@@ -232,7 +232,7 @@ export function TimeStep( {
 			h(
 				'div',
 				{ class: 'ts-book__footer-end' },
-				h( 'span', { class: 'tutorslot-mono' }, selectedLabel ),
+				h( 'span', { class: 'plumberslot-mono' }, selectedLabel ),
 				h(
 					Button,
 					{ disabled: ! selectedStart, onClick: onContinue },

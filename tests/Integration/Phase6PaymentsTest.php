@@ -2,37 +2,37 @@
 /**
  * Phase 6 payment orchestration tests.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\PaymentRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Database\TransactionManager;
-use TutorSlot\Domain\BookingService;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Payments\GatewayInterface;
-use TutorSlot\Payments\GatewayRegistry;
-use TutorSlot\Payments\StripeGateway;
-use TutorSlot\Payments\WebhookController;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\PaymentRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Domain\BookingService;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Payments\GatewayInterface;
+use PlumberSlot\Payments\GatewayRegistry;
+use PlumberSlot\Payments\StripeGateway;
+use PlumberSlot\Payments\WebhookController;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 use WP_REST_Request;
 use WP_UnitTestCase;
@@ -68,11 +68,11 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 			)
 		);
 
-		add_filter( 'tutorslot_email_enabled', '__return_false' );
+		add_filter( 'plumberslot_email_enabled', '__return_false' );
 	}
 
 	public function tear_down(): void {
-		remove_filter( 'tutorslot_email_enabled', '__return_false' );
+		remove_filter( 'plumberslot_email_enabled', '__return_false' );
 		$this->empty_tables();
 		parent::tear_down();
 	}
@@ -147,13 +147,13 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		};
 
 		$service->start( $booking_id, 'fake', 'https://example.com/ok', 'https://example.com/cancel' );
-		add_action( 'tutorslot_booking_paid', $capture );
+		add_action( 'plumberslot_booking_paid', $capture );
 
 		try {
 			$first  = $controller->handle( $this->webhook_request( $raw, $this->gateway->sign( $raw ) ) );
 			$replay = $controller->handle( $this->webhook_request( $raw, $this->gateway->sign( $raw ) ) );
 		} finally {
-			remove_action( 'tutorslot_booking_paid', $capture );
+			remove_action( 'plumberslot_booking_paid', $capture );
 		}
 
 		$this->assertNotWPError( $first );
@@ -174,7 +174,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$rejected = $controller->handle( $this->webhook_request( $tampered, $this->gateway->sign( $raw ) ) );
 
 		$this->assertWPError( $rejected );
-		$this->assertSame( 'tutorslot_bad_signature', $rejected->get_error_code() );
+		$this->assertSame( 'plumberslot_bad_signature', $rejected->get_error_code() );
 		$this->assertSame( 400, $rejected->get_error_data()['status'] );
 		$this->assertSame( 2, $this->gateway->parse_calls );
 		$this->assertSame( 1, $this->webhook_total() );
@@ -299,7 +299,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$result = $service->refund_booking( $booking );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'tutorslot_invalid_transition', $result->get_error_code() );
+		$this->assertSame( 'plumberslot_invalid_transition', $result->get_error_code() );
 		$this->assertSame( 'confirmed', $this->bookings->find( $booking )->status );
 		$this->assertSame( 'paid', $this->payments->latest_for_booking( $booking )->status );
 		$this->assertSame( 0, $this->gateway->refund_calls );
@@ -432,7 +432,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$credits_table = Schema::table( Schema::CREDITS );
 		$fail_credit   = static function ( string $query ) use ( $credits_table ): string {
 			if ( str_contains( $query, "UPDATE {$credits_table} SET used = used - 1" ) ) {
-				return 'UPDATE `tutorslot_missing_table` SET `used` = 0';
+				return 'UPDATE `plumberslot_missing_table` SET `used` = 0';
 			}
 
 			return $query;
@@ -448,7 +448,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		}
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'tutorslot_refund_persistence_failed', $result->get_error_code() );
+		$this->assertSame( 'plumberslot_refund_persistence_failed', $result->get_error_code() );
 		$this->assertSame( 'completed', $this->bookings->find( $booking_id )->status );
 		$this->assertSame( 1, (int) $credits->find( $credit_id )->used );
 	}
@@ -477,7 +477,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		$bookings_table = Schema::table( Schema::BOOKINGS );
 		$fail_local     = static function ( string $query ) use ( $bookings_table ): string {
 			if ( str_contains( $query, "UPDATE {$bookings_table} SET status = 'refunded'" ) ) {
-				return 'UPDATE `tutorslot_missing_table` SET `status` = \'refunded\'';
+				return 'UPDATE `plumberslot_missing_table` SET `status` = \'refunded\'';
 			}
 
 			return $query;
@@ -493,7 +493,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 		}
 
 		$this->assertInstanceOf( WP_Error::class, $failed );
-		$this->assertSame( 'tutorslot_refund_persistence_failed', $failed->get_error_code() );
+		$this->assertSame( 'plumberslot_refund_persistence_failed', $failed->get_error_code() );
 		$this->assertSame( 'completed', $this->bookings->find( $booking )->status );
 		$this->assertSame( 'paid', $this->payments->latest_for_booking( $booking )->status );
 
@@ -591,7 +591,7 @@ final class Phase6PaymentsTest extends WP_UnitTestCase {
 	}
 
 	private function webhook_request( string $body, string $signature ): WP_REST_Request {
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/webhook/fake' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/webhook/fake' );
 		$request->set_param( 'gateway', 'fake' );
 		$request->set_header( 'X-Fake-Signature', $signature );
 		$request->set_body( $body );

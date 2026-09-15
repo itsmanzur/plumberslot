@@ -2,22 +2,22 @@
 /**
  * Destructive uninstall smoke against a disposable WordPress database.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use TutorSlot\Activator;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Activator;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
 
 final class DestructiveUninstallTest extends TestCase {
 
-	private const ACTION_HOOK  = 'tutorslot_destructive_uninstall_smoke';
-	private const ACTION_GROUP = 'tutorslot';
+	private const ACTION_HOOK  = 'plumberslot_destructive_uninstall_smoke';
+	private const ACTION_GROUP = 'plumberslot';
 
 	public function test_opted_in_uninstall_removes_all_plugin_state(): void {
 		global $wpdb;
@@ -41,19 +41,19 @@ final class DestructiveUninstallTest extends TestCase {
 		);
 
 		update_option(
-			'tutorslot_settings',
+			'plumberslot_settings',
 			array( 'delete_data_on_uninstall' => true ),
 			false
 		);
 		self::assertTrue(
-			(bool) get_option( 'tutorslot_settings', array() )['delete_data_on_uninstall']
+			(bool) get_option( 'plumberslot_settings', array() )['delete_data_on_uninstall']
 		);
-		set_transient( 'tutorslot_show_onboarding', 1, DAY_IN_SECONDS );
-		wp_cache_set( 'uninstall-smoke', 'present', 'tutorslot', HOUR_IN_SECONDS );
+		set_transient( 'plumberslot_show_onboarding', 1, DAY_IN_SECONDS );
+		wp_cache_set( 'uninstall-smoke', 'present', 'plumberslot', HOUR_IN_SECONDS );
 
 		self::assertTrue( $this->schedule_smoke_action() );
-		self::assertNotFalse( get_transient( 'tutorslot_show_onboarding' ) );
-		self::assertSame( 'present', wp_cache_get( 'uninstall-smoke', 'tutorslot' ) );
+		self::assertNotFalse( get_transient( 'plumberslot_show_onboarding' ) );
+		self::assertSame( 'present', wp_cache_get( 'uninstall-smoke', 'plumberslot' ) );
 
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core uninstall contract.
@@ -63,8 +63,8 @@ final class DestructiveUninstallTest extends TestCase {
 		$uninstall_result = require dirname( __DIR__, 2 ) . '/uninstall.php';
 		self::assertSame( 1, $uninstall_result, 'Destructive uninstall returned before cleanup.' );
 
-		self::assertFalse( get_option( 'tutorslot_settings', false ) );
-		self::assertFalse( get_option( 'tutorslot_db_version', false ) );
+		self::assertFalse( get_option( 'plumberslot_settings', false ) );
+		self::assertFalse( get_option( 'plumberslot_db_version', false ) );
 
 		foreach ( Schema::all_keys() as $key ) {
 			$table = Schema::table( $key );
@@ -75,8 +75,8 @@ final class DestructiveUninstallTest extends TestCase {
 			);
 		}
 
-		self::assertFalse( get_transient( 'tutorslot_show_onboarding' ) );
-		self::assertFalse( wp_cache_get( 'uninstall-smoke', 'tutorslot' ) );
+		self::assertFalse( get_transient( 'plumberslot_show_onboarding' ) );
+		self::assertFalse( wp_cache_get( 'uninstall-smoke', 'plumberslot' ) );
 
 		self::assertNull( get_role( Capabilities::ROLE_TUTOR ) );
 		self::assertNull( get_role( Capabilities::ROLE_STUDENT ) );
@@ -100,8 +100,8 @@ final class DestructiveUninstallTest extends TestCase {
 			);
 		}
 
-		self::assertIsArray( get_option( 'tutorslot_settings', false ) );
-		self::assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
+		self::assertIsArray( get_option( 'plumberslot_settings', false ) );
+		self::assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
 		self::assertNotNull( get_role( Capabilities::ROLE_TUTOR ) );
 		self::assertNotNull( get_role( Capabilities::ROLE_STUDENT ) );
 		self::assertNotNull( get_role( Capabilities::ROLE_PARENT ) );

@@ -6,23 +6,23 @@
  * so on a quiet tutoring site the twenty-four-hour reminder simply never goes
  * out, and a missed reminder is a no-show, a refund and a one-star review.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Notifications;
+namespace PlumberSlot\Notifications;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Support\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Scheduler {
 
-	private const GROUP = 'tutorslot';
+	private const GROUP = 'plumberslot';
 
 	public function __construct(
 		private readonly Dispatcher $dispatcher,
@@ -30,15 +30,15 @@ final class Scheduler {
 	) {}
 
 	public function register(): void {
-		add_action( 'tutorslot_booking_created', array( $this, 'schedule_for_booking' ), 10, 1 );
-		add_action( 'tutorslot_booking_cancelled', array( $this, 'unschedule_for_booking' ), 10, 1 );
-		add_action( 'tutorslot_booking_moved', array( $this, 'unschedule_for_booking' ), 10, 1 );
-		add_action( 'tutorslot_booking_refunded', array( $this, 'unschedule_for_booking' ), 10, 1 );
-		add_action( 'tutorslot_booking_payment_expired', array( $this, 'unschedule_for_booking' ), 10, 1 );
-		add_action( 'tutorslot_send_reminder', array( $this, 'run_reminder' ), 10, 2 );
-		add_action( 'tutorslot_payment_started', array( $this, 'schedule_payment_expiry' ), 10, 2 );
-		add_action( 'tutorslot_expire_payment', array( $this, 'run_payment_expiry' ), 10, 2 );
-		add_action( 'tutorslot_purge_locks', array( $this, 'run_purge' ) );
+		add_action( 'plumberslot_booking_created', array( $this, 'schedule_for_booking' ), 10, 1 );
+		add_action( 'plumberslot_booking_cancelled', array( $this, 'unschedule_for_booking' ), 10, 1 );
+		add_action( 'plumberslot_booking_moved', array( $this, 'unschedule_for_booking' ), 10, 1 );
+		add_action( 'plumberslot_booking_refunded', array( $this, 'unschedule_for_booking' ), 10, 1 );
+		add_action( 'plumberslot_booking_payment_expired', array( $this, 'unschedule_for_booking' ), 10, 1 );
+		add_action( 'plumberslot_send_reminder', array( $this, 'run_reminder' ), 10, 2 );
+		add_action( 'plumberslot_payment_started', array( $this, 'schedule_payment_expiry' ), 10, 2 );
+		add_action( 'plumberslot_expire_payment', array( $this, 'run_payment_expiry' ), 10, 2 );
+		add_action( 'plumberslot_purge_locks', array( $this, 'run_purge' ) );
 		add_action( 'init', array( $this, 'ensure_recurring' ) );
 	}
 
@@ -47,8 +47,8 @@ final class Scheduler {
 			return;
 		}
 
-		if ( ! as_has_scheduled_action( 'tutorslot_purge_locks', array(), self::GROUP ) ) {
-			as_schedule_recurring_action( time() + MINUTE_IN_SECONDS, 5 * MINUTE_IN_SECONDS, 'tutorslot_purge_locks', array(), self::GROUP );
+		if ( ! as_has_scheduled_action( 'plumberslot_purge_locks', array(), self::GROUP ) ) {
+			as_schedule_recurring_action( time() + MINUTE_IN_SECONDS, 5 * MINUTE_IN_SECONDS, 'plumberslot_purge_locks', array(), self::GROUP );
 		}
 	}
 
@@ -75,7 +75,7 @@ final class Scheduler {
 				continue;
 			}
 
-			as_schedule_single_action( $at, 'tutorslot_send_reminder', array( $booking_id, $window ), self::GROUP );
+			as_schedule_single_action( $at, 'plumberslot_send_reminder', array( $booking_id, $window ), self::GROUP );
 		}
 	}
 
@@ -85,7 +85,7 @@ final class Scheduler {
 		}
 
 		foreach ( array( '24h', '1h' ) as $window ) {
-			as_unschedule_all_actions( 'tutorslot_send_reminder', array( $booking_id, $window ), self::GROUP );
+			as_unschedule_all_actions( 'plumberslot_send_reminder', array( $booking_id, $window ), self::GROUP );
 		}
 	}
 
@@ -107,14 +107,14 @@ final class Scheduler {
 
 		$args = array( $payment_id, $booking_id );
 		if ( function_exists( 'as_has_scheduled_action' )
-			&& as_has_scheduled_action( 'tutorslot_expire_payment', $args, self::GROUP ) ) {
+			&& as_has_scheduled_action( 'plumberslot_expire_payment', $args, self::GROUP ) ) {
 			return;
 		}
 
 		$window = max( 2, Settings::int( 'hold_window_minutes', 10 ) );
 		as_schedule_single_action(
 			time() + ( $window * MINUTE_IN_SECONDS ),
-			'tutorslot_expire_payment',
+			'plumberslot_expire_payment',
 			$args,
 			self::GROUP
 		);

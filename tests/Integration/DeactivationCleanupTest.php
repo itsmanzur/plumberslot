@@ -2,32 +2,32 @@
 /**
  * Deactivation cleanup integration coverage.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Activator;
-use TutorSlot\Database\Schema;
-use TutorSlot\Deactivator;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Activator;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Deactivator;
+use PlumberSlot\Support\Capabilities;
 
 final class DeactivationCleanupTest extends \WP_UnitTestCase {
 
-	private const ACTION_HOOK    = 'tutorslot_deactivation_cleanup_smoke';
+	private const ACTION_HOOK    = 'plumberslot_deactivation_cleanup_smoke';
 	private const ISOLATION_HOOK = 'shared_deactivation_isolation_smoke';
 	private const FOREIGN_GROUP  = 'another-plugin';
 
 	public function tear_down(): void {
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( self::ACTION_HOOK, array(), 'tutorslot' );
-			as_unschedule_all_actions( self::ISOLATION_HOOK, array(), 'tutorslot' );
+			as_unschedule_all_actions( self::ACTION_HOOK, array(), 'plumberslot' );
+			as_unschedule_all_actions( self::ISOLATION_HOOK, array(), 'plumberslot' );
 			as_unschedule_all_actions( self::ISOLATION_HOOK, array(), self::FOREIGN_GROUP );
 		}
 
-		wp_cache_delete( 'deactivation-smoke', 'tutorslot' );
+		wp_cache_delete( 'deactivation-smoke', 'plumberslot' );
 		parent::tear_down();
 	}
 
@@ -36,11 +36,11 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 
 		Activator::activate();
 
-		$settings                           = get_option( 'tutorslot_settings' );
+		$settings                           = get_option( 'plumberslot_settings' );
 		$settings['buffer_minutes']         = 17;
 		$settings['deactivation_test_mark'] = 'preserve';
-		update_option( 'tutorslot_settings', $settings, false );
-		set_transient( 'tutorslot_show_onboarding', 1, DAY_IN_SECONDS );
+		update_option( 'plumberslot_settings', $settings, false );
+		set_transient( 'plumberslot_show_onboarding', 1, DAY_IN_SECONDS );
 
 		$user_id      = self::factory()->user->create();
 		$tutors_table = Schema::table( Schema::TUTORS );
@@ -60,17 +60,17 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 		self::assertSame( 1, $inserted );
 		$tutor_id = (int) $wpdb->insert_id;
 
-		wp_cache_set( 'deactivation-smoke', 'present', 'tutorslot', HOUR_IN_SECONDS );
+		wp_cache_set( 'deactivation-smoke', 'present', 'plumberslot', HOUR_IN_SECONDS );
 		self::assertTrue( $this->schedule_smoke_action() );
 
 		Deactivator::deactivate();
 
-		self::assertFalse( as_has_scheduled_action( self::ACTION_HOOK, array(), 'tutorslot' ) );
-		self::assertFalse( wp_cache_get( 'deactivation-smoke', 'tutorslot' ) );
+		self::assertFalse( as_has_scheduled_action( self::ACTION_HOOK, array(), 'plumberslot' ) );
+		self::assertFalse( wp_cache_get( 'deactivation-smoke', 'plumberslot' ) );
 
-		self::assertSame( $settings, get_option( 'tutorslot_settings' ) );
-		self::assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
-		self::assertNotFalse( get_transient( 'tutorslot_show_onboarding' ) );
+		self::assertSame( $settings, get_option( 'plumberslot_settings' ) );
+		self::assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
+		self::assertNotFalse( get_transient( 'plumberslot_show_onboarding' ) );
 
 		foreach ( Schema::all_keys() as $key ) {
 			self::assertTrue( $this->table_exists( Schema::table( $key ) ), 'Deactivation removed table: ' . $key );
@@ -87,19 +87,19 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 		self::assertTrue( get_role( 'administrator' )->has_cap( Capabilities::MANAGE_ALL ) );
 	}
 
-	public function test_deactivation_unschedules_only_tutorslot_group_actions(): void {
-		$tutorslot_action = $this->schedule_action( self::ISOLATION_HOOK, 'tutorslot' );
+	public function test_deactivation_unschedules_only_plumberslot_group_actions(): void {
+		$plumberslot_action = $this->schedule_action( self::ISOLATION_HOOK, 'plumberslot' );
 		$foreign_action   = $this->schedule_action( self::ISOLATION_HOOK, self::FOREIGN_GROUP );
 
-		self::assertGreaterThan( 0, $tutorslot_action );
+		self::assertGreaterThan( 0, $plumberslot_action );
 		self::assertGreaterThan( 0, $foreign_action );
-		self::assertNotSame( $tutorslot_action, $foreign_action );
-		self::assertNotFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), 'tutorslot' ) );
+		self::assertNotSame( $plumberslot_action, $foreign_action );
+		self::assertNotFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), 'plumberslot' ) );
 		self::assertNotFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), self::FOREIGN_GROUP ) );
 
 		Deactivator::deactivate();
 
-		self::assertFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), 'tutorslot' ) );
+		self::assertFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), 'plumberslot' ) );
 		self::assertNotFalse( as_has_scheduled_action( self::ISOLATION_HOOK, array(), self::FOREIGN_GROUP ) );
 	}
 
@@ -110,10 +110,10 @@ final class DeactivationCleanupTest extends \WP_UnitTestCase {
 			self::fail( 'Action Scheduler must be available for the deactivation cleanup smoke.' );
 		}
 
-		$action_id = $this->schedule_action( self::ACTION_HOOK, 'tutorslot' );
+		$action_id = $this->schedule_action( self::ACTION_HOOK, 'plumberslot' );
 
 		return $action_id > 0
-			&& false !== as_has_scheduled_action( self::ACTION_HOOK, array(), 'tutorslot' );
+			&& false !== as_has_scheduled_action( self::ACTION_HOOK, array(), 'plumberslot' );
 	}
 
 	private function schedule_action( string $hook, string $group ): int {

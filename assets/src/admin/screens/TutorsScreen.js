@@ -179,7 +179,7 @@ export function TutorsScreen() {
 											),
 											h(
 												'td',
-												{ class: 'tutorslot-mono' },
+												{ class: 'plumberslot-mono' },
 												`${
 													( tutor.hourly_rate_minor ||
 														0 ) / 100

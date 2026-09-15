@@ -2,20 +2,20 @@
 /**
  * Performance gates for the public slots route.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\RateLimiter;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\RateLimiter;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_UnitTestCase;
@@ -39,7 +39,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 		parent::set_up();
 
 		Schema::create_all();
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 		$this->previous_remote_addr  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
 		$_SERVER['REMOTE_ADDR']      = '127.0.0.77';
 		$this->clear_rate_limit();
@@ -85,7 +85,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 			$_SERVER['REMOTE_ADDR'] = $this->previous_remote_addr;
 		}
 
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 		parent::tear_down();
 	}
 
@@ -207,7 +207,7 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 	}
 
 	private function request_slots(): WP_REST_Response {
-		$request = new WP_REST_Request( 'GET', '/tutorslot/v1/slots' );
+		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/slots' );
 		$request->set_query_params(
 			array(
 				'tutor_id' => $this->tutor_id,
@@ -235,11 +235,11 @@ final class SlotsPerformanceTest extends WP_UnitTestCase {
 	}
 
 	private function clear_rate_limit(): void {
-		$key = 'tutorslot_rl_' . md5( 'read_slots|i' . RateLimiter::ip_hash() );
+		$key = 'plumberslot_rl_' . md5( 'read_slots|i' . RateLimiter::ip_hash() );
 		delete_transient( $key );
 	}
 
-	private function empty_tutorslot_tables(): void {
+	private function empty_plumberslot_tables(): void {
 		global $wpdb;
 
 		foreach ( array_reverse( Schema::all_keys() ) as $key ) {

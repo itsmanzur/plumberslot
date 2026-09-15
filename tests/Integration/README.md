@@ -8,12 +8,12 @@ Required environment:
 ```text
 WP_TESTS_DIR=/path/to/wordpress-tests-lib
 WP_CORE_DIR=/path/to/wordpress
-TUTORSLOT_TEST_DB_NAME=tutorslot_test
-TUTORSLOT_TEST_DB_USER=root
-TUTORSLOT_TEST_DB_PASSWORD=root
-TUTORSLOT_TEST_DB_HOST=127.0.0.1:10156
-TUTORSLOT_TEST_TABLE_PREFIX=ts_test_
-TUTORSLOT_TEST_ALLOW_DESTRUCTIVE=1
+PLUMBERSLOT_TEST_DB_NAME=plumberslot_test
+PLUMBERSLOT_TEST_DB_USER=root
+PLUMBERSLOT_TEST_DB_PASSWORD=root
+PLUMBERSLOT_TEST_DB_HOST=127.0.0.1:10156
+PLUMBERSLOT_TEST_TABLE_PREFIX=ts_test_
+PLUMBERSLOT_TEST_ALLOW_DESTRUCTIVE=1
 ```
 
 Copy `tests/wp-tests-config.php.dist` to `tests/wp-tests-config.php`, then run
@@ -22,7 +22,7 @@ the database name, prefix, config file, and explicit destructive-test flag are
 all safe.
 
 With that same isolated MySQL environment, `composer test:perf:slots-cached`
-warms one real `/tutorslot/v1/slots` REST response and measures 25 subsequent
+warms one real `/plumberslot/v1/slots` REST response and measures 25 subsequent
 cache hits. The p75 application response time must stay below 20ms, and a query
 probe proves the cached path does not read availability, exception, booking,
 or slot-lock tables. DNS, HTTP-server startup, and TLS are intentionally outside
@@ -49,7 +49,7 @@ browser rendering are intentionally outside this database-query gate.
 
 `composer test:perf:options-autoload` exercises fresh activation, rewrite setup,
 onboarding completion, and a legacy v5 upgrade. Every persistent
-`tutorslot_*` option must remain outside WordPress's autoload set, while the v6
+`plumberslot_*` option must remain outside WordPress's autoload set, while the v6
 migration preserves values and normalizes any legacy autoloaded rows.
 
 After exporting the same safe integration environment, run
@@ -63,5 +63,5 @@ data cleanup boundaries while preserving every table, option, role, and seeded
 tutor.
 
 The companion isolation case schedules identical hook/argument actions in the
-TutorSlot and a foreign group, then proves deactivation removes only TutorSlot's
+PlumberSlot and a foreign group, then proves deactivation removes only PlumberSlot's
 action.

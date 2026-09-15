@@ -1,15 +1,15 @@
-.tutorslot-admin .ts-docs {
+.plumberslot-admin .ts-docs {
 	max-width: 1180px;
 	margin: 0 auto;
 	color: var(--ts-ink-2);
 	scroll-behavior: smooth;
 }
 
-.tutorslot-admin .ts-docs * {
+.plumberslot-admin .ts-docs * {
 	box-sizing: border-box;
 }
 
-.tutorslot-admin .ts-docs__hero {
+.plumberslot-admin .ts-docs__hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.75fr);
 	gap: var(--ts-sp-8);
@@ -23,7 +23,7 @@
 	box-shadow: var(--ts-shadow-lg);
 }
 
-.tutorslot-admin .ts-docs__hero h1 {
+.plumberslot-admin .ts-docs__hero h1 {
 	max-width: 760px;
 	color: #fff;
 	font-size: clamp(34px, 5vw, 58px);
@@ -31,8 +31,8 @@
 	letter-spacing: -0.045em;
 }
 
-.tutorslot-admin .ts-docs__eyebrow,
-.tutorslot-admin .ts-docs__kicker {
+.plumberslot-admin .ts-docs__eyebrow,
+.plumberslot-admin .ts-docs__kicker {
 	margin: 0 0 var(--ts-sp-3);
 	color: var(--ts-primary);
 	font-family: var(--ts-font-mono);
@@ -41,11 +41,11 @@
 	letter-spacing: 0.16em;
 }
 
-.tutorslot-admin .ts-docs__eyebrow {
+.plumberslot-admin .ts-docs__eyebrow {
 	color: var(--ts-highlight);
 }
 
-.tutorslot-admin .ts-docs__lead {
+.plumberslot-admin .ts-docs__lead {
 	max-width: 760px;
 	margin: var(--ts-sp-5) 0 0;
 	color: rgb(255 255 255 / 91%);
@@ -53,44 +53,44 @@
 	line-height: 1.55;
 }
 
-.tutorslot-admin .ts-docs__plain {
+.plumberslot-admin .ts-docs__plain {
 	max-width: 720px;
 	margin: var(--ts-sp-4) 0 0;
 	color: rgb(255 255 255 / 68%);
 	font-size: var(--ts-text-base);
 }
 
-.tutorslot-admin .ts-docs__hero-actions,
-.tutorslot-admin .ts-docs__guide-actions {
+.plumberslot-admin .ts-docs__hero-actions,
+.plumberslot-admin .ts-docs__guide-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--ts-sp-2);
 	margin-top: var(--ts-sp-6);
 }
 
-.tutorslot-admin .ts-docs__action {
+.plumberslot-admin .ts-docs__action {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
 }
 
-.tutorslot-admin .ts-docs__hero .ts-btn--primary {
+.plumberslot-admin .ts-docs__hero .ts-btn--primary {
 	background: var(--ts-highlight);
 	color: var(--ts-ink);
 }
 
-.tutorslot-admin .ts-docs__hero .ts-btn--primary:hover {
+.plumberslot-admin .ts-docs__hero .ts-btn--primary:hover {
 	background: var(--ts-highlight-dark);
 }
 
-.tutorslot-admin .ts-docs__hero .ts-btn--secondary {
+.plumberslot-admin .ts-docs__hero .ts-btn--secondary {
 	background: transparent;
 	border-color: rgb(255 255 255 / 38%);
 	color: #fff;
 }
 
-.tutorslot-admin .ts-docs__hero-note {
+.plumberslot-admin .ts-docs__hero-note {
 	padding: var(--ts-sp-6);
 	background: rgb(255 255 255 / 9%);
 	border: 1px solid rgb(255 255 255 / 14%);
@@ -99,7 +99,7 @@
 	backdrop-filter: blur(12px);
 }
 
-.tutorslot-admin .ts-docs__hero-note > span {
+.plumberslot-admin .ts-docs__hero-note > span {
 	display: grid;
 	place-items: center;
 	width: 42px;
@@ -112,18 +112,18 @@
 	font-weight: 800;
 }
 
-.tutorslot-admin .ts-docs__hero-note strong {
+.plumberslot-admin .ts-docs__hero-note strong {
 	display: block;
 	font-family: var(--ts-font-display);
 	font-size: var(--ts-text-xl);
 }
 
-.tutorslot-admin .ts-docs__hero-note p {
+.plumberslot-admin .ts-docs__hero-note p {
 	margin: var(--ts-sp-2) 0 0;
 	color: rgb(255 255 255 / 72%);
 }
 
-.tutorslot-admin .ts-docs__nav {
+.plumberslot-admin .ts-docs__nav {
 	position: sticky;
 	z-index: 10;
 	top: 32px;
@@ -140,7 +140,7 @@
 	scrollbar-width: thin;
 }
 
-.tutorslot-admin .ts-docs__nav a {
+.plumberslot-admin .ts-docs__nav a {
 	padding: 9px 13px;
 	border-radius: var(--ts-radius-control);
 	color: var(--ts-slate);
@@ -150,31 +150,31 @@
 	white-space: nowrap;
 }
 
-.tutorslot-admin .ts-docs__nav a:hover,
-.tutorslot-admin .ts-docs__nav a:focus-visible {
+.plumberslot-admin .ts-docs__nav a:hover,
+.plumberslot-admin .ts-docs__nav a:focus-visible {
 	background: var(--ts-primary-wash);
 	color: var(--ts-primary);
 }
 
-.tutorslot-admin .ts-docs__section {
+.plumberslot-admin .ts-docs__section {
 	padding: clamp(56px, 7vw, 92px) clamp(4px, 2vw, 20px) 0;
 	scroll-margin-top: 96px;
 }
 
-.tutorslot-admin .ts-docs__section-heading {
+.plumberslot-admin .ts-docs__section-heading {
 	max-width: 760px;
 	margin-bottom: var(--ts-sp-8);
 }
 
-.tutorslot-admin .ts-docs__section-heading h2,
-.tutorslot-admin .ts-docs__guide-head h2,
-.tutorslot-admin .ts-docs__help h2 {
+.plumberslot-admin .ts-docs__section-heading h2,
+.plumberslot-admin .ts-docs__guide-head h2,
+.plumberslot-admin .ts-docs__help h2 {
 	font-size: clamp(27px, 4vw, 40px);
 	line-height: 1.12;
 	letter-spacing: -0.035em;
 }
 
-.tutorslot-admin
+.plumberslot-admin
 :where(
 	.ts-docs__section-heading > p:last-child,
 	.ts-docs__guide-head > div > p:last-child
@@ -184,19 +184,19 @@
 	font-size: var(--ts-text-lg);
 }
 
-.tutorslot-admin .ts-docs__video-section {
+.plumberslot-admin .ts-docs__video-section {
 	display: grid;
 	grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.35fr);
 	gap: var(--ts-sp-8);
 	align-items: start;
 }
 
-.tutorslot-admin .ts-docs__video-section .ts-docs__section-heading {
+.plumberslot-admin .ts-docs__video-section .ts-docs__section-heading {
 	position: sticky;
 	top: 104px;
 }
 
-.tutorslot-admin .ts-docs__video-link {
+.plumberslot-admin .ts-docs__video-link {
 	display: grid;
 	grid-template-columns: 68px minmax(0, 1fr) auto;
 	gap: var(--ts-sp-5);
@@ -211,7 +211,7 @@
 	color: #fff;
 }
 
-.tutorslot-admin .ts-docs__video-link > span {
+.plumberslot-admin .ts-docs__video-link > span {
 	display: grid;
 	place-items: center;
 	width: 68px;
@@ -222,17 +222,17 @@
 	font-size: 25px;
 }
 
-.tutorslot-admin .ts-docs__video-link strong {
+.plumberslot-admin .ts-docs__video-link strong {
 	font-family: var(--ts-font-display);
 	font-size: var(--ts-text-2xl);
 }
 
-.tutorslot-admin .ts-docs__video-link p {
+.plumberslot-admin .ts-docs__video-link p {
 	margin: var(--ts-sp-2) 0 0;
 	color: rgb(255 255 255 / 70%);
 }
 
-.tutorslot-admin .ts-docs__video-link > em {
+.plumberslot-admin .ts-docs__video-link > em {
 	padding: 10px 14px;
 	background: rgb(255 255 255 / 8%);
 	border: 1px solid rgb(255 255 255 / 15%);
@@ -244,7 +244,7 @@
 	white-space: nowrap;
 }
 
-.tutorslot-admin .ts-docs__transcript {
+.plumberslot-admin .ts-docs__transcript {
 	grid-column: 2;
 	margin-top: calc(var(--ts-sp-6) * -1);
 	padding: var(--ts-sp-4) var(--ts-sp-5);
@@ -253,28 +253,28 @@
 	border-radius: var(--ts-radius-md);
 }
 
-.tutorslot-admin .ts-docs__transcript summary {
+.plumberslot-admin .ts-docs__transcript summary {
 	cursor: pointer;
 	color: var(--ts-primary);
 	font-weight: 700;
 }
 
-.tutorslot-admin .ts-docs__transcript ol {
+.plumberslot-admin .ts-docs__transcript ol {
 	margin: var(--ts-sp-4) 0 0;
 	padding-left: 20px;
 }
 
-.tutorslot-admin .ts-docs__transcript li + li {
+.plumberslot-admin .ts-docs__transcript li + li {
 	margin-top: var(--ts-sp-2);
 }
 
-.tutorslot-admin .ts-docs__usp-grid {
+.plumberslot-admin .ts-docs__usp-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: var(--ts-sp-4);
 }
 
-.tutorslot-admin .ts-docs__usp {
+.plumberslot-admin .ts-docs__usp {
 	min-height: 230px;
 	padding: var(--ts-sp-6);
 	background: #fff;
@@ -283,7 +283,7 @@
 	box-shadow: var(--ts-shadow-admin);
 }
 
-.tutorslot-admin .ts-docs__usp > span {
+.plumberslot-admin .ts-docs__usp > span {
 	display: inline-flex;
 	margin-bottom: var(--ts-sp-8);
 	color: var(--ts-primary);
@@ -292,17 +292,17 @@
 	font-weight: 800;
 }
 
-.tutorslot-admin .ts-docs__usp h3 {
+.plumberslot-admin .ts-docs__usp h3 {
 	font-size: var(--ts-text-xl);
 	line-height: 1.25;
 }
 
-.tutorslot-admin .ts-docs__usp p {
+.plumberslot-admin .ts-docs__usp p {
 	margin: var(--ts-sp-3) 0 0;
 	color: var(--ts-slate);
 }
 
-.tutorslot-admin .ts-docs__section-heading--progress {
+.plumberslot-admin .ts-docs__section-heading--progress {
 	display: flex;
 	max-width: none;
 	align-items: end;
@@ -310,7 +310,7 @@
 	gap: var(--ts-sp-6);
 }
 
-.tutorslot-admin .ts-docs__progress {
+.plumberslot-admin .ts-docs__progress {
 	width: 220px;
 	padding: var(--ts-sp-4);
 	background: var(--ts-highlight-wash);
@@ -318,22 +318,22 @@
 	border-radius: var(--ts-radius-md);
 }
 
-.tutorslot-admin .ts-docs__progress strong,
-.tutorslot-admin .ts-docs__progress span {
+.plumberslot-admin .ts-docs__progress strong,
+.plumberslot-admin .ts-docs__progress span {
 	display: block;
 }
 
-.tutorslot-admin .ts-docs__progress strong {
+.plumberslot-admin .ts-docs__progress strong {
 	color: var(--ts-ink);
 	font-size: var(--ts-text-xl);
 }
 
-.tutorslot-admin .ts-docs__progress span {
+.plumberslot-admin .ts-docs__progress span {
 	color: var(--ts-slate);
 	font-size: var(--ts-text-sm);
 }
 
-.tutorslot-admin .ts-docs__progress > div {
+.plumberslot-admin .ts-docs__progress > div {
 	height: 6px;
 	margin-top: var(--ts-sp-3);
 	overflow: hidden;
@@ -341,7 +341,7 @@
 	border-radius: var(--ts-radius-pill);
 }
 
-.tutorslot-admin .ts-docs__progress i {
+.plumberslot-admin .ts-docs__progress i {
 	display: block;
 	height: 100%;
 	background: var(--ts-primary);
@@ -349,12 +349,12 @@
 	transition: width 180ms ease;
 }
 
-.tutorslot-admin .ts-docs__steps {
+.plumberslot-admin .ts-docs__steps {
 	display: grid;
 	gap: var(--ts-sp-3);
 }
 
-.tutorslot-admin .ts-docs__step {
+.plumberslot-admin .ts-docs__step {
 	display: grid;
 	grid-template-columns: 48px minmax(0, 1fr) auto;
 	gap: var(--ts-sp-4);
@@ -366,12 +366,12 @@
 	box-shadow: var(--ts-shadow-admin);
 }
 
-.tutorslot-admin .ts-docs__step.is-complete {
+.plumberslot-admin .ts-docs__step.is-complete {
 	background: var(--ts-ok-wash);
 	border-color: rgb(44 115 81 / 24%);
 }
 
-.tutorslot-admin .ts-docs__check {
+.plumberslot-admin .ts-docs__check {
 	display: grid;
 	place-items: center;
 	width: 44px;
@@ -387,22 +387,22 @@
 	cursor: pointer;
 }
 
-.tutorslot-admin .ts-docs__step.is-complete .ts-docs__check {
+.plumberslot-admin .ts-docs__step.is-complete .ts-docs__check {
 	background: var(--ts-ok);
 	border-color: var(--ts-ok);
 	color: #fff;
 }
 
-.tutorslot-admin .ts-docs__step h3 {
+.plumberslot-admin .ts-docs__step h3 {
 	font-size: var(--ts-text-xl);
 }
 
-.tutorslot-admin .ts-docs__step p {
+.plumberslot-admin .ts-docs__step p {
 	margin: var(--ts-sp-1) 0 0;
 	color: var(--ts-slate);
 }
 
-.tutorslot-admin .ts-docs__guide-head {
+.plumberslot-admin .ts-docs__guide-head {
 	display: flex;
 	align-items: end;
 	justify-content: space-between;
@@ -410,11 +410,11 @@
 	margin-bottom: var(--ts-sp-6);
 }
 
-.tutorslot-admin .ts-docs__guide-head > div {
+.plumberslot-admin .ts-docs__guide-head > div {
 	max-width: 690px;
 }
 
-.tutorslot-admin .ts-docs__search {
+.plumberslot-admin .ts-docs__search {
 	display: grid;
 	width: min(360px, 100%);
 	gap: var(--ts-sp-1);
@@ -423,7 +423,7 @@
 	font-weight: 700;
 }
 
-.tutorslot-admin .ts-docs__search input {
+.plumberslot-admin .ts-docs__search input {
 	width: 100%;
 	height: 44px;
 	margin: 0;
@@ -435,24 +435,24 @@
 	font: inherit;
 }
 
-.tutorslot-admin .ts-docs__search input:focus {
+.plumberslot-admin .ts-docs__search input:focus {
 	border-color: var(--ts-primary);
 	box-shadow: 0 0 0 1px var(--ts-primary);
 }
 
-.tutorslot-admin .ts-docs__guides {
+.plumberslot-admin .ts-docs__guides {
 	display: grid;
 	gap: var(--ts-sp-3);
 }
 
-.tutorslot-admin .ts-docs__guide {
+.plumberslot-admin .ts-docs__guide {
 	background: #fff;
 	border: 1px solid var(--ts-rule);
 	border-radius: var(--ts-radius-lg);
 	box-shadow: var(--ts-shadow-admin);
 }
 
-.tutorslot-admin .ts-docs__guide summary {
+.plumberslot-admin .ts-docs__guide summary {
 	display: grid;
 	grid-template-columns: 165px minmax(0, 1fr) 32px;
 	gap: var(--ts-sp-4);
@@ -463,12 +463,12 @@
 	cursor: pointer;
 }
 
-.tutorslot-admin .ts-docs__guide summary::-webkit-details-marker,
-.tutorslot-admin .ts-docs__faq summary::-webkit-details-marker {
+.plumberslot-admin .ts-docs__guide summary::-webkit-details-marker,
+.plumberslot-admin .ts-docs__faq summary::-webkit-details-marker {
 	display: none;
 }
 
-.tutorslot-admin .ts-docs__guide summary > span {
+.plumberslot-admin .ts-docs__guide summary > span {
 	color: var(--ts-primary);
 	font-family: var(--ts-font-mono);
 	font-size: var(--ts-text-xs);
@@ -477,13 +477,13 @@
 	text-transform: uppercase;
 }
 
-.tutorslot-admin .ts-docs__guide summary > strong {
+.plumberslot-admin .ts-docs__guide summary > strong {
 	color: var(--ts-ink);
 	font-family: var(--ts-font-display);
 	font-size: var(--ts-text-lg);
 }
 
-.tutorslot-admin .ts-docs__guide summary > i {
+.plumberslot-admin .ts-docs__guide summary > i {
 	display: grid;
 	place-items: center;
 	width: 32px;
@@ -496,32 +496,32 @@
 	transition: transform 160ms ease;
 }
 
-.tutorslot-admin .ts-docs__guide[open] summary > i {
+.plumberslot-admin .ts-docs__guide[open] summary > i {
 	transform: rotate(45deg);
 }
 
-.tutorslot-admin .ts-docs__guide-body {
+.plumberslot-admin .ts-docs__guide-body {
 	padding: 0 var(--ts-sp-5) var(--ts-sp-6) 205px;
 	border-top: 1px solid var(--ts-rule-2);
 }
 
-.tutorslot-admin .ts-docs__guide-intro {
+.plumberslot-admin .ts-docs__guide-intro {
 	margin: var(--ts-sp-5) 0;
 	color: var(--ts-ink-2);
 	font-size: var(--ts-text-lg);
 }
 
-.tutorslot-admin .ts-docs__guide-body ol {
+.plumberslot-admin .ts-docs__guide-body ol {
 	margin: 0;
 	padding-left: 21px;
 	color: var(--ts-slate);
 }
 
-.tutorslot-admin .ts-docs__guide-body li + li {
+.plumberslot-admin .ts-docs__guide-body li + li {
 	margin-top: var(--ts-sp-2);
 }
 
-.tutorslot-admin .ts-docs__tip {
+.plumberslot-admin .ts-docs__tip {
 	margin: var(--ts-sp-5) 0 0;
 	padding: var(--ts-sp-4);
 	background: var(--ts-highlight-wash);
@@ -529,7 +529,7 @@
 	border-radius: var(--ts-radius-control);
 }
 
-.tutorslot-admin .ts-docs__no-results {
+.plumberslot-admin .ts-docs__no-results {
 	padding: var(--ts-sp-8);
 	background: var(--ts-paper);
 	border: 1px dashed var(--ts-rule);
@@ -537,11 +537,11 @@
 	text-align: center;
 }
 
-.tutorslot-admin .ts-docs__no-results p {
+.plumberslot-admin .ts-docs__no-results p {
 	margin: var(--ts-sp-2) 0 0;
 }
 
-.tutorslot-admin .ts-docs__shortcode {
+.plumberslot-admin .ts-docs__shortcode {
 	display: grid;
 	grid-template-columns: minmax(220px, 1fr) auto auto;
 	gap: var(--ts-sp-4);
@@ -553,13 +553,13 @@
 	color: #fff;
 }
 
-.tutorslot-admin .ts-docs__shortcode p {
+.plumberslot-admin .ts-docs__shortcode p {
 	margin: 2px 0 0;
 	color: rgb(255 255 255 / 65%);
 	font-size: var(--ts-text-sm);
 }
 
-.tutorslot-admin .ts-docs__shortcode code {
+.plumberslot-admin .ts-docs__shortcode code {
 	padding: 10px 12px;
 	background: rgb(255 255 255 / 10%);
 	border-radius: var(--ts-radius-control);
@@ -567,20 +567,20 @@
 	white-space: nowrap;
 }
 
-.tutorslot-admin .ts-docs__faq-grid {
+.plumberslot-admin .ts-docs__faq-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--ts-sp-3);
 }
 
-.tutorslot-admin .ts-docs__faq {
+.plumberslot-admin .ts-docs__faq {
 	padding: var(--ts-sp-5);
 	background: #fff;
 	border: 1px solid var(--ts-rule);
 	border-radius: var(--ts-radius-md);
 }
 
-.tutorslot-admin .ts-docs__faq summary {
+.plumberslot-admin .ts-docs__faq summary {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -591,22 +591,22 @@
 	cursor: pointer;
 }
 
-.tutorslot-admin .ts-docs__faq summary > span {
+.plumberslot-admin .ts-docs__faq summary > span {
 	color: var(--ts-primary);
 	font-size: 20px;
 	transition: transform 160ms ease;
 }
 
-.tutorslot-admin .ts-docs__faq[open] summary > span {
+.plumberslot-admin .ts-docs__faq[open] summary > span {
 	transform: rotate(45deg);
 }
 
-.tutorslot-admin .ts-docs__faq p {
+.plumberslot-admin .ts-docs__faq p {
 	margin: var(--ts-sp-4) 0 0;
 	color: var(--ts-slate);
 }
 
-.tutorslot-admin .ts-docs__help {
+.plumberslot-admin .ts-docs__help {
 	display: grid;
 	grid-template-columns: minmax(0, 1.2fr) minmax(270px, 0.8fr);
 	gap: var(--ts-sp-8);
@@ -619,30 +619,30 @@
 	scroll-margin-top: 96px;
 }
 
-.tutorslot-admin .ts-docs__help ol {
+.plumberslot-admin .ts-docs__help ol {
 	margin: var(--ts-sp-5) 0 0;
 	padding-left: 22px;
 }
 
-.tutorslot-admin .ts-docs__help li + li {
+.plumberslot-admin .ts-docs__help li + li {
 	margin-top: var(--ts-sp-2);
 }
 
-.tutorslot-admin .ts-docs__help-actions {
+.plumberslot-admin .ts-docs__help-actions {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	gap: var(--ts-sp-2);
 }
 
-.tutorslot-admin .ts-docs__help-actions p {
+.plumberslot-admin .ts-docs__help-actions p {
 	margin: var(--ts-sp-2) 0 0;
 	color: var(--ts-slate);
 	font-size: var(--ts-text-sm);
 	text-align: center;
 }
 
-.tutorslot-admin .ts-docs__back-top {
+.plumberslot-admin .ts-docs__back-top {
 	display: table;
 	margin: var(--ts-sp-8) auto 0;
 	padding: var(--ts-sp-3);
@@ -651,145 +651,145 @@
 	text-decoration: none;
 }
 
-.tutorslot-admin .ts-docs :where(a, button, input, summary):focus-visible {
+.plumberslot-admin .ts-docs :where(a, button, input, summary):focus-visible {
 	outline: var(--ts-focus-ring);
 	outline-offset: var(--ts-focus-offset);
 }
 
 @media (max-width: 1050px) {
 
-	.tutorslot-admin .ts-docs__hero,
-	.tutorslot-admin .ts-docs__video-section,
-	.tutorslot-admin .ts-docs__help {
+	.plumberslot-admin .ts-docs__hero,
+	.plumberslot-admin .ts-docs__video-section,
+	.plumberslot-admin .ts-docs__help {
 		grid-template-columns: 1fr;
 	}
 
-	.tutorslot-admin .ts-docs__video-section .ts-docs__section-heading {
+	.plumberslot-admin .ts-docs__video-section .ts-docs__section-heading {
 		position: static;
 	}
 
-	.tutorslot-admin .ts-docs__transcript {
+	.plumberslot-admin .ts-docs__transcript {
 		grid-column: 1;
 		margin-top: calc(var(--ts-sp-6) * -1);
 	}
 
-	.tutorslot-admin .ts-docs__usp-grid {
+	.plumberslot-admin .ts-docs__usp-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
 @media (max-width: 782px) {
 
-	.tutorslot-admin .ts-docs__nav {
+	.plumberslot-admin .ts-docs__nav {
 		top: 46px;
 	}
 
-	.tutorslot-admin .ts-docs__section-heading--progress,
-	.tutorslot-admin .ts-docs__guide-head {
+	.plumberslot-admin .ts-docs__section-heading--progress,
+	.plumberslot-admin .ts-docs__guide-head {
 		align-items: stretch;
 		flex-direction: column;
 	}
 
-	.tutorslot-admin .ts-docs__progress,
-	.tutorslot-admin .ts-docs__search {
+	.plumberslot-admin .ts-docs__progress,
+	.plumberslot-admin .ts-docs__search {
 		width: 100%;
 	}
 
-	.tutorslot-admin .ts-docs__step {
+	.plumberslot-admin .ts-docs__step {
 		grid-template-columns: 48px minmax(0, 1fr);
 	}
 
-	.tutorslot-admin .ts-docs__step .ts-docs__action {
+	.plumberslot-admin .ts-docs__step .ts-docs__action {
 		grid-column: 2;
 		justify-self: start;
 	}
 
-	.tutorslot-admin .ts-docs__guide summary {
+	.plumberslot-admin .ts-docs__guide summary {
 		grid-template-columns: minmax(0, 1fr) 32px;
 	}
 
-	.tutorslot-admin .ts-docs__guide summary > span {
+	.plumberslot-admin .ts-docs__guide summary > span {
 		grid-column: 1;
 	}
 
-	.tutorslot-admin .ts-docs__guide summary > strong {
+	.plumberslot-admin .ts-docs__guide summary > strong {
 		grid-column: 1;
 	}
 
-	.tutorslot-admin .ts-docs__guide summary > i {
+	.plumberslot-admin .ts-docs__guide summary > i {
 		grid-column: 2;
 		grid-row: 1 / span 2;
 	}
 
-	.tutorslot-admin .ts-docs__guide-body {
+	.plumberslot-admin .ts-docs__guide-body {
 		padding: 0 var(--ts-sp-5) var(--ts-sp-6);
 	}
 
-	.tutorslot-admin .ts-docs__shortcode {
+	.plumberslot-admin .ts-docs__shortcode {
 		grid-template-columns: 1fr;
 	}
 
-	.tutorslot-admin .ts-docs__shortcode code {
+	.plumberslot-admin .ts-docs__shortcode code {
 		overflow-x: auto;
 	}
 }
 
 @media (max-width: 560px) {
 
-	.tutorslot-admin .ts-docs__hero {
+	.plumberslot-admin .ts-docs__hero {
 		padding: var(--ts-sp-6);
 	}
 
-	.tutorslot-admin .ts-docs__hero h1 {
+	.plumberslot-admin .ts-docs__hero h1 {
 		font-size: 36px;
 	}
 
-	.tutorslot-admin .ts-docs__hero-actions,
-	.tutorslot-admin .ts-docs__guide-actions {
+	.plumberslot-admin .ts-docs__hero-actions,
+	.plumberslot-admin .ts-docs__guide-actions {
 		flex-direction: column;
 	}
 
-	.tutorslot-admin .ts-docs__hero-actions .ts-btn,
-	.tutorslot-admin .ts-docs__guide-actions .ts-btn {
+	.plumberslot-admin .ts-docs__hero-actions .ts-btn,
+	.plumberslot-admin .ts-docs__guide-actions .ts-btn {
 		width: 100%;
 	}
 
-	.tutorslot-admin .ts-docs__usp-grid,
-	.tutorslot-admin .ts-docs__faq-grid {
+	.plumberslot-admin .ts-docs__usp-grid,
+	.plumberslot-admin .ts-docs__faq-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.tutorslot-admin .ts-docs__usp {
+	.plumberslot-admin .ts-docs__usp {
 		min-height: 0;
 	}
 
-	.tutorslot-admin .ts-docs__video-link {
+	.plumberslot-admin .ts-docs__video-link {
 		grid-template-columns: 56px minmax(0, 1fr);
 		min-height: 0;
 		padding: var(--ts-sp-6);
 	}
 
-	.tutorslot-admin .ts-docs__video-link > span {
+	.plumberslot-admin .ts-docs__video-link > span {
 		width: 56px;
 		height: 56px;
 	}
 
-	.tutorslot-admin .ts-docs__video-link > :where(.ts-docs__action, em) {
+	.plumberslot-admin .ts-docs__video-link > :where(.ts-docs__action, em) {
 		grid-column: 1 / -1;
 		justify-self: stretch;
 		text-align: center;
 	}
 
-	.tutorslot-admin .ts-docs__step {
+	.plumberslot-admin .ts-docs__step {
 		grid-template-columns: 44px minmax(0, 1fr);
 		padding: var(--ts-sp-4);
 	}
 
-	.tutorslot-admin .ts-docs__section {
+	.plumberslot-admin .ts-docs__section {
 		padding-top: var(--ts-sp-14);
 	}
 
-	.tutorslot-admin .ts-docs__help {
+	.plumberslot-admin .ts-docs__help {
 		padding: var(--ts-sp-6);
 	}
 }

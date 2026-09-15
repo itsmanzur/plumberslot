@@ -6,12 +6,12 @@
  * makes them both a scraping target and a cheap way to hold every slot a tutor
  * owns. A fixed window per identity is enough to stop both.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +23,7 @@ final class RateLimiter {
 	 * @param int    $window   Window length in seconds.
 	 */
 	public static function allow( string $bucket, int $limit = 10, int $window = MINUTE_IN_SECONDS ): bool {
-		$key  = 'tutorslot_rl_' . md5( $bucket . '|' . self::identity() );
+		$key  = 'plumberslot_rl_' . md5( $bucket . '|' . self::identity() );
 		$hits = (int) get_transient( $key );
 
 		if ( $hits >= $limit ) {

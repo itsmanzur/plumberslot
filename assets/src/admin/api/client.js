@@ -3,7 +3,7 @@ import { getConfig } from './config';
 export class ApiError extends Error {
 	constructor(
 		message,
-		{ code = 'tutorslot_error', status = 0, data = null } = {}
+		{ code = 'plumberslot_error', status = 0, data = null } = {}
 	) {
 		super( message );
 		this.name = 'ApiError';
@@ -16,7 +16,7 @@ export class ApiError extends Error {
 function normalizeError( payload, status ) {
 	if ( payload && typeof payload === 'object' ) {
 		return new ApiError( payload.message || 'Request failed.', {
-			code: payload.code || 'tutorslot_error',
+			code: payload.code || 'plumberslot_error',
 			status: payload.data?.status || status,
 			data: payload.data || null,
 		} );

@@ -5,12 +5,12 @@
  * Everything lives in one group so a single flush clears a tutor's whole
  * calendar the instant a booking or a rule changes.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 use DateTimeImmutable;
 
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Cache {
 
-	public const GROUP          = 'tutorslot';
+	public const GROUP          = 'plumberslot';
 	private const DASHBOARD_TTL = 15;
 
 	public static function slot_key( int $tutor_id, DateTimeImmutable $from, DateTimeImmutable $to, int $duration ): string {
@@ -78,6 +78,6 @@ final class Cache {
 	}
 
 	private static function dashboard_key( int $tutor_id ): string {
-		return 'tutorslot_dashboard_' . $tutor_id;
+		return 'plumberslot_dashboard_' . $tutor_id;
 	}
 }

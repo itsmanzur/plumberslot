@@ -68,14 +68,14 @@ export function DesignSystemDemo() {
 
 	return h(
 		'div',
-		{ class: 'tutorslot-admin ts-ds' },
+		{ class: 'plumberslot-admin ts-ds' },
 		h(
 			'header',
 			{ class: 'ts-ds__section' },
 			h(
 				'p',
-				{ class: 'tutorslot-admin__eyebrow' },
-				'TutorSlot design system'
+				{ class: 'plumberslot-admin__eyebrow' },
+				'PlumberSlot design system'
 			),
 			h( 'h1', null, 'Shared component baseline' ),
 			h(

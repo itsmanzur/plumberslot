@@ -2,30 +2,30 @@
 /**
  * Bootstraps every subsystem and holds the service container.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot;
+namespace PlumberSlot;
 
-use TutorSlot\Admin\AdminMenu;
-use TutorSlot\Admin\OnboardingWizard;
-use TutorSlot\Admin\SettingsRegistry;
-use TutorSlot\Database\Migrator;
-use TutorSlot\Frontend\AssetManager;
-use TutorSlot\Frontend\BlockRegistrar;
-use TutorSlot\Frontend\DashboardRoutes;
-use TutorSlot\Frontend\Shortcode;
-use TutorSlot\Frontend\TutorAdminGate;
-use TutorSlot\Domain\MeetingService;
-use TutorSlot\Frontend\JoinRoute;
-use TutorSlot\Meetings\MeetingCleanup;
-use TutorSlot\Notifications\Scheduler;
-use TutorSlot\Payments\WebhookController;
-use TutorSlot\Privacy\PrivacyHooks;
-use TutorSlot\Rest\RestServiceProvider;
-use TutorSlot\Support\SecretMasker;
+use PlumberSlot\Admin\AdminMenu;
+use PlumberSlot\Admin\OnboardingWizard;
+use PlumberSlot\Admin\SettingsRegistry;
+use PlumberSlot\Database\Migrator;
+use PlumberSlot\Frontend\AssetManager;
+use PlumberSlot\Frontend\BlockRegistrar;
+use PlumberSlot\Frontend\DashboardRoutes;
+use PlumberSlot\Frontend\Shortcode;
+use PlumberSlot\Frontend\TutorAdminGate;
+use PlumberSlot\Domain\MeetingService;
+use PlumberSlot\Frontend\JoinRoute;
+use PlumberSlot\Meetings\MeetingCleanup;
+use PlumberSlot\Notifications\Scheduler;
+use PlumberSlot\Payments\WebhookController;
+use PlumberSlot\Privacy\PrivacyHooks;
+use PlumberSlot\Rest\RestServiceProvider;
+use PlumberSlot\Support\SecretMasker;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -58,7 +58,7 @@ final class Plugin {
 		}
 		$this->booted = true;
 
-		load_plugin_textdomain( 'tutorslot', false, dirname( plugin_basename( PLUGIN_FILE ) ) . '/languages' );
+		load_plugin_textdomain( 'plumberslot', false, dirname( plugin_basename( PLUGIN_FILE ) ) . '/languages' );
 
 		$this->container->register_defaults();
 		SecretMasker::register();
@@ -80,7 +80,7 @@ final class Plugin {
 		$this->container->get( PrivacyHooks::class )->register();
 
 		// Settings routes must be registered on every request (including REST) so
-		// that wp-json/tutorslot/v1/settings is reachable from the admin SPA.
+		// that wp-json/plumberslot/v1/settings is reachable from the admin SPA.
 		$this->container->get( SettingsRegistry::class )->register();
 
 		if ( is_admin() ) {
@@ -91,13 +91,13 @@ final class Plugin {
 		$this->warn_if_scheduler_missing();
 
 		/**
-		 * Fires once TutorSlot is fully wired.
+		 * Fires once PlumberSlot is fully wired.
 		 *
 		 * Integrations (Tutor LMS, LearnDash, payment add-ons) should hook here.
 		 *
 		 * @param Container $container Service container.
 		 */
-		do_action( 'tutorslot_booted', $this->container );
+		do_action( 'plumberslot_booted', $this->container );
 	}
 
 	/**
@@ -121,8 +121,8 @@ final class Plugin {
 
 				printf(
 					'<div class="notice notice-warning"><p><strong>%s</strong> %s</p></div>',
-					esc_html__( 'TutorSlot:', 'tutorslot' ),
-					esc_html__( 'lesson reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on.', 'tutorslot' )
+					esc_html__( 'PlumberSlot:', 'plumberslot' ),
+					esc_html__( 'lesson reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on.', 'plumberslot' )
 				);
 			}
 		);

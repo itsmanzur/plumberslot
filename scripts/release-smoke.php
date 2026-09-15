@@ -2,7 +2,7 @@
 /**
  * Bootstrap a disposable WordPress install for the release ZIP smoke test.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
@@ -13,14 +13,14 @@ if ( 'cli' !== PHP_SAPI ) {
 }
 
 $action = $argv[1] ?? '';
-$root   = getenv( 'TUTORSLOT_SMOKE_WP_ROOT' );
+$root   = getenv( 'PLUMBERSLOT_SMOKE_WP_ROOT' );
 
 if ( ! is_string( $root ) || '' === $root || ! is_readable( $root . '/wp-settings.php' ) ) {
-	fwrite( STDERR, "TUTORSLOT_SMOKE_WP_ROOT is not a WordPress root.\n" );
+	fwrite( STDERR, "PLUMBERSLOT_SMOKE_WP_ROOT is not a WordPress root.\n" );
 	exit( 1 );
 }
 
-define( 'TUTORSLOT_SMOKE_ACTION', $action );
+define( 'PLUMBERSLOT_SMOKE_ACTION', $action );
 
 function smoke_env( string $name, string $fallback = '' ): string {
 	$value = getenv( $name );
@@ -29,14 +29,14 @@ function smoke_env( string $name, string $fallback = '' ): string {
 }
 
 define( 'ABSPATH', rtrim( str_replace( '\\', '/', $root ), '/' ) . '/' );
-define( 'DB_NAME', smoke_env( 'TUTORSLOT_SMOKE_DB_NAME' ) );
-define( 'DB_USER', smoke_env( 'TUTORSLOT_SMOKE_DB_USER', 'root' ) );
-define( 'DB_PASSWORD', smoke_env( 'TUTORSLOT_SMOKE_DB_PASSWORD', 'root' ) );
-define( 'DB_HOST', smoke_env( 'TUTORSLOT_SMOKE_DB_HOST', '127.0.0.1' ) . ':' . smoke_env( 'TUTORSLOT_SMOKE_DB_PORT' ) );
+define( 'DB_NAME', smoke_env( 'PLUMBERSLOT_SMOKE_DB_NAME' ) );
+define( 'DB_USER', smoke_env( 'PLUMBERSLOT_SMOKE_DB_USER', 'root' ) );
+define( 'DB_PASSWORD', smoke_env( 'PLUMBERSLOT_SMOKE_DB_PASSWORD', 'root' ) );
+define( 'DB_HOST', smoke_env( 'PLUMBERSLOT_SMOKE_DB_HOST', '127.0.0.1' ) . ':' . smoke_env( 'PLUMBERSLOT_SMOKE_DB_PORT' ) );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
-define( 'WP_HOME', 'http://tutorslot-smoke.invalid' );
-define( 'WP_SITEURL', 'http://tutorslot-smoke.invalid' );
+define( 'WP_HOME', 'http://plumberslot-smoke.invalid' );
+define( 'WP_SITEURL', 'http://plumberslot-smoke.invalid' );
 define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 define( 'WP_CONTENT_URL', WP_SITEURL . '/wp-content' );
 define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
@@ -44,37 +44,37 @@ define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
 define( 'FS_METHOD', 'direct' );
 define( 'WP_DEBUG', false );
 define( 'WP_CACHE', false );
-define( 'AUTH_KEY', 'tutorslot-disposable-auth-key' );
-define( 'SECURE_AUTH_KEY', 'tutorslot-disposable-secure-auth-key' );
-define( 'LOGGED_IN_KEY', 'tutorslot-disposable-logged-in-key' );
-define( 'NONCE_KEY', 'tutorslot-disposable-nonce-key' );
-define( 'AUTH_SALT', 'tutorslot-disposable-auth-salt' );
-define( 'SECURE_AUTH_SALT', 'tutorslot-disposable-secure-auth-salt' );
-define( 'LOGGED_IN_SALT', 'tutorslot-disposable-logged-in-salt' );
-define( 'NONCE_SALT', 'tutorslot-disposable-nonce-salt' );
+define( 'AUTH_KEY', 'plumberslot-disposable-auth-key' );
+define( 'SECURE_AUTH_KEY', 'plumberslot-disposable-secure-auth-key' );
+define( 'LOGGED_IN_KEY', 'plumberslot-disposable-logged-in-key' );
+define( 'NONCE_KEY', 'plumberslot-disposable-nonce-key' );
+define( 'AUTH_SALT', 'plumberslot-disposable-auth-salt' );
+define( 'SECURE_AUTH_SALT', 'plumberslot-disposable-secure-auth-salt' );
+define( 'LOGGED_IN_SALT', 'plumberslot-disposable-logged-in-salt' );
+define( 'NONCE_SALT', 'plumberslot-disposable-nonce-salt' );
 
 $table_prefix = 'wp_';
 
-if ( 'install' === TUTORSLOT_SMOKE_ACTION ) {
+if ( 'install' === PLUMBERSLOT_SMOKE_ACTION ) {
 	define( 'WP_INSTALLING', true );
 }
 
 require ABSPATH . 'wp-settings.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-if ( 'install' === TUTORSLOT_SMOKE_ACTION ) {
+if ( 'install' === PLUMBERSLOT_SMOKE_ACTION ) {
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 	$result = wp_install(
-		'TutorSlot release smoke',
-		'tutorslot-smoke@example.invalid',
+		'PlumberSlot release smoke',
+		'plumberslot-smoke@example.invalid',
 		true,
 		'',
 		'smoke_admin',
-		'TutorSlot-Smoke-Only-2026!'
+		'PlumberSlot-Smoke-Only-2026!'
 	);
 
-	$activation = activate_plugin( 'tutorslot/tutorslot.php' );
+	$activation = activate_plugin( 'plumberslot/plumberslot.php' );
 	if ( is_wp_error( $activation ) ) {
 		fwrite( STDERR, $activation->get_error_message() . "\n" );
 		exit( 1 );
@@ -84,13 +84,13 @@ if ( 'install' === TUTORSLOT_SMOKE_ACTION ) {
 		array(
 			'installed' => true,
 			'user_id'   => (int) $result['user_id'],
-			'active'    => is_plugin_active( 'tutorslot/tutorslot.php' ),
+			'active'    => is_plugin_active( 'plumberslot/plumberslot.php' ),
 		)
 	) . PHP_EOL;
 	exit( 0 );
 }
 
-if ( 'verify' === TUTORSLOT_SMOKE_ACTION ) {
+if ( 'verify' === PLUMBERSLOT_SMOKE_ACTION ) {
 	global $wpdb, $wp_version;
 
 	if ( ! did_action( 'rest_api_init' ) ) {
@@ -98,25 +98,25 @@ if ( 'verify' === TUTORSLOT_SMOKE_ACTION ) {
 	}
 
 	$routes        = rest_get_server()->get_routes();
-	$tutorslot_api = array_filter(
+	$plumberslot_api = array_filter(
 		array_keys( $routes ),
-		static fn ( string $route ): bool => str_starts_with( $route, '/tutorslot/v1/' )
+		static fn ( string $route ): bool => str_starts_with( $route, '/plumberslot/v1/' )
 	);
-	$table_pattern = $wpdb->esc_like( $wpdb->prefix . 'tutorslot_' ) . '%';
+	$table_pattern = $wpdb->esc_like( $wpdb->prefix . 'plumberslot_' ) . '%';
 	$table_count   = (int) $wpdb->get_var(
 		$wpdb->prepare( 'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name LIKE %s', DB_NAME, $table_pattern )
 	);
-	$plugin_root   = WP_PLUGIN_DIR . '/tutorslot';
+	$plugin_root   = WP_PLUGIN_DIR . '/plumberslot';
 	$checks        = array(
-		'active'             => is_plugin_active( 'tutorslot/tutorslot.php' ),
-		'plugin_booted'      => class_exists( 'TutorSlot\\Plugin' ),
+		'active'             => is_plugin_active( 'plumberslot/plumberslot.php' ),
+		'plugin_booted'      => class_exists( 'PlumberSlot\\Plugin' ),
 		'action_scheduler'   => function_exists( 'as_schedule_single_action' ),
-		'db_version'         => 6 === (int) get_option( 'tutorslot_db_version', 0 ),
+		'db_version'         => 6 === (int) get_option( 'plumberslot_db_version', 0 ),
 		'tables'             => 13 === $table_count,
-		'rest_routes'        => 0 < count( $tutorslot_api ),
+		'rest_routes'        => 0 < count( $plumberslot_api ),
 		'admin_asset'        => is_readable( $plugin_root . '/assets/dist/admin.js' ),
 		'widget_asset'       => is_readable( $plugin_root . '/assets/dist/widget.js' ),
-		'pot'                => is_readable( $plugin_root . '/languages/tutorslot.pot' ),
+		'pot'                => is_readable( $plugin_root . '/languages/plumberslot.pot' ),
 		'security_policy'    => is_readable( $plugin_root . '/SECURITY.md' ),
 		'support_guide'      => is_readable( $plugin_root . '/SUPPORT.md' ),
 		'third_party_notice' => is_readable( $plugin_root . '/THIRD-PARTY-LICENSES.txt' ),
@@ -127,7 +127,7 @@ if ( 'verify' === TUTORSLOT_SMOKE_ACTION ) {
 		array(
 			'wordpress_version' => $wp_version,
 			'table_count'       => $table_count,
-			'rest_route_count'  => count( $tutorslot_api ),
+			'rest_route_count'  => count( $plumberslot_api ),
 			'checks'            => $checks,
 			'failed'            => $failed,
 		)
@@ -135,9 +135,9 @@ if ( 'verify' === TUTORSLOT_SMOKE_ACTION ) {
 	exit( empty( $failed ) ? 0 : 1 );
 }
 
-if ( 'deactivate' === TUTORSLOT_SMOKE_ACTION ) {
-	deactivate_plugins( 'tutorslot/tutorslot.php', false, false );
-	$inactive = ! is_plugin_active( 'tutorslot/tutorslot.php' );
+if ( 'deactivate' === PLUMBERSLOT_SMOKE_ACTION ) {
+	deactivate_plugins( 'plumberslot/plumberslot.php', false, false );
+	$inactive = ! is_plugin_active( 'plumberslot/plumberslot.php' );
 
 	echo wp_json_encode( array( 'deactivated' => $inactive ) ) . PHP_EOL;
 	exit( $inactive ? 0 : 1 );

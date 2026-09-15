@@ -1,5 +1,5 @@
 {
-  "name": "tutorslot/tutorslot",
+  "name": "plumberslot/plumberslot",
   "description": "Lesson booking built for teaching.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
@@ -17,7 +17,7 @@
     "yoast/phpunit-polyfills": "^2.0"
   },
   "autoload": {
-    "psr-4": { "TutorSlot\\": "src/" }
+    "psr-4": { "PlumberSlot\\": "src/" }
   },
   "scripts": {
     "lint":    "phpcs",

@@ -7,7 +7,7 @@ parameters:
     - tests/bootstrap-phpstan.php
   paths:
     - src
-    - tutorslot.php
+    - plumberslot.php
   scanFiles:
     - vendor/woocommerce/action-scheduler/functions.php
   treatPhpDocTypesAsCertain: false

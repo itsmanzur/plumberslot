@@ -6,15 +6,15 @@
  * and refuse to process the same event twice. Without the second one a replayed
  * webhook can confirm a cancelled lesson or refund a package repeatedly.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Payments;
+namespace PlumberSlot\Payments;
 
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -34,7 +34,7 @@ final class WebhookController {
 
 	public function register_routes(): void {
 		register_rest_route(
-			'tutorslot/v1',
+			'plumberslot/v1',
 			'/webhook/(?P<gateway>[a-z0-9_-]+)',
 			array(
 				'methods'             => 'POST',
@@ -52,7 +52,7 @@ final class WebhookController {
 		$gateway = $this->gateways->get( (string) $request['gateway'] );
 
 		if ( ! $gateway ) {
-			return new WP_Error( 'tutorslot_unknown_gateway', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_unknown_gateway', '', array( 'status' => 404 ) );
 		}
 
 		$raw     = $request->get_body();
@@ -65,7 +65,7 @@ final class WebhookController {
 		if ( ! $gateway->verify_webhook( $raw, $headers ) ) {
 			AuditLog::record( 'webhook.rejected', 'gateway', 0, array( 'gateway' => $gateway->id() ) );
 
-			return new WP_Error( 'tutorslot_bad_signature', '', array( 'status' => 400 ) );
+			return new WP_Error( 'plumberslot_bad_signature', '', array( 'status' => 400 ) );
 		}
 
 		$event = $gateway->parse_webhook( $raw );

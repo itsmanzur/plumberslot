@@ -623,7 +623,7 @@ function renderHoldNotice( seriesOn, holdStatus, seconds, mm, ss ) {
 			'span',
 			null,
 			'Held for ',
-			h( 'span', { class: 'tutorslot-mono' }, `${ mm }:${ ss }` )
+			h( 'span', { class: 'plumberslot-mono' }, `${ mm }:${ ss }` )
 		)
 	);
 }
@@ -857,7 +857,7 @@ function gatewayFor( payMethod, payments = {} ) {
 
 function returnUrl( flag, bookingId ) {
 	const url = new URL( window.location.href );
-	url.searchParams.set( 'tutorslot_pay', flag );
+	url.searchParams.set( 'plumberslot_pay', flag );
 	url.searchParams.set( 'booking', String( bookingId ) );
 	return url.toString();
 }

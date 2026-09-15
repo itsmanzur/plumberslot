@@ -2,15 +2,15 @@
 /**
  * Runs once on activation.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot;
+namespace PlumberSlot;
 
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,8 +20,8 @@ final class Activator {
 		if ( version_compare( get_bloginfo( 'version' ), MIN_WP, '<' ) ) {
 			deactivate_plugins( plugin_basename( PLUGIN_FILE ) );
 			wp_die(
-				esc_html__( 'TutorSlot needs WordPress 6.4 or newer.', 'tutorslot' ),
-				esc_html__( 'Cannot activate TutorSlot', 'tutorslot' ),
+				esc_html__( 'PlumberSlot needs WordPress 6.4 or newer.', 'plumberslot' ),
+				esc_html__( 'Cannot activate PlumberSlot', 'plumberslot' ),
 				array( 'back_link' => true )
 			);
 		}
@@ -30,7 +30,7 @@ final class Activator {
 		Capabilities::add_all();
 
 		add_option(
-			'tutorslot_settings',
+			'plumberslot_settings',
 			array(
 				'timezone'                 => wp_timezone_string(),
 				'slot_granularity_minutes' => 30,
@@ -44,11 +44,11 @@ final class Activator {
 				'delete_data_on_uninstall' => false,
 			),
 			'',
-			false // Never autoload: this option is only read on TutorSlot requests.
+			false // Never autoload: this option is only read on PlumberSlot requests.
 		);
 
-		update_option( 'tutorslot_db_version', DB_VERSION, false );
-		set_transient( 'tutorslot_show_onboarding', 1, DAY_IN_SECONDS );
+		update_option( 'plumberslot_db_version', DB_VERSION, false );
+		set_transient( 'plumberslot_show_onboarding', 1, DAY_IN_SECONDS );
 
 		flush_rewrite_rules();
 	}

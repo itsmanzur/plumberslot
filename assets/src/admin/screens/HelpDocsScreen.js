@@ -3,7 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { announce, copyText, safeUrl } from '../../shared';
 import { getConfig } from '../api/config';
 
-const PROGRESS_KEY = 'tutorslot_docs_quick_start_v1';
+const PROGRESS_KEY = 'plumberslot_docs_quick_start_v1';
 
 const QUICK_START = [
 	{
@@ -11,7 +11,7 @@ const QUICK_START = [
 		number: '01',
 		title: 'Add your tutor profile',
 		text: 'Choose the tutor, timezone and meeting preference students should see.',
-		screen: 'tutorslot-tutors',
+		screen: 'plumberslot-tutors',
 		action: 'Open tutors',
 	},
 	{
@@ -19,7 +19,7 @@ const QUICK_START = [
 		number: '02',
 		title: 'Create at least one subject',
 		text: 'Give it a clear name, lesson length and price. Keep the first offer simple.',
-		screen: 'tutorslot-subjects',
+		screen: 'plumberslot-subjects',
 		action: 'Add a subject',
 	},
 	{
@@ -27,15 +27,15 @@ const QUICK_START = [
 		number: '03',
 		title: 'Paint your open hours',
 		text: 'Click or drag on the weekly timetable. Add time off for one-off closures.',
-		screen: 'tutorslot-availability',
+		screen: 'plumberslot-availability',
 		action: 'Set availability',
 	},
 	{
 		id: 'publish',
 		number: '04',
 		title: 'Publish the booking page',
-		text: 'Add the TutorSlot block to a page, preview it, then share the page link.',
-		screen: 'tutorslot-setup',
+		text: 'Add the PlumberSlot block to a page, preview it, then share the page link.',
+		screen: 'plumberslot-setup',
 		action: 'Open setup',
 	},
 ];
@@ -87,7 +87,7 @@ const GUIDES = [
 			'Save availability and preview the public booking page.',
 		],
 		tip: 'Open hours repeat every week. Time off changes only the date you choose.',
-		screen: 'tutorslot-availability',
+		screen: 'plumberslot-availability',
 	},
 	{
 		id: 'subjects',
@@ -102,7 +102,7 @@ const GUIDES = [
 			'Save, then make sure the subject is active.',
 		],
 		tip: 'Students only see subjects assigned to the tutor they selected.',
-		screen: 'tutorslot-subjects',
+		screen: 'plumberslot-subjects',
 	},
 	{
 		id: 'booking',
@@ -110,10 +110,10 @@ const GUIDES = [
 		title: 'Let a student choose and confirm a lesson',
 		intro: 'The booking flow asks one question at a time: subject, time, learner and confirmation.',
 		steps: [
-			'Place the TutorSlot block on a page, or use the shortcode shown below.',
+			'Place the PlumberSlot block on a page, or use the shortcode shown below.',
 			'Share that page. Visitors may browse subjects and open times before signing in.',
 			'The student chooses a subject and an available day and time.',
-			'TutorSlot briefly holds that time while the student reviews the details.',
+			'PlumberSlot briefly holds that time while the student reviews the details.',
 			'After confirmation, the student sees the booking summary and next actions.',
 		],
 		tip: 'Times are shown in the visitor’s timezone when that setting is enabled.',
@@ -132,7 +132,7 @@ const GUIDES = [
 			'After the lesson, mark Completed or No show and add a short tutor note.',
 		],
 		tip: 'Status changes are permission-checked and recorded for accountability.',
-		screen: 'tutorslot-bookings',
+		screen: 'plumberslot-bookings',
 	},
 	{
 		id: 'family',
@@ -152,7 +152,7 @@ const GUIDES = [
 		id: 'payments',
 		label: 'Credits & payments',
 		title: 'Choose how lessons are paid for',
-		intro: 'TutorSlot works without online payment. Turn on only the payment method you intend to use.',
+		intro: 'PlumberSlot works without online payment. Turn on only the payment method you intend to use.',
 		steps: [
 			'For free lessons, leave the subject price at zero.',
 			'For manual payment, agree payment outside the site and manage the booking normally.',
@@ -161,7 +161,7 @@ const GUIDES = [
 			'Run a low-value test booking before sharing a live paid page.',
 		],
 		tip: 'Credit spending and booking creation happen together, so a failed booking does not silently consume a credit.',
-		screen: 'tutorslot-settings',
+		screen: 'plumberslot-settings',
 	},
 	{
 		id: 'meetings',
@@ -176,22 +176,22 @@ const GUIDES = [
 			'Cancel the test booking and confirm the old meeting is no longer used.',
 		],
 		tip: 'Join links are signed and time-limited; users still need permission to view their booking.',
-		screen: 'tutorslot-settings',
+		screen: 'plumberslot-settings',
 	},
 	{
 		id: 'privacy',
 		label: 'Privacy & safe operation',
-		title: 'Know what TutorSlot stores and shares',
+		title: 'Know what PlumberSlot stores and shares',
 		intro: 'Bookings need names, lesson details and account relationships. Optional services receive data only when configured and used.',
 		steps: [
-			'Review TutorSlot’s suggested text under Settings → Privacy.',
+			'Review PlumberSlot’s suggested text under Settings → Privacy.',
 			'Document any payment, meeting, email or SMS provider your site enables.',
 			'Use WordPress Export Personal Data when a user asks for a copy.',
 			'Use Erase Personal Data for a verified erasure request.',
 			'Send suspected vulnerabilities privately instead of posting secrets in a public issue.',
 		],
 		tip: 'API secrets are masked when settings are returned to the browser.',
-		screen: 'tutorslot-settings',
+		screen: 'plumberslot-settings',
 	},
 ];
 
@@ -202,11 +202,11 @@ const FAQS = [
 	},
 	{
 		question: 'Can a visitor book without an account?',
-		answer: 'A visitor can browse subjects and open times. They sign in before holding and confirming a lesson so TutorSlot can protect ownership.',
+		answer: 'A visitor can browse subjects and open times. They sign in before holding and confirming a lesson so PlumberSlot can protect ownership.',
 	},
 	{
 		question: 'What happens if two students choose the same time?',
-		answer: 'TutorSlot uses a short hold and database overlap protection. Only one valid booking can own the slot.',
+		answer: 'PlumberSlot uses a short hold and database overlap protection. Only one valid booking can own the slot.',
 	},
 	{
 		question: 'Can a parent book for more than one child?',
@@ -218,7 +218,7 @@ const FAQS = [
 	},
 	{
 		question: 'Will deactivation delete bookings?',
-		answer: 'No. Deactivation removes TutorSlot scheduled actions but keeps plugin data. Destructive uninstall is a separate, explicit setting.',
+		answer: 'No. Deactivation removes PlumberSlot scheduled actions but keeps plugin data. Destructive uninstall is a separate, explicit setting.',
 	},
 ];
 
@@ -308,7 +308,7 @@ export function HelpDocsScreen() {
 	};
 
 	const copyShortcode = async () => {
-		await copyText( '[tutorslot tutor="your-tutor-slug"]' );
+		await copyText( '[plumberslot tutor="your-tutor-slug"]' );
 		setCopied( true );
 		announce( 'Shortcode copied.' );
 		window.setTimeout( () => setCopied( false ), 1800 );
@@ -323,7 +323,7 @@ export function HelpDocsScreen() {
 			h(
 				'div',
 				{ class: 'ts-docs__hero-copy' },
-				h( 'p', { class: 'ts-docs__eyebrow' }, 'TUTORSLOT GUIDE' ),
+				h( 'p', { class: 'ts-docs__eyebrow' }, 'PLUMBERSLOT GUIDE' ),
 				h(
 					'h1',
 					{ id: 'ts-docs-title' },
@@ -332,7 +332,7 @@ export function HelpDocsScreen() {
 				h(
 					'p',
 					{ class: 'ts-docs__lead' },
-					'TutorSlot is a WordPress lesson-booking workspace for tutors, students and parents. You decide what you teach and when you are free. Students choose a real open time, confirm the lesson, and receive the right reminders and meeting details.'
+					'PlumberSlot is a WordPress lesson-booking workspace for tutors, students and parents. You decide what you teach and when you are free. Students choose a real open time, confirm the lesson, and receive the right reminders and meeting details.'
 				),
 				h(
 					'p',
@@ -373,7 +373,7 @@ export function HelpDocsScreen() {
 			{ class: 'ts-docs__nav', 'aria-label': 'Documentation sections' },
 			[
 				[ '#ts-docs-video', 'Quick tour' ],
-				[ '#ts-docs-why', 'Why TutorSlot' ],
+				[ '#ts-docs-why', 'Why PlumberSlot' ],
 				[ '#ts-docs-start', 'Get started' ],
 				[ '#ts-docs-guides', 'Feature guides' ],
 				[ '#ts-docs-faq', 'FAQ' ],
@@ -406,7 +406,7 @@ export function HelpDocsScreen() {
 				h(
 					'div',
 					null,
-					h( 'strong', null, 'TutorSlot product tour' ),
+					h( 'strong', null, 'PlumberSlot product tour' ),
 					h(
 						'p',
 						null,
@@ -431,7 +431,7 @@ export function HelpDocsScreen() {
 					'ol',
 					null,
 					[
-						'TutorSlot turns your real teaching hours into bookable lesson times.',
+						'PlumberSlot turns your real teaching hours into bookable lesson times.',
 						'Create a subject with a clear name, duration and price.',
 						'Paint weekly availability and add one-off time away.',
 						'Students choose a subject and an open time, then review the lesson before confirming.',
@@ -460,7 +460,7 @@ export function HelpDocsScreen() {
 				h(
 					'p',
 					null,
-					'TutorSlot does more than place an appointment on a calendar. The people, payment, meeting and follow-up stay connected.'
+					'PlumberSlot does more than place an appointment on a calendar. The people, payment, meeting and follow-up stay connected.'
 				)
 			),
 			h(
@@ -677,7 +677,7 @@ export function HelpDocsScreen() {
 						'Replace the example slug with the tutor slug from Tutors.'
 					)
 				),
-				h( 'code', null, '[tutorslot tutor="your-tutor-slug"]' ),
+				h( 'code', null, '[plumberslot tutor="your-tutor-slug"]' ),
 				h(
 					'button',
 					{
@@ -749,12 +749,12 @@ export function HelpDocsScreen() {
 				{ class: 'ts-docs__help-actions' },
 				h(
 					ActionLink,
-					{ href: adminUrl( 'tutorslot-settings' ), primary: true },
+					{ href: adminUrl( 'plumberslot-settings' ), primary: true },
 					'Review settings'
 				),
 				h(
 					ActionLink,
-					{ href: 'https://github.com/itsmanzur/tutorslot/issues' },
+					{ href: 'https://github.com/itsmanzur/plumberslot/issues' },
 					'Report a non-sensitive bug'
 				),
 				h(
@@ -763,8 +763,8 @@ export function HelpDocsScreen() {
 					'Security issue? Email ',
 					h(
 						'a',
-						{ href: 'mailto:security@tutorslot.com' },
-						'security@tutorslot.com'
+						{ href: 'mailto:security@plumberslot.com' },
+						'security@plumberslot.com'
 					),
 					' privately.'
 				)

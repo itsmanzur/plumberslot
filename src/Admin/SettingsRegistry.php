@@ -5,17 +5,17 @@
  * Eight settings are visible; the other forty live behind Advanced. A tutor
  * should be able to read the whole first screen without scrolling.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Admin;
+namespace PlumberSlot\Admin;
 
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\SecretMasker;
-use TutorSlot\Support\Time;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\SecretMasker;
+use PlumberSlot\Support\Time;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ final class SettingsRegistry {
 
 	public function register_route(): void {
 		register_rest_route(
-			'tutorslot/v1',
+			'plumberslot/v1',
 			'/settings',
 			array(
 				array(
@@ -49,12 +49,12 @@ final class SettingsRegistry {
 	}
 
 	public function read(): \WP_REST_Response {
-		$values = \TutorSlot\Support\Settings::all();
+		$values = \PlumberSlot\Support\Settings::all();
 
 		// Secrets are write-only over the API; the UI shows a masked placeholder.
 		$values = SecretMasker::settings( $values );
 
-		$values['payments_status'] = \TutorSlot\Support\PaymentsStatus::snapshot();
+		$values['payments_status'] = \PlumberSlot\Support\PaymentsStatus::snapshot();
 
 		return new \WP_REST_Response( $values );
 	}
@@ -62,8 +62,8 @@ final class SettingsRegistry {
 	public function write( \WP_REST_Request $request ): \WP_REST_Response {
 		$clean = $this->sanitize( (array) $request->get_json_params() );
 
-		\TutorSlot\Support\Settings::update( $clean );
-		\TutorSlot\Support\AuditLog::record( 'settings.updated', 'settings', 0, array( 'keys' => array_keys( $clean ) ) );
+		\PlumberSlot\Support\Settings::update( $clean );
+		\PlumberSlot\Support\AuditLog::record( 'settings.updated', 'settings', 0, array( 'keys' => array_keys( $clean ) ) );
 
 		return new \WP_REST_Response( array( 'saved' => true ) );
 	}

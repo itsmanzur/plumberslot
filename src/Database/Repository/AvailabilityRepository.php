@@ -2,16 +2,16 @@
 /**
  * Weekly rules and one-off exceptions.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
-use TutorSlot\Database\Schema;
-use TutorSlot\Domain\Contract\AvailabilitySource;
-use TutorSlot\Support\Cache;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Domain\Contract\AvailabilitySource;
+use PlumberSlot\Support\Cache;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,4 +1,4 @@
-const DRAFT_KEY = 'tutorslot_booking_draft';
+const DRAFT_KEY = 'plumberslot_booking_draft';
 
 /**
  * @param {number} tutorId

@@ -1,4 +1,4 @@
-# TutorSlot Baseline
+# PlumberSlot Baseline
 
 Recorded: 2026-07-28
 
@@ -14,7 +14,7 @@ Recorded: 2026-07-28
 
 - `src/`: 61 PHP class/interface files
 - `tests/`: 12 PHP test/bootstrap/probe/fixture/config files
-- Plugin entry/lifecycle files: `tutorslot.php`, `uninstall.php`
+- Plugin entry/lifecycle files: `plumberslot.php`, `uninstall.php`
 - Generated PHP asset manifests: 2
 - Total project PHP files excluding `vendor`, `node_modules`, and `reference-file`: 77
 
@@ -37,15 +37,15 @@ Recorded: 2026-07-28
 - Subject ownership integrity: booking requests resolve supplied subject ids inside the selected tutor's scope; foreign and missing ids return the same non-enumerable 404 and create no booking
 - PHPStan level 6: pass
 - PHPCS WordPress-Extra runtime policy: pass across 63 files
-- Active Local runtime: WordPress 7.0.2, TutorSlot active, DB version 2, REST route responsive
+- Active Local runtime: WordPress 7.0.2, PlumberSlot active, DB version 2, REST route responsive
 
 ## Known blockers/debt
 
 - This directory is not a Git repository, so a recoverable baseline commit cannot be created here.
 - Live activation and REST boot are verified. Deactivation and default keep-data uninstall pass in isolation; opt-in destructive uninstall passes 46 assertions against a guarded disposable database and removes tables, options, roles/capabilities, cache, transient, and scheduled actions.
-- Playwright supports the running Local site and an optional `TUTORSLOT_E2E_SERVER_COMMAND`. The opt-in booking-race fixture seeds isolated users, tutor availability, and a page; verifies one `201`, one `409`, and one database row; then cleans its rows and scheduled reminder side effects.
+- Playwright supports the running Local site and an optional `PLUMBERSLOT_E2E_SERVER_COMMAND`. The opt-in booking-race fixture seeds isolated users, tutor availability, and a page; verifies one `201`, one `409`, and one database row; then cleans its rows and scheduled reminder side effects.
 - PSR-4 filename exceptions are explicit. Full WordPress-Docs enforcement remains a separate Phase 8 task.
-- The fail-closed integration bootstrap now uses `wp-phpunit/wp-phpunit` 7.0.2. Booking/hold/credit and destructive lifecycle integration tests pass against isolated `tutorslot_test*` databases.
+- The fail-closed integration bootstrap now uses `wp-phpunit/wp-phpunit` 7.0.2. Booking/hold/credit and destructive lifecycle integration tests pass against isolated `plumberslot_test*` databases.
 - The in-app browser webview could not attach, so runtime verification used Playwright HTTP requests and direct Local HTTP/database probes.
 
 ## Design authority

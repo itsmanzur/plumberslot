@@ -2,12 +2,12 @@
 /**
  * Shared query plumbing. Every statement goes through $wpdb->prepare().
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
 defined( 'ABSPATH' ) || exit;
 

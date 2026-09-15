@@ -5,38 +5,38 @@
  * Copy to wp-tests-config.php. The bootstrap refuses production-looking
  * database names and table prefixes before WordPress can reset any tables.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-define( 'DB_NAME', (string) getenv( 'TUTORSLOT_TEST_DB_NAME' ) );
-define( 'DB_USER', (string) getenv( 'TUTORSLOT_TEST_DB_USER' ) );
-define( 'DB_PASSWORD', (string) getenv( 'TUTORSLOT_TEST_DB_PASSWORD' ) );
-define( 'DB_HOST', (string) getenv( 'TUTORSLOT_TEST_DB_HOST' ) );
+define( 'DB_NAME', (string) getenv( 'PLUMBERSLOT_TEST_DB_NAME' ) );
+define( 'DB_USER', (string) getenv( 'PLUMBERSLOT_TEST_DB_USER' ) );
+define( 'DB_PASSWORD', (string) getenv( 'PLUMBERSLOT_TEST_DB_PASSWORD' ) );
+define( 'DB_HOST', (string) getenv( 'PLUMBERSLOT_TEST_DB_HOST' ) );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
 
-$table_prefix = (string) getenv( 'TUTORSLOT_TEST_TABLE_PREFIX' );
+$table_prefix = (string) getenv( 'PLUMBERSLOT_TEST_TABLE_PREFIX' );
 
 define( 'WP_DEBUG', true );
 define( 'WP_TESTS_DOMAIN', 'example.test' );
 define( 'WP_TESTS_EMAIL', 'admin@example.test' );
-define( 'WP_TESTS_TITLE', 'TutorSlot Integration Tests' );
+define( 'WP_TESTS_TITLE', 'PlumberSlot Integration Tests' );
 
-$tutorslot_php_binary = PHP_BINARY;
+$plumberslot_php_binary = PHP_BINARY;
 
 if ( 'Windows' === PHP_OS_FAMILY ) {
 	// The Local CLI has mysqli available but not enabled in its default php.ini.
-	$tutorslot_php_binary .= ' -d extension=php_mysqli.dll';
+	$plumberslot_php_binary .= ' -d extension=php_mysqli.dll';
 }
 
-define( 'WP_PHP_BINARY', $tutorslot_php_binary );
+define( 'WP_PHP_BINARY', $plumberslot_php_binary );
 
-$tutorslot_core_dir = getenv( 'WP_CORE_DIR' );
+$plumberslot_core_dir = getenv( 'WP_CORE_DIR' );
 
-if ( ! is_string( $tutorslot_core_dir ) || '' === $tutorslot_core_dir ) {
-	$tutorslot_core_dir = dirname( __DIR__, 4 );
+if ( ! is_string( $plumberslot_core_dir ) || '' === $plumberslot_core_dir ) {
+	$plumberslot_core_dir = dirname( __DIR__, 4 );
 }
 
-define( 'ABSPATH', rtrim( $tutorslot_core_dir, '/\\' ) . '/' );
+define( 'ABSPATH', rtrim( $plumberslot_core_dir, '/\\' ) . '/' );

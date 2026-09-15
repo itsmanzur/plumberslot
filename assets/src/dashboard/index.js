@@ -8,11 +8,11 @@ import { ParentDashboard } from './ParentDashboard';
 import { TutorDashboard } from './TutorDashboard';
 
 const boot =
-	typeof window !== 'undefined' && window.tutorslotDashboard
-		? window.tutorslotDashboard
+	typeof window !== 'undefined' && window.plumberslotDashboard
+		? window.plumberslotDashboard
 		: { view: 'parent' };
 
-document.querySelectorAll( '.tutorslot-dashboard' ).forEach( ( target ) => {
+document.querySelectorAll( '.plumberslot-dashboard' ).forEach( ( target ) => {
 	const view = target.dataset.view || boot.view || 'parent';
 	render(
 		h( view === 'tutor' ? TutorDashboard : ParentDashboard, null ),

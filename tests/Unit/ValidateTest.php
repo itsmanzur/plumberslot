@@ -2,15 +2,15 @@
 /**
  * REST validation helpers.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Unit;
+namespace PlumberSlot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 
 final class ValidateTest extends TestCase {
@@ -72,7 +72,7 @@ final class ValidateTest extends TestCase {
 		);
 
 		self::assertInstanceOf( WP_Error::class, $weekday );
-		self::assertSame( 'tutorslot_invalid_week_block', $weekday->get_error_code() );
+		self::assertSame( 'plumberslot_invalid_week_block', $weekday->get_error_code() );
 		self::assertInstanceOf( WP_Error::class, $minutes );
 		self::assertInstanceOf( WP_Error::class, $bounds );
 	}
@@ -94,6 +94,6 @@ final class ValidateTest extends TestCase {
 		);
 
 		self::assertInstanceOf( WP_Error::class, $result );
-		self::assertSame( 'tutorslot_overlapping_week', $result->get_error_code() );
+		self::assertSame( 'plumberslot_overlapping_week', $result->get_error_code() );
 	}
 }

@@ -9,7 +9,7 @@
 	cacheResultFile=".phpunit.result.cache"
 >
 	<testsuites>
-		<testsuite name="TutorSlot unit tests">
+		<testsuite name="PlumberSlot unit tests">
 			<directory suffix="Test.php">tests/Unit</directory>
 		</testsuite>
 	</testsuites>

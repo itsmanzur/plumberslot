@@ -1,18 +1,18 @@
 <?php
 /**
- * /tutorslot/v1/tutors — manager-only tutor directory and invites.
+ * /plumberslot/v1/tutors — manager-only tutor directory and invites.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Capabilities;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -149,8 +149,8 @@ final class TutorsController extends AbstractController {
 
 		if ( ! is_email( $email ) ) {
 			return new WP_Error(
-				'tutorslot_invalid_email',
-				__( 'Enter a valid email address.', 'tutorslot' ),
+				'plumberslot_invalid_email',
+				__( 'Enter a valid email address.', 'plumberslot' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -176,7 +176,7 @@ final class TutorsController extends AbstractController {
 
 			if ( is_wp_error( $user_id ) ) {
 				return new WP_Error(
-					'tutorslot_invite_failed',
+					'plumberslot_invite_failed',
 					$user_id->get_error_message(),
 					array( 'status' => 400 )
 				);
@@ -189,8 +189,8 @@ final class TutorsController extends AbstractController {
 
 		if ( ! $user ) {
 			return new WP_Error(
-				'tutorslot_invite_failed',
-				__( 'Could not create the tutor account.', 'tutorslot' ),
+				'plumberslot_invite_failed',
+				__( 'Could not create the tutor account.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -199,8 +199,8 @@ final class TutorsController extends AbstractController {
 
 		if ( $existing ) {
 			return new WP_Error(
-				'tutorslot_tutor_exists',
-				__( 'That person is already a TutorSlot tutor.', 'tutorslot' ),
+				'plumberslot_tutor_exists',
+				__( 'That person is already a PlumberSlot tutor.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -340,15 +340,15 @@ final class TutorsController extends AbstractController {
 	private function send_invite_email( int $user_id, string $email ): void {
 		$key  = get_password_reset_key( get_user_by( 'id', $user_id ) );
 		$link = is_wp_error( $key )
-			? admin_url( 'admin.php?page=tutorslot-setup' )
+			? admin_url( 'admin.php?page=plumberslot-setup' )
 			: network_site_url( "wp-login.php?action=rp&key={$key}&login=" . rawurlencode( (string) get_userdata( $user_id )->user_login ), 'login' );
 
 		wp_mail(
 			$email,
-			__( 'You are invited to teach on TutorSlot', 'tutorslot' ),
+			__( 'You are invited to teach on PlumberSlot', 'plumberslot' ),
 			sprintf(
 				/* translators: %s: set-password URL */
-				__( "You have been invited to teach with TutorSlot.\n\nSet your password and finish setup:\n%s\n", 'tutorslot' ),
+				__( "You have been invited to teach with PlumberSlot.\n\nSet your password and finish setup:\n%s\n", 'plumberslot' ),
 				$link
 			)
 		);

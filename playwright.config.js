@@ -1,8 +1,8 @@
 const { defineConfig, devices } = require( '@playwright/test' );
 
-const baseURL = process.env.TUTORSLOT_E2E_URL || 'http://themezur.local';
-const serverCommand = process.env.TUTORSLOT_E2E_SERVER_COMMAND;
-const browserPath = process.env.TUTORSLOT_E2E_BROWSER_PATH;
+const baseURL = process.env.PLUMBERSLOT_E2E_URL || 'http://themezur.local';
+const serverCommand = process.env.PLUMBERSLOT_E2E_SERVER_COMMAND;
+const browserPath = process.env.PLUMBERSLOT_E2E_BROWSER_PATH;
 const launchOptions = browserPath ? { executablePath: browserPath } : {};
 
 module.exports = defineConfig( {

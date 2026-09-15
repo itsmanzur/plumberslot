@@ -2,22 +2,22 @@
 /**
  * Typed access to the single settings option.
  *
- * One option row, never autoloaded: TutorSlot settings are only read on
- * TutorSlot requests, so there is no reason to pay for them on every page load
+ * One option row, never autoloaded: PlumberSlot settings are only read on
+ * PlumberSlot requests, so there is no reason to pay for them on every page load
  * of the whole site.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Settings {
 
-	private const OPTION = 'tutorslot_settings';
+	private const OPTION = 'plumberslot_settings';
 
 	/** @var array<string, mixed>|null */
 	private static ?array $cache = null;

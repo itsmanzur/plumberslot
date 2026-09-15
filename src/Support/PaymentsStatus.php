@@ -5,14 +5,14 @@
  * payments_enabled alone is not enough — Stripe or bKash must be configured
  * or parents only see “pay the tutor directly”.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
-use TutorSlot\Payments\GatewayRegistry;
+use PlumberSlot\Payments\GatewayRegistry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,7 +33,7 @@ final class PaymentsStatus {
 		$bkash   = false;
 
 		try {
-			$configured = \TutorSlot\Plugin::instance()
+			$configured = \PlumberSlot\Plugin::instance()
 				->container()
 				->get( GatewayRegistry::class )
 				->configured();

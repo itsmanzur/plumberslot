@@ -1,5 +1,5 @@
 /**
- * TutorSlot booking block editor UI.
+ * PlumberSlot booking block editor UI.
  */
 
 import './editor.css';
@@ -23,14 +23,14 @@ function Edit( { attributes, setAttributes } ) {
 	const [ subjects, setSubjects ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 	const blockProps = useBlockProps( {
-		className: 'tutorslot-block-preview',
+		className: 'plumberslot-block-preview',
 	} );
 
 	useEffect( () => {
 		let alive = true;
 		( async () => {
 			try {
-				const data = await apiFetch( { path: '/tutorslot/v1/tutors' } );
+				const data = await apiFetch( { path: '/plumberslot/v1/tutors' } );
 				if ( alive ) {
 					setTutors( data.tutors || [] );
 				}
@@ -62,7 +62,7 @@ function Edit( { attributes, setAttributes } ) {
 		( async () => {
 			try {
 				const data = await apiFetch( {
-					path: `/tutorslot/v1/tutors/${ match.id }/subjects`,
+					path: `/plumberslot/v1/tutors/${ match.id }/subjects`,
 				} );
 				if ( alive ) {
 					setSubjects( data.subjects || [] );
@@ -79,7 +79,7 @@ function Edit( { attributes, setAttributes } ) {
 	}, [ tutor, tutors ] );
 
 	const tutorOptions = [
-		{ label: __( 'Select a tutor', 'tutorslot' ), value: '' },
+		{ label: __( 'Select a tutor', 'plumberslot' ), value: '' },
 		...tutors.map( ( row ) => ( {
 			label: row.display_name,
 			value: row.slug,
@@ -87,7 +87,7 @@ function Edit( { attributes, setAttributes } ) {
 	];
 
 	const subjectOptions = [
-		{ label: __( 'Any subject', 'tutorslot' ), value: '0' },
+		{ label: __( 'Any subject', 'plumberslot' ), value: '0' },
 		...subjects.map( ( row ) => ( {
 			label: row.name,
 			value: String( row.id ),
@@ -98,7 +98,7 @@ function Edit( { attributes, setAttributes } ) {
 		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody
-					title={ __( 'Booking widget', 'tutorslot' ) }
+					title={ __( 'Booking widget', 'plumberslot' ) }
 					initialOpen
 				>
 					{ loading ? (
@@ -106,7 +106,7 @@ function Edit( { attributes, setAttributes } ) {
 					) : (
 						<>
 							<SelectControl
-								label={ __( 'Tutor', 'tutorslot' ) }
+								label={ __( 'Tutor', 'plumberslot' ) }
 								value={ tutor }
 								options={ tutorOptions }
 								onChange={ ( value ) =>
@@ -119,7 +119,7 @@ function Edit( { attributes, setAttributes } ) {
 							<SelectControl
 								label={ __(
 									'Subject (optional)',
-									'tutorslot'
+									'plumberslot'
 								) }
 								value={ String( subject || 0 ) }
 								options={ subjectOptions }
@@ -130,10 +130,10 @@ function Edit( { attributes, setAttributes } ) {
 								}
 							/>
 							<TextControl
-								label={ __( 'Tutor slug', 'tutorslot' ) }
+								label={ __( 'Tutor slug', 'plumberslot' ) }
 								help={ __(
 									'Used if the tutor list is unavailable.',
-									'tutorslot'
+									'plumberslot'
 								) }
 								value={ tutor }
 								onChange={ ( value ) =>
@@ -144,19 +144,19 @@ function Edit( { attributes, setAttributes } ) {
 					) }
 				</PanelBody>
 			</InspectorControls>
-			<div className="tutorslot-block-preview__card">
-				<strong>{ __( 'TutorSlot booking', 'tutorslot' ) }</strong>
+			<div className="plumberslot-block-preview__card">
+				<strong>{ __( 'PlumberSlot booking', 'plumberslot' ) }</strong>
 				<p>
 					{ tutor
-						? __( 'Tutor:', 'tutorslot' ) + ' ' + tutor
-						: __( 'Choose a tutor in the sidebar.', 'tutorslot' ) }
+						? __( 'Tutor:', 'plumberslot' ) + ' ' + tutor
+						: __( 'Choose a tutor in the sidebar.', 'plumberslot' ) }
 				</p>
 			</div>
 		</div>
 	);
 }
 
-registerBlockType( 'tutorslot/booking', {
+registerBlockType( 'plumberslot/booking', {
 	edit: Edit,
 	save() {
 		return null;

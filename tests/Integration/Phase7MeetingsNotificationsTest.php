@@ -2,29 +2,29 @@
 /**
  * Phase 7 — Meetings & Notifications integration tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Domain\Contract\MeetingBookingStore;
-use TutorSlot\Domain\Contract\TutorSource;
-use TutorSlot\Domain\MeetingService;
-use TutorSlot\Frontend\JoinRoute;
-use TutorSlot\Meetings\MeetingCleanup;
-use TutorSlot\Meetings\ProviderInterface;
-use TutorSlot\Meetings\ProviderRegistry;
-use TutorSlot\Meetings\GoogleMeetProvider;
-use TutorSlot\Notifications\Channel\ChannelInterface;
-use TutorSlot\Notifications\Channel\EmailChannel;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Domain\Contract\MeetingBookingStore;
+use PlumberSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Domain\MeetingService;
+use PlumberSlot\Frontend\JoinRoute;
+use PlumberSlot\Meetings\MeetingCleanup;
+use PlumberSlot\Meetings\ProviderInterface;
+use PlumberSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Meetings\GoogleMeetProvider;
+use PlumberSlot\Notifications\Channel\ChannelInterface;
+use PlumberSlot\Notifications\Channel\EmailChannel;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 
 class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
@@ -38,7 +38,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		global $wpdb;
 
 		$_GET = array();
-		set_query_var( 'tutorslot_join', null );
+		set_query_var( 'plumberslot_join', null );
 		wp_set_current_user( 0 );
 
 		foreach ( Schema::all_keys() as $key ) {
@@ -77,7 +77,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 
 		// Build a URL that expired in the past.
 		$expires   = time() - 10;
-		$key       = \TutorSlot\Support\Crypto::class;
+		$key       = \PlumberSlot\Support\Crypto::class;
 		$signature = hash_hmac( 'sha256', $booking_id . '|' . $token . '|' . $expires, defined( 'AUTH_KEY' ) ? constant( 'AUTH_KEY' ) : 'test' );
 
 		$this->assertFalse(
@@ -459,9 +459,9 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			$cleanup->request( $seed['booking_id'] );
 			$this->assertNotFalse(
 				as_has_scheduled_action(
-					'tutorslot_cleanup_meeting',
+					'plumberslot_cleanup_meeting',
 					array( $seed['booking_id'], 1 ),
-					'tutorslot'
+					'plumberslot'
 				)
 			);
 
@@ -479,9 +479,9 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			$this->assertSame( 'fake|phase7-meeting', ( new BookingRepository() )->find( $seed['booking_id'] )->meeting_ref );
 		} finally {
 			as_unschedule_all_actions(
-				'tutorslot_cleanup_meeting',
+				'plumberslot_cleanup_meeting',
 				array( $seed['booking_id'], 1 ),
-				'tutorslot'
+				'plumberslot'
 			);
 		}
 	}
@@ -529,7 +529,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		( new JoinRoute( new BookingRepository(), $registry ) )->handle();
 	}
 
-	public function test_email_contains_only_the_signed_tutorslot_join_url(): void {
+	public function test_email_contains_only_the_signed_plumberslot_join_url(): void {
 		$user_id = self::factory()->user->create(
 			array(
 				'user_email'   => 'phase7-student@example.test',
@@ -559,7 +559,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 		}
 
 		$this->assertIsArray( $mail );
-		$this->assertStringContainsString( '/tutorslot/join', (string) $mail['message'] );
+		$this->assertStringContainsString( '/plumberslot/join', (string) $mail['message'] );
 		$this->assertStringContainsString( 'ts_booking=77', (string) $mail['message'] );
 		$this->assertStringNotContainsString( 'provider.example.test', (string) $mail['message'] );
 		$this->assertStringNotContainsString( $token, (string) $mail['message'] );
@@ -587,7 +587,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			}
 		};
 
-		add_filter( 'tutorslot_email_enabled', '__return_false' );
+		add_filter( 'plumberslot_email_enabled', '__return_false' );
 		try {
 			$dispatcher = new Dispatcher();
 			$dispatcher->add_channel( $spy );
@@ -595,7 +595,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 			$dispatcher->booking_confirmed( $seed['booking_id'] );
 			$dispatcher->reminder( $seed['booking_id'], '24h' );
 		} finally {
-			remove_filter( 'tutorslot_email_enabled', '__return_false' );
+			remove_filter( 'plumberslot_email_enabled', '__return_false' );
 		}
 
 		$this->assertSame(
@@ -666,7 +666,7 @@ class Phase7MeetingsNotificationsTest extends \WP_UnitTestCase {
 	private function prepare_join_request( int $booking_id, string $token ): void {
 		$url = Crypto::signed_join_url( $booking_id, $token, HOUR_IN_SECONDS );
 		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- signed join query fixture.
-		set_query_var( 'tutorslot_join', 1 );
+		set_query_var( 'plumberslot_join', 1 );
 	}
 
 	private function throwing_join_provider( string $message ): ProviderInterface {

@@ -13,7 +13,7 @@ test( 'help page and external video-link contract ship in the release footprint'
 	const php = fs.readFileSync( adminMenu, 'utf8' );
 
 	for ( const marker of [
-		'tutorslot-help',
+		'plumberslot-help',
 		'Teaching time, without scheduling chaos.',
 		'Plain-English guides',
 		'Your first four steps',
@@ -24,7 +24,7 @@ test( 'help page and external video-link contract ship in the release footprint'
 
 	expect( css ).toContain( '.ts-docs__hero' );
 	expect( css ).toContain( '.ts-docs__video-link' );
-	expect( php ).toContain( 'tutorslot_help_video_url' );
+	expect( php ).toContain( 'plumberslot_help_video_url' );
 	expect( php ).toContain( "'videoUrl'" );
 	expect( fs.existsSync( path.join( pluginRoot, 'assets/docs' ) ) ).toBe(
 		false
@@ -38,7 +38,7 @@ test( 'help page shell does not overflow a 390px viewport', async ( {
 	await page.setViewportSize( { width: 390, height: 844 } );
 	await page.setContent( `
 		<style>${ css }</style>
-		<main class="tutorslot-admin ts-admin">
+		<main class="plumberslot-admin ts-admin">
 			<section class="ts-docs">
 				<section class="ts-docs__hero">
 					<div class="ts-docs__hero-copy">
@@ -49,7 +49,7 @@ test( 'help page shell does not overflow a 390px viewport', async ( {
 				<nav class="ts-docs__nav"><a href="#guide">Feature guides</a></nav>
 				<section class="ts-docs__section" id="guide">
 					<div class="ts-docs__usp-grid"><article class="ts-docs__usp">Tutor-first availability</article></div>
-					<div class="ts-docs__shortcode"><code>[tutorslot tutor="your-tutor-slug"]</code></div>
+					<div class="ts-docs__shortcode"><code>[plumberslot tutor="your-tutor-slug"]</code></div>
 				</section>
 			</section>
 		</main>

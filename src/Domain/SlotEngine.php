@@ -7,22 +7,22 @@
  * changes. Instead the rules are stored and the slots are computed per request
  * and cached, keyed by tutor and month.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Domain\Contract\AvailabilitySource;
-use TutorSlot\Domain\Contract\BookingOccupancySource;
-use TutorSlot\Domain\Contract\HoldOccupancySource;
-use TutorSlot\Domain\Entity\Slot;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
+use PlumberSlot\Domain\Contract\AvailabilitySource;
+use PlumberSlot\Domain\Contract\BookingOccupancySource;
+use PlumberSlot\Domain\Contract\HoldOccupancySource;
+use PlumberSlot\Domain\Entity\Slot;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -315,7 +315,7 @@ final class SlotEngine {
 		 * @param list<Slot> $slots    Computed slots.
 		 * @param int        $tutor_id Tutor row id.
 		 */
-		return apply_filters( 'tutorslot_slots', $slots, $tutor_id );
+		return apply_filters( 'plumberslot_slots', $slots, $tutor_id );
 	}
 
 	/**

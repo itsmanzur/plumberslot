@@ -1,4 +1,4 @@
-.tutorslot-admin.ts-admin,
+.plumberslot-admin.ts-admin,
 .ts-admin {
 	--ts-shadow: var(--ts-shadow-admin);
 
@@ -719,12 +719,12 @@
 
 @media ( max-width: 760px ) {
 
-	.tutorslot-admin .ts-btn,
-	.tutorslot-admin .ts-admin-tabs button {
+	.plumberslot-admin .ts-btn,
+	.plumberslot-admin .ts-admin-tabs button {
 		min-height: 44px;
 	}
 
-	.tutorslot-admin .ts-modal__close {
+	.plumberslot-admin .ts-modal__close {
 		width: 44px;
 		height: 44px;
 	}

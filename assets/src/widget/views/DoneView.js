@@ -16,7 +16,7 @@ export function DoneView( {
 	const start = booking.start_utc;
 	const end = booking.end_utc;
 	const reference = bookingReference( booking.id );
-	const titleId = `tutorslot-completion-${ booking.id || 'pending' }`;
+	const titleId = `plumberslot-completion-${ booking.id || 'pending' }`;
 	const deadline = booking.reschedule_deadline
 		? formatInZone( booking.reschedule_deadline, timezone )
 		: '';
@@ -53,7 +53,7 @@ export function DoneView( {
 			startIso: start,
 			endIso: end || start,
 			description: calendarDescription( joinUrl, reference ),
-			uid: `booking-${ booking.id || 'lesson' }@tutorslot`,
+			uid: `booking-${ booking.id || 'lesson' }@plumberslot`,
 		} );
 		announce( 'Calendar file downloaded.' );
 	};
@@ -70,7 +70,7 @@ export function DoneView( {
 			{ class: 'ts-book__result-kicker' },
 			context === 'payment' ? 'Payment confirmed' : 'Booking confirmed',
 			' · ',
-			h( 'span', { class: 'tutorslot-mono' }, reference )
+			h( 'span', { class: 'plumberslot-mono' }, reference )
 		),
 		h(
 			'h2',
@@ -104,7 +104,7 @@ export function DoneView( {
 						tutor.display_name
 					}`
 				),
-				h( 'span', { class: 'tutorslot-mono' }, dateShort )
+				h( 'span', { class: 'plumberslot-mono' }, dateShort )
 			),
 			h(
 				'div',
@@ -117,7 +117,7 @@ export function DoneView( {
 						'Starts',
 						h(
 							'span',
-							{ class: 'tutorslot-mono' },
+							{ class: 'plumberslot-mono' },
 							`${ formatInZone( start, timezone, {
 								weekday: undefined,
 								day: undefined,
@@ -224,7 +224,7 @@ function completionPaymentLabel( booking, tutor ) {
 }
 
 function calendarDescription( joinUrl, reference ) {
-	const parts = [ `TutorSlot lesson · ${ reference }` ];
+	const parts = [ `PlumberSlot lesson · ${ reference }` ];
 	if ( joinUrl ) {
 		parts.push( `Join: ${ joinUrl }` );
 	} else {

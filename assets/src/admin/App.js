@@ -10,15 +10,15 @@ import { HelpDocsScreen } from './screens/HelpDocsScreen';
 import { DesignSystemDemo } from '../shared/DesignSystemDemo';
 
 const ROUTES = {
-	tutorslot: DashboardScreen,
-	'tutorslot-availability': AvailabilityScreen,
-	'tutorslot-subjects': SubjectsScreen,
-	'tutorslot-bookings': BookingsScreen,
-	'tutorslot-tutors': TutorsScreen,
-	'tutorslot-settings': SettingsScreen,
-	'tutorslot-help': HelpDocsScreen,
-	'tutorslot-setup': SetupWizardScreen,
-	'tutorslot-design-system': DesignSystemDemo,
+	plumberslot: DashboardScreen,
+	'plumberslot-availability': AvailabilityScreen,
+	'plumberslot-subjects': SubjectsScreen,
+	'plumberslot-bookings': BookingsScreen,
+	'plumberslot-tutors': TutorsScreen,
+	'plumberslot-settings': SettingsScreen,
+	'plumberslot-help': HelpDocsScreen,
+	'plumberslot-setup': SetupWizardScreen,
+	'plumberslot-design-system': DesignSystemDemo,
 };
 
 /**
@@ -36,8 +36,8 @@ export function App( { screen } ) {
 	return h(
 		'div',
 		{
-			class: 'tutorslot-admin tutorslot-root ts-admin',
-			'data-tutorslot-screen': screen,
+			class: 'plumberslot-admin plumberslot-root ts-admin',
+			'data-plumberslot-screen': screen,
 		},
 		h( Screen )
 	);
@@ -45,12 +45,12 @@ export function App( { screen } ) {
 
 /** Reference screens for exit-gate / visual harness. */
 export const ADMIN_SCREENS = [
-	'tutorslot',
-	'tutorslot-availability',
-	'tutorslot-subjects',
-	'tutorslot-bookings',
-	'tutorslot-tutors',
-	'tutorslot-setup',
-	'tutorslot-settings',
-	'tutorslot-help',
+	'plumberslot',
+	'plumberslot-availability',
+	'plumberslot-subjects',
+	'plumberslot-bookings',
+	'plumberslot-tutors',
+	'plumberslot-setup',
+	'plumberslot-settings',
+	'plumberslot-help',
 ];

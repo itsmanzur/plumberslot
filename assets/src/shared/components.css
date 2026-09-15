@@ -1,4 +1,4 @@
-/* Shared TutorSlot components — class names are the public API. */
+/* Shared PlumberSlot components — class names are the public API. */
 
 /* ---------- Button ---------- */
 .ts-btn {
@@ -1018,8 +1018,8 @@
 
 @media (max-width: 390px) {
 
-	.tutorslot-admin,
-	.tutorslot-widget,
+	.plumberslot-admin,
+	.plumberslot-widget,
 	.ts-ds {
 		max-width: 100%;
 		overflow-x: hidden;

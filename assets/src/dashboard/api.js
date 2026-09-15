@@ -1,8 +1,8 @@
 const boot =
-	typeof window !== 'undefined' && window.tutorslotDashboard
-		? window.tutorslotDashboard
+	typeof window !== 'undefined' && window.plumberslotDashboard
+		? window.plumberslotDashboard
 		: {
-				root: '/wp-json/tutorslot/v1',
+				root: '/wp-json/plumberslot/v1',
 				nonce: '',
 				loggedIn: false,
 				loginUrl: '/wp-login.php',

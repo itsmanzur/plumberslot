@@ -10,7 +10,7 @@ test.use( { reducedMotion: 'reduce' } );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -25,7 +25,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -172,8 +172,8 @@ test( 'booking states respect reduced-motion preference', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 150000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_HAPPY_READY,
-		'Set TUTORSLOT_E2E_HAPPY_READY=1 to allow isolated reduced-motion fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_HAPPY_READY,
+		'Set PLUMBERSLOT_E2E_HAPPY_READY=1 to allow isolated reduced-motion fixture rows.'
 	);
 	const project = testInfo.project.name.includes( 'mobile' ) ? 'mob' : 'desk';
 	const fixtureKey = `${ project }-reduced-motion`;
@@ -190,25 +190,25 @@ test( 'booking states respect reduced-motion preference', async ( {
 		await goTo( page, seed.pagePath );
 		expect( ( await tutorResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 
 		await expectReducedMotion( widget, 'Subject step' );
 		await widget.getByRole( 'option', { name: /English E2E/ } ).click();
 		await page.route(
-			'**/wp-json/tutorslot/v1/slots?**',
+			'**/wp-json/plumberslot/v1/slots?**',
 			async ( route ) => {
 				await page.waitForTimeout( 750 );
 				await route.continue();
 			}
 		);
 		const slotsResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await widget.getByRole( 'button', { name: 'Choose a time →' } ).click();
 		await expect( widget.getByText( 'Loading times…' ) ).toBeVisible();
 		await expectReducedMotion( widget, 'Time loading state' );
 		expect( ( await slotsResponse ).status() ).toBe( 200 );
-		await page.unroute( '**/wp-json/tutorslot/v1/slots?**' );
+		await page.unroute( '**/wp-json/plumberslot/v1/slots?**' );
 		await expect(
 			widget
 				.getByRole( 'listbox', { name: 'Open times' } )
@@ -226,7 +226,7 @@ test( 'booking states respect reduced-motion preference', async ( {
 			( response ) =>
 				response
 					.url()
-					.includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+					.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Continue →' } ).click();

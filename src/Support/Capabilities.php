@@ -6,31 +6,31 @@
  * nothing else; handing them an administrator-adjacent capability is how a
  * booking plugin turns into a site takeover.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Capabilities {
 
-	public const BOOK          = 'tutorslot_book';
-	public const MANAGE_OWN    = 'tutorslot_manage_own';
-	public const MANAGE_ALL    = 'tutorslot_manage_all';
-	public const VIEW_REPORTS  = 'tutorslot_view_reports';
-	public const MANAGE_TUTORS = 'tutorslot_manage_tutors';
+	public const BOOK          = 'plumberslot_book';
+	public const MANAGE_OWN    = 'plumberslot_manage_own';
+	public const MANAGE_ALL    = 'plumberslot_manage_all';
+	public const VIEW_REPORTS  = 'plumberslot_view_reports';
+	public const MANAGE_TUTORS = 'plumberslot_manage_tutors';
 
-	public const ROLE_TUTOR   = 'tutorslot_tutor';
-	public const ROLE_STUDENT = 'tutorslot_student';
-	public const ROLE_PARENT  = 'tutorslot_parent';
+	public const ROLE_TUTOR   = 'plumberslot_tutor';
+	public const ROLE_STUDENT = 'plumberslot_student';
+	public const ROLE_PARENT  = 'plumberslot_parent';
 
 	public static function add_all(): void {
 		add_role(
 			self::ROLE_TUTOR,
-			__( 'Tutor', 'tutorslot' ),
+			__( 'Tutor', 'plumberslot' ),
 			array(
 				'read'             => true,
 				self::BOOK         => true,
@@ -41,7 +41,7 @@ final class Capabilities {
 
 		add_role(
 			self::ROLE_STUDENT,
-			__( 'Student', 'tutorslot' ),
+			__( 'Student', 'plumberslot' ),
 			array(
 				'read'     => true,
 				self::BOOK => true,
@@ -50,7 +50,7 @@ final class Capabilities {
 
 		add_role(
 			self::ROLE_PARENT,
-			__( 'Parent', 'tutorslot' ),
+			__( 'Parent', 'plumberslot' ),
 			array(
 				'read'     => true,
 				self::BOOK => true,

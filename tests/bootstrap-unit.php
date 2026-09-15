@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap for domain-level tests that do not load WordPress.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
@@ -23,19 +23,19 @@ if ( ! defined( 'DAY_IN_SECONDS' ) ) {
 	define( 'DAY_IN_SECONDS', 24 * HOUR_IN_SECONDS );
 }
 
-$GLOBALS['tutorslot_test_cache']      = array();
-$GLOBALS['tutorslot_test_transients'] = array();
-$GLOBALS['tutorslot_test_settings']   = array(
+$GLOBALS['plumberslot_test_cache']      = array();
+$GLOBALS['plumberslot_test_transients'] = array();
+$GLOBALS['plumberslot_test_settings']   = array(
 	'delete_data_on_uninstall' => false,
 );
-$GLOBALS['tutorslot_lifecycle_calls'] = array();
+$GLOBALS['plumberslot_lifecycle_calls'] = array();
 
 function as_unschedule_all_actions( string $hook, array $args, string $group ): void {
-	$GLOBALS['tutorslot_lifecycle_calls']['unschedule'] = array( $hook, $args, $group );
+	$GLOBALS['plumberslot_lifecycle_calls']['unschedule'] = array( $hook, $args, $group );
 }
 
 function as_has_scheduled_action( string $hook, array $args, string $group ): bool {
-	foreach ( $GLOBALS['tutorslot_lifecycle_calls']['scheduled'] ?? array() as $action ) {
+	foreach ( $GLOBALS['plumberslot_lifecycle_calls']['scheduled'] ?? array() as $action ) {
 		if ( $action['hook'] === $hook && $action['args'] === $args && $action['group'] === $group ) {
 			return true;
 		}
@@ -45,50 +45,50 @@ function as_has_scheduled_action( string $hook, array $args, string $group ): bo
 }
 
 function as_schedule_single_action( int $timestamp, string $hook, array $args, string $group ): int {
-	$GLOBALS['tutorslot_lifecycle_calls']['scheduled'][] = compact( 'timestamp', 'hook', 'args', 'group' );
+	$GLOBALS['plumberslot_lifecycle_calls']['scheduled'][] = compact( 'timestamp', 'hook', 'args', 'group' );
 
-	return count( $GLOBALS['tutorslot_lifecycle_calls']['scheduled'] );
+	return count( $GLOBALS['plumberslot_lifecycle_calls']['scheduled'] );
 }
 
 function wp_cache_flush_group( string $group ): void {
-	$GLOBALS['tutorslot_lifecycle_calls']['cache'] = $group;
+	$GLOBALS['plumberslot_lifecycle_calls']['cache'] = $group;
 }
 
 function flush_rewrite_rules(): void {
-	$GLOBALS['tutorslot_lifecycle_calls']['rewrite'] = true;
+	$GLOBALS['plumberslot_lifecycle_calls']['rewrite'] = true;
 }
 
 function get_option( string $name, mixed $fallback = false ): mixed {
-	if ( 'tutorslot_settings' === $name ) {
-		return $GLOBALS['tutorslot_test_settings'];
+	if ( 'plumberslot_settings' === $name ) {
+		return $GLOBALS['plumberslot_test_settings'];
 	}
 
 	return $fallback;
 }
 
 function wp_cache_get( string $key, string $group = '' ): mixed {
-	return $GLOBALS['tutorslot_test_cache'][ $group ][ $key ] ?? false;
+	return $GLOBALS['plumberslot_test_cache'][ $group ][ $key ] ?? false;
 }
 
 function wp_cache_set( string $key, mixed $value, string $group = '', int $ttl = 0 ): bool {
-	$GLOBALS['tutorslot_test_cache'][ $group ][ $key ] = $value;
+	$GLOBALS['plumberslot_test_cache'][ $group ][ $key ] = $value;
 
 	return true;
 }
 
 function get_transient( string $name ): mixed {
-	return $GLOBALS['tutorslot_test_transients'][ $name ] ?? false;
+	return $GLOBALS['plumberslot_test_transients'][ $name ] ?? false;
 }
 
 function set_transient( string $name, mixed $value, int $ttl = 0 ): bool {
-	$GLOBALS['tutorslot_test_transients'][ $name ] = $value;
+	$GLOBALS['plumberslot_test_transients'][ $name ] = $value;
 
 	return true;
 }
 
 function delete_transient( string $name ): bool {
-	$exists = array_key_exists( $name, $GLOBALS['tutorslot_test_transients'] );
-	unset( $GLOBALS['tutorslot_test_transients'][ $name ] );
+	$exists = array_key_exists( $name, $GLOBALS['plumberslot_test_transients'] );
+	unset( $GLOBALS['plumberslot_test_transients'][ $name ] );
 
 	return $exists;
 }
@@ -142,11 +142,11 @@ function __( string $text, string $domain = 'default' ): string {
 	return $text;
 }
 
-$tutorslot_autoload = dirname( __DIR__ ) . '/vendor/autoload.php';
+$plumberslot_autoload = dirname( __DIR__ ) . '/vendor/autoload.php';
 
-if ( ! is_readable( $tutorslot_autoload ) ) {
-	fwrite( STDERR, "TutorSlot unit tests need Composer dependencies. Run composer install.\n" );
+if ( ! is_readable( $plumberslot_autoload ) ) {
+	fwrite( STDERR, "PlumberSlot unit tests need Composer dependencies. Run composer install.\n" );
 	exit( 1 );
 }
 
-require_once $tutorslot_autoload;
+require_once $plumberslot_autoload;

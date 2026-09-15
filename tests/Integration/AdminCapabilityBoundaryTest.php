@@ -2,14 +2,14 @@
 /**
  * Capability boundaries for admin REST surfaces.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\Capabilities;
 use WP_REST_Request;
 use WP_UnitTestCase;
 
@@ -22,10 +22,10 @@ final class AdminCapabilityBoundaryTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => Capabilities::ROLE_TUTOR ) );
 		wp_set_current_user( $user_id );
 
-		$tutors = rest_do_request( new WP_REST_Request( 'GET', '/tutorslot/v1/tutors' ) );
+		$tutors = rest_do_request( new WP_REST_Request( 'GET', '/plumberslot/v1/tutors' ) );
 		$this->assertSame( 404, $tutors->get_status() );
 
-		$settings = rest_do_request( new WP_REST_Request( 'GET', '/tutorslot/v1/settings' ) );
+		$settings = rest_do_request( new WP_REST_Request( 'GET', '/plumberslot/v1/settings' ) );
 		$this->assertTrue( in_array( $settings->get_status(), array( 401, 403, 404 ), true ) );
 	}
 
@@ -33,7 +33,7 @@ final class AdminCapabilityBoundaryTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/tutorslot/v1/tutors' );
+		$request = new WP_REST_Request( 'GET', '/plumberslot/v1/tutors' );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$response = rest_do_request( $request );
 

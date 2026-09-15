@@ -2,14 +2,14 @@
 /**
  * Applies schema upgrades between plugin versions.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database;
+namespace PlumberSlot\Database;
 
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -31,9 +31,9 @@ final class Migrator {
 
 	public function maybe_upgrade(): void {
 		/** @var int $installed */
-		$installed = (int) get_option( 'tutorslot_db_version', 0 );
+		$installed = (int) get_option( 'plumberslot_db_version', 0 );
 
-		if ( $installed >= \TutorSlot\DB_VERSION ) {
+		if ( $installed >= \PlumberSlot\DB_VERSION ) {
 			return;
 		}
 
@@ -42,10 +42,10 @@ final class Migrator {
 				continue;
 			}
 			$this->{$method}();
-			update_option( 'tutorslot_db_version', $version, false );
+			update_option( 'plumberslot_db_version', $version, false );
 		}
 
-		wp_cache_flush_group( 'tutorslot' );
+		wp_cache_flush_group( 'plumberslot' );
 	}
 
 	private function step_1_initial(): void {
@@ -90,7 +90,7 @@ final class Migrator {
 
 		global $wpdb;
 
-		$prefix = $wpdb->esc_like( 'tutorslot_' ) . '%';
+		$prefix = $wpdb->esc_like( 'plumberslot_' ) . '%';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-time migration of the internal option prefix.
 		$updated = $wpdb->query(
 			$wpdb->prepare(

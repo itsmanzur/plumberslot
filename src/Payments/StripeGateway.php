@@ -5,15 +5,15 @@
  * Checkout, not Elements and never a raw card form: the payer leaves the site,
  * so no card field ever renders on a WordPress page the site owner controls.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Payments;
+namespace PlumberSlot\Payments;
 
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -28,7 +28,7 @@ final class StripeGateway implements GatewayInterface {
 	}
 
 	public function label(): string {
-		return __( 'Card', 'tutorslot' );
+		return __( 'Card', 'plumberslot' );
 	}
 
 	public function is_configured(): bool {
@@ -58,7 +58,7 @@ final class StripeGateway implements GatewayInterface {
 					'line_items[0][quantity]'             => 1,
 					'line_items[0][price_data][currency]' => strtolower( $currency ),
 					'line_items[0][price_data][unit_amount]' => $amount_minor,
-					'line_items[0][price_data][product_data][name]' => __( 'Lesson', 'tutorslot' ),
+					'line_items[0][price_data][product_data][name]' => __( 'Lesson', 'plumberslot' ),
 					'metadata[booking_id]'                => (string) $booking_id,
 					'metadata[amount_minor]'              => (string) $amount_minor,
 					'metadata[currency]'                  => strtoupper( $currency ),
@@ -69,8 +69,8 @@ final class StripeGateway implements GatewayInterface {
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
-				'tutorslot_stripe_http',
-				__( 'Could not contact the card payment provider.', 'tutorslot' ),
+				'plumberslot_stripe_http',
+				__( 'Could not contact the card payment provider.', 'plumberslot' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -79,8 +79,8 @@ final class StripeGateway implements GatewayInterface {
 
 		if ( ! is_array( $body ) || empty( $body['url'] ) || empty( $body['id'] ) ) {
 			return new WP_Error(
-				'tutorslot_stripe_failed',
-				__( 'Could not start the payment. Try again, or pick another method.', 'tutorslot' ),
+				'plumberslot_stripe_failed',
+				__( 'Could not start the payment. Try again, or pick another method.', 'plumberslot' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -130,7 +130,7 @@ final class StripeGateway implements GatewayInterface {
 		$event = json_decode( $raw_body, true );
 
 		if ( ! is_array( $event ) || empty( $event['id'] ) ) {
-			return new WP_Error( 'tutorslot_bad_webhook', '', array( 'status' => 400 ) );
+			return new WP_Error( 'plumberslot_bad_webhook', '', array( 'status' => 400 ) );
 		}
 
 		$type   = (string) ( $event['type'] ?? '' );
@@ -164,7 +164,7 @@ final class StripeGateway implements GatewayInterface {
 
 	public function refund( string $reference, int $amount_minor, string $idempotency_key = '' ): bool|WP_Error {
 		if ( '' === $reference ) {
-			return new WP_Error( 'tutorslot_bad_reference', __( 'Missing payment reference.', 'tutorslot' ), array( 'status' => 422 ) );
+			return new WP_Error( 'plumberslot_bad_reference', __( 'Missing payment reference.', 'plumberslot' ), array( 'status' => 422 ) );
 		}
 
 		$body = array(
@@ -191,8 +191,8 @@ final class StripeGateway implements GatewayInterface {
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
-				'tutorslot_stripe_http',
-				__( 'Could not contact the card payment provider.', 'tutorslot' ),
+				'plumberslot_stripe_http',
+				__( 'Could not contact the card payment provider.', 'plumberslot' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -210,8 +210,8 @@ final class StripeGateway implements GatewayInterface {
 		}
 
 		return new WP_Error(
-			'tutorslot_stripe_refund_failed',
-			__( 'Refund failed.', 'tutorslot' ),
+			'plumberslot_stripe_refund_failed',
+			__( 'Refund failed.', 'plumberslot' ),
 			array( 'status' => 502 )
 		);
 	}

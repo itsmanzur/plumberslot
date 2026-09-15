@@ -2,22 +2,22 @@
 /**
  * Removes remote meetings after cancellation or rescheduling.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Meetings;
+namespace PlumberSlot\Meetings;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Support\AuditLog;
 
 defined( 'ABSPATH' ) || exit;
 
 final class MeetingCleanup {
 
-	private const ACTION       = 'tutorslot_cleanup_meeting';
-	private const GROUP        = 'tutorslot';
+	private const ACTION       = 'plumberslot_cleanup_meeting';
+	private const GROUP        = 'plumberslot';
 	private const MAX_ATTEMPTS = 3;
 
 	public function __construct(
@@ -26,9 +26,9 @@ final class MeetingCleanup {
 	) {}
 
 	public function register(): void {
-		add_action( 'tutorslot_booking_cancelled', array( $this, 'request' ), 10, 1 );
-		add_action( 'tutorslot_booking_moved', array( $this, 'request' ), 10, 1 );
-		add_action( 'tutorslot_booking_refunded', array( $this, 'request' ), 10, 1 );
+		add_action( 'plumberslot_booking_cancelled', array( $this, 'request' ), 10, 1 );
+		add_action( 'plumberslot_booking_moved', array( $this, 'request' ), 10, 1 );
+		add_action( 'plumberslot_booking_refunded', array( $this, 'request' ), 10, 1 );
 		add_action( self::ACTION, array( $this, 'run' ), 10, 2 );
 	}
 

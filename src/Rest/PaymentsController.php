@@ -1,19 +1,19 @@
 <?php
 /**
- * /tutorslot/v1/payments — gateways, start, refund, bKash callback.
+ * /plumberslot/v1/payments — gateways, start, refund, bKash callback.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\PaymentRepository;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\PaymentRepository;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -197,8 +197,8 @@ final class PaymentsController extends AbstractController {
 	}
 
 	public function start( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$success = (string) ( $request['success_url'] ? $request['success_url'] : home_url( '/?tutorslot_pay=success' ) );
-		$cancel  = (string) ( $request['cancel_url'] ? $request['cancel_url'] : home_url( '/?tutorslot_pay=cancel' ) );
+		$success = (string) ( $request['success_url'] ? $request['success_url'] : home_url( '/?plumberslot_pay=success' ) );
+		$cancel  = (string) ( $request['cancel_url'] ? $request['cancel_url'] : home_url( '/?plumberslot_pay=cancel' ) );
 
 		$result = $this->payments->start(
 			(int) $request['booking_id'],
@@ -255,10 +255,10 @@ final class PaymentsController extends AbstractController {
 		$cancel     = esc_url_raw( rawurldecode( (string) $request->get_param( 'cancel' ) ) );
 
 		if ( '' === $return ) {
-			$return = home_url( '/?tutorslot_pay=success' );
+			$return = home_url( '/?plumberslot_pay=success' );
 		}
 		if ( '' === $cancel ) {
-			$cancel = home_url( '/?tutorslot_pay=cancel' );
+			$cancel = home_url( '/?plumberslot_pay=cancel' );
 		}
 
 		if ( in_array( $status, array( 'cancel', 'failure', 'failed' ), true ) || '' === $payment_id ) {
@@ -268,7 +268,7 @@ final class PaymentsController extends AbstractController {
 			wp_safe_redirect(
 				add_query_arg(
 					array(
-						'tutorslot_pay' => 'cancel',
+						'plumberslot_pay' => 'cancel',
 						'booking'       => $booking_id,
 					),
 					$cancel
@@ -283,7 +283,7 @@ final class PaymentsController extends AbstractController {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'tutorslot_pay' => $flag,
+					'plumberslot_pay' => $flag,
 					'booking'       => $booking_id,
 				),
 				'success' === $flag ? $return : $cancel

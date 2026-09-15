@@ -2,12 +2,12 @@
 /**
  * A delivery channel: email, SMS, push, WhatsApp.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Notifications\Channel;
+namespace PlumberSlot\Notifications\Channel;
 
 defined( 'ABSPATH' ) || exit;
 

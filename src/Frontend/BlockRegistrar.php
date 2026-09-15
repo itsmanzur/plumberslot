@@ -2,12 +2,12 @@
 /**
  * Gutenberg block wrapping the same widget as the shortcode.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,7 +20,7 @@ final class BlockRegistrar {
 	}
 
 	public function register_block(): void {
-		$asset_file = TUTORSLOT_PATH . 'assets/dist/block.asset.php';
+		$asset_file = PLUMBERSLOT_PATH . 'assets/dist/block.asset.php';
 		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(
 				'wp-blocks',
@@ -30,38 +30,38 @@ final class BlockRegistrar {
 				'wp-i18n',
 				'wp-api-fetch',
 			),
-			'version'      => \TutorSlot\VERSION,
+			'version'      => \PlumberSlot\VERSION,
 		);
 
-		if ( is_readable( TUTORSLOT_PATH . 'assets/dist/block.js' ) ) {
+		if ( is_readable( PLUMBERSLOT_PATH . 'assets/dist/block.js' ) ) {
 			wp_register_script(
-				'tutorslot-block-editor',
-				TUTORSLOT_URL . 'assets/dist/block.js',
+				'plumberslot-block-editor',
+				PLUMBERSLOT_URL . 'assets/dist/block.js',
 				$asset['dependencies'],
 				$asset['version'],
 				true
 			);
 		}
 
-		if ( is_readable( TUTORSLOT_PATH . 'assets/dist/block.css' ) ) {
+		if ( is_readable( PLUMBERSLOT_PATH . 'assets/dist/block.css' ) ) {
 			wp_register_style(
-				'tutorslot-block-editor',
-				TUTORSLOT_URL . 'assets/dist/block.css',
+				'plumberslot-block-editor',
+				PLUMBERSLOT_URL . 'assets/dist/block.css',
 				array(),
 				$asset['version']
 			);
 		}
 
 		register_block_type(
-			'tutorslot/booking',
+			'plumberslot/booking',
 			// WordPress accepts an integer API version; the installed stub currently declares string.
 			// @phpstan-ignore-next-line argument.type
 			array(
 				'api_version'     => 3,
-				'title'           => __( 'Lesson booking', 'tutorslot' ),
+				'title'           => __( 'Lesson booking', 'plumberslot' ),
 				'category'        => 'widgets',
 				'icon'            => 'calendar-alt',
-				'description'     => __( 'Let visitors see your open hours and book a lesson.', 'tutorslot' ),
+				'description'     => __( 'Let visitors see your open hours and book a lesson.', 'plumberslot' ),
 				'attributes'      => array(
 					'tutor'   => array(
 						'type'    => 'string',
@@ -72,8 +72,8 @@ final class BlockRegistrar {
 						'default' => 0,
 					),
 				),
-				'editor_script'   => 'tutorslot-block-editor',
-				'editor_style'    => 'tutorslot-block-editor',
+				'editor_script'   => 'plumberslot-block-editor',
+				'editor_style'    => 'plumberslot-block-editor',
 				'render_callback' => array( $this, 'render' ),
 			)
 		);

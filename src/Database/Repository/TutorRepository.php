@@ -2,15 +2,15 @@
 /**
  * Tutor profiles.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
-use TutorSlot\Database\Schema;
-use TutorSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Domain\Contract\TutorSource;
 
 defined( 'ABSPATH' ) || exit;
 

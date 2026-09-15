@@ -2,12 +2,12 @@
 /**
  * Available meeting providers.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Meetings;
+namespace PlumberSlot\Meetings;
 
 use WP_Error;
 
@@ -31,7 +31,7 @@ final class ProviderRegistry {
 	 */
 	public function all(): array {
 		/** @param array<string, ProviderInterface> $providers Registered providers. */
-		return apply_filters( 'tutorslot_meeting_providers', $this->providers );
+		return apply_filters( 'plumberslot_meeting_providers', $this->providers );
 	}
 
 	/**
@@ -46,8 +46,8 @@ final class ProviderRegistry {
 
 		if ( 2 !== count( $parts ) || '' === $parts[0] || '' === $parts[1] ) {
 			return new WP_Error(
-				'tutorslot_meeting_provider_missing',
-				__( 'The meeting provider could not be identified.', 'tutorslot' )
+				'plumberslot_meeting_provider_missing',
+				__( 'The meeting provider could not be identified.', 'plumberslot' )
 			);
 		}
 
@@ -55,8 +55,8 @@ final class ProviderRegistry {
 
 		if ( ! $provider ) {
 			return new WP_Error(
-				'tutorslot_meeting_provider_missing',
-				__( 'The meeting provider is unavailable.', 'tutorslot' )
+				'plumberslot_meeting_provider_missing',
+				__( 'The meeting provider is unavailable.', 'plumberslot' )
 			);
 		}
 

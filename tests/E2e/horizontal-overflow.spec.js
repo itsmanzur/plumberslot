@@ -10,7 +10,7 @@ test.use( { viewport: { width: 390, height: 844 } } );
 
 async function fixture( action, fixtureKey, ...args ) {
 	const phpArgs = [ fixtureScript, action, ...args ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -25,7 +25,7 @@ async function fixture( action, fixtureKey, ...args ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -91,8 +91,8 @@ async function dismissConsent( page ) {
 function prepareTest( testInfo, state ) {
 	testInfo.setTimeout( 150000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_VISUAL_READY,
-		'Set TUTORSLOT_E2E_VISUAL_READY=1 to allow isolated responsive fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_VISUAL_READY,
+		'Set PLUMBERSLOT_E2E_VISUAL_READY=1 to allow isolated responsive fixture rows.'
 	);
 	const project = testInfo.project.name.includes( 'mobile' ) ? 'mob' : 'desk';
 
@@ -115,7 +115,7 @@ async function expectNoHorizontalOverflow( page, rootSelector, state ) {
 		};
 	}, rootSelector );
 
-	expect( metrics.rootFound, `${ state }: TutorSlot root is missing.` ).toBe(
+	expect( metrics.rootFound, `${ state }: PlumberSlot root is missing.` ).toBe(
 		true
 	);
 	expect(
@@ -124,11 +124,11 @@ async function expectNoHorizontalOverflow( page, rootSelector, state ) {
 	).toBeLessThanOrEqual( metrics.viewport + 1 );
 	expect(
 		metrics.rootLeft,
-		`${ state }: TutorSlot root starts outside the viewport.`
+		`${ state }: PlumberSlot root starts outside the viewport.`
 	).toBeGreaterThanOrEqual( -1 );
 	expect(
 		metrics.rootRight,
-		`${ state }: TutorSlot root ends outside the viewport.`
+		`${ state }: PlumberSlot root ends outside the viewport.`
 	).toBeLessThanOrEqual( metrics.viewport + 1 );
 }
 
@@ -147,7 +147,7 @@ test( 'public booking flow contains every state at 390px', async ( {
 		expect( ( await tutorResponse ).status() ).toBe( 200 );
 		await dismissConsent( page );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		await expect(
 			widget.getByRole( 'heading', {
 				name: 'What do you want to work on?',
@@ -155,13 +155,13 @@ test( 'public booking flow contains every state at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-widget.tutorslot-root',
+			'.plumberslot-widget.plumberslot-root',
 			'booking subject'
 		);
 
 		await widget.getByRole( 'option', { name: /English E2E/ } ).click();
 		const slotsResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await widget.getByRole( 'button', { name: 'Choose a time →' } ).click();
 		expect( ( await slotsResponse ).status() ).toBe( 200 );
@@ -170,7 +170,7 @@ test( 'public booking flow contains every state at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-widget.tutorslot-root',
+			'.plumberslot-widget.plumberslot-root',
 			'booking time'
 		);
 
@@ -184,7 +184,7 @@ test( 'public booking flow contains every state at 390px', async ( {
 			( response ) =>
 				response
 					.url()
-					.includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+					.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Continue →' } ).click();
@@ -194,13 +194,13 @@ test( 'public booking flow contains every state at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-widget.tutorslot-root',
+			'.plumberslot-widget.plumberslot-root',
 			'booking confirm'
 		);
 
 		const bookingResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( '/wp-json/tutorslot/v1/bookings' ) &&
+				response.url().includes( '/wp-json/plumberslot/v1/bookings' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Confirm booking' } ).click();
@@ -210,7 +210,7 @@ test( 'public booking flow contains every state at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-widget.tutorslot-root',
+			'.plumberslot-widget.plumberslot-root',
 			'booking completion'
 		);
 	} finally {
@@ -231,11 +231,11 @@ test( 'payment recovery is contained at 390px', async ( {
 		);
 		await goTo(
 			page,
-			`${ seed.pagePath }&tutorslot_pay=success&booking=${ seed.bookingId }`
+			`${ seed.pagePath }&plumberslot_pay=success&booking=${ seed.bookingId }`
 		);
 		expect( ( await bookingResponse ).status() ).toBe( 200 );
 		await dismissConsent( page );
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		await expect(
 			widget.getByRole( 'heading', {
 				name: 'We could not complete the payment',
@@ -243,7 +243,7 @@ test( 'payment recovery is contained at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-widget.tutorslot-root',
+			'.plumberslot-widget.plumberslot-root',
 			'payment recovery'
 		);
 	} finally {
@@ -270,7 +270,7 @@ test( 'parent dashboard is contained at 390px', async ( {
 			),
 			page.waitForResponse( ( response ) => {
 				const url = new URL( response.url() );
-				return url.pathname.endsWith( '/tutorslot/v1/credits' );
+				return url.pathname.endsWith( '/plumberslot/v1/credits' );
 			} ),
 			page.waitForResponse( ( response ) =>
 				response.url().includes( '/credits/packages' )
@@ -283,7 +283,7 @@ test( 'parent dashboard is contained at 390px', async ( {
 			)
 		).toEqual( [ 200, 200, 200, 200 ] );
 		await dismissConsent( page );
-		const dashboard = page.locator( '.tutorslot-dashboard.tutorslot-root' );
+		const dashboard = page.locator( '.plumberslot-dashboard.plumberslot-root' );
 		await expect(
 			dashboard.getByRole( 'heading', {
 				name: "Your family's lessons",
@@ -291,7 +291,7 @@ test( 'parent dashboard is contained at 390px', async ( {
 		).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'.tutorslot-dashboard.tutorslot-root',
+			'.plumberslot-dashboard.plumberslot-root',
 			'parent dashboard'
 		);
 	} finally {
@@ -312,13 +312,13 @@ test( 'availability timetable is contained at 390px', async ( {
 				response.url().includes( `/availability/${ seed.tutorId }` ) &&
 				'GET' === response.request().method()
 		);
-		await goTo( page, '/wp-admin/admin.php?page=tutorslot-availability' );
+		await goTo( page, '/wp-admin/admin.php?page=plumberslot-availability' );
 		expect( ( await availabilityResponse ).status() ).toBe( 200 );
-		const root = page.locator( '#tutorslot-admin-root' );
+		const root = page.locator( '#plumberslot-admin-root' );
 		await expect( root.locator( '.ts-tt' ) ).toBeVisible();
 		await expectNoHorizontalOverflow(
 			page,
-			'#tutorslot-admin-root',
+			'#plumberslot-admin-root',
 			'availability timetable'
 		);
 		const timetable = await root

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<ruleset name="TutorSlot">
+<ruleset name="PlumberSlot">
 	<description>WordPress runtime standards for a PSR-4 plugin, enforced in CI.</description>
 
 	<file>src</file>
-	<file>tutorslot.php</file>
+	<file>plumberslot.php</file>
 	<file>uninstall.php</file>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
@@ -26,7 +26,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="tutorslot"/>
+				<element value="plumberslot"/>
 			</property>
 		</properties>
 	</rule>
@@ -34,8 +34,8 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="tutorslot"/>
-				<element value="TutorSlot"/>
+				<element value="plumberslot"/>
+				<element value="PlumberSlot"/>
 			</property>
 		</properties>
 	</rule>

@@ -16,13 +16,13 @@ if ( 'cli' !== PHP_SAPI ) {
 
 mysqli_report( MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT );
 
-const FIXTURE_TUTOR_LOGIN = 'tutorslot_e2e_farhana';
-const FIXTURE_ALICE_LOGIN = 'tutorslot_e2e_alice';
-const FIXTURE_BOB_LOGIN   = 'tutorslot_e2e_bob';
-const FIXTURE_PARENT_LOGIN = 'tutorslot_e2e_parent';
-const FIXTURE_TUTOR_SLUG  = 'tutorslot-e2e-farhana';
-const FIXTURE_PAGE_SLUG   = 'tutorslot-e2e-booking-race';
-const FIXTURE_PASSWORD    = 'TutorSlot-E2E-only-2026!';
+const FIXTURE_TUTOR_LOGIN = 'plumberslot_e2e_farhana';
+const FIXTURE_ALICE_LOGIN = 'plumberslot_e2e_alice';
+const FIXTURE_BOB_LOGIN   = 'plumberslot_e2e_bob';
+const FIXTURE_PARENT_LOGIN = 'plumberslot_e2e_parent';
+const FIXTURE_TUTOR_SLUG  = 'plumberslot-e2e-farhana';
+const FIXTURE_PAGE_SLUG   = 'plumberslot-e2e-booking-race';
+const FIXTURE_PASSWORD    = 'PlumberSlot-E2E-only-2026!';
 
 /**
  * Read an environment variable with a local-development fallback.
@@ -37,7 +37,7 @@ function fixture_env( string $name, string $fallback ): string {
  * Keep concurrent Playwright projects in separate reserved fixture rows.
  */
 function fixture_key(): string {
-	$key = fixture_env( 'TUTORSLOT_E2E_FIXTURE_KEY', '' );
+	$key = fixture_env( 'PLUMBERSLOT_E2E_FIXTURE_KEY', '' );
 
 	if ( 1 !== preg_match( '/^[a-z0-9_\-]*$/', $key ) ) {
 		throw new RuntimeException( 'Unsafe fixture key.' );
@@ -59,13 +59,13 @@ function fixture_slug( string $base ): string {
 }
 
 function fixture_backup_option_name(): string {
-	return 'tutorslot_e2e_backup_' . str_replace( '-', '_', fixture_key() );
+	return 'plumberslot_e2e_backup_' . str_replace( '-', '_', fixture_key() );
 }
 
 /** Preserve global options changed by the onboarding endpoint. */
 function fixture_backup_onboarding_options( mysqli $db, string $prefix ): void {
 	$options = $prefix . 'options';
-	$names   = array( 'tutorslot_settings', 'tutorslot_setup_analytics' );
+	$names   = array( 'plumberslot_settings', 'plumberslot_setup_analytics' );
 	$backup  = array();
 
 	foreach ( $names as $name ) {
@@ -162,14 +162,14 @@ function fixture_password_hash( string $password ): string {
  * Delete only rows carrying the fixture's reserved identifiers.
  */
 function fixture_cleanup( mysqli $db, string $prefix ): void {
-	$tutors      = $prefix . 'tutorslot_tutors';
-	$subjects    = $prefix . 'tutorslot_subjects';
-	$bookings    = $prefix . 'tutorslot_bookings';
-	$locks       = $prefix . 'tutorslot_slot_locks';
-	$availability = $prefix . 'tutorslot_availability';
-	$audit       = $prefix . 'tutorslot_audit_log';
-	$credits     = $prefix . 'tutorslot_credits';
-	$relations   = $prefix . 'tutorslot_relations';
+	$tutors      = $prefix . 'plumberslot_tutors';
+	$subjects    = $prefix . 'plumberslot_subjects';
+	$bookings    = $prefix . 'plumberslot_bookings';
+	$locks       = $prefix . 'plumberslot_slot_locks';
+	$availability = $prefix . 'plumberslot_availability';
+	$audit       = $prefix . 'plumberslot_audit_log';
+	$credits     = $prefix . 'plumberslot_credits';
+	$relations   = $prefix . 'plumberslot_relations';
 	$posts       = $prefix . 'posts';
 	$postmeta    = $prefix . 'postmeta';
 	$users       = $prefix . 'users';
@@ -207,8 +207,8 @@ function fixture_cleanup( mysqli $db, string $prefix ): void {
 				$actions = $prefix . 'actionscheduler_actions';
 				$groups  = $prefix . 'actionscheduler_groups';
 				$logs    = $prefix . 'actionscheduler_logs';
-				$hook    = 'tutorslot_send_reminder';
-				$group   = 'tutorslot';
+				$hook    = 'plumberslot_send_reminder';
+				$group   = 'plumberslot';
 				$needle  = '[' . $id . ',%';
 				$stmt    = $db->prepare(
 					"SELECT a.action_id
@@ -321,7 +321,7 @@ function fixture_user( mysqli $db, string $prefix, string $login, string $role )
 	$nicename    = str_replace( '_', '-', $login );
 	$email       = $login . '@example.test';
 	$registered  = gmdate( 'Y-m-d H:i:s' );
-	$display     = ucwords( str_replace( array( 'tutorslot_e2e_', '_' ), array( '', ' ' ), $login ) );
+	$display     = ucwords( str_replace( array( 'plumberslot_e2e_', '_' ), array( '', ' ' ), $login ) );
 
 	$stmt = $db->prepare(
 		"INSERT INTO {$table}
@@ -352,7 +352,7 @@ function fixture_user( mysqli $db, string $prefix, string $login, string $role )
 
 $action        = $argv[1] ?? '';
 $payment_state = $argv[2] ?? '';
-$prefix        = fixture_env( 'TUTORSLOT_E2E_DB_PREFIX', 'wp_' );
+$prefix        = fixture_env( 'PLUMBERSLOT_E2E_DB_PREFIX', 'wp_' );
 
 if ( 1 !== preg_match( '/^[A-Za-z0-9_]+$/', $prefix ) ) {
 	fwrite( STDERR, "Unsafe database prefix.\n" );
@@ -361,11 +361,11 @@ if ( 1 !== preg_match( '/^[A-Za-z0-9_]+$/', $prefix ) ) {
 
 try {
 	$db = new mysqli(
-		fixture_env( 'TUTORSLOT_E2E_DB_HOST', '127.0.0.1' ),
-		fixture_env( 'TUTORSLOT_E2E_DB_USER', 'root' ),
-		fixture_env( 'TUTORSLOT_E2E_DB_PASSWORD', 'root' ),
-		fixture_env( 'TUTORSLOT_E2E_DB_NAME', 'local' ),
-		(int) fixture_env( 'TUTORSLOT_E2E_DB_PORT', '10156' )
+		fixture_env( 'PLUMBERSLOT_E2E_DB_HOST', '127.0.0.1' ),
+		fixture_env( 'PLUMBERSLOT_E2E_DB_USER', 'root' ),
+		fixture_env( 'PLUMBERSLOT_E2E_DB_PASSWORD', 'root' ),
+		fixture_env( 'PLUMBERSLOT_E2E_DB_NAME', 'local' ),
+		(int) fixture_env( 'PLUMBERSLOT_E2E_DB_PORT', '10156' )
 	);
 	$db->set_charset( 'utf8mb4' );
 
@@ -375,11 +375,11 @@ try {
 	}
 
 	if ( 'inspect' === $action ) {
-		$table = $prefix . 'tutorslot_bookings';
+		$table = $prefix . 'plumberslot_bookings';
 		$stmt  = $db->prepare(
 			"SELECT COUNT(*) AS total
 			 FROM {$table} b
-			 INNER JOIN {$prefix}tutorslot_tutors t ON t.id = b.tutor_id
+			 INNER JOIN {$prefix}plumberslot_tutors t ON t.id = b.tutor_id
 			 WHERE t.slug = ?"
 		);
 		$slug = fixture_slug( FIXTURE_TUTOR_SLUG );
@@ -392,7 +392,7 @@ try {
 			"SELECT b.id, b.student_id, b.subject_id, b.status, b.start_utc,
 			        b.price_minor, b.payment_ref
 			 FROM {$table} b
-			 INNER JOIN {$prefix}tutorslot_tutors t ON t.id = b.tutor_id
+			 INNER JOIN {$prefix}plumberslot_tutors t ON t.id = b.tutor_id
 			 WHERE t.slug = ?
 			 ORDER BY b.id DESC
 			 LIMIT 1"
@@ -406,7 +406,7 @@ try {
 			"SELECT b.id, b.student_id, b.subject_id, b.status, b.start_utc,
 			        b.price_minor, b.payment_ref
 			 FROM {$table} b
-			 INNER JOIN {$prefix}tutorslot_tutors t ON t.id = b.tutor_id
+			 INNER JOIN {$prefix}plumberslot_tutors t ON t.id = b.tutor_id
 			 WHERE t.slug = ?
 			 ORDER BY b.id ASC"
 		);
@@ -426,10 +426,10 @@ try {
 	if ( 'inspect-onboarding' === $action ) {
 		$slug         = fixture_slug( FIXTURE_TUTOR_SLUG );
 		$tutor_login  = fixture_login( FIXTURE_TUTOR_LOGIN );
-		$tutors       = $prefix . 'tutorslot_tutors';
-		$subjects     = $prefix . 'tutorslot_subjects';
-		$availability = $prefix . 'tutorslot_availability';
-		$audit        = $prefix . 'tutorslot_audit_log';
+		$tutors       = $prefix . 'plumberslot_tutors';
+		$subjects     = $prefix . 'plumberslot_subjects';
+		$availability = $prefix . 'plumberslot_availability';
+		$audit        = $prefix . 'plumberslot_audit_log';
 		$users        = $prefix . 'users';
 		$usermeta     = $prefix . 'usermeta';
 		$options      = $prefix . 'options';
@@ -448,7 +448,7 @@ try {
 		$user_id = (int) ( $stmt->get_result()->fetch_assoc()['ID'] ?? 0 );
 		$stmt->close();
 
-		$completed_key = 'tutorslot_setup_completed';
+		$completed_key = 'plumberslot_setup_completed';
 		$stmt          = $db->prepare( "SELECT meta_value FROM {$usermeta} WHERE user_id = ? AND meta_key = ? LIMIT 1" );
 		$stmt->bind_param( 'is', $user_id, $completed_key );
 		$stmt->execute();
@@ -467,7 +467,7 @@ try {
 		$availability_count = (int) $stmt->get_result()->fetch_assoc()['total'];
 		$stmt->close();
 
-		$settings_name = 'tutorslot_settings';
+		$settings_name = 'plumberslot_settings';
 		$stmt          = $db->prepare( "SELECT option_value FROM {$options} WHERE option_name = ? LIMIT 1" );
 		$stmt->bind_param( 's', $settings_name );
 		$stmt->execute();
@@ -520,16 +520,16 @@ try {
 		$tutor_login = fixture_login( FIXTURE_TUTOR_LOGIN );
 		$alice_login = fixture_login( FIXTURE_ALICE_LOGIN );
 		$bob_login   = fixture_login( FIXTURE_BOB_LOGIN );
-		$tutor_role  = in_array( $action, array( 'seed-lifecycle', 'seed-onboarding' ), true ) ? 'administrator' : 'tutorslot_tutor';
+		$tutor_role  = in_array( $action, array( 'seed-lifecycle', 'seed-onboarding' ), true ) ? 'administrator' : 'plumberslot_tutor';
 		$tutor_user  = fixture_user( $db, $prefix, $tutor_login, $tutor_role );
-		$alice_user  = fixture_user( $db, $prefix, $alice_login, 'tutorslot_student' );
-		fixture_user( $db, $prefix, $bob_login, 'tutorslot_student' );
+		$alice_user  = fixture_user( $db, $prefix, $alice_login, 'plumberslot_student' );
+		fixture_user( $db, $prefix, $bob_login, 'plumberslot_student' );
 		$parent_user = 'seed-parent-dashboard' === $action
-			? fixture_user( $db, $prefix, fixture_login( FIXTURE_PARENT_LOGIN ), 'tutorslot_parent' )
+			? fixture_user( $db, $prefix, fixture_login( FIXTURE_PARENT_LOGIN ), 'plumberslot_parent' )
 			: 0;
 
 		$now         = gmdate( 'Y-m-d H:i:s' );
-		$tutors      = $prefix . 'tutorslot_tutors';
+		$tutors      = $prefix . 'plumberslot_tutors';
 		$display     = 'seed-bengali' === $action ? 'ফারহানা রহমান' : 'Farhana E2E';
 		$timezone    = 'UTC';
 		$currency    = 'USD';
@@ -545,7 +545,7 @@ try {
 		$tutor_id = (int) $db->insert_id;
 		$stmt->close();
 
-		$subjects = $prefix . 'tutorslot_subjects';
+		$subjects = $prefix . 'plumberslot_subjects';
 		$name     = 'seed-bengali' === $action ? 'বাংলা ভাষা ও সাহিত্য' : 'English E2E';
 		$level    = 'seed-bengali' === $action ? 'প্রাথমিক · জাতীয় শিক্ষাক্রম' : 'Beginner';
 		$duration = 60;
@@ -568,7 +568,7 @@ try {
 		$weekday    = (int) $start->format( 'w' );
 		$start_min  = 600;
 		$end_min    = 'seed-lifecycle' === $action ? 840 : 720;
-		$availability = $prefix . 'tutorslot_availability';
+		$availability = $prefix . 'plumberslot_availability';
 		$stmt       = $db->prepare(
 			"INSERT INTO {$availability} (tutor_id, weekday, start_min, end_min) VALUES (?, ?, ?, ?)"
 		);
@@ -578,9 +578,9 @@ try {
 
 		$posts        = $prefix . 'posts';
 		$content      = 'seed-parent-dashboard' === $action
-			? '[tutorslot_dashboard view="parent"]'
-			: '[tutorslot tutor="' . $slug . '"]';
-		$title        = 'seed-bengali' === $action ? 'বাংলা পাঠ বুকিং' : 'TutorSlot booking race';
+			? '[plumberslot_dashboard view="parent"]'
+			: '[plumberslot tutor="' . $slug . '"]';
+		$title        = 'seed-bengali' === $action ? 'বাংলা পাঠ বুকিং' : 'PlumberSlot booking race';
 		$page_slug    = fixture_slug( FIXTURE_PAGE_SLUG );
 		$post_status  = 'publish';
 		$comment      = 'closed';
@@ -623,7 +623,7 @@ try {
 		if ( 'seed-onboarding' === $action ) {
 			fixture_backup_onboarding_options( $db, $prefix );
 			$options       = $prefix . 'options';
-			$settings_name = 'tutorslot_settings';
+			$settings_name = 'plumberslot_settings';
 			$stmt          = $db->prepare( "SELECT option_value FROM {$options} WHERE option_name = ? LIMIT 1" );
 			$stmt->bind_param( 's', $settings_name );
 			$stmt->execute();
@@ -641,7 +641,7 @@ try {
 
 		$credit_id = 0;
 		if ( 'seed-parent-dashboard' === $action ) {
-			$relations = $prefix . 'tutorslot_relations';
+			$relations = $prefix . 'plumberslot_relations';
 			$relation  = 'guardian';
 			$confirmed = 1;
 			$stmt      = $db->prepare(
@@ -652,7 +652,7 @@ try {
 			$stmt->execute();
 			$stmt->close();
 
-			$credits       = $prefix . 'tutorslot_credits';
+			$credits       = $prefix . 'plumberslot_credits';
 			$total         = 10;
 			$used          = 3;
 			$package_price = 20000;
@@ -680,11 +680,11 @@ try {
 
 		$booking_id = 0;
 		if ( in_array( $action, array( 'seed-payment', 'seed-lifecycle', 'seed-parent-dashboard' ), true ) ) {
-			$bookings       = $prefix . 'tutorslot_bookings';
+			$bookings       = $prefix . 'plumberslot_bookings';
 			$end_sql        = $start->modify( '+60 minutes' )->format( 'Y-m-d H:i:s' );
 			$student_tz     = 'UTC';
 			$booking_status = in_array( $action, array( 'seed-lifecycle', 'seed-parent-dashboard' ), true ) || 'success' === $payment_state ? 'confirmed' : ( 'cancel' === $payment_state ? 'pending_payment' : 'payment_failed' );
-			$payment_ref    = 'success' === $payment_state ? 'tutorslot-e2e-paid-' . fixture_key() : '';
+			$payment_ref    = 'success' === $payment_state ? 'plumberslot-e2e-paid-' . fixture_key() : '';
 			$stmt           = $db->prepare(
 				"INSERT INTO {$bookings}
 					(tutor_id, student_id, subject_id, start_utc, end_utc, student_tz,

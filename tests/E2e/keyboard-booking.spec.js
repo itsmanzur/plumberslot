@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -81,11 +81,11 @@ async function isolateWidget( page ) {
 			elements.forEach( ( element ) => element.remove() )
 		);
 	await page.evaluate( () => {
-		window.tutorSlotPointerActions = 0;
+		window.plumberSlotPointerActions = 0;
 		document
-			.querySelector( '.tutorslot-widget.tutorslot-root' )
+			.querySelector( '.plumberslot-widget.plumberslot-root' )
 			?.addEventListener( 'pointerdown', () => {
-				window.tutorSlotPointerActions += 1;
+				window.plumberSlotPointerActions += 1;
 			} );
 	} );
 }
@@ -121,8 +121,8 @@ test( 'student completes booking with keyboard only', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 150000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_HAPPY_READY,
-		'Set TUTORSLOT_E2E_HAPPY_READY=1 to allow isolated keyboard-flow fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_HAPPY_READY,
+		'Set PLUMBERSLOT_E2E_HAPPY_READY=1 to allow isolated keyboard-flow fixture rows.'
 	);
 	const project = testInfo.project.name.includes( 'mobile' ) ? 'mob' : 'desk';
 	const fixtureKey = `${ project }-keyboard-booking`;
@@ -139,7 +139,7 @@ test( 'student completes booking with keyboard only', async ( {
 		expect( ( await tutorResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		const firstSubject = widget
 			.getByRole( 'listbox', { name: 'Subjects' } )
 			.getByRole( 'option' )
@@ -157,7 +157,7 @@ test( 'student completes booking with keyboard only', async ( {
 		} );
 		await tabTo( page, chooseTime, 'Choose a time button' );
 		const slotsResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await page.keyboard.press( 'Enter' );
 		expect( ( await slotsResponse ).status() ).toBe( 200 );
@@ -188,7 +188,7 @@ test( 'student completes booking with keyboard only', async ( {
 			( response ) =>
 				response
 					.url()
-					.includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+					.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 				'POST' === response.request().method()
 		);
 		await page.keyboard.press( 'Enter' );
@@ -210,7 +210,7 @@ test( 'student completes booking with keyboard only', async ( {
 		await tabTo( page, confirmButton, 'Confirm booking button' );
 		const bookingResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( '/wp-json/tutorslot/v1/bookings' ) &&
+				response.url().includes( '/wp-json/plumberslot/v1/bookings' ) &&
 				'POST' === response.request().method()
 		);
 		await page.keyboard.press( 'Enter' );
@@ -221,7 +221,7 @@ test( 'student completes booking with keyboard only', async ( {
 			widget.getByRole( 'heading', { name: /^Booked\./ } )
 		).toBeFocused();
 		expect(
-			await page.evaluate( () => window.tutorSlotPointerActions )
+			await page.evaluate( () => window.plumberSlotPointerActions )
 		).toBe( 0 );
 
 		const database = await fixture( 'inspect', fixtureKey );

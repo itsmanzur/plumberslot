@@ -2,14 +2,14 @@
 /**
  * Tutors work from /tutor-dashboard — not wp-admin.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Support\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 

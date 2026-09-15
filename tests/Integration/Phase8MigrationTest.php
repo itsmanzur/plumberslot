@@ -2,18 +2,18 @@
 /**
  * Phase 8 plugin schema migration integration tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Activator;
-use TutorSlot\Database\Migrator;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Tests\Integration\Fixtures\PreviousSchemaFixture;
+use PlumberSlot\Activator;
+use PlumberSlot\Database\Migrator;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Tests\Integration\Fixtures\PreviousSchemaFixture;
 
 require_once __DIR__ . '/Fixtures/PreviousSchemaFixture.php';
 
@@ -23,7 +23,7 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 	public function tear_down(): void {
 		Schema::drop_all();
 		Schema::create_all();
-		update_option( 'tutorslot_db_version', \TutorSlot\DB_VERSION, false );
+		update_option( 'plumberslot_db_version', \PlumberSlot\DB_VERSION, false );
 
 		parent::tear_down();
 	}
@@ -31,7 +31,7 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 	public function test_version_four_fixture_matches_the_pre_payment_schema_contract(): void {
 		PreviousSchemaFixture::install();
 
-		$this->assertSame( 4, (int) get_option( 'tutorslot_db_version', 0 ) );
+		$this->assertSame( 4, (int) get_option( 'plumberslot_db_version', 0 ) );
 		$this->assertCount( 11, PreviousSchemaFixture::table_keys() );
 
 		foreach ( PreviousSchemaFixture::table_keys() as $key ) {
@@ -52,8 +52,8 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 
 		( new Migrator() )->maybe_upgrade();
 
-		$this->assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
-		$this->assertSame( 6, \TutorSlot\DB_VERSION );
+		$this->assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
+		$this->assertSame( 6, \PlumberSlot\DB_VERSION );
 
 		foreach ( Schema::all_keys() as $key ) {
 			$this->assertTrue( $this->table_exists( Schema::table( $key ) ), 'Migration did not create table: ' . $key );
@@ -107,7 +107,7 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 			remove_filter( 'query', $capture );
 		}
 
-		$this->assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
+		$this->assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
 		$this->assertSame( array(), $queries, 'A current-version migration rerun must not execute DDL.' );
 		$this->assertSame( $before, $this->schema_fingerprint() );
 	}
@@ -124,23 +124,23 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 				'sms_1h'    => false,
 			),
 		);
-		update_option( 'tutorslot_settings', $settings, false );
+		update_option( 'plumberslot_settings', $settings, false );
 		$this->seed_version_four_data();
 
 		$before = $this->persisted_data_snapshot();
 
 		( new Migrator() )->maybe_upgrade();
 
-		$this->assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
-		$this->assertSame( $settings, get_option( 'tutorslot_settings' ) );
+		$this->assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
+		$this->assertSame( $settings, get_option( 'plumberslot_settings' ) );
 		$this->assertSame( $before, $this->persisted_data_snapshot() );
 	}
 
 	public function test_fresh_activation_creates_the_current_empty_schema_and_defaults(): void {
 		PreviousSchemaFixture::remove_all();
-		delete_option( 'tutorslot_settings' );
-		delete_option( 'tutorslot_db_version' );
-		delete_transient( 'tutorslot_show_onboarding' );
+		delete_option( 'plumberslot_settings' );
+		delete_option( 'plumberslot_db_version' );
+		delete_transient( 'plumberslot_show_onboarding' );
 		Capabilities::remove_all();
 
 		foreach ( Schema::all_keys() as $key ) {
@@ -149,7 +149,7 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 
 		Activator::activate();
 
-		$this->assertSame( \TutorSlot\DB_VERSION, (int) get_option( 'tutorslot_db_version', 0 ) );
+		$this->assertSame( \PlumberSlot\DB_VERSION, (int) get_option( 'plumberslot_db_version', 0 ) );
 		$this->assertSame(
 			array(
 				'timezone'                 => wp_timezone_string(),
@@ -163,9 +163,9 @@ final class Phase8MigrationTest extends \WP_UnitTestCase {
 				'copy_parent_on_all_mail'  => true,
 				'delete_data_on_uninstall' => false,
 			),
-			get_option( 'tutorslot_settings' )
+			get_option( 'plumberslot_settings' )
 		);
-		$this->assertNotFalse( get_transient( 'tutorslot_show_onboarding' ) );
+		$this->assertNotFalse( get_transient( 'plumberslot_show_onboarding' ) );
 
 		foreach ( Schema::all_keys() as $key ) {
 			$table = Schema::table( $key );

@@ -1,16 +1,16 @@
 <?php
 /**
- * /tutorslot/v1/relations — parent ↔ child links.
+ * /plumberslot/v1/relations — parent ↔ child links.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\RelationRepository;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\RelationRepository;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -122,8 +122,8 @@ final class RelationsController extends AbstractController {
 			$user = get_user_by( 'email', (string) $request['student_email'] );
 			if ( ! $user ) {
 				return new WP_Error(
-					'tutorslot_unknown_student',
-					__( 'No account matches that email. Ask your child to sign up first.', 'tutorslot' ),
+					'plumberslot_unknown_student',
+					__( 'No account matches that email. Ask your child to sign up first.', 'plumberslot' ),
 					array( 'status' => 404 )
 				);
 			}
@@ -132,8 +132,8 @@ final class RelationsController extends AbstractController {
 
 		if ( $student_id <= 0 || $student_id === $parent_id ) {
 			return new WP_Error(
-				'tutorslot_bad_student',
-				__( 'Choose a different student account to link.', 'tutorslot' ),
+				'plumberslot_bad_student',
+				__( 'Choose a different student account to link.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}

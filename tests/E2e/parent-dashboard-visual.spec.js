@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -77,8 +77,8 @@ test( 'parent dashboard matches its visual baseline', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 120000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_VISUAL_READY,
-		'Set TUTORSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_VISUAL_READY,
+		'Set PLUMBERSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
 	);
 	const fixtureKey = testInfo.project.name.includes( 'mobile' )
 		? 'mob-parent'
@@ -98,7 +98,7 @@ test( 'parent dashboard matches its visual baseline', async ( {
 			),
 			page.waitForResponse( ( response ) => {
 				const url = new URL( response.url() );
-				return url.pathname.endsWith( '/tutorslot/v1/credits' );
+				return url.pathname.endsWith( '/plumberslot/v1/credits' );
 			} ),
 			page.waitForResponse( ( response ) =>
 				response.url().includes( '/credits/packages' )
@@ -111,7 +111,7 @@ test( 'parent dashboard matches its visual baseline', async ( {
 		] );
 		await dismissConsent( page );
 
-		const dashboard = page.locator( '.tutorslot-dashboard.tutorslot-root' );
+		const dashboard = page.locator( '.plumberslot-dashboard.plumberslot-root' );
 		await expect(
 			dashboard.getByRole( 'heading', {
 				name: "Your family's lessons",

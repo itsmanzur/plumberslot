@@ -7,7 +7,7 @@ import './compat.css';
 
 import { BookingApp } from './App';
 
-document.querySelectorAll( '.tutorslot-widget' ).forEach( ( target ) => {
+document.querySelectorAll( '.plumberslot-widget' ).forEach( ( target ) => {
 	render(
 		h( BookingApp, {
 			tutorId: Number.parseInt( target.dataset.tutor || '0', 10 ),

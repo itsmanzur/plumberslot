@@ -2,21 +2,21 @@
 /**
  * Cache boundary tests.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Unit;
+namespace PlumberSlot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use TutorSlot\Support\Cache;
+use PlumberSlot\Support\Cache;
 
 final class CacheTest extends TestCase {
 
 	protected function setUp(): void {
-		$GLOBALS['tutorslot_test_cache']      = array();
-		$GLOBALS['tutorslot_test_transients'] = array();
+		$GLOBALS['plumberslot_test_cache']      = array();
+		$GLOBALS['plumberslot_test_transients'] = array();
 	}
 
 	public function test_dashboard_aggregate_is_cached_then_invalidated_with_tutor_state(): void {

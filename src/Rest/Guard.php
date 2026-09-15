@@ -6,18 +6,18 @@
  * question, never an answer. CVE-2026-2931 in a competing booking plugin let a
  * customer-level account reset an administrator's password, and the whole bug
  * was one handler trusting a user-supplied id. Every read and every write in
- * TutorSlot goes through an ownership check before it touches a row.
+ * PlumberSlot goes through an ownership check before it touches a row.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -34,8 +34,8 @@ final class Guard {
 	 */
 	public function deny(): WP_Error {
 		return new WP_Error(
-			'tutorslot_not_found',
-			__( 'Not found.', 'tutorslot' ),
+			'plumberslot_not_found',
+			__( 'Not found.', 'plumberslot' ),
 			array( 'status' => 404 )
 		);
 	}

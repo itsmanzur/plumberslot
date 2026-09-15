@@ -6,29 +6,29 @@
  * booking plugin: a DST transition, and a lesson that would start inside the
  * lead-time window.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Unit;
+namespace PlumberSlot\Tests\Unit;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use TutorSlot\Domain\Contract\AvailabilitySource;
-use TutorSlot\Domain\Contract\BookingOccupancySource;
-use TutorSlot\Domain\Contract\HoldOccupancySource;
-use TutorSlot\Domain\Entity\Slot;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Domain\Contract\AvailabilitySource;
+use PlumberSlot\Domain\Contract\BookingOccupancySource;
+use PlumberSlot\Domain\Contract\HoldOccupancySource;
+use PlumberSlot\Domain\Entity\Slot;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Settings;
 
 final class SlotEngineTest extends TestCase {
 
 	protected function setUp(): void {
-		$GLOBALS['tutorslot_test_cache'] = array();
+		$GLOBALS['plumberslot_test_cache'] = array();
 		$this->settings();
 	}
 
@@ -472,7 +472,7 @@ final class SlotEngineTest extends TestCase {
 	 * @param array<string, int|bool> $overrides Settings to replace.
 	 */
 	private function settings( array $overrides = array() ): void {
-		$GLOBALS['tutorslot_test_settings'] = array_merge(
+		$GLOBALS['plumberslot_test_settings'] = array_merge(
 			array(
 				'lead_time_minutes'        => 0,
 				'slot_granularity_minutes' => 30,

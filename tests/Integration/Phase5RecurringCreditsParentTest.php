@@ -2,35 +2,35 @@
 /**
  * Phase 5: series, credits purchase/refund, relations.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\Repository\RelationRepository;
-use TutorSlot\Database\Repository\SeriesRepository;
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Database\TransactionManager;
-use TutorSlot\Domain\BookingService;
-use TutorSlot\Domain\CreditService;
-use TutorSlot\Domain\PolicyService;
-use TutorSlot\Domain\RecurrenceService;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\RelationRepository;
+use PlumberSlot\Database\Repository\SeriesRepository;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Domain\BookingService;
+use PlumberSlot\Domain\CreditService;
+use PlumberSlot\Domain\PolicyService;
+use PlumberSlot\Domain\RecurrenceService;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
 use WP_UnitTestCase;
 
 final class Phase5RecurringCreditsParentTest extends WP_UnitTestCase {
@@ -73,11 +73,11 @@ final class Phase5RecurringCreditsParentTest extends WP_UnitTestCase {
 			)
 		);
 
-		add_filter( 'tutorslot_email_enabled', '__return_false' );
+		add_filter( 'plumberslot_email_enabled', '__return_false' );
 	}
 
 	public function tear_down(): void {
-		remove_filter( 'tutorslot_email_enabled', '__return_false' );
+		remove_filter( 'plumberslot_email_enabled', '__return_false' );
 		$this->empty_tables();
 		parent::tear_down();
 	}

@@ -2,14 +2,14 @@
 /**
  * Base for every REST controller.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Support\SecretMasker;
+use PlumberSlot\Support\SecretMasker;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 abstract class AbstractController {
 
-	public const NAMESPACE = 'tutorslot/v1';
+	public const NAMESPACE = 'plumberslot/v1';
 
 	public function __construct( protected readonly Guard $guard ) {}
 
@@ -41,8 +41,8 @@ abstract class AbstractController {
 	protected function require_login(): bool|WP_Error {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
-				'tutorslot_login_required',
-				__( 'Sign in to continue.', 'tutorslot' ),
+				'plumberslot_login_required',
+				__( 'Sign in to continue.', 'plumberslot' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -73,8 +73,8 @@ abstract class AbstractController {
 
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 			return new WP_Error(
-				'tutorslot_bad_nonce',
-				__( 'Your session expired. Reload the page and try again.', 'tutorslot' ),
+				'plumberslot_bad_nonce',
+				__( 'Your session expired. Reload the page and try again.', 'plumberslot' ),
 				array( 'status' => 403 )
 			);
 		}

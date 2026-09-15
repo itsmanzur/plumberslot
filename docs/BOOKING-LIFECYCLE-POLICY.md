@@ -1,4 +1,4 @@
-# TutorSlot booking lifecycle policy
+# PlumberSlot booking lifecycle policy
 
 This document records the business rules that lifecycle code and tests must enforce.
 

@@ -1,24 +1,24 @@
 <?php
 /**
- * GET /tutorslot/v1/slots — the endpoint the booking widget lives on.
+ * GET /plumberslot/v1/slots — the endpoint the booking widget lives on.
  *
  * Public by design: a visitor has to see open times before signing up. That
  * makes it the most exposed surface in the plugin, so it is read-only, rate
  * limited, and returns nothing beyond start times and states.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Domain\SlotEngine;
-use TutorSlot\Support\RateLimiter;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Time;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Support\RateLimiter;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Time;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -87,8 +87,8 @@ final class SlotsController extends AbstractController {
 	public function can_read(): bool|WP_Error {
 		if ( ! RateLimiter::allow( 'read_slots', 60 ) ) {
 			return new WP_Error(
-				'tutorslot_too_many',
-				__( 'Too many requests. Wait a moment and try again.', 'tutorslot' ),
+				'plumberslot_too_many',
+				__( 'Too many requests. Wait a moment and try again.', 'plumberslot' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -120,10 +120,10 @@ final class SlotsController extends AbstractController {
 			SlotEngine::assert_valid_range( $from, $to );
 		} catch ( \InvalidArgumentException ) {
 			return new WP_Error(
-				'tutorslot_bad_range',
+				'plumberslot_bad_range',
 				sprintf(
 					/* translators: %d: maximum number of days. */
-					__( 'Ask for a window of up to %d days.', 'tutorslot' ),
+					__( 'Ask for a window of up to %d days.', 'plumberslot' ),
 					SlotEngine::MAX_RANGE_DAYS
 				),
 				array( 'status' => 422 )

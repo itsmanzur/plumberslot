@@ -2,20 +2,20 @@
 /**
  * Phase 8 secret response and persistence boundary tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Admin\SettingsRegistry;
-use TutorSlot\Database\Schema;
-use TutorSlot\Payments\StripeGateway;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\SecretMasker;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Admin\SettingsRegistry;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Payments\StripeGateway;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\SecretMasker;
+use PlumberSlot\Support\Settings;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -69,7 +69,7 @@ final class Phase8SecretMaskingTest extends \WP_UnitTestCase {
 		$this->assertSame( SecretMasker::MASK, $data['bkash_username'] );
 		$this->assertSame( 'pk_live_public_fixture', $data['stripe_publishable_key'] );
 
-		$request = new WP_REST_Request( 'POST', '/tutorslot/v1/settings' );
+		$request = new WP_REST_Request( 'POST', '/plumberslot/v1/settings' );
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body(
 			wp_json_encode(
@@ -88,7 +88,7 @@ final class Phase8SecretMaskingTest extends \WP_UnitTestCase {
 	}
 
 	public function test_final_rest_guard_masks_error_data_and_known_values(): void {
-		$request  = new WP_REST_Request( 'GET', '/tutorslot/v1/security-fixture' );
+		$request  = new WP_REST_Request( 'GET', '/plumberslot/v1/security-fixture' );
 		$response = new WP_REST_Response(
 			array(
 				'code'    => 'provider_error',
@@ -163,7 +163,7 @@ final class Phase8SecretMaskingTest extends \WP_UnitTestCase {
 		}
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'tutorslot_stripe_failed', $result->get_error_code() );
+		$this->assertSame( 'plumberslot_stripe_failed', $result->get_error_code() );
 		$this->assertStringNotContainsString( 'sk_live_private_fixture', $result->get_error_message() );
 		$this->assertStringNotContainsString( 'dynamic-token', $result->get_error_message() );
 	}

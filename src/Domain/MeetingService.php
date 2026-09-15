@@ -7,17 +7,17 @@
  * booking stays confirmed and an admin notice appears; the lesson still runs,
  * the student just has to use the fallback link.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
-use TutorSlot\Domain\Contract\MeetingBookingStore;
-use TutorSlot\Domain\Contract\TutorSource;
-use TutorSlot\Meetings\ProviderRegistry;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Domain\Contract\MeetingBookingStore;
+use PlumberSlot\Domain\Contract\TutorSource;
+use PlumberSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -31,8 +31,8 @@ final class MeetingService {
 	) {}
 
 	public function register(): void {
-		add_action( 'tutorslot_booking_paid', array( $this, 'create_for_booking' ), 20, 1 );
-		add_action( 'tutorslot_booking_created', array( $this, 'maybe_create_free' ), 20, 1 );
+		add_action( 'plumberslot_booking_paid', array( $this, 'create_for_booking' ), 20, 1 );
+		add_action( 'plumberslot_booking_created', array( $this, 'maybe_create_free' ), 20, 1 );
 	}
 
 	/**
@@ -109,7 +109,7 @@ final class MeetingService {
 	/**
 	 * Resolve the first connected provider for a given tutor user_id.
 	 */
-	private function resolve_provider( int $tutor_user_id ): ?\TutorSlot\Meetings\ProviderInterface {
+	private function resolve_provider( int $tutor_user_id ): ?\PlumberSlot\Meetings\ProviderInterface {
 		foreach ( $this->providers->all() as $provider ) {
 			if ( $provider->is_connected( $tutor_user_id ) ) {
 				return $provider;
@@ -124,8 +124,8 @@ final class MeetingService {
 
 		return sprintf(
 			/* translators: %s: student display name. */
-			__( 'Lesson with %s', 'tutorslot' ),
-			$student ? $student->display_name : __( 'Student', 'tutorslot' )
+			__( 'Lesson with %s', 'plumberslot' ),
+			$student ? $student->display_name : __( 'Student', 'plumberslot' )
 		);
 	}
 }

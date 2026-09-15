@@ -1,8 +1,8 @@
 {
-  "name": "tutorslot",
+  "name": "plumberslot",
   "version": "0.1.0",
   "private": true,
-  "description": "Admin and booking interfaces for the TutorSlot WordPress plugin.",
+  "description": "Admin and booking interfaces for the PlumberSlot WordPress plugin.",
   "license": "GPL-2.0-or-later",
   "scripts": {
     "build": "wp-scripts build",

@@ -2,12 +2,12 @@
 /**
  * Front-end routes for parent and tutor dashboards.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,13 +22,13 @@ final class DashboardRoutes {
 	}
 
 	public function add_rewrites(): void {
-		add_rewrite_rule( '^tutor-dashboard/?$', 'index.php?tutorslot_dash=tutor', 'top' );
-		add_rewrite_rule( '^parent-dashboard/?$', 'index.php?tutorslot_dash=parent', 'top' );
+		add_rewrite_rule( '^tutor-dashboard/?$', 'index.php?plumberslot_dash=tutor', 'top' );
+		add_rewrite_rule( '^parent-dashboard/?$', 'index.php?plumberslot_dash=parent', 'top' );
 
-		$flag = (string) get_option( 'tutorslot_rewrite_version', '' );
+		$flag = (string) get_option( 'plumberslot_rewrite_version', '' );
 		if ( '5' !== $flag ) {
 			flush_rewrite_rules( false );
-			update_option( 'tutorslot_rewrite_version', '5', false );
+			update_option( 'plumberslot_rewrite_version', '5', false );
 		}
 	}
 
@@ -37,13 +37,13 @@ final class DashboardRoutes {
 	 * @return list<string>
 	 */
 	public function query_vars( array $vars ): array {
-		$vars[] = 'tutorslot_dash';
+		$vars[] = 'plumberslot_dash';
 
 		return $vars;
 	}
 
 	public function render(): void {
-		$view = get_query_var( 'tutorslot_dash' );
+		$view = get_query_var( 'plumberslot_dash' );
 		if ( ! in_array( $view, array( 'tutor', 'parent' ), true ) ) {
 			return;
 		}
@@ -75,15 +75,15 @@ final class DashboardRoutes {
 	public function markup( string $view ): string {
 		if ( ! $this->assets->dashboard_available() ) {
 			return sprintf(
-				'<div class="tutorslot-unavailable" role="status"><p>%s</p></div>',
-				esc_html__( 'Dashboard is temporarily unavailable.', 'tutorslot' )
+				'<div class="plumberslot-unavailable" role="status"><p>%s</p></div>',
+				esc_html__( 'Dashboard is temporarily unavailable.', 'plumberslot' )
 			);
 		}
 
 		$this->assets->mark_dashboard_needed( $view );
 
 		return sprintf(
-			'<div class="tutorslot-dashboard tutorslot-root" data-view="%s"></div>',
+			'<div class="plumberslot-dashboard plumberslot-root" data-view="%s"></div>',
 			esc_attr( $view )
 		);
 	}

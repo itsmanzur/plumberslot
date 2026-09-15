@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey, ...args ) {
 	const phpArgs = [ fixtureScript, action, ...args ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey, ...args ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -69,8 +69,8 @@ async function dismissConsent( page ) {
 function prepareVisualTest( testInfo, state ) {
 	testInfo.setTimeout( 120000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_VISUAL_READY,
-		'Set TUTORSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_VISUAL_READY,
+		'Set PLUMBERSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
 	);
 	const viewport = testInfo.project.name.includes( 'mobile' )
 		? 'mob'
@@ -100,10 +100,10 @@ async function openConfirmStep( page, seed ) {
 	expect( ( await tutorResponse ).status() ).toBe( 200 );
 	await dismissConsent( page );
 
-	const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+	const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 	await widget.getByRole( 'option', { name: /English E2E/ } ).click();
 	const slotsResponse = page.waitForResponse( ( response ) =>
-		response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+		response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 	);
 	await widget.getByRole( 'button', { name: 'Choose a time →' } ).click();
 	expect( ( await slotsResponse ).status() ).toBe( 200 );
@@ -116,7 +116,7 @@ async function openConfirmStep( page, seed ) {
 	await firstOpenTime.click();
 	const holdResponse = page.waitForResponse(
 		( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+			response.url().includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 			'POST' === response.request().method()
 	);
 	await widget.getByRole( 'button', { name: 'Continue →' } ).click();
@@ -193,12 +193,12 @@ test( 'payment failure state matches its visual baseline', async ( {
 				'GET' === response.request().method()
 		);
 		await page.goto(
-			`${ seed.pagePath }&tutorslot_pay=success&booking=${ seed.bookingId }`
+			`${ seed.pagePath }&plumberslot_pay=success&booking=${ seed.bookingId }`
 		);
 		expect( ( await bookingResponse ).status() ).toBe( 200 );
 		await dismissConsent( page );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		await expect(
 			widget.getByRole( 'heading', {
 				name: 'We could not complete the payment',
@@ -228,7 +228,7 @@ test( 'booking completion state matches its visual baseline', async ( {
 		const widget = await openConfirmStep( page, seed );
 		const bookingResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( '/wp-json/tutorslot/v1/bookings' ) &&
+				response.url().includes( '/wp-json/plumberslot/v1/bookings' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Confirm booking' } ).click();
@@ -238,7 +238,7 @@ test( 'booking completion state matches its visual baseline', async ( {
 		).toBeVisible();
 
 		await replaceText(
-			widget.locator( '.ts-book__result-kicker .tutorslot-mono' ),
+			widget.locator( '.ts-book__result-kicker .plumberslot-mono' ),
 			'TS-000000'
 		);
 		await replaceText(
@@ -246,7 +246,7 @@ test( 'booking completion state matches its visual baseline', async ( {
 			'Booked. You are set for Monday.'
 		);
 		await replaceText(
-			widget.locator( '.ts-book__cal-top .tutorslot-mono' ),
+			widget.locator( '.ts-book__cal-top .plumberslot-mono' ),
 			'10 AUG'
 		);
 		const details = widget.locator( '.ts-book__cal-mid .ts-book__kv' );

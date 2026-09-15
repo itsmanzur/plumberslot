@@ -5,16 +5,16 @@
  * Kept apart from BookingService so a site owner can swap the whole rule set
  * without touching the code that writes rows.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
 use DateTimeImmutable;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -30,14 +30,14 @@ final class PolicyService {
 
 		if ( $start_utc->getTimestamp() < time() + ( $lead * MINUTE_IN_SECONDS ) ) {
 			return new WP_Error(
-				'tutorslot_too_late',
+				'plumberslot_too_late',
 				sprintf(
 					/* translators: %d: number of hours. */
 					_n(
 						'Lessons need to be booked at least %d hour ahead.',
 						'Lessons need to be booked at least %d hours ahead.',
 						(int) round( $lead / 60 ),
-						'tutorslot'
+						'plumberslot'
 					),
 					(int) round( $lead / 60 )
 				),
@@ -45,7 +45,7 @@ final class PolicyService {
 			);
 		}
 
-		return apply_filters( 'tutorslot_can_be_booked', true, $tutor_id, $start_utc );
+		return apply_filters( 'plumberslot_can_be_booked', true, $tutor_id, $start_utc );
 	}
 
 	public function can_reschedule( object $booking ): bool|WP_Error {
@@ -53,8 +53,8 @@ final class PolicyService {
 
 		if ( strtotime( $booking->start_utc ) - time() < $window * MINUTE_IN_SECONDS ) {
 			return new WP_Error(
-				'tutorslot_reschedule_closed',
-				__( 'This lesson is too close to its start time to move. Message your tutor instead.', 'tutorslot' ),
+				'plumberslot_reschedule_closed',
+				__( 'This lesson is too close to its start time to move. Message your tutor instead.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -72,8 +72,8 @@ final class PolicyService {
 
 		if ( $this->bookings->student_has_used_trial( $student_id ) ) {
 			return new WP_Error(
-				'tutorslot_trial_used',
-				__( 'This student has already used their free trial lesson.', 'tutorslot' ),
+				'plumberslot_trial_used',
+				__( 'This student has already used their free trial lesson.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -97,7 +97,7 @@ final class PolicyService {
 	}
 
 	public function tutor_timezone( int $tutor_id ): string {
-		$repo  = new \TutorSlot\Database\Repository\TutorRepository();
+		$repo  = new \PlumberSlot\Database\Repository\TutorRepository();
 		$tutor = $repo->find( $tutor_id );
 
 		return $tutor->timezone ?? wp_timezone_string();

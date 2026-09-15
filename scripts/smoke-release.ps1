@@ -16,13 +16,13 @@ $pluginRoot = [System.IO.Path]::GetFullPath( ( Join-Path $PSScriptRoot '..' ) )
 
 if ( [string]::IsNullOrWhiteSpace( $ZipPath ) ) {
 	$versionHit = [regex]::Match(
-		( Get-Content -LiteralPath ( Join-Path $pluginRoot 'tutorslot.php' ) -Raw ),
+		( Get-Content -LiteralPath ( Join-Path $pluginRoot 'plumberslot.php' ) -Raw ),
 		"(?m)^\s*\* Version:\s*([0-9]+(?:\.[0-9]+){2})\s*$"
 	)
 	if ( -not $versionHit.Success ) {
-		throw 'Could not read the TutorSlot version.'
+		throw 'Could not read the PlumberSlot version.'
 	}
-	$ZipPath = Join-Path $pluginRoot ( 'dist\tutorslot-' + $versionHit.Groups[1].Value + '.zip' )
+	$ZipPath = Join-Path $pluginRoot ( 'dist\plumberslot-' + $versionHit.Groups[1].Value + '.zip' )
 }
 
 $releaseZip = [System.IO.Path]::GetFullPath( $ZipPath )
@@ -51,10 +51,10 @@ if ( -not ( Test-Path -LiteralPath $MySqlPath -PathType Leaf ) ) {
 	throw 'MySQL client could not be located.'
 }
 
-$databaseName = 'tutorslot_smoke_' + [guid]::NewGuid().ToString( 'N' )
+$databaseName = 'plumberslot_smoke_' + [guid]::NewGuid().ToString( 'N' )
 $temporaryBase = [System.IO.Path]::GetFullPath( [System.IO.Path]::GetTempPath() )
 $temporaryRoot = [System.IO.Path]::GetFullPath(
-	( Join-Path $temporaryBase ( 'tutorslot-wp-smoke-' + [guid]::NewGuid().ToString( 'N' ) ) )
+	( Join-Path $temporaryBase ( 'plumberslot-wp-smoke-' + [guid]::NewGuid().ToString( 'N' ) ) )
 )
 
 if ( -not $temporaryRoot.StartsWith( $temporaryBase, [System.StringComparison]::OrdinalIgnoreCase ) ) {
@@ -96,8 +96,8 @@ try {
 	}
 
 	Expand-Archive -LiteralPath $releaseZip -DestinationPath ( Join-Path $contentRoot 'plugins' )
-	if ( -not ( Test-Path -LiteralPath ( Join-Path $contentRoot 'plugins\tutorslot\tutorslot.php' ) -PathType Leaf ) ) {
-		throw 'Release ZIP did not install as wp-content/plugins/tutorslot/tutorslot.php.'
+	if ( -not ( Test-Path -LiteralPath ( Join-Path $contentRoot 'plugins\plumberslot\plumberslot.php' ) -PathType Leaf ) ) {
+		throw 'Release ZIP did not install as wp-content/plugins/plumberslot/plumberslot.php.'
 	}
 
 	$mysqlArgs = @(
@@ -116,12 +116,12 @@ try {
 	}
 	$databaseCreated = $true
 
-	$env:TUTORSLOT_SMOKE_WP_ROOT = $temporaryRoot.Replace( '\', '/' )
-	$env:TUTORSLOT_SMOKE_DB_NAME = $databaseName
-	$env:TUTORSLOT_SMOKE_DB_USER = $DatabaseUser
-	$env:TUTORSLOT_SMOKE_DB_PASSWORD = $DatabasePassword
-	$env:TUTORSLOT_SMOKE_DB_HOST = $DatabaseHost
-	$env:TUTORSLOT_SMOKE_DB_PORT = [string] $DatabasePort
+	$env:PLUMBERSLOT_SMOKE_WP_ROOT = $temporaryRoot.Replace( '\', '/' )
+	$env:PLUMBERSLOT_SMOKE_DB_NAME = $databaseName
+	$env:PLUMBERSLOT_SMOKE_DB_USER = $DatabaseUser
+	$env:PLUMBERSLOT_SMOKE_DB_PASSWORD = $DatabasePassword
+	$env:PLUMBERSLOT_SMOKE_DB_HOST = $DatabaseHost
+	$env:PLUMBERSLOT_SMOKE_DB_PORT = [string] $DatabasePort
 	$runner = Join-Path $pluginRoot 'scripts\release-smoke.php'
 
 	function Invoke-SmokePhase {
@@ -166,12 +166,12 @@ try {
 		Deactivated            = [bool] $deactivate.deactivated
 	}
 } finally {
-	Remove-Item Env:TUTORSLOT_SMOKE_WP_ROOT -ErrorAction SilentlyContinue
-	Remove-Item Env:TUTORSLOT_SMOKE_DB_NAME -ErrorAction SilentlyContinue
-	Remove-Item Env:TUTORSLOT_SMOKE_DB_USER -ErrorAction SilentlyContinue
-	Remove-Item Env:TUTORSLOT_SMOKE_DB_PASSWORD -ErrorAction SilentlyContinue
-	Remove-Item Env:TUTORSLOT_SMOKE_DB_HOST -ErrorAction SilentlyContinue
-	Remove-Item Env:TUTORSLOT_SMOKE_DB_PORT -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_WP_ROOT -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_DB_NAME -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_DB_USER -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_DB_PASSWORD -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_DB_HOST -ErrorAction SilentlyContinue
+	Remove-Item Env:PLUMBERSLOT_SMOKE_DB_PORT -ErrorAction SilentlyContinue
 
 	if ( $databaseCreated ) {
 		$dropArgs = @(
@@ -191,7 +191,7 @@ try {
 	if ( Test-Path -LiteralPath $temporaryRoot -PathType Container ) {
 		$resolvedTemporary = [System.IO.Path]::GetFullPath( $temporaryRoot )
 		if ( $resolvedTemporary.StartsWith( $temporaryBase, [System.StringComparison]::OrdinalIgnoreCase ) -and
-			( Split-Path $resolvedTemporary -Leaf ) -like 'tutorslot-wp-smoke-*' ) {
+			( Split-Path $resolvedTemporary -Leaf ) -like 'plumberslot-wp-smoke-*' ) {
 			Remove-Item -LiteralPath $resolvedTemporary -Recurse -Force
 			$temporaryRemoved = -not ( Test-Path -LiteralPath $resolvedTemporary )
 		}

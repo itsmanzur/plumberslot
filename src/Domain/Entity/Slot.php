@@ -2,12 +2,12 @@
 /**
  * A single bookable moment.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain\Entity;
+namespace PlumberSlot\Domain\Entity;
 
 use DateTimeImmutable;
 

@@ -2,12 +2,12 @@
 /**
  * Available gateways.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Payments;
+namespace PlumberSlot\Payments;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -42,6 +42,6 @@ final class GatewayRegistry {
 		 *
 		 * @param array<string, GatewayInterface> $gateways Registered gateways.
 		 */
-		return apply_filters( 'tutorslot_payment_gateways', $this->gateways );
+		return apply_filters( 'plumberslot_payment_gateways', $this->gateways );
 	}
 }

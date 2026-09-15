@@ -1,23 +1,23 @@
 <?php
 /**
- * Plugin Name:       TutorSlot
- * Plugin URI:        https://tutorslot.com
+ * Plugin Name:       PlumberSlot
+ * Plugin URI:        https://plumberslot.com
  * Description:       Scheduling for tutors with weekly availability, recurring lessons, parent accounts, lesson packages, optional payments and online meetings.
  * Version:           0.1.0
  * Requires at least: 6.4
  * Requires PHP:      8.1
- * Author:            TutorSlot
+ * Author:            PlumberSlot
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       tutorslot
+ * Text Domain:       plumberslot
  * Domain Path:       /languages
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot;
+namespace PlumberSlot;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,8 +27,8 @@ const PLUGIN_FILE = __FILE__;
 const MIN_PHP     = '8.1';
 const MIN_WP      = '6.4';
 
-define( 'TUTORSLOT_PATH', plugin_dir_path( __FILE__ ) );
-define( 'TUTORSLOT_URL', plugin_dir_url( __FILE__ ) );
+define( 'PLUMBERSLOT_PATH', plugin_dir_path( __FILE__ ) );
+define( 'PLUMBERSLOT_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Bail out politely rather than fatally on an unsupported stack.
@@ -42,7 +42,7 @@ if ( version_compare( PHP_VERSION, MIN_PHP, '<' ) ) {
 				esc_html(
 					sprintf(
 						/* translators: %s: required PHP version. */
-						__( 'TutorSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again.', 'tutorslot' ),
+						__( 'PlumberSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again.', 'plumberslot' ),
 						MIN_PHP
 					)
 				)
@@ -66,10 +66,10 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-$tutorslot_scheduler = __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+$plumberslot_scheduler = __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 
-if ( is_readable( $tutorslot_scheduler ) ) {
-	require_once $tutorslot_scheduler;
+if ( is_readable( $plumberslot_scheduler ) ) {
+	require_once $plumberslot_scheduler;
 }
 
 register_activation_hook( __FILE__, array( Activator::class, 'activate' ) );

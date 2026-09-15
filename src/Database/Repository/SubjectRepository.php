@@ -2,15 +2,15 @@
 /**
  * Tutor-scoped lesson subjects and their booking terms.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Cache;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Cache;
 
 defined( 'ABSPATH' ) || exit;
 

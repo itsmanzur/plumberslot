@@ -6,17 +6,17 @@
  * are usually different, and sending only to the person who clicked the button
  * is how a parent finds out about a cancelled lesson from their child.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Notifications;
+namespace PlumberSlot\Notifications;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Notifications\Channel\ChannelInterface;
-use TutorSlot\Notifications\Channel\EmailChannel;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Notifications\Channel\ChannelInterface;
+use PlumberSlot\Notifications\Channel\EmailChannel;
+use PlumberSlot\Support\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -80,7 +80,7 @@ final class Dispatcher {
 
 		// Tutor gets a copy on booking_created, booking_cancelled, reminder_24h.
 		if ( in_array( $event, array( 'booking_created', 'booking_cancelled', 'reminder_24h' ), true ) ) {
-			$tutor_row = ( new \TutorSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
+			$tutor_row = ( new \PlumberSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
 			if ( $tutor_row ) {
 				$recipients[] = (int) $tutor_row->user_id;
 			}
@@ -93,7 +93,7 @@ final class Dispatcher {
 		 * @param string    $event      Event key.
 		 * @param object    $booking    Booking row.
 		 */
-		$recipients = apply_filters( 'tutorslot_notification_recipients', $recipients, $event, $booking );
+		$recipients = apply_filters( 'plumberslot_notification_recipients', $recipients, $event, $booking );
 
 		foreach ( $this->channels as $channel ) {
 			if ( ! $channel->is_enabled( $event ) ) {

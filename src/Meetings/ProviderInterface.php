@@ -2,12 +2,12 @@
 /**
  * Contract for video meeting providers.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Meetings;
+namespace PlumberSlot\Meetings;
 
 use WP_Error;
 

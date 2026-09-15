@@ -2,14 +2,14 @@
 /**
  * Parent ↔ child guardian relationships.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
-use TutorSlot\Database\Schema;
+use PlumberSlot\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 

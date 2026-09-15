@@ -1,17 +1,17 @@
 <?php
 /**
- * /tutorslot/v1/meetings — provider status, OAuth connect/disconnect.
+ * /plumberslot/v1/meetings — provider status, OAuth connect/disconnect.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Meetings\GoogleMeetProvider;
-use TutorSlot\Meetings\ProviderRegistry;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Meetings\GoogleMeetProvider;
+use PlumberSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Support\Capabilities;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -102,10 +102,10 @@ final class MeetingsController extends AbstractController {
 			return $nonce;
 		}
 
-		if ( '' === \TutorSlot\Support\Settings::string( 'google_client_id' ) ) {
+		if ( '' === \PlumberSlot\Support\Settings::string( 'google_client_id' ) ) {
 			return new WP_Error(
-				'tutorslot_google_not_configured',
-				__( 'Google client id is not set in TutorSlot settings.', 'tutorslot' ),
+				'plumberslot_google_not_configured',
+				__( 'Google client id is not set in PlumberSlot settings.', 'plumberslot' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -123,21 +123,21 @@ final class MeetingsController extends AbstractController {
 		$state = sanitize_text_field( (string) $request->get_param( 'state' ) );
 		$error = sanitize_text_field( (string) $request->get_param( 'error' ) );
 
-		$redirect = admin_url( 'admin.php?page=tutorslot-settings&tab=connections' );
+		$redirect = admin_url( 'admin.php?page=plumberslot-settings&tab=connections' );
 
 		if ( $error || ! $code ) {
-			wp_safe_redirect( add_query_arg( 'tutorslot_google', 'cancelled', $redirect ) );
+			wp_safe_redirect( add_query_arg( 'plumberslot_google', 'cancelled', $redirect ) );
 			exit;
 		}
 
 		$result = GoogleMeetProvider::handle_callback( $code, $state );
 
 		if ( is_wp_error( $result ) ) {
-			wp_safe_redirect( add_query_arg( 'tutorslot_google', 'error', $redirect ) );
+			wp_safe_redirect( add_query_arg( 'plumberslot_google', 'error', $redirect ) );
 			exit;
 		}
 
-		wp_safe_redirect( add_query_arg( 'tutorslot_google', 'connected', $redirect ) );
+		wp_safe_redirect( add_query_arg( 'plumberslot_google', 'connected', $redirect ) );
 		exit;
 	}
 
@@ -154,7 +154,7 @@ final class MeetingsController extends AbstractController {
 
 	public function can_act(): bool|WP_Error {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'tutorslot_login_required', __( 'Sign in to continue.', 'tutorslot' ), array( 'status' => 401 ) );
+			return new WP_Error( 'plumberslot_login_required', __( 'Sign in to continue.', 'plumberslot' ), array( 'status' => 401 ) );
 		}
 
 		return current_user_can( Capabilities::MANAGE_OWN );

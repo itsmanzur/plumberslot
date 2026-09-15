@@ -1,6 +1,6 @@
 <?php
 /**
- * /tutorslot/join — signed meeting join URL.
+ * /plumberslot/join — signed meeting join URL.
  *
  * The raw meeting link (Zoom join URL, Google Meet hangoutLink) never appears
  * in an email body. Instead the email contains a signed, expiring URL pointing
@@ -8,16 +8,16 @@
  * provider, and issues a short-lived redirect — so a forwarded confirmation
  * email cannot admit a stranger into a child's lesson.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Meetings\ProviderRegistry;
-use TutorSlot\Support\Crypto;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Meetings\ProviderRegistry;
+use PlumberSlot\Support\Crypto;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ final class JoinRoute {
 	}
 
 	public function add_rewrite(): void {
-		add_rewrite_rule( '^tutorslot/join/?$', 'index.php?tutorslot_join=1', 'top' );
+		add_rewrite_rule( '^plumberslot/join/?$', 'index.php?plumberslot_join=1', 'top' );
 	}
 
 	/**
@@ -43,13 +43,13 @@ final class JoinRoute {
 	 * @return list<string>
 	 */
 	public function query_vars( array $vars ): array {
-		$vars[] = 'tutorslot_join';
+		$vars[] = 'plumberslot_join';
 
 		return $vars;
 	}
 
 	public function handle(): void {
-		if ( ! get_query_var( 'tutorslot_join' ) ) {
+		if ( ! get_query_var( 'plumberslot_join' ) ) {
 			return;
 		}
 
@@ -59,22 +59,22 @@ final class JoinRoute {
 		$signature  = isset( $_GET['ts_sig'] ) ? sanitize_text_field( wp_unslash( $_GET['ts_sig'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! $booking_id || ! $expires || ! $signature ) {
-			wp_die( esc_html__( 'Invalid meeting link.', 'tutorslot' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid meeting link.', 'plumberslot' ), '', array( 'response' => 400 ) );
 		}
 
 		/** @var object{meeting_token:string,student_id:int,tutor_id:int,parent_id:?int,meeting_ref:string}|null $booking */
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking || empty( $booking->meeting_token ) ) {
-			wp_die( esc_html__( 'Meeting not found.', 'tutorslot' ), '', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'Meeting not found.', 'plumberslot' ), '', array( 'response' => 404 ) );
 		}
 
 		if ( ! Crypto::verify_join( $booking_id, (string) $booking->meeting_token, $expires, $signature ) ) {
-			wp_die( esc_html__( 'This meeting link has expired or is invalid. Please check your email for a new link.', 'tutorslot' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'This meeting link has expired or is invalid. Please check your email for a new link.', 'plumberslot' ), '', array( 'response' => 403 ) );
 		}
 
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Sign in with a lesson participant account to join this meeting.', 'tutorslot' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Sign in with a lesson participant account to join this meeting.', 'plumberslot' ), '', array( 'response' => 403 ) );
 		}
 
 		// Only the confirmed participants may join.
@@ -86,13 +86,13 @@ final class JoinRoute {
 		}
 
 		// Resolve tutor user_id from tutor row.
-		$tutor_row = ( new \TutorSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
+		$tutor_row = ( new \PlumberSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
 		if ( $tutor_row ) {
 			$allowed[] = (int) $tutor_row->user_id;
 		}
 
 		if ( ! in_array( $user_id, $allowed, true ) && ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not a participant of this lesson.', 'tutorslot' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You are not a participant of this lesson.', 'plumberslot' ), '', array( 'response' => 403 ) );
 		}
 
 		// Resolve the real URL through the provider.
@@ -100,25 +100,25 @@ final class JoinRoute {
 		$parts      = explode( '|', $stored_ref, 2 );
 
 		if ( 2 !== count( $parts ) ) {
-			wp_die( esc_html__( 'Meeting reference is malformed.', 'tutorslot' ), '', array( 'response' => 500 ) );
+			wp_die( esc_html__( 'Meeting reference is malformed.', 'plumberslot' ), '', array( 'response' => 500 ) );
 		}
 
 		// Let the provider know which tutor this is for join_url resolution.
 		add_filter(
-			'tutorslot_join_tutor_id',
+			'plumberslot_join_tutor_id',
 			static fn() => $tutor_row ? (int) $tutor_row->user_id : 0
 		);
 
 		$provider = $this->providers->get( $parts[0] );
 
 		if ( ! $provider ) {
-			wp_die( esc_html__( 'The meeting provider is unavailable.', 'tutorslot' ), '', array( 'response' => 503 ) );
+			wp_die( esc_html__( 'The meeting provider is unavailable.', 'plumberslot' ), '', array( 'response' => 503 ) );
 		}
 
 		$join_url = $provider->join_url( $parts[1] );
 
 		if ( ! $join_url ) {
-			wp_die( esc_html__( 'Could not retrieve the meeting link. Please contact your tutor.', 'tutorslot' ), '', array( 'response' => 503 ) );
+			wp_die( esc_html__( 'Could not retrieve the meeting link. Please contact your tutor.', 'plumberslot' ), '', array( 'response' => 503 ) );
 		}
 
 		wp_redirect( esc_url_raw( $join_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- provider URL is external.

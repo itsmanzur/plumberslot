@@ -2,14 +2,14 @@
  * Public widget theme-compatibility boundary.
  *
  * WordPress themes often style bare buttons and fields with high-specificity
- * hover rules. Keep visual state ownership inside TutorSlot without resetting
+ * hover rules. Keep visual state ownership inside PlumberSlot without resetting
  * layout, typography, or native accessibility behavior for the host page.
  */
-.tutorslot-widget {
+.plumberslot-widget {
 	isolation: isolate;
 }
 
-.tutorslot-widget button {
+.plumberslot-widget button {
 	box-sizing: border-box;
 	appearance: none;
 	font-synthesis: none;
@@ -19,7 +19,7 @@
 }
 
 /* Keep keyboard focus visible even when the host theme resets outlines. */
-.tutorslot-widget :where(
+.plumberslot-widget :where(
 .ts-btn,
 .ts-tz__change,
 .ts-book__subject,
@@ -39,61 +39,61 @@
 }
 
 /* Shared action buttons. */
-.tutorslot-widget .ts-btn--primary,
-.tutorslot-widget .ts-btn--primary:focus {
+.plumberslot-widget .ts-btn--primary,
+.plumberslot-widget .ts-btn--primary:focus {
 	background: var(--ts-primary) !important;
 	border-color: transparent !important;
 	color: #fff !important;
 }
 
-.tutorslot-widget .ts-btn--primary:hover:not(:disabled) {
+.plumberslot-widget .ts-btn--primary:hover:not(:disabled) {
 	background: var(--ts-primary-dark) !important;
 }
 
-.tutorslot-widget .ts-btn--secondary,
-.tutorslot-widget .ts-btn--secondary:focus {
+.plumberslot-widget .ts-btn--secondary,
+.plumberslot-widget .ts-btn--secondary:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink) !important;
 }
 
-.tutorslot-widget .ts-btn--secondary:hover:not(:disabled) {
+.plumberslot-widget .ts-btn--secondary:hover:not(:disabled) {
 	background: #fcfcfd !important;
 	border-color: var(--ts-mute) !important;
 }
 
-.tutorslot-widget .ts-btn--ghost,
-.tutorslot-widget .ts-btn--ghost:focus {
+.plumberslot-widget .ts-btn--ghost,
+.plumberslot-widget .ts-btn--ghost:focus {
 	background: transparent !important;
 	border-color: transparent !important;
 	color: var(--ts-slate) !important;
 }
 
-.tutorslot-widget .ts-btn--ghost:hover:not(:disabled) {
+.plumberslot-widget .ts-btn--ghost:hover:not(:disabled) {
 	background: var(--ts-rule-2) !important;
 	color: var(--ts-ink) !important;
 }
 
-.tutorslot-widget .ts-btn--danger,
-.tutorslot-widget .ts-btn--danger:focus,
-.tutorslot-widget .ts-btn--danger:hover:not(:disabled) {
+.plumberslot-widget .ts-btn--danger,
+.plumberslot-widget .ts-btn--danger:focus,
+.plumberslot-widget .ts-btn--danger:hover:not(:disabled) {
 	background: var(--ts-danger) !important;
 	border-color: transparent !important;
 	color: #fff !important;
 }
 
-.tutorslot-widget .ts-btn:disabled,
-.tutorslot-widget .ts-btn:disabled:hover,
-.tutorslot-widget .ts-btn:disabled:focus {
+.plumberslot-widget .ts-btn:disabled,
+.plumberslot-widget .ts-btn:disabled:hover,
+.plumberslot-widget .ts-btn:disabled:focus {
 	box-shadow: none !important;
 	cursor: not-allowed;
 	opacity: 0.55;
 }
 
 /* Inline timezone action. */
-.tutorslot-widget .ts-tz__change,
-.tutorslot-widget .ts-tz__change:hover,
-.tutorslot-widget .ts-tz__change:focus {
+.plumberslot-widget .ts-tz__change,
+.plumberslot-widget .ts-tz__change:hover,
+.plumberslot-widget .ts-tz__change:focus {
 	background: transparent !important;
 	border-color: transparent !important;
 	color: var(--ts-primary) !important;
@@ -101,39 +101,39 @@
 }
 
 /* Subject and learner selection cards. */
-.tutorslot-widget .ts-book__subject,
-.tutorslot-widget .ts-book__subject:hover,
-.tutorslot-widget .ts-book__subject:focus,
-.tutorslot-widget .ts-book__who-option,
-.tutorslot-widget .ts-book__who-option:hover,
-.tutorslot-widget .ts-book__who-option:focus {
+.plumberslot-widget .ts-book__subject,
+.plumberslot-widget .ts-book__subject:hover,
+.plumberslot-widget .ts-book__subject:focus,
+.plumberslot-widget .ts-book__who-option,
+.plumberslot-widget .ts-book__who-option:hover,
+.plumberslot-widget .ts-book__who-option:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink) !important;
 	box-shadow: none !important;
 }
 
-.tutorslot-widget .ts-book__subject:hover,
-.tutorslot-widget .ts-book__subject:focus,
-.tutorslot-widget .ts-book__who-option:hover,
-.tutorslot-widget .ts-book__who-option:focus {
+.plumberslot-widget .ts-book__subject:hover,
+.plumberslot-widget .ts-book__subject:focus,
+.plumberslot-widget .ts-book__who-option:hover,
+.plumberslot-widget .ts-book__who-option:focus {
 	border-color: var(--ts-mute) !important;
 }
 
-.tutorslot-widget .ts-book__subject.is-selected,
-.tutorslot-widget .ts-book__subject.is-selected:hover,
-.tutorslot-widget .ts-book__subject.is-selected:focus,
-.tutorslot-widget .ts-book__who-option.is-selected,
-.tutorslot-widget .ts-book__who-option.is-selected:hover,
-.tutorslot-widget .ts-book__who-option.is-selected:focus {
+.plumberslot-widget .ts-book__subject.is-selected,
+.plumberslot-widget .ts-book__subject.is-selected:hover,
+.plumberslot-widget .ts-book__subject.is-selected:focus,
+.plumberslot-widget .ts-book__who-option.is-selected,
+.plumberslot-widget .ts-book__who-option.is-selected:hover,
+.plumberslot-widget .ts-book__who-option.is-selected:focus {
 	background: var(--ts-primary-wash) !important;
 	border-color: var(--ts-primary) !important;
 	color: var(--ts-ink) !important;
 }
 
-.tutorslot-widget .ts-book__who-option:disabled,
-.tutorslot-widget .ts-book__who-option:disabled:hover,
-.tutorslot-widget .ts-book__who-option:disabled:focus {
+.plumberslot-widget .ts-book__who-option:disabled,
+.plumberslot-widget .ts-book__who-option:disabled:hover,
+.plumberslot-widget .ts-book__who-option:disabled:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-mute) !important;
@@ -141,18 +141,18 @@
 }
 
 /* Day states, including disabled elements that still match :hover. */
-.tutorslot-widget .ts-day,
-.tutorslot-widget .ts-day:hover,
-.tutorslot-widget .ts-day:focus {
+.plumberslot-widget .ts-day,
+.plumberslot-widget .ts-day:hover,
+.plumberslot-widget .ts-day:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink) !important;
 	box-shadow: none !important;
 }
 
-.tutorslot-widget .ts-day:disabled,
-.tutorslot-widget .ts-day:disabled:hover,
-.tutorslot-widget .ts-day:disabled:focus {
+.plumberslot-widget .ts-day:disabled,
+.plumberslot-widget .ts-day:disabled:hover,
+.plumberslot-widget .ts-day:disabled:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-mute) !important;
@@ -160,59 +160,59 @@
 	cursor: not-allowed;
 }
 
-.tutorslot-widget .ts-day:not(:disabled):hover,
-.tutorslot-widget .ts-day:not(:disabled):focus {
+.plumberslot-widget .ts-day:not(:disabled):hover,
+.plumberslot-widget .ts-day:not(:disabled):focus {
 	border-color: var(--ts-mute) !important;
 }
 
-.tutorslot-widget .ts-day[aria-pressed="true"],
-.tutorslot-widget .ts-day[aria-pressed="true"]:hover,
-.tutorslot-widget .ts-day[aria-pressed="true"]:focus {
+.plumberslot-widget .ts-day[aria-pressed="true"],
+.plumberslot-widget .ts-day[aria-pressed="true"]:hover,
+.plumberslot-widget .ts-day[aria-pressed="true"]:focus {
 	background: var(--ts-primary) !important;
 	border-color: var(--ts-primary-dark) !important;
 	color: #fff !important;
 }
 
 /* Time-slot states. */
-.tutorslot-widget .ts-slot,
-.tutorslot-widget .ts-slot:hover,
-.tutorslot-widget .ts-slot:focus {
+.plumberslot-widget .ts-slot,
+.plumberslot-widget .ts-slot:hover,
+.plumberslot-widget .ts-slot:focus {
 	box-shadow: none !important;
 }
 
-.tutorslot-widget .ts-slot--open,
-.tutorslot-widget .ts-slot--open:hover,
-.tutorslot-widget .ts-slot--open:focus {
+.plumberslot-widget .ts-slot--open,
+.plumberslot-widget .ts-slot--open:hover,
+.plumberslot-widget .ts-slot--open:focus {
 	background: var(--ts-highlight) !important;
 	border-color: var(--ts-highlight-dark) !important;
 	color: var(--ts-ink) !important;
 }
 
-.tutorslot-widget .ts-slot[aria-pressed="true"],
-.tutorslot-widget .ts-slot[aria-selected="true"],
-.tutorslot-widget .ts-slot[aria-pressed="true"]:hover,
-.tutorslot-widget .ts-slot[aria-selected="true"]:hover,
-.tutorslot-widget .ts-slot[aria-pressed="true"]:focus,
-.tutorslot-widget .ts-slot[aria-selected="true"]:focus,
-.tutorslot-widget .ts-slot--booked,
-.tutorslot-widget .ts-slot--booked:hover,
-.tutorslot-widget .ts-slot--booked:focus {
+.plumberslot-widget .ts-slot[aria-pressed="true"],
+.plumberslot-widget .ts-slot[aria-selected="true"],
+.plumberslot-widget .ts-slot[aria-pressed="true"]:hover,
+.plumberslot-widget .ts-slot[aria-selected="true"]:hover,
+.plumberslot-widget .ts-slot[aria-pressed="true"]:focus,
+.plumberslot-widget .ts-slot[aria-selected="true"]:focus,
+.plumberslot-widget .ts-slot--booked,
+.plumberslot-widget .ts-slot--booked:hover,
+.plumberslot-widget .ts-slot--booked:focus {
 	background: var(--ts-primary) !important;
 	border-color: var(--ts-primary-dark) !important;
 	color: #fff !important;
 }
 
-.tutorslot-widget .ts-slot--held,
-.tutorslot-widget .ts-slot--held:hover,
-.tutorslot-widget .ts-slot--held:focus {
+.plumberslot-widget .ts-slot--held,
+.plumberslot-widget .ts-slot--held:hover,
+.plumberslot-widget .ts-slot--held:focus {
 	background: repeating-linear-gradient(45deg, var(--ts-warn-wash) 0 5px, #fff 5px 10px) !important;
 	border-color: #e8d6ae !important;
 	color: var(--ts-warn) !important;
 }
 
-.tutorslot-widget .ts-slot--gone,
-.tutorslot-widget .ts-slot--gone:hover,
-.tutorslot-widget .ts-slot--gone:focus {
+.plumberslot-widget .ts-slot--gone,
+.plumberslot-widget .ts-slot--gone:hover,
+.plumberslot-widget .ts-slot--gone:focus {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-mute) !important;
@@ -220,39 +220,39 @@
 }
 
 /* Confirmation choices and native form controls. */
-.tutorslot-widget .ts-book__pay-option,
-.tutorslot-widget .ts-book__pay-option:hover,
-.tutorslot-widget .ts-book__pay-option:focus-within {
+.plumberslot-widget .ts-book__pay-option,
+.plumberslot-widget .ts-book__pay-option:hover,
+.plumberslot-widget .ts-book__pay-option:focus-within {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink) !important;
 }
 
-.tutorslot-widget .ts-book__pay-option.is-selected,
-.tutorslot-widget .ts-book__pay-option.is-selected:hover,
-.tutorslot-widget .ts-book__pay-option.is-selected:focus-within {
+.plumberslot-widget .ts-book__pay-option.is-selected,
+.plumberslot-widget .ts-book__pay-option.is-selected:hover,
+.plumberslot-widget .ts-book__pay-option.is-selected:focus-within {
 	background: var(--ts-primary-wash) !important;
 	border-color: var(--ts-primary) !important;
 }
 
-.tutorslot-widget .ts-book__tz-field input,
-.tutorslot-widget .ts-book__field :where(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+.plumberslot-widget .ts-book__tz-field input,
+.plumberslot-widget .ts-book__field :where(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
 	background: #fff !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink) !important;
 	box-shadow: none !important;
 }
 
-.tutorslot-widget .ts-book__tz-field input:focus,
-.tutorslot-widget .ts-book__field :where(input:not([type="checkbox"]):not([type="radio"]), textarea, select):focus {
+.plumberslot-widget .ts-book__tz-field input:focus,
+.plumberslot-widget .ts-book__field :where(input:not([type="checkbox"]):not([type="radio"]), textarea, select):focus {
 	background: #fff !important;
 	border-color: var(--ts-primary) !important;
 	color: var(--ts-ink) !important;
 	box-shadow: none !important;
 }
 
-.tutorslot-widget input[type="checkbox"],
-.tutorslot-widget input[type="radio"] {
+.plumberslot-widget input[type="checkbox"],
+.plumberslot-widget input[type="radio"] {
 	appearance: auto !important;
 	width: 18px !important;
 	height: 18px !important;
@@ -263,38 +263,38 @@
 	opacity: 1;
 }
 
-.tutorslot-widget .ts-book__more summary,
-.tutorslot-widget .ts-book__more summary:hover,
-.tutorslot-widget .ts-book__more summary:focus {
+.plumberslot-widget .ts-book__more summary,
+.plumberslot-widget .ts-book__more summary:hover,
+.plumberslot-widget .ts-book__more summary:focus {
 	background: transparent !important;
 	color: var(--ts-ink-2) !important;
 	box-shadow: none !important;
 }
 
 /* Completion cards stay legible under aggressive theme section styles. */
-.tutorslot-widget .ts-book__cal,
-.tutorslot-widget .ts-book__result-details {
+.plumberslot-widget .ts-book__cal,
+.plumberslot-widget .ts-book__result-details {
 	background: var(--ts-card) !important;
 	border-color: var(--ts-rule) !important;
 	color: var(--ts-ink-2) !important;
 }
 
-.tutorslot-widget .ts-book__cal-top {
+.plumberslot-widget .ts-book__cal-top {
 	background: var(--ts-ink) !important;
 	color: #fff !important;
 }
 
-.tutorslot-widget .ts-book__cal-top > span:first-child {
+.plumberslot-widget .ts-book__cal-top > span:first-child {
 	color: #fff !important;
 }
 
-.tutorslot-widget .ts-book__cal-top .tutorslot-mono {
+.plumberslot-widget .ts-book__cal-top .plumberslot-mono {
 	color: var(--ts-highlight) !important;
 }
 
-.tutorslot-widget .ts-book__secure-link,
-.tutorslot-widget .ts-book__secure-link:hover,
-.tutorslot-widget .ts-book__secure-link:focus {
+.plumberslot-widget .ts-book__secure-link,
+.plumberslot-widget .ts-book__secure-link:hover,
+.plumberslot-widget .ts-book__secure-link:focus {
 	background: transparent !important;
 	color: var(--ts-primary) !important;
 	box-shadow: none !important;

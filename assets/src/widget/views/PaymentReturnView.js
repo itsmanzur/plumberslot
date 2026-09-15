@@ -22,7 +22,7 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 	const [ error, setError ] = useState( '' );
 	const [ reloadKey, setReloadKey ] = useState( 0 );
 	const titleRef = useRef( null );
-	const titleId = `tutorslot-payment-result-${ bookingId || 'unknown' }`;
+	const titleId = `plumberslot-payment-result-${ bookingId || 'unknown' }`;
 
 	useEffect( () => {
 		let active = true;
@@ -328,7 +328,7 @@ function goToDashboard( boot ) {
 
 function clearPaymentReturn() {
 	const url = new URL( window.location.href );
-	url.searchParams.delete( 'tutorslot_pay' );
+	url.searchParams.delete( 'plumberslot_pay' );
 	url.searchParams.delete( 'booking' );
 	window.location.href = url.toString();
 }

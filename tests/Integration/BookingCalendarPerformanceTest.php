@@ -2,18 +2,18 @@
 /**
  * Performance gate for calendar reads against a mature booking table.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
 use WP_UnitTestCase;
 
 /**
@@ -36,7 +36,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		parent::set_up();
 
 		Schema::create_all();
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 
 		$tutor_user_id  = self::factory()->user->create();
 		$student_id     = self::factory()->user->create();
@@ -59,7 +59,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 	}
 
 	public function tear_down(): void {
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 		parent::tear_down();
 	}
 
@@ -186,7 +186,7 @@ final class BookingCalendarPerformanceTest extends WP_UnitTestCase {
 		return (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::table( Schema::BOOKINGS ) );
 	}
 
-	private function empty_tutorslot_tables(): void {
+	private function empty_plumberslot_tables(): void {
 		global $wpdb;
 
 		foreach ( array_reverse( Schema::all_keys() ) as $key ) {

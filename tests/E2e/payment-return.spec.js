@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey, ...args ) {
 	const phpArgs = [ fixtureScript, action, ...args ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey, ...args ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -52,7 +52,7 @@ async function logIn( page, login, password ) {
 }
 
 function paymentUrl( seed, outcome ) {
-	return `${ seed.pagePath }&tutorslot_pay=${ outcome }&booking=${ seed.bookingId }`;
+	return `${ seed.pagePath }&plumberslot_pay=${ outcome }&booking=${ seed.bookingId }`;
 }
 
 async function openPaymentReturn( page, seed, outcome ) {
@@ -65,14 +65,14 @@ async function openPaymentReturn( page, seed, outcome ) {
 	const response = await bookingResponsePromise;
 	expect( response.status() ).toBe( 200 );
 
-	return page.locator( '.tutorslot-widget.tutorslot-root' );
+	return page.locator( '.plumberslot-widget.plumberslot-root' );
 }
 
 function preparePaymentTest( testInfo, state ) {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_PAYMENT_READY,
-		'Set TUTORSLOT_E2E_PAYMENT_READY=1 to allow isolated payment fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_PAYMENT_READY,
+		'Set PLUMBERSLOT_E2E_PAYMENT_READY=1 to allow isolated payment fixture rows.'
 	);
 
 	return `${ testInfo.project.name }-${ state }`.replace(
@@ -108,7 +108,7 @@ test( 'verified payment success renders confirmed completion', async ( {
 		expect( Number( database.booking.id ) ).toBe( seed.bookingId );
 		expect( database.booking.status ).toBe( 'confirmed' );
 		expect( database.booking.payment_ref ).toContain(
-			'tutorslot-e2e-paid-'
+			'plumberslot-e2e-paid-'
 		);
 		expect( pageErrors ).toEqual( [] );
 	} finally {
@@ -141,7 +141,7 @@ test( 'cancelled checkout renders recovery path and clears return flags', async 
 		await Promise.all( [
 			page.waitForURL(
 				( url ) =>
-					! url.searchParams.has( 'tutorslot_pay' ) &&
+					! url.searchParams.has( 'plumberslot_pay' ) &&
 					! url.searchParams.has( 'booking' )
 			),
 			widget.getByRole( 'button', { name: 'Return to booking' } ).click(),

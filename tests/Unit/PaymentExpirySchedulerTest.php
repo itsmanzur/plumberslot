@@ -2,25 +2,25 @@
 /**
  * Pending-payment scheduling tests without a WordPress database.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Unit;
+namespace PlumberSlot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use TutorSlot\Domain\PaymentService;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Notifications\Scheduler;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Domain\PaymentService;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Notifications\Scheduler;
+use PlumberSlot\Support\Settings;
 
 final class PaymentExpirySchedulerTest extends TestCase {
 
 	protected function setUp(): void {
-		$GLOBALS['tutorslot_lifecycle_calls'] = array();
-		$GLOBALS['tutorslot_test_settings']   = array( 'hold_window_minutes' => 12 );
-		$GLOBALS['tutorslot_test_cache']      = array();
+		$GLOBALS['plumberslot_lifecycle_calls'] = array();
+		$GLOBALS['plumberslot_test_settings']   = array( 'hold_window_minutes' => 12 );
+		$GLOBALS['plumberslot_test_cache']      = array();
 
 		$cache = new \ReflectionProperty( Settings::class, 'cache' );
 		$cache->setValue( null, null );
@@ -34,11 +34,11 @@ final class PaymentExpirySchedulerTest extends TestCase {
 		$scheduler->schedule_payment_expiry( 41, 73 );
 		$scheduler->schedule_payment_expiry( 41, 73 );
 
-		$actions = $GLOBALS['tutorslot_lifecycle_calls']['scheduled'];
+		$actions = $GLOBALS['plumberslot_lifecycle_calls']['scheduled'];
 		$this->assertCount( 1, $actions );
-		$this->assertSame( 'tutorslot_expire_payment', $actions[0]['hook'] );
+		$this->assertSame( 'plumberslot_expire_payment', $actions[0]['hook'] );
 		$this->assertSame( array( 41, 73 ), $actions[0]['args'] );
-		$this->assertSame( 'tutorslot', $actions[0]['group'] );
+		$this->assertSame( 'plumberslot', $actions[0]['group'] );
 		$this->assertGreaterThanOrEqual( $before + ( 12 * MINUTE_IN_SECONDS ), $actions[0]['timestamp'] );
 		$this->assertLessThanOrEqual( time() + ( 12 * MINUTE_IN_SECONDS ), $actions[0]['timestamp'] );
 	}

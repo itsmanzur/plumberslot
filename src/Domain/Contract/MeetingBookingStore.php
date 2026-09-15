@@ -2,12 +2,12 @@
 /**
  * Booking data needed by the meeting service.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain\Contract;
+namespace PlumberSlot\Domain\Contract;
 
 defined( 'ABSPATH' ) || exit;
 

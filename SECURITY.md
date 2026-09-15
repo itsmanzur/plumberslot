@@ -1,12 +1,12 @@
-# TutorSlot security policy
+# PlumberSlot security policy
 
-TutorSlot handles lesson schedules, parent/student relationships, payment
+PlumberSlot handles lesson schedules, parent/student relationships, payment
 references and meeting links. Please report security issues privately so they
 can be investigated and fixed before public disclosure.
 
 ## Supported versions
 
-TutorSlot is currently an unreleased `0.1.0` pre-release. Until the first
+PlumberSlot is currently an unreleased `0.1.0` pre-release. Until the first
 release is tagged, security fixes are applied only to the latest code on the
 `main` branch. Older commits and untagged ZIP copies are not supported.
 
@@ -16,10 +16,10 @@ requesting security support.
 
 ## Report a vulnerability
 
-Email **security@tutorslot.com** with the subject:
+Email **security@plumberslot.com** with the subject:
 
 ```text
-[SECURITY] TutorSlot: short summary
+[SECURITY] PlumberSlot: short summary
 ```
 
 Do not include a vulnerability, exploit or sensitive user data in a public
@@ -27,7 +27,7 @@ GitHub issue, discussion, support request or social-media post.
 
 Please include as much of the following as is safe:
 
-- the affected TutorSlot version, commit or ZIP source;
+- the affected PlumberSlot version, commit or ZIP source;
 - WordPress, PHP and browser versions relevant to the issue;
 - the required user role, account relationship and other preconditions;
 - clear reproduction steps and the observed security impact;
@@ -68,11 +68,11 @@ Examples include:
 - booking-race, credit, refund or webhook flaws with security or financial
   impact;
 - privacy exporter, eraser, uninstall or audit-log boundary failures; and
-- vulnerable code copied into TutorSlot's distributed runtime assets.
+- vulnerable code copied into PlumberSlot's distributed runtime assets.
 
 ## Out of scope
 
-Unless TutorSlot caused or materially worsened the issue, the following are out
+Unless PlumberSlot caused or materially worsened the issue, the following are out
 of scope:
 
 - WordPress core, a theme, another plugin or a third-party provider service;
@@ -94,5 +94,5 @@ attempt to move beyond the minimum proof required to demonstrate the issue.
 
 Stop testing and report immediately if you encounter real personal data,
 credentials or an active compromise. This policy does not authorize activity
-that would otherwise be unlawful, and TutorSlot does not currently offer a paid
+that would otherwise be unlawful, and PlumberSlot does not currently offer a paid
 bug bounty.

@@ -2,16 +2,16 @@
 /**
  * Booking persistence.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database\Repository;
+namespace PlumberSlot\Database\Repository;
 
-use TutorSlot\Database\Schema;
-use TutorSlot\Domain\Contract\BookingOccupancySource;
-use TutorSlot\Domain\Contract\MeetingBookingStore;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Domain\Contract\BookingOccupancySource;
+use PlumberSlot\Domain\Contract\MeetingBookingStore;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -376,6 +376,6 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 	}
 
 	private function tutor_lock_name( int $tutor_id ): string {
-		return 'tutorslot:' . md5( $this->db->prefix . '|' . $tutor_id );
+		return 'plumberslot:' . md5( $this->db->prefix . '|' . $tutor_id );
 	}
 }

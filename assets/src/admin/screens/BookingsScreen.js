@@ -99,7 +99,7 @@ export function BookingsScreen() {
 		const url = URL.createObjectURL( blob );
 		const a = document.createElement( 'a' );
 		a.href = url;
-		a.download = 'tutorslot-bookings.csv';
+		a.download = 'plumberslot-bookings.csv';
 		a.click();
 		URL.revokeObjectURL( url );
 		announce( 'CSV exported.' );
@@ -388,7 +388,7 @@ export function BookingsScreen() {
 											h( 'td', null, row.subject ),
 											h(
 												'td',
-												{ class: 'tutorslot-mono' },
+												{ class: 'plumberslot-mono' },
 												formatWhen( row )
 											),
 											h(

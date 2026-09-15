@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -141,8 +141,8 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 150000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_VISUAL_READY,
-		'Set TUTORSLOT_E2E_VISUAL_READY=1 to allow isolated Bengali visual fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_VISUAL_READY,
+		'Set PLUMBERSLOT_E2E_VISUAL_READY=1 to allow isolated Bengali visual fixture rows.'
 	);
 	const project = testInfo.project.name.includes( 'mobile' ) ? 'mob' : 'desk';
 	const fixtureKey = `${ project }-bengali`;
@@ -158,7 +158,7 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 		await isolateWidget( page );
 		await page.evaluate( () => document.fonts.ready );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		const subject = widget.getByRole( 'option', {
 			name: /বাংলা ভাষা ও সাহিত্য/,
 		} );
@@ -172,7 +172,7 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 
 		await subject.click();
 		const slotsResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await widget.getByRole( 'button', { name: 'Choose a time →' } ).click();
 		expect( ( await slotsResponse ).status() ).toBe( 200 );
@@ -186,7 +186,7 @@ test( 'Bengali text renders without missing or clipped glyphs', async ( {
 			( response ) =>
 				response
 					.url()
-					.includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+					.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Continue →' } ).click();

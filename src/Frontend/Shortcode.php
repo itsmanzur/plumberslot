@@ -1,15 +1,15 @@
 <?php
 /**
- * [tutorslot] — the booking widget.
+ * [plumberslot] — the booking widget.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
-use TutorSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,8 +18,8 @@ final class Shortcode {
 	public function __construct( private readonly AssetManager $assets ) {}
 
 	public function register(): void {
-		add_shortcode( 'tutorslot', array( $this, 'render' ) );
-		add_shortcode( 'tutorslot_dashboard', array( $this, 'render_dashboard' ) );
+		add_shortcode( 'plumberslot', array( $this, 'render' ) );
+		add_shortcode( 'plumberslot_dashboard', array( $this, 'render_dashboard' ) );
 	}
 
 	/**
@@ -33,7 +33,7 @@ final class Shortcode {
 				'view'    => 'booking',
 			),
 			$atts,
-			'tutorslot'
+			'plumberslot'
 		);
 
 		$view = sanitize_key( $atts['view'] );
@@ -47,22 +47,22 @@ final class Shortcode {
 
 		if ( '' !== $atts['tutor'] && ! $tutor ) {
 			return sprintf(
-				'<div class="tutorslot-empty"><p>%s</p></div>',
-				esc_html__( 'No tutor matches that name. Check the tutor slug in the shortcode.', 'tutorslot' )
+				'<div class="plumberslot-empty"><p>%s</p></div>',
+				esc_html__( 'No tutor matches that name. Check the tutor slug in the shortcode.', 'plumberslot' )
 			);
 		}
 
 		if ( ! $this->assets->available() ) {
 			return sprintf(
-				'<div class="tutorslot-unavailable" role="status"><p>%s</p></div>',
-				esc_html__( 'Booking is temporarily unavailable. Check this page again shortly.', 'tutorslot' )
+				'<div class="plumberslot-unavailable" role="status"><p>%s</p></div>',
+				esc_html__( 'Booking is temporarily unavailable. Check this page again shortly.', 'plumberslot' )
 			);
 		}
 
 		$this->assets->mark_needed();
 
 		return sprintf(
-			'<div class="tutorslot-widget" data-tutor="%d" data-subject="%d" data-view="%s"></div>',
+			'<div class="plumberslot-widget" data-tutor="%d" data-subject="%d" data-view="%s"></div>',
 			$tutor ? (int) $tutor->id : 0,
 			absint( $atts['subject'] ),
 			esc_attr( $view )
@@ -78,7 +78,7 @@ final class Shortcode {
 				'view' => 'parent',
 			),
 			$atts,
-			'tutorslot_dashboard'
+			'plumberslot_dashboard'
 		);
 
 		$view = sanitize_key( $atts['view'] );

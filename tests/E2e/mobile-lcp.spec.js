@@ -19,11 +19,11 @@ function percentile( values, percentileValue ) {
 
 async function installLcpObserver( page ) {
 	await page.addInitScript( () => {
-		window.__tutorslotLcpEntries = [];
+		window.__plumberslotLcpEntries = [];
 		new PerformanceObserver( ( list ) => {
 			for ( const entry of list.getEntries() ) {
 				const element = entry.element;
-				window.__tutorslotLcpEntries.push( {
+				window.__plumberslotLcpEntries.push( {
 					element: element
 						? {
 								className: String( element.className || '' ),
@@ -45,7 +45,7 @@ async function installLcpObserver( page ) {
 
 async function readMetrics( page ) {
 	return page.evaluate( () => {
-		const entries = window.__tutorslotLcpEntries || [];
+		const entries = window.__plumberslotLcpEntries || [];
 		const navigation = performance.getEntriesByType( 'navigation' )[ 0 ];
 		const lastEntry = entries.at( -1 );
 
@@ -65,8 +65,8 @@ test( 'mobile booking page p75 LCP stays under 1.5 seconds', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 120000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_PERF_READY,
-		'Set TUTORSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
+		'1' !== process.env.PLUMBERSLOT_E2E_PERF_READY,
+		'Set PLUMBERSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
 	);
 
 	await installLcpObserver( page );
@@ -75,22 +75,22 @@ test( 'mobile booking page p75 LCP stays under 1.5 seconds', async ( {
 	await devtools.send( 'Network.setCacheDisabled', { cacheDisabled: true } );
 
 	// Warm PHP, MySQL, and opcode caches before measuring browser cold loads.
-	await page.goto( '/book/?tutorslot_lcp_warmup=1', {
+	await page.goto( '/book/?plumberslot_lcp_warmup=1', {
 		waitUntil: 'load',
 	} );
 	await expect(
-		page.locator( '.tutorslot-widget.tutorslot-root' )
+		page.locator( '.plumberslot-widget.plumberslot-root' )
 	).toBeVisible();
 
 	const samples = [];
 	for ( let sample = 0; sample < SAMPLE_COUNT; sample++ ) {
 		await devtools.send( 'Network.clearBrowserCache' );
 		await page.goto(
-			`/book/?tutorslot_lcp_sample=${ sample }-${ Date.now() }`,
+			`/book/?plumberslot_lcp_sample=${ sample }-${ Date.now() }`,
 			{ waitUntil: 'load' }
 		);
 		await expect(
-			page.locator( '.tutorslot-widget.tutorslot-root' )
+			page.locator( '.plumberslot-widget.plumberslot-root' )
 		).toBeVisible();
 		await page.waitForTimeout( 1000 );
 		samples.push( await readMetrics( page ) );

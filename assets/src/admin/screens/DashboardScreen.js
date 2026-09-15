@@ -49,7 +49,7 @@ function onBookingAction( row, openAdmin ) {
 		openUrl( row.join_url, { sameOrigin: true } );
 		return;
 	}
-	openAdmin( 'tutorslot-bookings' );
+	openAdmin( 'plumberslot-bookings' );
 }
 
 export function DashboardScreen() {
@@ -127,7 +127,7 @@ export function DashboardScreen() {
 				h(
 					'p',
 					{ class: 'ts-admin__eyebrow' },
-					data?.date || 'TutorSlot'
+					data?.date || 'PlumberSlot'
 				),
 				h( 'h1', null, data?.greeting || 'Dashboard' ),
 				h(
@@ -143,7 +143,7 @@ export function DashboardScreen() {
 					Button,
 					{
 						variant: 'secondary',
-						onClick: () => openAdmin( 'tutorslot-availability' ),
+						onClick: () => openAdmin( 'plumberslot-availability' ),
 					},
 					'Block time off'
 				),
@@ -227,7 +227,7 @@ export function DashboardScreen() {
 											size: 'sm',
 											onClick: () =>
 												openAdmin(
-													'tutorslot-bookings'
+													'plumberslot-bookings'
 												),
 										},
 										'See all bookings →'
@@ -320,7 +320,7 @@ export function DashboardScreen() {
 															h(
 																'td',
 																{
-																	class: 'tutorslot-mono',
+																	class: 'plumberslot-mono',
 																},
 																row.when
 															),
@@ -399,7 +399,7 @@ export function DashboardScreen() {
 																class: 'ts-dashboard__attention-btn',
 																onClick: () =>
 																	openAdmin(
-																		'tutorslot-bookings'
+																		'plumberslot-bookings'
 																	),
 															},
 															h(
@@ -441,7 +441,7 @@ export function DashboardScreen() {
 									h(
 										'div',
 										{
-											class: 'ts-dashboard__booking-url tutorslot-mono',
+											class: 'ts-dashboard__booking-url plumberslot-mono',
 										},
 										data.booking_url
 									),

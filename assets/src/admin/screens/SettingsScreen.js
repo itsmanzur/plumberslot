@@ -64,7 +64,7 @@ export function SettingsScreen() {
 	const config = getConfig();
 	const [ status, setStatus ] = useState( allowed ? 'loading' : 'error' );
 	const [ error, setError ] = useState(
-		allowed ? '' : 'Only site managers can change TutorSlot settings.'
+		allowed ? '' : 'Only site managers can change PlumberSlot settings.'
 	);
 	const [ values, setValues ] = useState( {} );
 	const [ auditOpen, setAuditOpen ] = useState( false );
@@ -250,7 +250,7 @@ export function SettingsScreen() {
 								setValues
 							),
 							h( Toggle, {
-								label: 'Delete all TutorSlot data when the plugin is removed',
+								label: 'Delete all PlumberSlot data when the plugin is removed',
 								explanation:
 									'Off by default. Bookings and credits survive a reinstall.',
 								checked: Boolean(
@@ -282,7 +282,7 @@ export function SettingsScreen() {
 							h( 'span', null, 'Plugin version' ),
 							h(
 								'b',
-								{ class: 'tutorslot-mono' },
+								{ class: 'plumberslot-mono' },
 								config.version
 							)
 						),

@@ -2,12 +2,12 @@
 /**
  * Small transaction boundary for writes that span multiple repositories.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database;
+namespace PlumberSlot\Database;
 
 defined( 'ABSPATH' ) || exit;
 

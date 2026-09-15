@@ -2,19 +2,19 @@
 /**
  * Phase 8 privacy exporter and eraser integration tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\RelationRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Privacy\PrivacyHooks;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\RelationRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Privacy\PrivacyHooks;
+use PlumberSlot\Support\AuditLog;
 
 final class Phase8PrivacyTest extends \WP_UnitTestCase {
 
@@ -57,9 +57,9 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$erasers   = $this->privacy->add_eraser( array() );
 		$policy    = $this->privacy->policy_text();
 
-		$this->assertSame( array( $this->privacy, 'export' ), $exporters['tutorslot']['callback'] );
-		$this->assertSame( array( $this->privacy, 'erase' ), $erasers['tutorslot']['callback'] );
-		$this->assertStringContainsString( 'signed TutorSlot join link', $policy );
+		$this->assertSame( array( $this->privacy, 'export' ), $exporters['plumberslot']['callback'] );
+		$this->assertSame( array( $this->privacy, 'erase' ), $erasers['plumberslot']['callback'] );
+		$this->assertStringContainsString( 'signed PlumberSlot join link', $policy );
 		$this->assertStringContainsString( 'Stripe or bKash', $policy );
 		$this->assertStringContainsString( 'Google Calendar and Meet or to Zoom', $policy );
 		$this->assertStringContainsString( 'connects an SMS add-on', $policy );
@@ -111,9 +111,9 @@ final class Phase8PrivacyTest extends \WP_UnitTestCase {
 		$this->assertCount( 3, $page_two['data'] );
 		$this->assertTrue( $page_two['done'] );
 		$this->assertCount( 23, array_unique( $item_ids ) );
-		$this->assertContains( 'tutorslot-bookings', $groups );
-		$this->assertContains( 'tutorslot-relations', $groups );
-		$this->assertContains( 'tutorslot-reviews', $groups );
+		$this->assertContains( 'plumberslot-bookings', $groups );
+		$this->assertContains( 'plumberslot-relations', $groups );
+		$this->assertContains( 'plumberslot-reviews', $groups );
 
 		$first_booking = $this->find_export_item( $all, 'booking-' . $booking_ids[0] );
 		$this->assertStringContainsString( 'Student', wp_json_encode( $first_booking['data'] ) );

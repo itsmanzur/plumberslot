@@ -7,15 +7,15 @@
  * hand. This is a real grant-token / create-payment / execute-payment flow, so
  * a booking is confirmed by bKash rather than by a typed string.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Payments;
+namespace PlumberSlot\Payments;
 
-use TutorSlot\Support\Crypto;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -27,7 +27,7 @@ final class BkashGateway implements GatewayInterface {
 	}
 
 	public function label(): string {
-		return __( 'bKash', 'tutorslot' );
+		return __( 'bKash', 'plumberslot' );
 	}
 
 	public function is_configured(): bool {
@@ -46,8 +46,8 @@ final class BkashGateway implements GatewayInterface {
 	): array|WP_Error {
 		if ( 'BDT' !== strtoupper( $currency ) ) {
 			return new WP_Error(
-				'tutorslot_bkash_currency',
-				__( 'bKash only accepts BDT.', 'tutorslot' ),
+				'plumberslot_bkash_currency',
+				__( 'bKash only accepts BDT.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -60,7 +60,7 @@ final class BkashGateway implements GatewayInterface {
 		// bKash amounts are major units as a string (e.g. "500.00").
 		$amount = number_format( $amount_minor / 100, 2, '.', '' );
 
-		$callback = rest_url( 'tutorslot/v1/payments/bkash/callback' );
+		$callback = rest_url( 'plumberslot/v1/payments/bkash/callback' );
 		$callback = add_query_arg(
 			array(
 				'booking_id' => $booking_id,
@@ -102,8 +102,8 @@ final class BkashGateway implements GatewayInterface {
 
 		if ( ! is_array( $body ) || empty( $body['bkashURL'] ) || empty( $body['paymentID'] ) ) {
 			return new WP_Error(
-				'tutorslot_bkash_failed',
-				__( 'Could not start the bKash payment.', 'tutorslot' ),
+				'plumberslot_bkash_failed',
+				__( 'Could not start the bKash payment.', 'plumberslot' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -126,7 +126,7 @@ final class BkashGateway implements GatewayInterface {
 	 * @return array{booking_id:int, status:string, reference:string, idempotency_key:string, amount_minor?:int, currency?:string}|WP_Error
 	 */
 	public function parse_webhook( string $raw_body ): array|WP_Error {
-		return new WP_Error( 'tutorslot_not_implemented', '', array( 'status' => 400 ) );
+		return new WP_Error( 'plumberslot_not_implemented', '', array( 'status' => 400 ) );
 	}
 
 	/**
@@ -205,8 +205,8 @@ final class BkashGateway implements GatewayInterface {
 		}
 
 		return new WP_Error(
-			'tutorslot_bkash_refund_failed',
-			__( 'bKash refund failed.', 'tutorslot' ),
+			'plumberslot_bkash_refund_failed',
+			__( 'bKash refund failed.', 'plumberslot' ),
 			array( 'status' => 502 )
 		);
 	}
@@ -215,7 +215,7 @@ final class BkashGateway implements GatewayInterface {
 	 * Grant token with a short safe cache.
 	 */
 	public function grant_token(): string|WP_Error {
-		$cache_key = 'tutorslot_bkash_token_' . ( Settings::bool( 'bkash_sandbox', true ) ? 'sb' : 'live' );
+		$cache_key = 'plumberslot_bkash_token_' . ( Settings::bool( 'bkash_sandbox', true ) ? 'sb' : 'live' );
 		$cached    = get_transient( $cache_key );
 
 		if ( is_string( $cached ) && '' !== $cached ) {
@@ -249,8 +249,8 @@ final class BkashGateway implements GatewayInterface {
 
 		if ( ! is_array( $body ) || empty( $body['id_token'] ) ) {
 			return new WP_Error(
-				'tutorslot_bkash_token',
-				__( 'Could not authenticate with bKash.', 'tutorslot' ),
+				'plumberslot_bkash_token',
+				__( 'Could not authenticate with bKash.', 'plumberslot' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -320,13 +320,13 @@ final class BkashGateway implements GatewayInterface {
 
 		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 
-		return is_array( $body ) ? $body : new WP_Error( 'tutorslot_bkash_bad_response', '', array( 'status' => 502 ) );
+		return is_array( $body ) ? $body : new WP_Error( 'plumberslot_bkash_bad_response', '', array( 'status' => 502 ) );
 	}
 
 	private function http_error(): WP_Error {
 		return new WP_Error(
-			'tutorslot_bkash_http',
-			__( 'Could not contact bKash.', 'tutorslot' ),
+			'plumberslot_bkash_http',
+			__( 'Could not contact bKash.', 'plumberslot' ),
 			array( 'status' => 502 )
 		);
 	}

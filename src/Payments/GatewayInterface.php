@@ -2,16 +2,16 @@
 /**
  * Contract every payment gateway implements.
  *
- * TutorSlot never sees a card number. A gateway hands back a redirect URL and
+ * PlumberSlot never sees a card number. A gateway hands back a redirect URL and
  * later confirms through a signed webhook, which keeps the plugin's PCI scope
  * at zero and keeps card data out of the WordPress database entirely.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Payments;
+namespace PlumberSlot\Payments;
 
 use WP_Error;
 

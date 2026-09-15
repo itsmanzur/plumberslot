@@ -10,7 +10,7 @@ const MINIMUM_MEASURES = 15;
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -25,7 +25,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -68,8 +68,8 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 }, testInfo ) => {
 	testInfo.setTimeout( 120000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_PERF_READY,
-		'Set TUTORSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
+		'1' !== process.env.PLUMBERSLOT_E2E_PERF_READY,
+		'Set PLUMBERSLOT_E2E_PERF_READY=1 to run the Local-site performance gate.'
 	);
 
 	const fixtureKey = testInfo.project.name.includes( 'mobile' )
@@ -79,9 +79,9 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 
 	try {
 		await logIn( page, seed.tutorLogin, seed.password );
-		await page.goto( '/wp-admin/admin.php?page=tutorslot-availability' );
+		await page.goto( '/wp-admin/admin.php?page=plumberslot-availability' );
 
-		const root = page.locator( '#tutorslot-admin-root' );
+		const root = page.locator( '#plumberslot-admin-root' );
 		const grid = root.getByRole( 'grid', {
 			name: 'Weekly availability timetable',
 		} );
@@ -90,7 +90,7 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 		expect( await cells.count() ).toBeGreaterThan( MINIMUM_MEASURES );
 
 		await page.evaluate( () => {
-			performance.clearMeasures( 'tutorslot-timetable-interaction' );
+			performance.clearMeasures( 'plumberslot-timetable-interaction' );
 		} );
 
 		await cells.first().hover();
@@ -101,7 +101,7 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 				await page.waitForFunction(
 					( expected ) =>
 						performance.getEntriesByName(
-							'tutorslot-timetable-interaction'
+							'plumberslot-timetable-interaction'
 						).length >= expected,
 					index + 1
 				);
@@ -113,7 +113,7 @@ test( 'availability timetable interaction work stays under 16ms per frame', asyn
 		await expect( root.getByText( 'Unsaved changes' ) ).toBeVisible();
 		const measures = await page.evaluate( () =>
 			performance
-				.getEntriesByName( 'tutorslot-timetable-interaction' )
+				.getEntriesByName( 'plumberslot-timetable-interaction' )
 				.map( ( entry ) => ( {
 					duration: entry.duration,
 					startTime: entry.startTime,

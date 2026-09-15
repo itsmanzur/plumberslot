@@ -5,7 +5,7 @@
  * Run with:
  * php tests/Runtime/wordpress-probe.php
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
@@ -30,10 +30,10 @@ $checks = array(
 	'home'                  => home_url( '/' ),
 	'wordpress'             => get_bloginfo( 'version' ),
 	'database'              => $wpdb->check_connection( false ) ? 'ok' : 'failed',
-	'plugin_active'         => is_plugin_active( 'tutorslot/tutorslot.php' ) ? 'yes' : 'no',
-	'plugin_version'        => defined( 'TutorSlot\VERSION' ) ? \TutorSlot\VERSION : 'not-loaded',
-	'admin_assets_present'  => \TutorSlot\Admin\AdminMenu::assets_available() ? 'yes' : 'no',
-	'widget_assets_present' => \TutorSlot\Frontend\AssetManager::available() ? 'yes' : 'no',
+	'plugin_active'         => is_plugin_active( 'plumberslot/plumberslot.php' ) ? 'yes' : 'no',
+	'plugin_version'        => defined( 'PlumberSlot\VERSION' ) ? \PlumberSlot\VERSION : 'not-loaded',
+	'admin_assets_present'  => \PlumberSlot\Admin\AdminMenu::assets_available() ? 'yes' : 'no',
+	'widget_assets_present' => \PlumberSlot\Frontend\AssetManager::available() ? 'yes' : 'no',
 );
 
 foreach ( $checks as $label => $value ) {

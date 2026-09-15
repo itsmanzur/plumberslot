@@ -1,5 +1,5 @@
-=== TutorSlot ===
-Contributors: tutorslot
+=== PlumberSlot ===
+Contributors: plumberslot
 Tags: booking, tutor, appointment, lessons, scheduling
 Requires at least: 6.4
 Tested up to: 7.1
@@ -18,14 +18,14 @@ shows: they call your subject a "Service", your student a "Customer", and they
 have no idea that the person paying and the person attending are usually two
 different people.
 
-TutorSlot starts from how teaching actually works.
+PlumberSlot starts from how teaching actually works.
 
 * **Visual weekly availability** — paint 30-minute cells and add one-off closed
   dates without rebuilding the whole timetable.
 * **Tutor-specific subjects** — set level, curriculum, duration, price and an
   optional trial subject.
-* **Public booking flow** — publish it with the TutorSlot block or the
-  `[tutorslot]` shortcode. Visitors can browse tutors and open times; a
+* **Public booking flow** — publish it with the PlumberSlot block or the
+  `[plumberslot]` shortcode. Visitors can browse tutors and open times; a
   WordPress account is required to confirm a booking.
 * **Single and recurring lessons** — book one lesson or choose multiple
   weekdays and a course length for a weekly series. Individual lessons can be
@@ -49,14 +49,14 @@ TutorSlot starts from how teaching actually works.
   protected booking, family, tutor, payment and administration operations use
   nonce, capability and ownership checks.
 * **Interactive Help & Docs** — a plain-English in-product guide introduces
-  TutorSlot, explains its tutor-first differences, saves four-step setup
+  PlumberSlot, explains its tutor-first differences, saves four-step setup
   progress, searches feature walkthroughs and links to an externally hosted
   quick-tour video while keeping a written outline in the plugin.
 
 = Security =
 
 Booking plugins hold minors' names, schedules and guardians' contact details.
-TutorSlot treats that as the sensitive data it is:
+PlumberSlot treats that as the sensitive data it is:
 
 * Public REST access is limited to tutor profiles, subjects and open slots.
   Protected reads are account-scoped; state-changing routes validate a REST
@@ -65,7 +65,7 @@ TutorSlot treats that as the sensitive data it is:
   schema whitelist.
 * Rendered PHP output is escaped, and the Preact interfaces render remote data
   as text rather than HTML.
-* Meeting emails use signed, expiring TutorSlot URLs instead of raw provider
+* Meeting emails use signed, expiring PlumberSlot URLs instead of raw provider
   meeting URLs.
 * Configured API secrets are encrypted at rest and masked in API responses.
 * Sensitive booking, payment, meeting, settings and privacy actions are written
@@ -73,23 +73,23 @@ TutorSlot treats that as the sensitive data it is:
 * Webhooks are signature-checked and stored for replay protection.
 * Coding standards, static analysis and a dependency audit run on every commit.
 
-Report vulnerabilities privately to security@tutorslot.com. Do not publish
+Report vulnerabilities privately to security@plumberslot.com. Do not publish
 exploit details in a public issue. The full reporting and responsible-testing
-policy is at https://github.com/itsmanzur/tutorslot/blob/main/SECURITY.md.
+policy is at https://github.com/itsmanzur/plumberslot/blob/main/SECURITY.md.
 
 == Installation ==
 
 1. Install and activate.
 2. The setup wizard opens automatically — four steps, about ninety seconds.
-3. Add the TutorSlot booking block to a page, or paste
-   `[tutorslot tutor="your-name"]` into a shortcode block.
-4. Configure Stripe, bKash, Google Meet or Zoom under TutorSlot settings only
+3. Add the PlumberSlot booking block to a page, or paste
+   `[plumberslot tutor="your-name"]` into a shortcode block.
+4. Configure Stripe, bKash, Google Meet or Zoom under PlumberSlot settings only
    when those optional services are needed.
 5. Customers sign in to confirm lessons and use student or parent dashboards.
 
 == External services ==
 
-TutorSlot can schedule lessons without contacting any payment or meeting
+PlumberSlot can schedule lessons without contacting any payment or meeting
 provider. The following optional services are contacted only after a site
 administrator configures them and a user invokes the related feature. The site
 owner is responsible for providing any notices or obtaining any consent required
@@ -97,11 +97,11 @@ for its use of these services.
 
 = Stripe =
 
-When a customer chooses card payment, TutorSlot creates a Stripe-hosted Checkout
+When a customer chooses card payment, PlumberSlot creates a Stripe-hosted Checkout
 session. It sends the site's Stripe credential, booking identifier, amount,
 currency, a generic "Lesson" item name and success/cancel URLs. Refund requests
 send the payment reference and refund amount. Card details are entered on
-Stripe's hosted page and do not pass through or get stored by TutorSlot. Stripe
+Stripe's hosted page and do not pass through or get stored by PlumberSlot. Stripe
 also sends signed payment-status webhooks back to the site.
 
 Privacy policy: https://stripe.com/privacy
@@ -109,25 +109,25 @@ Services agreement: https://stripe.com/legal/ssa
 
 = bKash =
 
-When a customer chooses bKash, TutorSlot authenticates with the configured
+When a customer chooses bKash, PlumberSlot authenticates with the configured
 merchant credentials and sends a booking-derived payer reference and invoice
 number, amount in BDT and a callback URL to bKash Tokenized Checkout. Completing,
 checking or refunding a payment sends its bKash payment/transaction reference;
 refunds also include the amount and a cancellation reason. Account, OTP and PIN
-details are handled on bKash's pages and are not stored by TutorSlot.
+details are handled on bKash's pages and are not stored by PlumberSlot.
 
 Privacy notice: https://www.bkash.com/en/page/privacy-notice
 Payment gateway terms: https://www.bkash.com/en/page/tokenized_checkout
 
 = Google Calendar and Google Meet =
 
-When a tutor chooses to connect Google Meet, TutorSlot uses Google OAuth with the
+When a tutor chooses to connect Google Meet, PlumberSlot uses Google OAuth with the
 `calendar.events` permission. OAuth exchanges send the configured client
 credentials, authorization or refresh token and this site's callback URL. For a
-confirmed lesson, TutorSlot sends the student's WordPress display name in the
+confirmed lesson, PlumberSlot sends the student's WordPress display name in the
 event title, lesson start/end time and a booking-derived conference request
 identifier to Google Calendar. It later sends the event identifier when resolving
-the Meet join URL. TutorSlot does not add student or parent email addresses as
+the Meet join URL. PlumberSlot does not add student or parent email addresses as
 Google Calendar attendees.
 
 Privacy policy: https://policies.google.com/privacy
@@ -135,11 +135,11 @@ Terms of service: https://policies.google.com/terms
 
 = Zoom =
 
-When Zoom is configured, TutorSlot exchanges the site's server-to-server OAuth
+When Zoom is configured, PlumberSlot exchanges the site's server-to-server OAuth
 account/client credentials for an access token. It sends the student's WordPress
 display name in the meeting topic, lesson start time and duration, and secure
 meeting settings to create a meeting. The returned meeting identifier is sent
-again when resolving a join URL or deleting a cancelled meeting. TutorSlot sets
+again when resolving a join URL or deleting a cancelled meeting. PlumberSlot sets
 automatic recording to "none".
 
 Privacy statement: https://www.zoom.com/en/trust/privacy/privacy-statement/
@@ -148,9 +148,9 @@ Terms of service: https://www.zoom.com/en/trust/terms/
 = Email and SMS delivery =
 
 Email is sent through the site's standard WordPress `wp_mail` configuration;
-TutorSlot does not bundle an external email delivery service. TutorSlot also does
+PlumberSlot does not bundle an external email delivery service. PlumberSlot also does
 not contact an SMS provider itself. If the site enables SMS and installs code that
-handles the `tutorslot_send_sms` action, that code receives the recipient's mobile
+handles the `plumberslot_send_sms` action, that code receives the recipient's mobile
 number, the reminder or cancellation message and the booking record. The site
 owner must document the selected email/SMS provider and its data practices.
 
@@ -168,7 +168,7 @@ owner must document the selected email/SMS provider and its data practices.
 = Does it work with Tutor LMS or LearnDash? =
 
 There is no direct Tutor LMS or LearnDash bridge in this release. You can place
-the TutorSlot block or shortcode on a course-related WordPress page and link to
+the PlumberSlot block or shortcode on a course-related WordPress page and link to
 it from the LMS. A dedicated instructor bridge remains a future integration.
 
 = Do I need WooCommerce? =
@@ -180,7 +180,7 @@ tutor outside the site or use lesson-package credits.
 = Can visitors book without an account? =
 
 Visitors can view tutor details, subjects and open times. They must sign in to
-hold a time and confirm a single or recurring booking. This lets TutorSlot apply
+hold a time and confirm a single or recurring booking. This lets PlumberSlot apply
 ownership checks and connect lessons to student and parent dashboards.
 
 = Which meeting providers are included? =
@@ -189,30 +189,30 @@ Google Meet uses a tutor OAuth connection and Google Calendar. Zoom uses a
 server-to-server OAuth application configured by the site. Meetings are
 optional; bookings also work without a connected meeting provider.
 
-= Does TutorSlot send SMS messages itself? =
+= Does PlumberSlot send SMS messages itself? =
 
-Email notifications are included. TutorSlot exposes the `tutorslot_send_sms`
+Email notifications are included. PlumberSlot exposes the `plumberslot_send_sms`
 action for a site-specific SMS provider or add-on, but this release does not
 include a paid SMS transport.
 
 = What happens when the plugin is removed? =
 
-Deactivation removes TutorSlot scheduled actions but keeps bookings and
+Deactivation removes PlumberSlot scheduled actions but keeps bookings and
 settings. Destructive data removal is disabled by default and must be enabled
 explicitly before uninstalling.
 
 = Where can I get help? =
 
 Start with the user guide at
-https://github.com/itsmanzur/tutorslot/blob/main/docs/USER-GUIDE.md and the
-support checklist at https://github.com/itsmanzur/tutorslot/blob/main/SUPPORT.md.
-Use https://github.com/itsmanzur/tutorslot/issues for reproducible,
-non-sensitive bugs. Send vulnerabilities privately to security@tutorslot.com.
+https://github.com/itsmanzur/plumberslot/blob/main/docs/USER-GUIDE.md and the
+support checklist at https://github.com/itsmanzur/plumberslot/blob/main/SUPPORT.md.
+Use https://github.com/itsmanzur/plumberslot/issues for reproducible,
+non-sensitive bugs. Send vulnerabilities privately to security@plumberslot.com.
 
 == Changelog ==
 
 = 0.1.0 =
-* Initial pre-release build of the TutorSlot booking platform.
+* Initial pre-release build of the PlumberSlot booking platform.
 * Added visual weekly availability, one-off closures and tutor-specific subjects.
 * Added single and recurring lesson booking with overlap and booking-race protection.
 * Added student and parent dashboards, linked learners and family booking support.

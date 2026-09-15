@@ -2,17 +2,17 @@
 /**
  * Role and ownership coverage for protected REST surfaces.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\Capabilities;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\Capabilities;
 use WP_REST_Request;
 use WP_UnitTestCase;
 
@@ -32,7 +32,7 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 		Schema::create_all();
 		Capabilities::add_all();
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 
 		$this->users = array(
 			'administrator' => self::factory()->user->create( array( 'role' => 'administrator' ) ),
@@ -51,15 +51,15 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 	public function tear_down(): void {
 		wp_set_current_user( 0 );
-		$this->empty_tutorslot_tables();
+		$this->empty_plumberslot_tables();
 		parent::tear_down();
 	}
 
 	public function test_manager_surfaces_allow_only_administrators(): void {
 		$routes = array(
-			array( 'GET', '/tutorslot/v1/tutors' ),
-			array( 'GET', '/tutorslot/v1/settings' ),
-			array( 'GET', '/tutorslot/v1/audit' ),
+			array( 'GET', '/plumberslot/v1/tutors' ),
+			array( 'GET', '/plumberslot/v1/settings' ),
+			array( 'GET', '/plumberslot/v1/audit' ),
 		);
 
 		foreach ( $routes as [$method, $route] ) {
@@ -71,9 +71,9 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 	public function test_tutor_surfaces_enforce_tutor_ownership(): void {
 		$surfaces = array(
-			array( 'GET', '/tutorslot/v1/availability/(?P<tutor_id>\d+)' ),
-			array( 'GET', '/tutorslot/v1/tutors/(?P<tutor_id>\d+)/subjects' ),
-			array( 'GET', '/tutorslot/v1/dashboard' ),
+			array( 'GET', '/plumberslot/v1/availability/(?P<tutor_id>\d+)' ),
+			array( 'GET', '/plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects' ),
+			array( 'GET', '/plumberslot/v1/dashboard' ),
 		);
 
 		foreach ( $surfaces as [$method, $route] ) {
@@ -89,14 +89,14 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		$this->assert_access(
 			'other_tutor',
 			'GET',
-			'/tutorslot/v1/availability/(?P<tutor_id>\d+)',
+			'/plumberslot/v1/availability/(?P<tutor_id>\d+)',
 			array( 'tutor_id' => $this->foreign_tutor_id ),
 			true
 		);
 	}
 
 	public function test_booking_access_allows_every_legitimate_party_and_denies_outsiders(): void {
-		$route  = '/tutorslot/v1/bookings/(?P<id>\d+)';
+		$route  = '/plumberslot/v1/bookings/(?P<id>\d+)';
 		$params = array( 'id' => $this->booking_id );
 
 		foreach ( array( 'administrator', 'tutor', 'student', 'parent' ) as $role ) {
@@ -109,23 +109,23 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 
 	public function test_booking_capability_and_self_scoped_listing_cover_every_account_role(): void {
 		foreach ( array( 'administrator', 'tutor', 'student', 'parent' ) as $role ) {
-			$this->assert_access( $role, 'POST', '/tutorslot/v1/bookings', array(), true );
+			$this->assert_access( $role, 'POST', '/plumberslot/v1/bookings', array(), true );
 		}
-		$this->assert_access( 'outsider', 'POST', '/tutorslot/v1/bookings', array(), false );
+		$this->assert_access( 'outsider', 'POST', '/plumberslot/v1/bookings', array(), false );
 
 		foreach ( array( 'administrator', 'tutor', 'student', 'parent', 'outsider' ) as $role ) {
-			$this->assert_access( $role, 'GET', '/tutorslot/v1/bookings', array(), true );
+			$this->assert_access( $role, 'GET', '/plumberslot/v1/bookings', array(), true );
 		}
-		$this->assert_access( 'anonymous', 'GET', '/tutorslot/v1/bookings', array(), false );
+		$this->assert_access( 'anonymous', 'GET', '/plumberslot/v1/bookings', array(), false );
 	}
 
 	public function test_setup_requires_tutor_management_capability(): void {
 		foreach ( array( 'administrator', 'tutor' ) as $role ) {
-			$this->assert_access( $role, 'GET', '/tutorslot/v1/setup', array(), true );
+			$this->assert_access( $role, 'GET', '/plumberslot/v1/setup', array(), true );
 		}
 
 		foreach ( array( 'student', 'parent', 'outsider' ) as $role ) {
-			$this->assert_access( $role, 'GET', '/tutorslot/v1/setup', array(), false );
+			$this->assert_access( $role, 'GET', '/plumberslot/v1/setup', array(), false );
 		}
 	}
 
@@ -169,7 +169,7 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 			}
 		}
 
-		self::fail( 'Missing TutorSlot REST endpoint: ' . $method . ' ' . $route );
+		self::fail( 'Missing PlumberSlot REST endpoint: ' . $method . ' ' . $route );
 	}
 
 	private function create_tutor( TutorRepository $tutors, int $user_id, string $slug ): int {
@@ -211,7 +211,7 @@ final class RestRoleAccessMatrixTest extends WP_UnitTestCase {
 		return $id;
 	}
 
-	private function empty_tutorslot_tables(): void {
+	private function empty_plumberslot_tables(): void {
 		global $wpdb;
 
 		foreach ( array_reverse( Schema::all_keys() ) as $key ) {

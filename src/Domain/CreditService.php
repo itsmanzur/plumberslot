@@ -2,17 +2,17 @@
 /**
  * Lesson packages. A family buys ten lessons and spends them whenever.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
-use TutorSlot\Database\Repository\CreditRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Settings;
+use PlumberSlot\Database\Repository\CreditRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -43,8 +43,8 @@ final class CreditService {
 	public function spend( int $credit_id, int $booking_id ): bool|WP_Error {
 		if ( ! $this->credits->consume_one( $credit_id ) ) {
 			return new WP_Error(
-				'tutorslot_no_credits',
-				__( 'This package has no lessons left on it.', 'tutorslot' ),
+				'plumberslot_no_credits',
+				__( 'This package has no lessons left on it.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -129,8 +129,8 @@ final class CreditService {
 
 		if ( $id <= 0 ) {
 			return new WP_Error(
-				'tutorslot_credit_create_failed',
-				__( 'Could not create the lesson package.', 'tutorslot' ),
+				'plumberslot_credit_create_failed',
+				__( 'Could not create the lesson package.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -149,8 +149,8 @@ final class CreditService {
 		$package = $this->credits->find( $id );
 
 		return $package ? $package : new WP_Error(
-			'tutorslot_credit_create_failed',
-			__( 'Could not create the lesson package.', 'tutorslot' ),
+			'plumberslot_credit_create_failed',
+			__( 'Could not create the lesson package.', 'plumberslot' ),
 			array( 'status' => 500 )
 		);
 	}

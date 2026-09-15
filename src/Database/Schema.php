@@ -7,30 +7,30 @@
  * thousand bookings the calendar stops loading. Everything here is a flat row
  * with composite indexes that match the queries the slot engine actually runs.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Database;
+namespace PlumberSlot\Database;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Schema {
 
-	public const TUTORS       = 'tutorslot_tutors';
-	public const SUBJECTS     = 'tutorslot_subjects';
-	public const AVAILABILITY = 'tutorslot_availability';
-	public const EXCEPTIONS   = 'tutorslot_exceptions';
-	public const BOOKINGS     = 'tutorslot_bookings';
-	public const SERIES       = 'tutorslot_series';
-	public const LOCKS        = 'tutorslot_slot_locks';
-	public const CREDITS      = 'tutorslot_credits';
-	public const RELATIONS    = 'tutorslot_relations';
-	public const REVIEWS      = 'tutorslot_reviews';
-	public const AUDIT        = 'tutorslot_audit_log';
-	public const PAYMENTS     = 'tutorslot_payments';
-	public const WEBHOOKS     = 'tutorslot_webhook_events';
+	public const TUTORS       = 'plumberslot_tutors';
+	public const SUBJECTS     = 'plumberslot_subjects';
+	public const AVAILABILITY = 'plumberslot_availability';
+	public const EXCEPTIONS   = 'plumberslot_exceptions';
+	public const BOOKINGS     = 'plumberslot_bookings';
+	public const SERIES       = 'plumberslot_series';
+	public const LOCKS        = 'plumberslot_slot_locks';
+	public const CREDITS      = 'plumberslot_credits';
+	public const RELATIONS    = 'plumberslot_relations';
+	public const REVIEWS      = 'plumberslot_reviews';
+	public const AUDIT        = 'plumberslot_audit_log';
+	public const PAYMENTS     = 'plumberslot_payments';
+	public const WEBHOOKS     = 'plumberslot_webhook_events';
 
 	/**
 	 * Fully qualified table name.
@@ -42,7 +42,7 @@ final class Schema {
 		global $wpdb;
 
 		if ( ! in_array( $key, self::all_keys(), true ) ) {
-			throw new \InvalidArgumentException( 'Unknown TutorSlot table.' );
+			throw new \InvalidArgumentException( 'Unknown PlumberSlot table.' );
 		}
 
 		return $wpdb->prefix . $key;

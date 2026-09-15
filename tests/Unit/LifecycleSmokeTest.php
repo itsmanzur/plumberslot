@@ -2,35 +2,35 @@
 /**
  * Lifecycle smoke tests that do not mutate the Local WordPress database.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
 namespace {
-	$GLOBALS['tutorslot_lifecycle_calls'] = array();
+	$GLOBALS['plumberslot_lifecycle_calls'] = array();
 }
 
-namespace TutorSlot\Tests\Unit {
+namespace PlumberSlot\Tests\Unit {
 	use PHPUnit\Framework\TestCase;
-	use TutorSlot\Deactivator;
+	use PlumberSlot\Deactivator;
 
 	final class LifecycleSmokeTest extends TestCase {
 
 		protected function setUp(): void {
-			$GLOBALS['tutorslot_lifecycle_calls'] = array();
-			$GLOBALS['tutorslot_test_settings']    = array( 'delete_data_on_uninstall' => false );
+			$GLOBALS['plumberslot_lifecycle_calls'] = array();
+			$GLOBALS['plumberslot_test_settings']    = array( 'delete_data_on_uninstall' => false );
 		}
 
-		public function test_deactivation_unschedules_only_tutorslot_actions_and_flushes_runtime_state(): void {
+		public function test_deactivation_unschedules_only_plumberslot_actions_and_flushes_runtime_state(): void {
 			Deactivator::deactivate();
 
 			self::assertSame(
-				array( '', array(), 'tutorslot' ),
-				$GLOBALS['tutorslot_lifecycle_calls']['unschedule']
+				array( '', array(), 'plumberslot' ),
+				$GLOBALS['plumberslot_lifecycle_calls']['unschedule']
 			);
-			self::assertSame( 'tutorslot', $GLOBALS['tutorslot_lifecycle_calls']['cache'] );
-			self::assertTrue( $GLOBALS['tutorslot_lifecycle_calls']['rewrite'] );
+			self::assertSame( 'plumberslot', $GLOBALS['plumberslot_lifecycle_calls']['cache'] );
+			self::assertTrue( $GLOBALS['plumberslot_lifecycle_calls']['rewrite'] );
 		}
 
 		public function test_default_uninstall_returns_without_loading_destructive_schema_code(): void {
@@ -40,7 +40,7 @@ namespace TutorSlot\Tests\Unit {
 
 			include dirname( __DIR__, 2 ) . '/uninstall.php';
 
-			self::assertFalse( class_exists( \TutorSlot\Database\Schema::class, false ) );
+			self::assertFalse( class_exists( \PlumberSlot\Database\Schema::class, false ) );
 		}
 	}
 }

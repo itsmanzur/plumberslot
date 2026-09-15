@@ -12,12 +12,12 @@ if ( [string]::IsNullOrWhiteSpace( $OutputDirectory ) ) {
 }
 
 $outputRoot = [System.IO.Path]::GetFullPath( $OutputDirectory )
-$mainFile   = Join-Path $pluginRoot 'tutorslot.php'
+$mainFile   = Join-Path $pluginRoot 'plumberslot.php'
 $mainSource = Get-Content -LiteralPath $mainFile -Raw
 $versionHit = [regex]::Match( $mainSource, "(?m)^\s*\* Version:\s*([0-9]+(?:\.[0-9]+){2})\s*$" )
 
 if ( -not $versionHit.Success ) {
-	throw 'Could not read the plugin version from tutorslot.php.'
+	throw 'Could not read the plugin version from plumberslot.php.'
 }
 
 $version        = $versionHit.Groups[1].Value
@@ -67,7 +67,7 @@ function Test-DistExcluded {
 }
 
 $temporaryRoot = [System.IO.Path]::GetFullPath(
-	( Join-Path ([System.IO.Path]::GetTempPath()) ( 'tutorslot-release-' + [guid]::NewGuid().ToString( 'N' ) ) )
+	( Join-Path ([System.IO.Path]::GetTempPath()) ( 'plumberslot-release-' + [guid]::NewGuid().ToString( 'N' ) ) )
 )
 $systemTemp = [System.IO.Path]::GetFullPath( [System.IO.Path]::GetTempPath() )
 
@@ -75,8 +75,8 @@ if ( -not $temporaryRoot.StartsWith( $systemTemp, [System.StringComparison]::Ord
 	throw 'Release staging path escaped the system temporary directory.'
 }
 
-$stagePlugin = Join-Path $temporaryRoot 'tutorslot'
-$zipPath     = Join-Path $outputRoot ( "tutorslot-$version.zip" )
+$stagePlugin = Join-Path $temporaryRoot 'plumberslot'
+$zipPath     = Join-Path $outputRoot ( "plumberslot-$version.zip" )
 
 try {
 	New-Item -ItemType Directory -Path $stagePlugin -Force | Out-Null
@@ -112,13 +112,13 @@ try {
 	Copy-Item -LiteralPath $schedulerRoot -Destination $stageScheduler -Recurse
 
 	$requiredFiles = @(
-		'tutorslot.php',
+		'plumberslot.php',
 		'uninstall.php',
 		'readme.txt',
 		'SECURITY.md',
 		'SUPPORT.md',
 		'THIRD-PARTY-LICENSES.txt',
-		'languages\tutorslot.pot',
+		'languages\plumberslot.pot',
 		'assets\dist\admin.js',
 		'assets\dist\widget.js',
 		'vendor\woocommerce\action-scheduler\action-scheduler.php',
@@ -194,8 +194,8 @@ try {
 		Sort-Object -Unique)
 	$archive.Dispose()
 
-	if ( 1 -ne $topLevels.Count -or 'tutorslot' -ne $topLevels[0] ) {
-		throw 'Release ZIP must contain exactly one top-level tutorslot directory.'
+	if ( 1 -ne $topLevels.Count -or 'plumberslot' -ne $topLevels[0] ) {
+		throw 'Release ZIP must contain exactly one top-level plumberslot directory.'
 	}
 
 	$hash = ( Get-FileHash -LiteralPath $zipPath -Algorithm SHA256 ).Hash.ToLowerInvariant()
@@ -212,7 +212,7 @@ try {
 	if ( Test-Path -LiteralPath $temporaryRoot -PathType Container ) {
 		$resolvedTemporary = [System.IO.Path]::GetFullPath( $temporaryRoot )
 		if ( $resolvedTemporary.StartsWith( $systemTemp, [System.StringComparison]::OrdinalIgnoreCase ) -and
-			$resolvedTemporary -like '*tutorslot-release-*' ) {
+			$resolvedTemporary -like '*plumberslot-release-*' ) {
 			Remove-Item -LiteralPath $resolvedTemporary -Recurse -Force
 		}
 	}

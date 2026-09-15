@@ -170,7 +170,7 @@ export function TimetableGrid( {
 		}
 
 		const end = performance.now();
-		performance.measure( 'tutorslot-timetable-interaction', {
+		performance.measure( 'plumberslot-timetable-interaction', {
 			start: interactionStart.current,
 			end,
 		} );

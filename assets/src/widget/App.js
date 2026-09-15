@@ -23,7 +23,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	const payReturn =
 		typeof window !== 'undefined'
 			? new URLSearchParams( window.location.search ).get(
-					'tutorslot_pay'
+					'plumberslot_pay'
 			  )
 			: null;
 	const returnBookingId =
@@ -158,7 +158,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( payReturn === 'success' || payReturn === 'cancel' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( PaymentReturnView, {
 				outcome: payReturn,
 				bookingId: returnBookingId,
@@ -170,7 +170,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( status === 'loading' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( Skeleton, { lines: 5 } )
 		);
 	}
@@ -178,7 +178,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( status === 'empty' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( EmptyState, {
 				title: 'Choose a tutor',
 				description:
@@ -190,7 +190,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( status === 'error' || ! tutor ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( ErrorState, {
 				title: 'Booking unavailable',
 				description: error,
@@ -201,7 +201,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( step === 'done' && booking ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( DoneView, { tutor, subject, booking, timezone } )
 		);
 	}
@@ -209,7 +209,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( step === 'profile' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( ProfileView, {
 				tutor,
 				onBook: () => setStep( 'subject' ),
@@ -220,7 +220,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( step === 'subject' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( SubjectStep, {
 				tutor,
 				selectedId: selectedSubjectId,
@@ -234,7 +234,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( step === 'time' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( TimeStep, {
 				tutor,
 				subject,
@@ -254,7 +254,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 	if ( step === 'account' ) {
 		return h(
 			'div',
-			{ class: 'tutorslot-widget tutorslot-root' },
+			{ class: 'plumberslot-widget plumberslot-root' },
 			h( AccountStep, {
 				tutor,
 				subject,
@@ -269,7 +269,7 @@ export function BookingApp( { tutorId, subjectId = 0, view = 'booking' } ) {
 
 	return h(
 		'div',
-		{ class: 'tutorslot-widget tutorslot-root' },
+		{ class: 'plumberslot-widget plumberslot-root' },
 		h( ConfirmStep, {
 			tutor,
 			subject,

@@ -1,4 +1,4 @@
-.tutorslot-widget {
+.plumberslot-widget {
 	color: var(--ts-ink-2);
 	font: 15px / 1.55 var(--ts-font-body);
 	max-width: 920px;
@@ -52,7 +52,7 @@
 }
 
 /* Widget-scoped horizontal rail (label + circle side-by-side) */
-.tutorslot-widget .ts-wizard {
+.plumberslot-widget .ts-wizard {
 	display: flex;
 	align-items: center;
 	gap: 0;
@@ -61,7 +61,7 @@
 	padding: 0;
 }
 
-.tutorslot-widget .ts-wizard__step {
+.plumberslot-widget .ts-wizard__step {
 	flex: 1;
 	display: flex;
 	align-items: center;
@@ -73,7 +73,7 @@
 	color: var(--ts-mute);
 }
 
-.tutorslot-widget .ts-wizard__step::before {
+.plumberslot-widget .ts-wizard__step::before {
 	content: attr(data-n);
 	position: static;
 	transform: none;
@@ -88,32 +88,32 @@
 	text-align: center;
 }
 
-.tutorslot-widget .ts-wizard__step::after {
+.plumberslot-widget .ts-wizard__step::after {
 	display: none;
 }
 
-.tutorslot-widget .ts-wizard__step--done {
+.plumberslot-widget .ts-wizard__step--done {
 	color: var(--ts-slate);
 }
 
-.tutorslot-widget .ts-wizard__step--done::before {
+.plumberslot-widget .ts-wizard__step--done::before {
 	content: "✓";
 	background: var(--ts-primary);
 	color: #fff;
 }
 
-.tutorslot-widget .ts-wizard__step--current {
+.plumberslot-widget .ts-wizard__step--current {
 	color: var(--ts-ink);
 	font-weight: 600;
 }
 
-.tutorslot-widget .ts-wizard__step--current::before {
+.plumberslot-widget .ts-wizard__step--current::before {
 	background: var(--ts-highlight);
 	color: var(--ts-ink);
 }
 
 /* Loud timezone bar inside widget */
-.tutorslot-widget .ts-tz {
+.plumberslot-widget .ts-tz {
 	background: var(--ts-highlight-wash);
 	border: 1px solid var(--ts-highlight-dark);
 	border-radius: var(--ts-radius-md);
@@ -123,13 +123,13 @@
 	margin: 0;
 }
 
-.tutorslot-widget .ts-tz strong {
+.plumberslot-widget .ts-tz strong {
 	font-family: var(--ts-font-mono);
 	font-weight: 600;
 	color: var(--ts-ink);
 }
 
-.tutorslot-widget .ts-tz__change {
+.plumberslot-widget .ts-tz__change {
 	margin-left: auto;
 	background: none;
 	border: 0;
@@ -146,25 +146,25 @@
 	text-underline-offset: 3px;
 }
 
-.tutorslot-widget .ts-btn,
-.tutorslot-widget .ts-slot {
+.plumberslot-widget .ts-btn,
+.plumberslot-widget .ts-slot {
 	min-height: 44px;
 }
 
-.tutorslot-widget .ts-btn {
+.plumberslot-widget .ts-btn {
 	gap: 8px;
 	padding: 13px 20px;
 	border-radius: var(--ts-radius-md);
 	font-size: 14px;
 }
 
-.tutorslot-widget .ts-btn--sm {
+.plumberslot-widget .ts-btn--sm {
 	padding: 9px 13px;
 	border-radius: var(--ts-radius-control);
 	font-size: 12.5px;
 }
 
-.tutorslot-widget .ts-slot {
+.plumberslot-widget .ts-slot {
 	padding: 12px 8px;
 	border-radius: var(--ts-radius-md);
 }
@@ -185,16 +185,16 @@
 }
 
 /* Day strip: solid selected + availability dots */
-.tutorslot-widget .ts-day[aria-pressed="true"] {
+.plumberslot-widget .ts-day[aria-pressed="true"] {
 	border-color: var(--ts-primary);
 	background: var(--ts-primary);
 }
 
-.tutorslot-widget .ts-day[aria-pressed="true"] .ts-day__dow {
+.plumberslot-widget .ts-day[aria-pressed="true"] .ts-day__dow {
 	color: rgb(255 255 255 / 70%);
 }
 
-.tutorslot-widget .ts-day[aria-pressed="true"] .ts-day__dom {
+.plumberslot-widget .ts-day[aria-pressed="true"] .ts-day__dom {
 	color: #fff;
 }
 
@@ -216,12 +216,12 @@
 	background: transparent;
 }
 
-.tutorslot-widget .ts-day[aria-pressed="true"] .ts-day__dot {
+.plumberslot-widget .ts-day[aria-pressed="true"] .ts-day__dot {
 	background: var(--ts-highlight);
 }
 
-.tutorslot-widget .ts-slot[aria-pressed="true"],
-.tutorslot-widget .ts-slot[aria-selected="true"] {
+.plumberslot-widget .ts-slot[aria-pressed="true"],
+.plumberslot-widget .ts-slot[aria-selected="true"] {
 	background: var(--ts-primary);
 	border-color: var(--ts-primary-dark);
 	color: #fff;
@@ -301,7 +301,7 @@
 	gap: 8px;
 }
 
-.tutorslot-widget .ts-book__pills .ts-chip {
+.plumberslot-widget .ts-book__pills .ts-chip {
 	background: var(--ts-primary-wash);
 	color: var(--ts-primary);
 	border: 0;
@@ -396,22 +396,22 @@
 	color: inherit;
 }
 
-.tutorslot-widget .ts-book__subject:hover,
-.tutorslot-widget .ts-book__subject:focus {
+.plumberslot-widget .ts-book__subject:hover,
+.plumberslot-widget .ts-book__subject:focus {
 	border-color: var(--ts-mute);
 	background: var(--ts-card) !important;
 	color: var(--ts-ink);
 }
 
-.tutorslot-widget .ts-book__subject.is-selected,
-.tutorslot-widget .ts-book__subject.is-selected:hover,
-.tutorslot-widget .ts-book__subject.is-selected:focus {
+.plumberslot-widget .ts-book__subject.is-selected,
+.plumberslot-widget .ts-book__subject.is-selected:hover,
+.plumberslot-widget .ts-book__subject.is-selected:focus {
 	border-color: var(--ts-primary);
 	background: var(--ts-primary-wash) !important;
 	color: var(--ts-ink);
 }
 
-.tutorslot-widget .ts-book__subject strong {
+.plumberslot-widget .ts-book__subject strong {
 	font-family: var(--ts-font-display);
 	font-size: 15.5px;
 	color: var(--ts-ink);
@@ -456,8 +456,8 @@
 	align-items: center;
 }
 
-.ts-book__footer-end .tutorslot-mono,
-.ts-book__ft .tutorslot-mono {
+.ts-book__footer-end .plumberslot-mono,
+.ts-book__ft .plumberslot-mono {
 	font-size: 13.5px;
 	font-weight: 600;
 	color: var(--ts-ink);
@@ -500,7 +500,7 @@
 	font: inherit;
 }
 
-.tutorslot-widget .ts-book__who-option strong {
+.plumberslot-widget .ts-book__who-option strong {
 	font-size: 14px;
 }
 
@@ -559,7 +559,7 @@
 	color: var(--ts-danger);
 }
 
-.ts-book__hold .tutorslot-mono {
+.ts-book__hold .plumberslot-mono {
 	font-weight: 600;
 }
 
@@ -573,7 +573,7 @@
 	gap: 0;
 }
 
-.tutorslot-widget .ts-book__summary > div {
+.plumberslot-widget .ts-book__summary > div {
 	display: flex;
 	justify-content: space-between;
 	gap: 12px;
@@ -676,7 +676,7 @@
 	background: var(--ts-primary-wash);
 }
 
-.tutorslot-widget .ts-book__pay-option input {
+.plumberslot-widget .ts-book__pay-option input {
 	accent-color: var(--ts-primary);
 	width: 16px;
 	height: 16px;
@@ -824,7 +824,7 @@
 	font-weight: 600;
 }
 
-.ts-book__cal-top .tutorslot-mono {
+.ts-book__cal-top .plumberslot-mono {
 	color: var(--ts-highlight);
 	font-size: 13px;
 	font-weight: 600;
@@ -940,7 +940,7 @@
 
 @media ( max-width: 390px ) {
 
-	.tutorslot-widget {
+	.plumberslot-widget {
 		font-size: 14px;
 	}
 

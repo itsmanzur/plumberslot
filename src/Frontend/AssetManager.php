@@ -6,12 +6,12 @@
  * enqueues itself site-wide is a booking plugin that shows up in every Core Web
  * Vitals report the site owner ever runs.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,40 +52,40 @@ final class AssetManager {
 
 		if ( $this->needed
 			|| ( $post instanceof \WP_Post
-				&& ( has_shortcode( (string) $post->post_content, 'tutorslot' ) || has_block( 'tutorslot/booking', $post ) ) ) ) {
+				&& ( has_shortcode( (string) $post->post_content, 'plumberslot' ) || has_block( 'plumberslot/booking', $post ) ) ) ) {
 			$this->enqueue_widget();
 		}
 
 		if ( $this->dashboard_needed
-			|| ( $post instanceof \WP_Post && has_shortcode( (string) $post->post_content, 'tutorslot_dashboard' ) ) ) {
+			|| ( $post instanceof \WP_Post && has_shortcode( (string) $post->post_content, 'plumberslot_dashboard' ) ) ) {
 			$this->enqueue_dashboard();
 		}
 	}
 
 	private function enqueue_widget(): void {
-		if ( wp_script_is( 'tutorslot-widget', 'enqueued' ) || ! $this->available() ) {
+		if ( wp_script_is( 'plumberslot-widget', 'enqueued' ) || ! $this->available() ) {
 			return;
 		}
 
 		$asset = $this->asset_metadata( 'widget' );
 
-		wp_enqueue_script( 'tutorslot-widget', TUTORSLOT_URL . 'assets/dist/widget.js', $asset['dependencies'], $asset['version'], true );
-		wp_enqueue_style( 'tutorslot-widget', TUTORSLOT_URL . 'assets/dist/widget.css', array(), $asset['version'] );
-		wp_set_script_translations( 'tutorslot-widget', 'tutorslot', TUTORSLOT_PATH . 'languages' );
-		wp_localize_script( 'tutorslot-widget', 'tutorslotWidget', $this->boot_payload( 'widget' ) );
+		wp_enqueue_script( 'plumberslot-widget', PLUMBERSLOT_URL . 'assets/dist/widget.js', $asset['dependencies'], $asset['version'], true );
+		wp_enqueue_style( 'plumberslot-widget', PLUMBERSLOT_URL . 'assets/dist/widget.css', array(), $asset['version'] );
+		wp_set_script_translations( 'plumberslot-widget', 'plumberslot', PLUMBERSLOT_PATH . 'languages' );
+		wp_localize_script( 'plumberslot-widget', 'plumberslotWidget', $this->boot_payload( 'widget' ) );
 	}
 
 	private function enqueue_dashboard(): void {
-		if ( wp_script_is( 'tutorslot-dashboard', 'enqueued' ) || ! $this->dashboard_available() ) {
+		if ( wp_script_is( 'plumberslot-dashboard', 'enqueued' ) || ! $this->dashboard_available() ) {
 			return;
 		}
 
 		$asset = $this->asset_metadata( 'dashboard' );
 
-		wp_enqueue_script( 'tutorslot-dashboard', TUTORSLOT_URL . 'assets/dist/dashboard.js', $asset['dependencies'], $asset['version'], true );
-		wp_enqueue_style( 'tutorslot-dashboard', TUTORSLOT_URL . 'assets/dist/dashboard.css', array(), $asset['version'] );
-		wp_set_script_translations( 'tutorslot-dashboard', 'tutorslot', TUTORSLOT_PATH . 'languages' );
-		wp_localize_script( 'tutorslot-dashboard', 'tutorslotDashboard', $this->boot_payload( 'dashboard' ) );
+		wp_enqueue_script( 'plumberslot-dashboard', PLUMBERSLOT_URL . 'assets/dist/dashboard.js', $asset['dependencies'], $asset['version'], true );
+		wp_enqueue_style( 'plumberslot-dashboard', PLUMBERSLOT_URL . 'assets/dist/dashboard.css', array(), $asset['version'] );
+		wp_set_script_translations( 'plumberslot-dashboard', 'plumberslot', PLUMBERSLOT_PATH . 'languages' );
+		wp_localize_script( 'plumberslot-dashboard', 'plumberslotDashboard', $this->boot_payload( 'dashboard' ) );
 	}
 
 	/**
@@ -97,11 +97,11 @@ final class AssetManager {
 		$current_url = $this->current_public_url();
 
 		if ( is_user_logged_in() ) {
-			$tutor_id = ( new \TutorSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
+			$tutor_id = ( new \PlumberSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
 		}
 
 		return array(
-			'root'         => esc_url_raw( rest_url( 'tutorslot/v1' ) ),
+			'root'         => esc_url_raw( rest_url( 'plumberslot/v1' ) ),
 			'nonce'        => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 			'loggedIn'     => is_user_logged_in(),
 			'loginUrl'     => wp_login_url( $current_url ),
@@ -122,7 +122,7 @@ final class AssetManager {
 			'payments'     => $this->configured_payments(),
 			'i18n'         => array(
 				/* translators: %s: viewer's timezone name. */
-				'timezoneNotice' => __( 'Times shown in %s', 'tutorslot' ),
+				'timezoneNotice' => __( 'Times shown in %s', 'plumberslot' ),
 			),
 		);
 	}
@@ -149,7 +149,7 @@ final class AssetManager {
 	}
 
 	private function booking_page_url(): string {
-		$page_id = (int) \TutorSlot\Support\Settings::int( 'booking_page_id', 0 );
+		$page_id = (int) \PlumberSlot\Support\Settings::int( 'booking_page_id', 0 );
 
 		if ( $page_id > 0 ) {
 			$url = get_permalink( $page_id );
@@ -166,24 +166,24 @@ final class AssetManager {
 	 * @return array{enabled:bool,stripe:bool,bkash:bool,online_ready:bool,needs_gateway:bool}
 	 */
 	private function configured_payments(): array {
-		return \TutorSlot\Support\PaymentsStatus::snapshot();
+		return \PlumberSlot\Support\PaymentsStatus::snapshot();
 	}
 
 	public function available(): bool {
-		return is_readable( TUTORSLOT_PATH . 'assets/dist/widget.js' )
-			&& is_readable( TUTORSLOT_PATH . 'assets/dist/widget.css' );
+		return is_readable( PLUMBERSLOT_PATH . 'assets/dist/widget.js' )
+			&& is_readable( PLUMBERSLOT_PATH . 'assets/dist/widget.css' );
 	}
 
 	public function dashboard_available(): bool {
-		return is_readable( TUTORSLOT_PATH . 'assets/dist/dashboard.js' )
-			&& is_readable( TUTORSLOT_PATH . 'assets/dist/dashboard.css' );
+		return is_readable( PLUMBERSLOT_PATH . 'assets/dist/dashboard.js' )
+			&& is_readable( PLUMBERSLOT_PATH . 'assets/dist/dashboard.css' );
 	}
 
 	/**
 	 * @return array{dependencies:array<int, string>,version:string}
 	 */
 	private function asset_metadata( string $entry ): array {
-		$path  = TUTORSLOT_PATH . 'assets/dist/' . $entry . '.asset.php';
+		$path  = PLUMBERSLOT_PATH . 'assets/dist/' . $entry . '.asset.php';
 		$asset = is_readable( $path ) ? require $path : array();
 
 		return array(
@@ -192,7 +192,7 @@ final class AssetManager {
 				: array(),
 			'version'      => isset( $asset['version'] ) && is_string( $asset['version'] )
 				? $asset['version']
-				: \TutorSlot\VERSION,
+				: \PlumberSlot\VERSION,
 		);
 	}
 }

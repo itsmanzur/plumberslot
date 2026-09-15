@@ -1,6 +1,6 @@
-# TutorSlot support
+# PlumberSlot support
 
-TutorSlot is currently an unreleased `0.1.0` pre-release. Community support is
+PlumberSlot is currently an unreleased `0.1.0` pre-release. Community support is
 provided on a best-effort basis; there is no guaranteed response time or paid
 support plan in this release.
 
@@ -12,7 +12,7 @@ support plan in this release.
    supported release when releases become available.
 3. Reproduce it on a staging site with a default WordPress theme and unrelated
    plugins disabled when that is safe.
-4. Search existing [GitHub issues](https://github.com/itsmanzur/tutorslot/issues).
+4. Search existing [GitHub issues](https://github.com/itsmanzur/plumberslot/issues).
 5. Open a new GitHub issue for a reproducible, non-sensitive bug.
 
 Do not use a public issue for vulnerabilities. Send those privately according
@@ -20,7 +20,7 @@ to [`SECURITY.md`](SECURITY.md).
 
 ## Information to include
 
-- TutorSlot version or commit;
+- PlumberSlot version or commit;
 - WordPress and PHP versions;
 - browser/device and active theme when the issue is visual;
 - the user's WordPress role and the workflow being attempted;
@@ -41,7 +41,7 @@ or production access credentials.
 - A source checkout needs `npm ci && npm run build`; an official release ZIP
   should already contain `assets/dist`.
 - Hard-refresh the browser and clear page/CDN/minification caches.
-- Check the browser console and the failed `/wp-json/tutorslot/v1/` request.
+- Check the browser console and the failed `/wp-json/plumberslot/v1/` request.
 - Temporarily reproduce with a default theme to isolate CSS/JavaScript conflicts.
 
 ### No tutor, subject or time appears
@@ -60,7 +60,7 @@ renew the REST nonce and choose an open time again if the hold expired.
 ### Reminders or expiry jobs do not run
 
 - Confirm the production Action Scheduler dependency is available.
-- Check **Tools → Scheduled Actions** for pending or failed TutorSlot actions.
+- Check **Tools → Scheduled Actions** for pending or failed PlumberSlot actions.
 - Verify WordPress cron is not disabled without a real server cron replacement.
 - Test the site's `wp_mail` delivery independently.
 
@@ -75,7 +75,7 @@ renew the REST nonce and choose an open time again if the hold expired.
 
 ### Google Meet or Zoom does not connect
 
-- Define a stable `TUTORSLOT_ENCRYPTION_KEY` or confirm WordPress `AUTH_KEY` has
+- Define a stable `PLUMBERSLOT_ENCRYPTION_KEY` or confirm WordPress `AUTH_KEY` has
   not changed since credentials were saved.
 - Verify OAuth callback URLs and required provider permissions.
 - Reconnect Google for the affected tutor, or recheck the Zoom account/client
@@ -90,7 +90,7 @@ clear page/server caches and retry the canonical URL.
 
 ## Support boundaries
 
-Support covers reproducible TutorSlot defects and documentation corrections.
+Support covers reproducible PlumberSlot defects and documentation corrections.
 Custom theme work, hosting configuration, deliverability, provider account
 approval, gateway fees, custom SMS integrations and conflicts caused entirely
 by another product may require help from that provider or a developer.

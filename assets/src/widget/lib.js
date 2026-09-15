@@ -79,7 +79,7 @@ export function icsDownload( {
 	startIso,
 	endIso,
 	description,
-	uid = 'lesson@tutorslot',
+	uid = 'lesson@plumberslot',
 } ) {
 	const stamp = ( iso ) =>
 		new Date( iso )
@@ -89,7 +89,7 @@ export function icsDownload( {
 	const body = [
 		'BEGIN:VCALENDAR',
 		'VERSION:2.0',
-		'PRODID:-//TutorSlot//EN',
+		'PRODID:-//PlumberSlot//EN',
 		'CALSCALE:GREGORIAN',
 		'METHOD:PUBLISH',
 		'BEGIN:VEVENT',
@@ -98,7 +98,7 @@ export function icsDownload( {
 		`DTSTART:${ stamp( startIso ) }`,
 		`DTEND:${ stamp( endIso ) }`,
 		`SUMMARY:${ escapeIcsText( title ) }`,
-		`DESCRIPTION:${ escapeIcsText( description || 'TutorSlot lesson' ) }`,
+		`DESCRIPTION:${ escapeIcsText( description || 'PlumberSlot lesson' ) }`,
 		'END:VEVENT',
 		'END:VCALENDAR',
 	].join( '\r\n' );
@@ -106,7 +106,7 @@ export function icsDownload( {
 	const url = URL.createObjectURL( blob );
 	const a = document.createElement( 'a' );
 	a.href = url;
-	a.download = 'tutorslot-lesson.ics';
+	a.download = 'plumberslot-lesson.ics';
 	a.click();
 	window.setTimeout( () => URL.revokeObjectURL( url ), 0 );
 }

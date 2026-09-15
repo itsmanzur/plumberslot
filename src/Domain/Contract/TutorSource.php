@@ -2,12 +2,12 @@
 /**
  * Tutor data needed by domain services.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain\Contract;
+namespace PlumberSlot\Domain\Contract;
 
 defined( 'ABSPATH' ) || exit;
 

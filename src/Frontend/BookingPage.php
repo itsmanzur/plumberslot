@@ -2,14 +2,14 @@
 /**
  * Public booking page: create once, reuse, resolve URL.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Frontend;
+namespace PlumberSlot\Frontend;
 
-use TutorSlot\Support\Settings;
+use PlumberSlot\Support\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ final class BookingPage {
 			return home_url( '/' );
 		}
 
-		return home_url( '/?tutorslot=' . rawurlencode( $slug ) );
+		return home_url( '/?plumberslot=' . rawurlencode( $slug ) );
 	}
 
 	/**
@@ -75,7 +75,7 @@ final class BookingPage {
 
 		$created = wp_insert_post(
 			array(
-				'post_title'   => __( 'Book a lesson', 'tutorslot' ),
+				'post_title'   => __( 'Book a lesson', 'plumberslot' ),
 				'post_name'    => 'book',
 				'post_content' => self::shortcode( $slug ),
 				'post_status'  => 'publish',
@@ -96,7 +96,7 @@ final class BookingPage {
 	}
 
 	private static function shortcode( string $slug ): string {
-		return sprintf( '[tutorslot tutor="%s"]', $slug );
+		return sprintf( '[plumberslot tutor="%s"]', $slug );
 	}
 
 	private static function is_usable( int $page_id ): bool {
@@ -109,7 +109,7 @@ final class BookingPage {
 	}
 
 	/**
-	 * Keep the shortcode in sync when the page is still ours (empty or tutorslot only).
+	 * Keep the shortcode in sync when the page is still ours (empty or plumberslot only).
 	 */
 	private static function sync_shortcode( int $page_id, string $slug ): void {
 		$post = get_post( $page_id );
@@ -126,8 +126,8 @@ final class BookingPage {
 		}
 
 		$empty     = '' === trim( wp_strip_all_tags( $content ) );
-		$ours_only = has_shortcode( $content, 'tutorslot' )
-			&& ! has_shortcode( $content, 'tutorslot_dashboard' )
+		$ours_only = has_shortcode( $content, 'plumberslot' )
+			&& ! has_shortcode( $content, 'plumberslot_dashboard' )
 			&& strlen( trim( $content ) ) < 120;
 
 		if ( ! $empty && ! $ours_only ) {

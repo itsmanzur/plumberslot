@@ -1,19 +1,19 @@
 <?php
 /**
- * /tutorslot/v1/availability — week grid + exceptions + lesson defaults.
+ * /plumberslot/v1/availability — week grid + exceptions + lesson defaults.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\AvailabilityRepository;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Capabilities;
-use TutorSlot\Support\Settings;
-use TutorSlot\Support\Validate;
+use PlumberSlot\Database\Repository\AvailabilityRepository;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Capabilities;
+use PlumberSlot\Support\Settings;
+use PlumberSlot\Support\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -174,8 +174,8 @@ final class AvailabilityController extends AbstractController {
 
 		if ( ! $this->availability->replace_week( $tutor_id, $week ) ) {
 			return new WP_Error(
-				'tutorslot_availability_save_failed',
-				__( 'Could not save availability. Try again.', 'tutorslot' ),
+				'plumberslot_availability_save_failed',
+				__( 'Could not save availability. Try again.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -206,8 +206,8 @@ final class AvailabilityController extends AbstractController {
 
 		if ( $id <= 0 ) {
 			return new WP_Error(
-				'tutorslot_exception_save_failed',
-				__( 'Could not save the time off entry.', 'tutorslot' ),
+				'plumberslot_exception_save_failed',
+				__( 'Could not save the time off entry.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}

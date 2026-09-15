@@ -6,12 +6,12 @@
  * wp-config.php, so a database dump on its own does not hand an attacker the
  * site's Zoom, Twilio and payment credentials.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Support;
+namespace PlumberSlot\Support;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,14 +21,14 @@ final class Crypto {
 	 * @throws \RuntimeException When no key is configured.
 	 */
 	private static function key(): string {
-		$key = defined( 'TUTORSLOT_ENCRYPTION_KEY' ) ? (string) constant( 'TUTORSLOT_ENCRYPTION_KEY' ) : '';
+		$key = defined( 'PLUMBERSLOT_ENCRYPTION_KEY' ) ? (string) constant( 'PLUMBERSLOT_ENCRYPTION_KEY' ) : '';
 
 		if ( '' === $key && defined( 'AUTH_KEY' ) ) {
 			$key = (string) constant( 'AUTH_KEY' );
 		}
 
 		if ( '' === $key ) {
-			throw new \RuntimeException( 'TutorSlot: no encryption key available.' );
+			throw new \RuntimeException( 'PlumberSlot: no encryption key available.' );
 		}
 
 		return sodium_crypto_generichash( $key, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
@@ -77,7 +77,7 @@ final class Crypto {
 				'ts_expires' => $expires,
 				'ts_sig'     => $signature,
 			),
-			home_url( '/tutorslot/join' )
+			home_url( '/plumberslot/join' )
 		);
 	}
 

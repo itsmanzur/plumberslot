@@ -7,18 +7,18 @@
  * error on activation rather than a helpful message. This loader means the
  * plugin runs from a plain ZIP; Composer's autoloader takes over when present.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot;
+namespace PlumberSlot;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Autoloader {
 
-	private const PREFIX = 'TutorSlot\\';
+	private const PREFIX = 'PlumberSlot\\';
 
 	private static bool $registered = false;
 

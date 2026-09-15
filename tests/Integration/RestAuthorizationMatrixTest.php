@@ -2,12 +2,12 @@
 /**
  * Namespace-wide REST authorization inventory.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
@@ -17,7 +17,7 @@ use WP_UnitTestCase;
  */
 final class RestAuthorizationMatrixTest extends WP_UnitTestCase {
 
-	private const PREFIX = '/tutorslot/v1';
+	private const PREFIX = '/plumberslot/v1';
 
 	public function test_every_route_method_has_the_expected_anonymous_boundary(): void {
 		wp_set_current_user( 0 );
@@ -30,7 +30,7 @@ final class RestAuthorizationMatrixTest extends WP_UnitTestCase {
 		self::assertSame(
 			array_keys( $expected ),
 			array_keys( $actual ),
-			'TutorSlot REST inventory changed; classify every new or removed route method in the authorization matrix.'
+			'PlumberSlot REST inventory changed; classify every new or removed route method in the authorization matrix.'
 		);
 
 		foreach ( $expected as $id => $policy ) {
@@ -68,7 +68,7 @@ final class RestAuthorizationMatrixTest extends WP_UnitTestCase {
 
 				foreach ( $this->endpoint_methods( $endpoint['methods'] ) as $method ) {
 					$id = $method . ' ' . $route;
-					self::assertArrayNotHasKey( $id, $actual, 'Duplicate TutorSlot REST route method: ' . $id );
+					self::assertArrayNotHasKey( $id, $actual, 'Duplicate PlumberSlot REST route method: ' . $id );
 					$actual[ $id ] = $endpoint;
 				}
 			}
@@ -106,64 +106,64 @@ final class RestAuthorizationMatrixTest extends WP_UnitTestCase {
 	 */
 	private function expected_matrix(): array {
 		return array(
-			'GET /tutorslot/v1/audit'                      => 'manager',
-			'GET /tutorslot/v1/availability/(?P<tutor_id>\d+)' => 'owner',
-			'PUT /tutorslot/v1/availability/(?P<tutor_id>\d+)' => 'owner',
-			'GET /tutorslot/v1/availability/(?P<tutor_id>\d+)/exceptions' => 'owner',
-			'POST /tutorslot/v1/availability/(?P<tutor_id>\d+)/exceptions' => 'owner',
-			'DELETE /tutorslot/v1/availability/(?P<tutor_id>\d+)/exceptions/(?P<id>\d+)' => 'owner',
-			'POST /tutorslot/v1/availability/(?P<tutor_id>\d+)/defaults' => 'owner',
-			'GET /tutorslot/v1/bookings'                   => 'authenticated',
-			'POST /tutorslot/v1/bookings'                  => 'account',
-			'GET /tutorslot/v1/bookings/export'            => 'authenticated',
-			'GET /tutorslot/v1/bookings/(?P<id>\d+)'       => 'owner',
-			'DELETE /tutorslot/v1/bookings/(?P<id>\d+)'    => 'owner',
-			'POST /tutorslot/v1/bookings/(?P<id>\d+)/reschedule' => 'owner',
-			'POST /tutorslot/v1/bookings/hold'             => 'account',
-			'DELETE /tutorslot/v1/bookings/hold'           => 'account',
-			'POST /tutorslot/v1/bookings/(?P<id>\d+)/attendance' => 'tutor',
-			'POST /tutorslot/v1/bookings/(?P<id>\d+)/notes' => 'tutor',
-			'GET /tutorslot/v1/credits'                    => 'authenticated',
-			'POST /tutorslot/v1/credits'                   => 'authenticated',
-			'GET /tutorslot/v1/credits/balance'            => 'authenticated',
-			'GET /tutorslot/v1/credits/ledger'             => 'authenticated',
-			'GET /tutorslot/v1/credits/packages'           => 'public',
-			'GET /tutorslot/v1/dashboard'                  => 'tutor',
-			'GET /tutorslot/v1/meetings/providers'         => 'tutor',
-			'GET /tutorslot/v1/meetings/google/connect'    => 'tutor',
-			'GET /tutorslot/v1/meetings/google/callback'   => 'public',
-			'POST /tutorslot/v1/meetings/google/disconnect' => 'tutor',
-			'GET /tutorslot/v1/payments/gateways'          => 'public',
-			'POST /tutorslot/v1/payments/start'            => 'owner',
-			'GET /tutorslot/v1/payments/booking/(?P<booking_id>\d+)' => 'owner',
-			'POST /tutorslot/v1/payments/booking/(?P<booking_id>\d+)/refund' => 'tutor',
-			'POST /tutorslot/v1/payments/booking/(?P<booking_id>\d+)/cancel' => 'owner',
-			'GET /tutorslot/v1/payments/bkash/callback'    => 'public',
-			'POST /tutorslot/v1/payments/bkash/callback'   => 'public',
-			'GET /tutorslot/v1/public/tutors/(?P<id>[\d]+)' => 'public',
-			'GET /tutorslot/v1/public/tutors/by-slug/(?P<slug>[a-z0-9\-]+)' => 'public',
-			'GET /tutorslot/v1/relations/children'         => 'authenticated',
-			'GET /tutorslot/v1/relations/pending'          => 'authenticated',
-			'POST /tutorslot/v1/relations/invite'          => 'authenticated',
-			'POST /tutorslot/v1/relations/(?P<id>\d+)/confirm' => 'owner',
-			'POST /tutorslot/v1/series'                    => 'account',
-			'GET /tutorslot/v1/series/(?P<id>\d+)'         => 'owner',
-			'DELETE /tutorslot/v1/series/(?P<id>\d+)'      => 'owner',
-			'GET /tutorslot/v1/setup'                      => 'tutor',
-			'POST /tutorslot/v1/setup'                     => 'tutor',
-			'GET /tutorslot/v1/slots'                      => 'public',
-			'GET /tutorslot/v1/tutors/(?P<tutor_id>\d+)/subjects' => 'owner',
-			'POST /tutorslot/v1/tutors/(?P<tutor_id>\d+)/subjects' => 'owner',
-			'PATCH /tutorslot/v1/tutors/(?P<tutor_id>\d+)/subjects/(?P<id>\d+)' => 'owner',
-			'DELETE /tutorslot/v1/tutors/(?P<tutor_id>\d+)/subjects/(?P<id>\d+)' => 'owner',
-			'GET /tutorslot/v1/tutors'                     => 'manager',
-			'POST /tutorslot/v1/tutors'                    => 'manager',
-			'GET /tutorslot/v1/tutors/(?P<id>\d+)'         => 'manager',
-			'PATCH /tutorslot/v1/tutors/(?P<id>\d+)'       => 'manager',
-			'POST /tutorslot/v1/tutors/(?P<id>\d+)/resend' => 'manager',
-			'GET /tutorslot/v1/settings'                   => 'manager',
-			'POST /tutorslot/v1/settings'                  => 'manager',
-			'POST /tutorslot/v1/webhook/(?P<gateway>[a-z0-9_-]+)' => 'public',
+			'GET /plumberslot/v1/audit'                      => 'manager',
+			'GET /plumberslot/v1/availability/(?P<tutor_id>\d+)' => 'owner',
+			'PUT /plumberslot/v1/availability/(?P<tutor_id>\d+)' => 'owner',
+			'GET /plumberslot/v1/availability/(?P<tutor_id>\d+)/exceptions' => 'owner',
+			'POST /plumberslot/v1/availability/(?P<tutor_id>\d+)/exceptions' => 'owner',
+			'DELETE /plumberslot/v1/availability/(?P<tutor_id>\d+)/exceptions/(?P<id>\d+)' => 'owner',
+			'POST /plumberslot/v1/availability/(?P<tutor_id>\d+)/defaults' => 'owner',
+			'GET /plumberslot/v1/bookings'                   => 'authenticated',
+			'POST /plumberslot/v1/bookings'                  => 'account',
+			'GET /plumberslot/v1/bookings/export'            => 'authenticated',
+			'GET /plumberslot/v1/bookings/(?P<id>\d+)'       => 'owner',
+			'DELETE /plumberslot/v1/bookings/(?P<id>\d+)'    => 'owner',
+			'POST /plumberslot/v1/bookings/(?P<id>\d+)/reschedule' => 'owner',
+			'POST /plumberslot/v1/bookings/hold'             => 'account',
+			'DELETE /plumberslot/v1/bookings/hold'           => 'account',
+			'POST /plumberslot/v1/bookings/(?P<id>\d+)/attendance' => 'tutor',
+			'POST /plumberslot/v1/bookings/(?P<id>\d+)/notes' => 'tutor',
+			'GET /plumberslot/v1/credits'                    => 'authenticated',
+			'POST /plumberslot/v1/credits'                   => 'authenticated',
+			'GET /plumberslot/v1/credits/balance'            => 'authenticated',
+			'GET /plumberslot/v1/credits/ledger'             => 'authenticated',
+			'GET /plumberslot/v1/credits/packages'           => 'public',
+			'GET /plumberslot/v1/dashboard'                  => 'tutor',
+			'GET /plumberslot/v1/meetings/providers'         => 'tutor',
+			'GET /plumberslot/v1/meetings/google/connect'    => 'tutor',
+			'GET /plumberslot/v1/meetings/google/callback'   => 'public',
+			'POST /plumberslot/v1/meetings/google/disconnect' => 'tutor',
+			'GET /plumberslot/v1/payments/gateways'          => 'public',
+			'POST /plumberslot/v1/payments/start'            => 'owner',
+			'GET /plumberslot/v1/payments/booking/(?P<booking_id>\d+)' => 'owner',
+			'POST /plumberslot/v1/payments/booking/(?P<booking_id>\d+)/refund' => 'tutor',
+			'POST /plumberslot/v1/payments/booking/(?P<booking_id>\d+)/cancel' => 'owner',
+			'GET /plumberslot/v1/payments/bkash/callback'    => 'public',
+			'POST /plumberslot/v1/payments/bkash/callback'   => 'public',
+			'GET /plumberslot/v1/public/tutors/(?P<id>[\d]+)' => 'public',
+			'GET /plumberslot/v1/public/tutors/by-slug/(?P<slug>[a-z0-9\-]+)' => 'public',
+			'GET /plumberslot/v1/relations/children'         => 'authenticated',
+			'GET /plumberslot/v1/relations/pending'          => 'authenticated',
+			'POST /plumberslot/v1/relations/invite'          => 'authenticated',
+			'POST /plumberslot/v1/relations/(?P<id>\d+)/confirm' => 'owner',
+			'POST /plumberslot/v1/series'                    => 'account',
+			'GET /plumberslot/v1/series/(?P<id>\d+)'         => 'owner',
+			'DELETE /plumberslot/v1/series/(?P<id>\d+)'      => 'owner',
+			'GET /plumberslot/v1/setup'                      => 'tutor',
+			'POST /plumberslot/v1/setup'                     => 'tutor',
+			'GET /plumberslot/v1/slots'                      => 'public',
+			'GET /plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects' => 'owner',
+			'POST /plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects' => 'owner',
+			'PATCH /plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects/(?P<id>\d+)' => 'owner',
+			'DELETE /plumberslot/v1/tutors/(?P<tutor_id>\d+)/subjects/(?P<id>\d+)' => 'owner',
+			'GET /plumberslot/v1/tutors'                     => 'manager',
+			'POST /plumberslot/v1/tutors'                    => 'manager',
+			'GET /plumberslot/v1/tutors/(?P<id>\d+)'         => 'manager',
+			'PATCH /plumberslot/v1/tutors/(?P<id>\d+)'       => 'manager',
+			'POST /plumberslot/v1/tutors/(?P<id>\d+)/resend' => 'manager',
+			'GET /plumberslot/v1/settings'                   => 'manager',
+			'POST /plumberslot/v1/settings'                  => 'manager',
+			'POST /plumberslot/v1/webhook/(?P<gateway>[a-z0-9_-]+)' => 'public',
 		);
 	}
 }

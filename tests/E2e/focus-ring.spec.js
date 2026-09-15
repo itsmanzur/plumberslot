@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -129,8 +129,8 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 150000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_HAPPY_READY,
-		'Set TUTORSLOT_E2E_HAPPY_READY=1 to allow isolated focus-ring fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_HAPPY_READY,
+		'Set PLUMBERSLOT_E2E_HAPPY_READY=1 to allow isolated focus-ring fixture rows.'
 	);
 	const project = testInfo.project.name.includes( 'mobile' ) ? 'mob' : 'desk';
 	const fixtureKey = `${ project }-focus-ring`;
@@ -147,7 +147,7 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 		expect( ( await tutorResponse ).status() ).toBe( 200 );
 		await isolateWidget( page );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		const subjectList = widget.getByRole( 'listbox', { name: 'Subjects' } );
 		const firstSubject = subjectList.getByRole( 'option' ).first();
 		await tabTo( page, firstSubject, 'Subject option' );
@@ -165,7 +165,7 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 		await tabTo( page, chooseTime, 'Choose a time button' );
 		await expectVisibleFocusRing( chooseTime, 'Choose a time button' );
 		const slotsResponse = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await page.keyboard.press( 'Enter' );
 		expect( ( await slotsResponse ).status() ).toBe( 200 );
@@ -199,7 +199,7 @@ test( 'booking controls retain visible keyboard focus rings', async ( {
 			( response ) =>
 				response
 					.url()
-					.includes( '/wp-json/tutorslot/v1/bookings/hold' ) &&
+					.includes( '/wp-json/plumberslot/v1/bookings/hold' ) &&
 				'POST' === response.request().method()
 		);
 		await page.keyboard.press( 'Enter' );

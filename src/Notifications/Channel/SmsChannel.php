@@ -6,14 +6,14 @@
  * a local aggregator is an order of magnitude cheaper, and the site owner
  * should be able to choose without a code change.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Notifications\Channel;
+namespace PlumberSlot\Notifications\Channel;
 
-use TutorSlot\Support\Settings;
+use PlumberSlot\Support\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,7 +36,7 @@ final class SmsChannel implements ChannelInterface {
 	 * @param array<string, mixed> $context Extra template variables.
 	 */
 	public function send( string $event, int $user_id, object $booking, array $context = array() ): void {
-		$number = get_user_meta( $user_id, '_tutorslot_mobile', true );
+		$number = get_user_meta( $user_id, '_plumberslot_mobile', true );
 
 		if ( ! is_string( $number ) || '' === $number ) {
 			return;
@@ -51,12 +51,12 @@ final class SmsChannel implements ChannelInterface {
 		 * @param string $message Message body.
 		 * @param object $booking Booking row.
 		 */
-		do_action( 'tutorslot_send_sms', $number, $this->message( $event, $booking ), $booking );
+		do_action( 'plumberslot_send_sms', $number, $this->message( $event, $booking ), $booking );
 	}
 
 	private function message( string $event, object $booking ): string {
 		return 'reminder_1h' === $event
-			? __( 'Your lesson starts in an hour.', 'tutorslot' )
-			: __( 'Your lesson has been cancelled.', 'tutorslot' );
+			? __( 'Your lesson starts in an hour.', 'plumberslot' )
+			: __( 'Your lesson has been cancelled.', 'plumberslot' );
 	}
 }

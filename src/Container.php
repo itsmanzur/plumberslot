@@ -2,12 +2,12 @@
 /**
  * A deliberately small service container: lazy singletons, no autowiring magic.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot;
+namespace PlumberSlot;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,7 +40,7 @@ final class Container {
 			return $this->resolved[ $id ];
 		}
 		if ( ! isset( $this->factories[ $id ] ) ) {
-			throw new \RuntimeException( esc_html( "TutorSlot: service {$id} is not registered." ) );
+			throw new \RuntimeException( esc_html( "PlumberSlot: service {$id} is not registered." ) );
 		}
 		/** @var T $service */
 		$service               = ( $this->factories[ $id ] )( $this );
@@ -56,7 +56,7 @@ final class Container {
 	/**
 	 * Register the default object graph.
 	 *
-	 * Add-ons can override any binding on `tutorslot_container_defaults`.
+	 * Add-ons can override any binding on `plumberslot_container_defaults`.
 	 */
 	public function register_defaults(): void {
 		// Repositories.
@@ -184,6 +184,6 @@ final class Container {
 		$this->set( Admin\OnboardingWizard::class, static fn () => new Admin\OnboardingWizard() );
 		$this->set( Privacy\PrivacyHooks::class, static fn ( Container $c ) => new Privacy\PrivacyHooks( $c->get( Database\Repository\BookingRepository::class ) ) );
 
-		do_action( 'tutorslot_container_defaults', $this );
+		do_action( 'plumberslot_container_defaults', $this );
 	}
 }

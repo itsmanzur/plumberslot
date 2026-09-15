@@ -1,17 +1,17 @@
 <?php
 /**
- * /tutorslot/v1/tutors/{id}/subjects
+ * /plumberslot/v1/tutors/{id}/subjects
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Rest;
+namespace PlumberSlot\Rest;
 
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Repository\TutorRepository;
-use TutorSlot\Support\AuditLog;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Support\AuditLog;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -167,8 +167,8 @@ final class SubjectsController extends AbstractController {
 
 		if ( $id <= 0 ) {
 			return new WP_Error(
-				'tutorslot_subject_save_failed',
-				__( 'Could not save the subject.', 'tutorslot' ),
+				'plumberslot_subject_save_failed',
+				__( 'Could not save the subject.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -194,8 +194,8 @@ final class SubjectsController extends AbstractController {
 
 		if ( ! $ok ) {
 			return new WP_Error(
-				'tutorslot_subject_save_failed',
-				__( 'Could not update the subject.', 'tutorslot' ),
+				'plumberslot_subject_save_failed',
+				__( 'Could not update the subject.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -215,8 +215,8 @@ final class SubjectsController extends AbstractController {
 
 		if ( ! $this->subjects->delete_for_tutor( $subject_id, $tutor_id ) ) {
 			return new WP_Error(
-				'tutorslot_subject_delete_failed',
-				__( 'Could not delete the subject.', 'tutorslot' ),
+				'plumberslot_subject_delete_failed',
+				__( 'Could not delete the subject.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}

@@ -1,5 +1,5 @@
 /**
- * TutorSlot design tokens.
+ * PlumberSlot design tokens.
  *
  * Public rebrand surface (override these four to restyle the whole product):
  *   --ts-ink, --ts-primary, --ts-highlight, --ts-radius
@@ -75,9 +75,9 @@
 	--ts-focus-offset: 2px;
 }
 
-.tutorslot-root,
-.tutorslot-admin,
-.tutorslot-widget {
+.plumberslot-root,
+.plumberslot-admin,
+.plumberslot-widget {
 	color: var(--ts-ink-2);
 	font-family: var(--ts-font-body);
 	font-size: var(--ts-text-base);
@@ -85,21 +85,21 @@
 	-webkit-font-smoothing: antialiased;
 }
 
-.tutorslot-root :where(h1, h2, h3, h4),
-.tutorslot-admin :where(h1, h2, h3, h4),
-.tutorslot-widget :where(h1, h2, h3, h4) {
+.plumberslot-root :where(h1, h2, h3, h4),
+.plumberslot-admin :where(h1, h2, h3, h4),
+.plumberslot-widget :where(h1, h2, h3, h4) {
 	margin: 0;
 	color: var(--ts-ink);
 	font-family: var(--ts-font-display);
 	letter-spacing: -0.015em;
 }
 
-.tutorslot-mono {
+.plumberslot-mono {
 	font-family: var(--ts-font-mono);
 	font-variant-numeric: tabular-nums;
 }
 
-.tutorslot-focusable:focus-visible,
+.plumberslot-focusable:focus-visible,
 .ts-btn:focus-visible,
 .ts-chip:focus-visible,
 .ts-toggle__switch:focus-visible,
@@ -113,12 +113,12 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.tutorslot-admin,
-	.tutorslot-admin *,
-	.tutorslot-widget,
-	.tutorslot-widget *,
-	.tutorslot-root,
-	.tutorslot-root * {
+	.plumberslot-admin,
+	.plumberslot-admin *,
+	.plumberslot-widget,
+	.plumberslot-widget *,
+	.plumberslot-root,
+	.plumberslot-root * {
 		animation-delay: 0ms !important;
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;

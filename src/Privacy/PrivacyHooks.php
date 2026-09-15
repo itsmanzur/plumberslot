@@ -2,18 +2,18 @@
 /**
  * GDPR export, erasure and suggested policy text.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Privacy;
+namespace PlumberSlot\Privacy;
 
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Schema;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Money;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Schema;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Money;
+use PlumberSlot\Support\Time;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,8 +34,8 @@ final class PrivacyHooks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function add_exporter( array $exporters ): array {
-		$exporters['tutorslot'] = array(
-			'exporter_friendly_name' => __( 'TutorSlot lessons', 'tutorslot' ),
+		$exporters['plumberslot'] = array(
+			'exporter_friendly_name' => __( 'PlumberSlot lessons', 'plumberslot' ),
 			'callback'               => array( $this, 'export' ),
 		);
 
@@ -47,8 +47,8 @@ final class PrivacyHooks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function add_eraser( array $erasers ): array {
-		$erasers['tutorslot'] = array(
-			'eraser_friendly_name' => __( 'TutorSlot lessons', 'tutorslot' ),
+		$erasers['plumberslot'] = array(
+			'eraser_friendly_name' => __( 'PlumberSlot lessons', 'plumberslot' ),
 			'callback'             => array( $this, 'erase' ),
 		);
 
@@ -127,7 +127,7 @@ final class PrivacyHooks {
 		$messages = array();
 
 		if ( $retained ) {
-			$messages[] = __( 'TutorSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records.', 'tutorslot' );
+			$messages[] = __( 'PlumberSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records.', 'plumberslot' );
 		}
 
 		if ( $done && ( $removed || $retained ) ) {
@@ -149,17 +149,17 @@ final class PrivacyHooks {
 
 	public function add_policy_content(): void {
 		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
-			wp_add_privacy_policy_content( __( 'TutorSlot', 'tutorslot' ), $this->policy_text() );
+			wp_add_privacy_policy_content( __( 'PlumberSlot', 'plumberslot' ), $this->policy_text() );
 		}
 	}
 
 	public function policy_text(): string {
-		return '<p>' . esc_html__( 'TutorSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons.', 'tutorslot' ) . '</p>'
-			. '<p>' . esc_html__( 'Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed TutorSlot join link rather than the provider’s private meeting URL.', 'tutorslot' ) . '</p>'
-			. '<p>' . esc_html__( 'When an optional online payment is selected, TutorSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by TutorSlot.', 'tutorslot' ) . '</p>'
-			. '<p>' . esc_html__( 'When a meeting provider is connected, TutorSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved.', 'tutorslot' ) . '</p>'
-			. '<p>' . esc_html__( 'Email uses the site’s WordPress mail configuration. If the site connects an SMS add-on, the add-on receives the recipient mobile number, reminder or cancellation message and booking record; consult the site’s selected delivery provider policies.', 'tutorslot' ) . '</p>'
-			. '<p>' . esc_html__( 'When a verified erasure request is processed, TutorSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution.', 'tutorslot' ) . '</p>';
+		return '<p>' . esc_html__( 'PlumberSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'When an optional online payment is selected, PlumberSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by PlumberSlot.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'When a meeting provider is connected, PlumberSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'Email uses the site’s WordPress mail configuration. If the site connects an SMS add-on, the add-on receives the recipient mobile number, reminder or cancellation message and booking record; consult the site’s selected delivery provider policies.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution.', 'plumberslot' ) . '</p>';
 	}
 
 	/**
@@ -222,27 +222,27 @@ final class PrivacyHooks {
 
 		$roles = array();
 		if ( $user_id === (int) $booking->student_id ) {
-			$roles[] = __( 'Student', 'tutorslot' );
+			$roles[] = __( 'Student', 'plumberslot' );
 		}
 		if ( $user_id === (int) $booking->parent_id ) {
-			$roles[] = __( 'Paying parent', 'tutorslot' );
+			$roles[] = __( 'Paying parent', 'plumberslot' );
 		}
 
 		$data = array(
-			$this->export_field( __( 'Role', 'tutorslot' ), implode( ', ', $roles ) ),
-			$this->export_field( __( 'When', 'tutorslot' ), Time::for_human( Time::from_sql( (string) $booking->start_utc ), (string) $booking->student_tz ) ),
-			$this->export_field( __( 'Status', 'tutorslot' ), (string) $booking->status ),
-			$this->export_field( __( 'Amount', 'tutorslot' ), Money::format( (int) $booking->price_minor, (string) $booking->currency ) ),
-			$this->export_field( __( 'Notes', 'tutorslot' ), (string) $booking->notes ),
+			$this->export_field( __( 'Role', 'plumberslot' ), implode( ', ', $roles ) ),
+			$this->export_field( __( 'When', 'plumberslot' ), Time::for_human( Time::from_sql( (string) $booking->start_utc ), (string) $booking->student_tz ) ),
+			$this->export_field( __( 'Status', 'plumberslot' ), (string) $booking->status ),
+			$this->export_field( __( 'Amount', 'plumberslot' ), Money::format( (int) $booking->price_minor, (string) $booking->currency ) ),
+			$this->export_field( __( 'Notes', 'plumberslot' ), (string) $booking->notes ),
 		);
 
 		if ( ! empty( $booking->payment_ref ) ) {
-			$data[] = $this->export_field( __( 'Payment reference', 'tutorslot' ), (string) $booking->payment_ref );
+			$data[] = $this->export_field( __( 'Payment reference', 'plumberslot' ), (string) $booking->payment_ref );
 		}
 
 		return array(
-			'group_id'    => 'tutorslot-bookings',
-			'group_label' => __( 'Lessons', 'tutorslot' ),
+			'group_id'    => 'plumberslot-bookings',
+			'group_label' => __( 'Lessons', 'plumberslot' ),
 			'item_id'     => 'booking-' . $booking->id,
 			'data'        => $data,
 		);
@@ -261,14 +261,14 @@ final class PrivacyHooks {
 		$is_parent = $user_id === (int) $relation->parent_id;
 
 		return array(
-			'group_id'    => 'tutorslot-relations',
-			'group_label' => __( 'Family relationships', 'tutorslot' ),
+			'group_id'    => 'plumberslot-relations',
+			'group_label' => __( 'Family relationships', 'plumberslot' ),
 			'item_id'     => 'relation-' . $relation->id,
 			'data'        => array(
-				$this->export_field( __( 'Role', 'tutorslot' ), $is_parent ? __( 'Parent', 'tutorslot' ) : __( 'Student', 'tutorslot' ) ),
-				$this->export_field( __( 'Relationship', 'tutorslot' ), (string) $relation->relation ),
-				$this->export_field( __( 'Related account ID', 'tutorslot' ), (string) ( $is_parent ? $relation->student_id : $relation->parent_id ) ),
-				$this->export_field( __( 'Confirmed', 'tutorslot' ), (int) $relation->confirmed ? __( 'Yes', 'tutorslot' ) : __( 'No', 'tutorslot' ) ),
+				$this->export_field( __( 'Role', 'plumberslot' ), $is_parent ? __( 'Parent', 'plumberslot' ) : __( 'Student', 'plumberslot' ) ),
+				$this->export_field( __( 'Relationship', 'plumberslot' ), (string) $relation->relation ),
+				$this->export_field( __( 'Related account ID', 'plumberslot' ), (string) ( $is_parent ? $relation->student_id : $relation->parent_id ) ),
+				$this->export_field( __( 'Confirmed', 'plumberslot' ), (int) $relation->confirmed ? __( 'Yes', 'plumberslot' ) : __( 'No', 'plumberslot' ) ),
 			),
 		);
 	}
@@ -284,14 +284,14 @@ final class PrivacyHooks {
 		}
 
 		return array(
-			'group_id'    => 'tutorslot-reviews',
-			'group_label' => __( 'Lesson reviews', 'tutorslot' ),
+			'group_id'    => 'plumberslot-reviews',
+			'group_label' => __( 'Lesson reviews', 'plumberslot' ),
 			'item_id'     => 'review-' . $review->id,
 			'data'        => array(
-				$this->export_field( __( 'Rating', 'tutorslot' ), (string) $review->rating ),
-				$this->export_field( __( 'Review', 'tutorslot' ), (string) $review->body ),
-				$this->export_field( __( 'Status', 'tutorslot' ), (string) $review->status ),
-				$this->export_field( __( 'Booking ID', 'tutorslot' ), (string) $review->booking_id ),
+				$this->export_field( __( 'Rating', 'plumberslot' ), (string) $review->rating ),
+				$this->export_field( __( 'Review', 'plumberslot' ), (string) $review->body ),
+				$this->export_field( __( 'Status', 'plumberslot' ), (string) $review->status ),
+				$this->export_field( __( 'Booking ID', 'plumberslot' ), (string) $review->booking_id ),
 			),
 		);
 	}

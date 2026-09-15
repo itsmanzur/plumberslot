@@ -2,21 +2,21 @@
 /**
  * Creating, moving and cancelling bookings.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Domain;
+namespace PlumberSlot\Domain;
 
 use DateTimeImmutable;
-use TutorSlot\Database\Repository\BookingRepository;
-use TutorSlot\Database\Repository\LockRepository;
-use TutorSlot\Database\TransactionManager;
-use TutorSlot\Notifications\Dispatcher;
-use TutorSlot\Support\AuditLog;
-use TutorSlot\Support\Cache;
-use TutorSlot\Support\Time;
+use PlumberSlot\Database\Repository\BookingRepository;
+use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Notifications\Dispatcher;
+use PlumberSlot\Support\AuditLog;
+use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Time;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -60,16 +60,16 @@ final class BookingService {
 		if ( '' !== $token
 			&& ! $this->locks->verify( $token, $args['tutor_id'], get_current_user_id(), Time::sql( $start ) ) ) {
 			return new WP_Error(
-				'tutorslot_lock_expired',
-				__( 'That slot was only held for a few minutes and the hold has expired. Pick a time again.', 'tutorslot' ),
+				'plumberslot_lock_expired',
+				__( 'That slot was only held for a few minutes and the hold has expired. Pick a time again.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
 
 		if ( ! $this->bookings->acquire_tutor_lock( $args['tutor_id'] ) ) {
 			return new WP_Error(
-				'tutorslot_slot_taken',
-				__( 'Someone is booking with this tutor right now. Try again.', 'tutorslot' ),
+				'plumberslot_slot_taken',
+				__( 'Someone is booking with this tutor right now. Try again.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -82,8 +82,8 @@ final class BookingService {
 			if ( $this->bookings->has_overlap( $args['tutor_id'], Time::sql( $start ), Time::sql( $end ) )
 				|| ! $this->slots->is_open( $args['tutor_id'], $start, $args['tutor_tz'], $args['duration_min'] ) ) {
 				return new WP_Error(
-					'tutorslot_slot_taken',
-					__( 'That time is no longer open. Choose another slot.', 'tutorslot' ),
+					'plumberslot_slot_taken',
+					__( 'That time is no longer open. Choose another slot.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -99,8 +99,8 @@ final class BookingService {
 					$this->transactions->rollback();
 
 					return new WP_Error(
-						'tutorslot_slot_taken',
-						__( 'Someone booked that time a moment ago. Choose another slot.', 'tutorslot' ),
+						'plumberslot_slot_taken',
+						__( 'Someone booked that time a moment ago. Choose another slot.', 'plumberslot' ),
 						array( 'status' => 409 )
 					);
 				}
@@ -138,8 +138,8 @@ final class BookingService {
 
 	private function transaction_failed(): WP_Error {
 		return new WP_Error(
-			'tutorslot_database_error',
-			__( 'The booking could not be saved. Try again.', 'tutorslot' ),
+			'plumberslot_database_error',
+			__( 'The booking could not be saved. Try again.', 'plumberslot' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -152,11 +152,11 @@ final class BookingService {
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		if ( 'confirmed' !== (string) $booking->status ) {
-			return $this->invalid_transition( __( 'Only a confirmed lesson can be rescheduled.', 'tutorslot' ) );
+			return $this->invalid_transition( __( 'Only a confirmed lesson can be rescheduled.', 'plumberslot' ) );
 		}
 
 		$window = $this->policy->can_reschedule( $booking );
@@ -195,8 +195,8 @@ final class BookingService {
 
 		if ( ! $this->bookings->acquire_tutor_lock( $tutor_id ) ) {
 			return new WP_Error(
-				'tutorslot_slot_taken',
-				__( 'Someone is booking with this tutor right now. Try again.', 'tutorslot' ),
+				'plumberslot_slot_taken',
+				__( 'Someone is booking with this tutor right now. Try again.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -205,8 +205,8 @@ final class BookingService {
 			if ( $this->bookings->has_overlap( $tutor_id, Time::sql( $new_start_utc ), Time::sql( $end ), $booking_id )
 				|| ! $this->slots->is_open( $tutor_id, $new_start_utc, $args['tutor_tz'], (int) $duration, $booking_id ) ) {
 				return new WP_Error(
-					'tutorslot_slot_taken',
-					__( 'That time is no longer open. Choose another slot.', 'tutorslot' ),
+					'plumberslot_slot_taken',
+					__( 'That time is no longer open. Choose another slot.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -225,8 +225,8 @@ final class BookingService {
 					$this->transactions->rollback();
 
 					return new WP_Error(
-						'tutorslot_slot_taken',
-						__( 'Someone booked that time a moment ago. Choose another slot.', 'tutorslot' ),
+						'plumberslot_slot_taken',
+						__( 'Someone booked that time a moment ago. Choose another slot.', 'plumberslot' ),
 						array( 'status' => 409 )
 					);
 				}
@@ -238,7 +238,7 @@ final class BookingService {
 
 					return $current && 'confirmed' === (string) $current->status
 						? $this->transaction_failed()
-						: $this->invalid_transition( __( 'The booking changed before it could be rescheduled.', 'tutorslot' ) );
+						: $this->invalid_transition( __( 'The booking changed before it could be rescheduled.', 'plumberslot' ) );
 				}
 
 				if ( ! $this->transactions->commit() ) {
@@ -258,7 +258,7 @@ final class BookingService {
 		}
 
 		$this->after_booking_created( $new_id, $args );
-		do_action( 'tutorslot_booking_moved', $booking_id, $booking, $new_id );
+		do_action( 'plumberslot_booking_moved', $booking_id, $booking, $new_id );
 		AuditLog::record( 'booking.rescheduled', 'booking', $booking_id, array( 'to' => $new_id ) );
 		$this->notify->booking_rescheduled( $new_id, $booking_id );
 
@@ -306,7 +306,7 @@ final class BookingService {
 		 * @param int                  $id   Booking id.
 		 * @param array<string, mixed> $args Original arguments.
 		 */
-		do_action( 'tutorslot_booking_created', $id, $args );
+		do_action( 'plumberslot_booking_created', $id, $args );
 
 		$this->notify->booking_created( $id );
 	}
@@ -315,7 +315,7 @@ final class BookingService {
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		if ( 'cancelled' === (string) $booking->status ) {
@@ -323,7 +323,7 @@ final class BookingService {
 		}
 
 		if ( 'confirmed' !== (string) $booking->status ) {
-			return $this->invalid_transition( __( 'Only a confirmed lesson can be cancelled.', 'tutorslot' ) );
+			return $this->invalid_transition( __( 'Only a confirmed lesson can be cancelled.', 'plumberslot' ) );
 		}
 
 		if ( ! $this->transactions->begin() ) {
@@ -342,7 +342,7 @@ final class BookingService {
 
 				return $current && 'confirmed' === (string) $current->status
 					? $this->transaction_failed()
-					: $this->invalid_transition( __( 'The booking changed before it could be cancelled.', 'tutorslot' ) );
+					: $this->invalid_transition( __( 'The booking changed before it could be cancelled.', 'plumberslot' ) );
 			}
 
 			if ( ! $this->credits->maybe_refund_on_cancel( $booking ) ) {
@@ -372,7 +372,7 @@ final class BookingService {
 		 * @param int    $booking_id Booking id.
 		 * @param object $booking    Cancelled booking record.
 		 */
-		do_action( 'tutorslot_booking_cancelled', $booking_id, $booking );
+		do_action( 'plumberslot_booking_cancelled', $booking_id, $booking );
 
 		$this->notify->booking_cancelled( $booking_id );
 
@@ -381,7 +381,7 @@ final class BookingService {
 
 	private function invalid_transition( string $message ): WP_Error {
 		return new WP_Error(
-			'tutorslot_invalid_transition',
+			'plumberslot_invalid_transition',
 			$message,
 			array( 'status' => 409 )
 		);
@@ -393,8 +393,8 @@ final class BookingService {
 	public function mark_attendance( int $booking_id, string $status ): bool|WP_Error {
 		if ( ! in_array( $status, array( 'completed', 'no_show' ), true ) ) {
 			return new WP_Error(
-				'tutorslot_bad_status',
-				__( 'Attendance must be completed or no_show.', 'tutorslot' ),
+				'plumberslot_bad_status',
+				__( 'Attendance must be completed or no_show.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -402,7 +402,7 @@ final class BookingService {
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		return $this->mark_attendance_outcome( $booking, $status );
@@ -422,16 +422,16 @@ final class BookingService {
 
 		if ( 'confirmed' !== (string) $booking->status ) {
 			return new WP_Error(
-				'tutorslot_invalid_transition',
-				__( 'Attendance can be recorded only for a confirmed lesson.', 'tutorslot' ),
+				'plumberslot_invalid_transition',
+				__( 'Attendance can be recorded only for a confirmed lesson.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
 
 		if ( Time::from_sql( (string) $booking->end_utc ) > new DateTimeImmutable( 'now', Time::utc() ) ) {
 			return new WP_Error(
-				'tutorslot_lesson_not_ended',
-				__( 'Attendance can be recorded after the lesson ends.', 'tutorslot' ),
+				'plumberslot_lesson_not_ended',
+				__( 'Attendance can be recorded after the lesson ends.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -444,8 +444,8 @@ final class BookingService {
 			}
 
 			return new WP_Error(
-				'tutorslot_invalid_transition',
-				__( 'The booking changed before attendance could be recorded.', 'tutorslot' ),
+				'plumberslot_invalid_transition',
+				__( 'The booking changed before attendance could be recorded.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -459,7 +459,7 @@ final class BookingService {
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'tutorslot_not_found', '', array( 'status' => 404 ) );
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
 		}
 
 		$this->bookings->update_notes( $booking_id, $notes );
@@ -474,7 +474,7 @@ final class BookingService {
 
 		AuditLog::record( 'booking.paid', 'booking', $booking_id, array( 'ref' => $payment_ref ) );
 
-		do_action( 'tutorslot_booking_paid', $booking_id, $payment_ref );
+		do_action( 'plumberslot_booking_paid', $booking_id, $payment_ref );
 
 		$this->notify->booking_confirmed( $booking_id );
 	}
@@ -504,6 +504,6 @@ final class BookingService {
 			$this->bookings->set_payment_ref( $booking_id, $payment_ref );
 		}
 		AuditLog::record( 'booking.refunded', 'booking', $booking_id, array( 'ref' => $payment_ref ) );
-		do_action( 'tutorslot_booking_refunded', $booking_id, $payment_ref );
+		do_action( 'plumberslot_booking_refunded', $booking_id, $payment_ref );
 	}
 }

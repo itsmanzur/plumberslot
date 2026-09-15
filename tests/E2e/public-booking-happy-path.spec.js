@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, projectName ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, projectName ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: projectName,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: projectName,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -57,8 +57,8 @@ test( 'student completes the public booking flow', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_HAPPY_READY,
-		'Set TUTORSLOT_E2E_HAPPY_READY=1 to allow isolated happy-path fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_HAPPY_READY,
+		'Set PLUMBERSLOT_E2E_HAPPY_READY=1 to allow isolated happy-path fixture rows.'
 	);
 
 	const fixtureKey = testInfo.project.name.replace( /[^a-z0-9_-]/g, '-' );
@@ -75,7 +75,7 @@ test( 'student completes the public booking flow', async ( {
 		const tutorResponse = await tutorResponsePromise;
 		expect( tutorResponse.status() ).toBe( 200 );
 
-		const widget = page.locator( '.tutorslot-widget.tutorslot-root' );
+		const widget = page.locator( '.plumberslot-widget.plumberslot-root' );
 		await expect( widget ).toBeVisible();
 		await expect(
 			widget.getByRole( 'heading', {
@@ -85,7 +85,7 @@ test( 'student completes the public booking flow', async ( {
 
 		await widget.getByRole( 'option', { name: /English E2E/ } ).click();
 		const slotsResponsePromise = page.waitForResponse( ( response ) =>
-			response.url().includes( '/wp-json/tutorslot/v1/slots?' )
+			response.url().includes( '/wp-json/plumberslot/v1/slots?' )
 		);
 		await widget.getByRole( 'button', { name: 'Choose a time →' } ).click();
 		const slotsResponse = await slotsResponsePromise;
@@ -117,7 +117,7 @@ test( 'student completes the public booking flow', async ( {
 
 		const bookingResponse = page.waitForResponse(
 			( response ) =>
-				response.url().includes( '/wp-json/tutorslot/v1/bookings' ) &&
+				response.url().includes( '/wp-json/plumberslot/v1/bookings' ) &&
 				'POST' === response.request().method()
 		);
 		await widget.getByRole( 'button', { name: 'Confirm booking' } ).click();

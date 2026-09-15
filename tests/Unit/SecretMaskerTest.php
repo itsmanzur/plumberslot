@@ -2,15 +2,15 @@
 /**
  * Secret response masking tests.
  *
- * @package TutorSlot\Tests
+ * @package PlumberSlot\Tests
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Unit;
+namespace PlumberSlot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use TutorSlot\Support\SecretMasker;
+use PlumberSlot\Support\SecretMasker;
 
 final class SecretMaskerTest extends TestCase {
 

@@ -2,15 +2,15 @@
 /**
  * Subject repository integration tests.
  *
- * @package TutorSlot
+ * @package PlumberSlot
  */
 
 declare( strict_types = 1 );
 
-namespace TutorSlot\Tests\Integration;
+namespace PlumberSlot\Tests\Integration;
 
-use TutorSlot\Database\Repository\SubjectRepository;
-use TutorSlot\Database\Schema;
+use PlumberSlot\Database\Repository\SubjectRepository;
+use PlumberSlot\Database\Schema;
 use WP_UnitTestCase;
 
 final class SubjectRepositoryTest extends WP_UnitTestCase {

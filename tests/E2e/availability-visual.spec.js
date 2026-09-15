@@ -8,7 +8,7 @@ const fixtureScript = path.resolve( __dirname, 'fixtures', 'booking-race.php' );
 
 async function fixture( action, fixtureKey ) {
 	const phpArgs = [ fixtureScript, action ];
-	const phpBinary = process.env.TUTORSLOT_E2E_PHP_BINARY || 'php';
+	const phpBinary = process.env.PLUMBERSLOT_E2E_PHP_BINARY || 'php';
 
 	if ( 'win32' === process.platform ) {
 		phpArgs.unshift(
@@ -23,7 +23,7 @@ async function fixture( action, fixtureKey ) {
 	const { stdout } = await execute( phpBinary, phpArgs, {
 		env: {
 			...process.env,
-			TUTORSLOT_E2E_FIXTURE_KEY: fixtureKey,
+			PLUMBERSLOT_E2E_FIXTURE_KEY: fixtureKey,
 		},
 		timeout: 30000,
 		windowsHide: true,
@@ -56,8 +56,8 @@ test( 'availability timetable matches its visual baseline', async ( {
 }, testInfo ) => {
 	testInfo.setTimeout( 90000 );
 	test.skip(
-		'1' !== process.env.TUTORSLOT_E2E_VISUAL_READY,
-		'Set TUTORSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
+		'1' !== process.env.PLUMBERSLOT_E2E_VISUAL_READY,
+		'Set PLUMBERSLOT_E2E_VISUAL_READY=1 to allow isolated visual fixture rows.'
 	);
 	const fixtureKey = testInfo.project.name.includes( 'mobile' )
 		? 'mob-availability'
@@ -71,10 +71,10 @@ test( 'availability timetable matches its visual baseline', async ( {
 				response.url().includes( `/availability/${ seed.tutorId }` ) &&
 				'GET' === response.request().method()
 		);
-		await page.goto( '/wp-admin/admin.php?page=tutorslot-availability' );
+		await page.goto( '/wp-admin/admin.php?page=plumberslot-availability' );
 		expect( ( await availabilityResponse ).status() ).toBe( 200 );
 
-		const root = page.locator( '#tutorslot-admin-root' );
+		const root = page.locator( '#plumberslot-admin-root' );
 		await expect(
 			root.getByRole( 'heading', {
 				name: 'When can students book you?',
