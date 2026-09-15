@@ -4,7 +4,7 @@
  *
  * Server-to-server OAuth issues an access token for the whole account; no
  * per-technician grant is needed. Meetings use waiting room + auto-passcode so a
- * lesson with a child cannot be a bare open room.
+ * booked estimate call cannot be a bare open room.
  *
  * @package PlumberSlot
  */

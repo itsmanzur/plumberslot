@@ -4,7 +4,7 @@
  *
  * Two rules, both load-bearing: verify the signature before parsing anything,
  * and refuse to process the same event twice. Without the second one a replayed
- * webhook can confirm a cancelled lesson or refund a package repeatedly.
+ * webhook can confirm a cancelled booking or refund a package repeatedly.
  *
  * @package PlumberSlot
  */

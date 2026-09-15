@@ -48,7 +48,7 @@ final class GoogleMeetProvider implements ProviderInterface {
 	 * @param int    $booking_id  Booking id.
 	 * @param int    $technician_id    WordPress user id of the technician.
 	 * @param string $start_utc   ISO-8601 UTC start.
-	 * @param int    $duration_min Lesson length in minutes.
+	 * @param int    $duration_min Meeting length in minutes.
 	 * @param string $title       Event title.
 	 * @return string|WP_Error Event id on success.
 	 */

@@ -83,12 +83,12 @@ final class BkashGateway implements GatewayInterface {
 				'body'    => wp_json_encode(
 					array(
 						'mode'                  => '0011',
-						'payerReference'        => 'TS' . $booking_id,
+						'payerReference'        => 'PS' . $booking_id,
 						'callbackURL'           => $callback,
 						'amount'                => $amount,
 						'currency'              => 'BDT',
 						'intent'                => 'sale',
-						'merchantInvoiceNumber' => 'TS' . $booking_id . 'T' . time(),
+						'merchantInvoiceNumber' => 'PS' . $booking_id . 'T' . time(),
 					)
 				),
 			)
@@ -190,7 +190,7 @@ final class BkashGateway implements GatewayInterface {
 				'paymentID' => $reference,
 				'amount'    => $amount,
 				'trxID'     => $reference,
-				'sku'       => 'lesson',
+				'sku'       => 'service_call',
 				'reason'    => 'Booking cancelled',
 			)
 		);

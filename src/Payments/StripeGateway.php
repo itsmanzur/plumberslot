@@ -48,7 +48,7 @@ final class StripeGateway implements GatewayInterface {
 				'timeout' => 20,
 				'headers' => array(
 					'Authorization'   => 'Bearer ' . $this->secret_key(),
-					'Idempotency-Key' => 'ts_start_' . $booking_id . '_' . $amount_minor . '_' . substr( md5( $success_url ), 0, 8 ),
+					'Idempotency-Key' => 'ps_start_' . $booking_id . '_' . $amount_minor . '_' . substr( md5( $success_url ), 0, 8 ),
 				),
 				'body'    => array(
 					'mode'                                => 'payment',
@@ -58,7 +58,7 @@ final class StripeGateway implements GatewayInterface {
 					'line_items[0][quantity]'             => 1,
 					'line_items[0][price_data][currency]' => strtolower( $currency ),
 					'line_items[0][price_data][unit_amount]' => $amount_minor,
-					'line_items[0][price_data][product_data][name]' => __( 'Lesson', 'plumberslot' ),
+					'line_items[0][price_data][product_data][name]' => __( 'Service Call', 'plumberslot' ),
 					'metadata[booking_id]'                => (string) $booking_id,
 					'metadata[amount_minor]'              => (string) $amount_minor,
 					'metadata[currency]'                  => strtoupper( $currency ),
