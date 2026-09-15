@@ -1,0 +1,71 @@
+<?php
+/**
+ * Weekly course series rows.
+ *
+ * @package TutorSlot
+ */
+
+declare( strict_types = 1 );
+
+namespace TutorSlot\Database\Repository;
+
+use TutorSlot\Database\Schema;
+
+defined( 'ABSPATH' ) || exit;
+
+final class SeriesRepository extends AbstractRepository {
+
+	protected function table(): string {
+		return Schema::table( Schema::SERIES );
+	}
+
+	/**
+	 * @param array{tutor_id:int, student_id:int, rrule:string, total_count:int} $data Series fields.
+	 */
+	public function create( array $data ): int {
+		$this->db->insert(
+			$this->table(),
+			array(
+				'tutor_id'    => (int) $data['tutor_id'],
+				'student_id'  => (int) $data['student_id'],
+				'rrule'       => (string) $data['rrule'],
+				'total_count' => (int) $data['total_count'],
+				'created_at'  => $this->now(),
+			),
+			array( '%d', '%d', '%s', '%d', '%s' )
+		);
+
+		return (int) $this->db->insert_id;
+	}
+
+	/**
+	 * Active (non-cancelled) lesson count for progress labels like Weekly 9/12.
+	 */
+	public function active_count( int $series_id ): int {
+		$bookings = Schema::table( Schema::BOOKINGS );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from whitelist.
+		return (int) $this->db->get_var(
+			$this->db->prepare(
+				"SELECT COUNT(*) FROM {$bookings}
+				 WHERE series_id = %d
+				   AND status NOT IN ( 'cancelled', 'refunded', 'moved', 'payment_expired' )",
+				$series_id
+			)
+		);
+	}
+
+	/**
+	 * @return list<object>
+	 */
+	public function find_for_student( int $student_id, int $limit = 50 ): array {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
+		return (array) $this->db->get_results(
+			$this->db->prepare(
+				'SELECT * FROM ' . $this->table() . ' WHERE student_id = %d ORDER BY id DESC LIMIT %d',
+				$student_id,
+				max( 1, min( 100, $limit ) )
+			)
+		);
+	}
+}

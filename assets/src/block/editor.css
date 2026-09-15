@@ -1,0 +1,11 @@
+.tutorslot-block-preview__card {
+	padding: 16px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.tutorslot-block-preview__card p {
+	margin: 8px 0 0;
+	color: #646970;
+}

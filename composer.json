@@ -1,0 +1,39 @@
+{
+  "name": "tutorslot/tutorslot",
+  "description": "Lesson booking built for teaching.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=8.1",
+    "woocommerce/action-scheduler": "^3.8"
+  },
+  "require-dev": {
+    "wp-coding-standards/wpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "szepeviktor/phpstan-wordpress": "^1.3",
+    "phpstan/phpstan": "^1.11",
+    "phpunit/phpunit": "^9.6",
+    "wp-phpunit/wp-phpunit": "7.0.2",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "autoload": {
+    "psr-4": { "TutorSlot\\": "src/" }
+  },
+  "scripts": {
+    "lint":    "phpcs",
+    "fix":     "phpcbf",
+    "analyse": "phpstan analyse --memory-limit=1G --debug",
+    "test":    "phpunit -c phpunit.xml.dist",
+    "test:integration": "phpunit -c phpunit.integration.xml.dist",
+    "test:perf:slots-cached": "phpunit -c phpunit.integration.xml.dist --filter test_cached_slots_rest_response --testdox",
+    "test:perf:slots-uncached": "phpunit -c phpunit.integration.xml.dist --filter test_uncached_slots_rest_response --testdox",
+    "test:perf:booking-post": "phpunit -c phpunit.integration.xml.dist --filter BookingPerformanceTest --testdox",
+    "test:perf:booking-calendar": "phpunit -c phpunit.integration.xml.dist --filter BookingCalendarPerformanceTest --testdox",
+    "test:perf:options-autoload": "phpunit -c phpunit.integration.xml.dist --filter OptionAutoloadTest --testdox",
+    "test:phase8-lifecycle": "phpunit -c phpunit.integration.xml.dist --filter \"(Phase8MigrationTest|DeactivationCleanupTest)\"",
+    "check":   ["@lint", "@analyse", "@test"]
+  },
+  "config": {
+    "allow-plugins": { "dealerdirect/phpcodesniffer-composer-installer": true }
+  }
+}

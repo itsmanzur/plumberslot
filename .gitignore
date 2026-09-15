@@ -1,0 +1,14 @@
+/node_modules/
+/vendor/
+/.phpunit.cache/
+/.phpunit.result.cache
+/.phpunit.integration.result.cache
+/coverage/
+/dist/
+/playwright-report/
+/test-results/
+/.wp-env.json
+/.codex-tools/
+/tests/wp-tests-config.php
+/.DS_Store
+Thumbs.db

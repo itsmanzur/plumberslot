@@ -1,0 +1,13 @@
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 6
+  bootstrapFiles:
+    - tests/bootstrap-phpstan.php
+  paths:
+    - src
+    - tutorslot.php
+  scanFiles:
+    - vendor/woocommerce/action-scheduler/functions.php
+  treatPhpDocTypesAsCertain: false

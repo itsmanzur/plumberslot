@@ -1,0 +1,129 @@
+/**
+ * TutorSlot design tokens.
+ *
+ * Public rebrand surface (override these four to restyle the whole product):
+ *   --ts-ink, --ts-primary, --ts-highlight, --ts-radius
+ */
+:root {
+
+	/* Public rebranding tokens */
+	--ts-ink: #141b2d;
+	--ts-primary: #2f4ba8;
+	--ts-highlight: #dcee7a;
+	--ts-radius: 14px;
+
+	/* Derived color system */
+	--ts-ink-2: #3c4759;
+	--ts-slate: #6a7488;
+	--ts-mute: #98a1b2;
+	--ts-rule: #e4e7ee;
+	--ts-rule-2: #f0f2f6;
+	--ts-paper: #f8f9fb;
+	--ts-card: #fff;
+	--ts-primary-dark: #243b84;
+	--ts-primary-wash: #edf0fa;
+	--ts-highlight-dark: #c8de59;
+	--ts-highlight-wash: #f5fadf;
+	--ts-ok: #2c7351;
+	--ts-ok-wash: #e7f3ec;
+	--ts-warn: #9c6212;
+	--ts-warn-wash: #fbf1df;
+	--ts-danger: #b3302b;
+	--ts-danger-wash: #fbebea;
+
+	/* Radius scale: public surfaces, controls, then admin/overlay surfaces. */
+	--ts-radius-sm: 6px;
+	--ts-radius-control: 8px;
+	--ts-radius-md: 10px;
+	--ts-radius-lg: 16px;
+	--ts-radius-xl: 18px;
+	--ts-radius-pill: 99px;
+
+	/* Shadows */
+	--ts-shadow: 0 1px 2px rgb(20 27 45 / 5%), 0 10px 30px -14px rgb(20 27 45 / 22%);
+	--ts-shadow-admin: 0 1px 2px rgb(20 27 45 / 5%), 0 8px 24px -12px rgb(20 27 45 / 18%);
+	--ts-shadow-lg: 0 2px 4px rgb(20 27 45 / 6%), 0 24px 48px -20px rgb(20 27 45 / 28%);
+
+	/* Typography */
+	--ts-font-display: "Instrument Sans", "Noto Sans Bengali", "Nirmala UI", "Bangla Sangam MN", system-ui, sans-serif;
+	--ts-font-body: "Inter", "Noto Sans Bengali", "Nirmala UI", "Bangla Sangam MN", system-ui, sans-serif;
+	--ts-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+	--ts-text-xs: 10.5px;
+	--ts-text-sm: 12px;
+	--ts-text-md: 13px;
+	--ts-text-base: 14px;
+	--ts-text-lg: 15px;
+	--ts-text-xl: 18px;
+	--ts-text-2xl: 26px;
+	--ts-text-3xl: 30px;
+	--ts-leading: 1.55;
+	--ts-leading-tight: 1.2;
+
+	/* Spacing — 8px system */
+	--ts-sp-1: 4px;
+	--ts-sp-2: 8px;
+	--ts-sp-3: 12px;
+	--ts-sp-4: 16px;
+	--ts-sp-5: 20px;
+	--ts-sp-6: 24px;
+	--ts-sp-8: 32px;
+	--ts-sp-10: 40px;
+	--ts-sp-14: 56px;
+
+	/* Focus */
+	--ts-focus-ring: 2px solid var(--ts-primary);
+	--ts-focus-offset: 2px;
+}
+
+.tutorslot-root,
+.tutorslot-admin,
+.tutorslot-widget {
+	color: var(--ts-ink-2);
+	font-family: var(--ts-font-body);
+	font-size: var(--ts-text-base);
+	line-height: var(--ts-leading);
+	-webkit-font-smoothing: antialiased;
+}
+
+.tutorslot-root :where(h1, h2, h3, h4),
+.tutorslot-admin :where(h1, h2, h3, h4),
+.tutorslot-widget :where(h1, h2, h3, h4) {
+	margin: 0;
+	color: var(--ts-ink);
+	font-family: var(--ts-font-display);
+	letter-spacing: -0.015em;
+}
+
+.tutorslot-mono {
+	font-family: var(--ts-font-mono);
+	font-variant-numeric: tabular-nums;
+}
+
+.tutorslot-focusable:focus-visible,
+.ts-btn:focus-visible,
+.ts-chip:focus-visible,
+.ts-toggle__switch:focus-visible,
+.ts-slot:focus-visible,
+.ts-day:focus-visible,
+.ts-tt__cell:focus-visible,
+.ts-modal__close:focus-visible {
+	outline: var(--ts-focus-ring);
+	outline-offset: var(--ts-focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.tutorslot-admin,
+	.tutorslot-admin *,
+	.tutorslot-widget,
+	.tutorslot-widget *,
+	.tutorslot-root,
+	.tutorslot-root * {
+		animation-delay: 0ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-delay: 0ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}

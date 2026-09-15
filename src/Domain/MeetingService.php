@@ -1,0 +1,131 @@
+<?php
+/**
+ * Creates and cleans up video meetings when bookings change state.
+ *
+ * Meeting creation is decoupled from the booking write so a provider API
+ * failure never rolls back a confirmed payment. If the meeting fails, the
+ * booking stays confirmed and an admin notice appears; the lesson still runs,
+ * the student just has to use the fallback link.
+ *
+ * @package TutorSlot
+ */
+
+declare( strict_types = 1 );
+
+namespace TutorSlot\Domain;
+
+use TutorSlot\Domain\Contract\MeetingBookingStore;
+use TutorSlot\Domain\Contract\TutorSource;
+use TutorSlot\Meetings\ProviderRegistry;
+use TutorSlot\Support\AuditLog;
+use WP_Error;
+
+defined( 'ABSPATH' ) || exit;
+
+final class MeetingService {
+
+	public function __construct(
+		private readonly ProviderRegistry $providers,
+		private readonly MeetingBookingStore $bookings,
+		private readonly TutorSource $tutors
+	) {}
+
+	public function register(): void {
+		add_action( 'tutorslot_booking_paid', array( $this, 'create_for_booking' ), 20, 1 );
+		add_action( 'tutorslot_booking_created', array( $this, 'maybe_create_free' ), 20, 1 );
+	}
+
+	/**
+	 * Called after a free (no-payment) booking is confirmed.
+	 */
+	public function maybe_create_free( int $booking_id ): void {
+		$booking = $this->bookings->find( $booking_id );
+
+		if ( ! $booking || $booking->price_minor > 0 ) {
+			return;
+		}
+
+		$this->create_for_booking( $booking_id );
+	}
+
+	/**
+	 * Create a meeting for a just-confirmed booking.
+	 *
+	 * Silently skips when no provider is connected for the tutor.
+	 */
+	public function create_for_booking( int $booking_id ): void {
+		$booking = $this->bookings->find( $booking_id );
+
+		if ( ! $booking ) {
+			return;
+		}
+
+		// Already has a meeting (e.g. created on a retry).
+		if ( ! empty( $booking->meeting_ref ) ) {
+			return;
+		}
+
+		$tutor_id  = (int) $booking->tutor_id;
+		$tutor_row = $this->tutors->find( $tutor_id );
+
+		if ( ! $tutor_row ) {
+			return;
+		}
+
+		$provider = $this->resolve_provider( (int) $tutor_row->user_id );
+
+		if ( ! $provider ) {
+			return;
+		}
+
+		$title     = $this->meeting_title( $booking );
+		$reference = $provider->create(
+			$booking_id,
+			(int) $tutor_row->user_id,
+			(string) $booking->start_utc,
+			(int) ( $booking->end_utc ? ( strtotime( (string) $booking->end_utc ) - strtotime( (string) $booking->start_utc ) ) / 60 : 60 ),
+			$title
+		);
+
+		if ( is_wp_error( $reference ) ) {
+			AuditLog::record(
+				'meeting.create_failed',
+				'booking',
+				$booking_id,
+				array(
+					'provider' => $provider->id(),
+					'error'    => $reference->get_error_code(),
+				)
+			);
+
+			return;
+		}
+
+		$stored = ProviderRegistry::reference( $provider->id(), $reference );
+		$this->bookings->set_meeting_ref( $booking_id, $stored );
+		AuditLog::record( 'meeting.created', 'booking', $booking_id, array( 'provider' => $provider->id() ) );
+	}
+
+	/**
+	 * Resolve the first connected provider for a given tutor user_id.
+	 */
+	private function resolve_provider( int $tutor_user_id ): ?\TutorSlot\Meetings\ProviderInterface {
+		foreach ( $this->providers->all() as $provider ) {
+			if ( $provider->is_connected( $tutor_user_id ) ) {
+				return $provider;
+			}
+		}
+
+		return null;
+	}
+
+	private function meeting_title( object $booking ): string {
+		$student = get_userdata( (int) $booking->student_id );
+
+		return sprintf(
+			/* translators: %s: student display name. */
+			__( 'Lesson with %s', 'tutorslot' ),
+			$student ? $student->display_name : __( 'Student', 'tutorslot' )
+		);
+	}
+}

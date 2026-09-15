@@ -1,0 +1,36 @@
+{
+  "name": "tutorslot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Admin and booking interfaces for the TutorSlot WordPress plugin.",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:js": "wp-scripts lint-js assets/src tests/E2e",
+    "lint:css": "wp-scripts lint-style \"assets/src/**/*.css\"",
+    "test:unit:js": "wp-scripts test-unit-js --config jest.config.cjs assets/src/shared/url.test.js assets/src/widget/xss.test.js --runInBand",
+    "test:budget": "node scripts/check-widget-budget.mjs",
+    "format": "wp-scripts format assets/src tests/E2e",
+    "test:e2e": "playwright test",
+    "test:e2e:list": "playwright test --list",
+    "test:perf:lcp": "playwright test tests/E2e/mobile-lcp.spec.js --workers=1",
+    "test:perf:admin-render": "playwright test tests/E2e/admin-first-render.spec.js --workers=1",
+    "test:perf:timetable": "playwright test tests/E2e/timetable-performance.spec.js --workers=1",
+    "check": "npm run lint:js && npm run lint:css && npm run test:unit:js && npm run build && npm run test:budget && npm run test:e2e:list"
+  },
+  "dependencies": {
+    "preact": "^10.29.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@wordpress/dom-ready": "^4.51.0",
+    "@wordpress/element": "^8.3.0",
+    "@wordpress/i18n": "^6.24.0",
+    "@wordpress/scripts": "^33.0.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  }
+}

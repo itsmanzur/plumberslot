@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push: { branches: [main, develop] }
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'   # nightly dependency audit
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - run: composer install --prefer-dist --no-progress
+      - name: Coding standards
+        run: composer lint
+      - name: Static analysis
+        run: composer analyse
+      - name: Unit tests
+        run: composer test
+      - name: Dependency audit
+        run: composer audit
+
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: JavaScript lint
+        run: npm run lint:js
+      - name: Stylesheet lint
+        run: npm run lint:css
+      - name: Production build
+        run: npm run build
+      - name: Widget transfer budget
+        run: npm run test:budget
+      - name: Validate E2E suite discovery
+        run: npm run test:e2e:list

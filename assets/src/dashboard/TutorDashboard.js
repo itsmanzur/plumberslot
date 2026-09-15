@@ -1,0 +1,362 @@
+import { h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
+import {
+	Button,
+	Callout,
+	EmptyState,
+	ErrorState,
+	Skeleton,
+	StatusChip,
+	TimetableGrid,
+	announce,
+	navigateTo,
+} from '../shared';
+import { cellsToWeek, weekToCells } from '../admin/lib/weekMap';
+import { get, getBoot, post, put } from './api';
+
+export function TutorDashboard() {
+	const boot = getBoot();
+	const [ status, setStatus ] = useState( 'loading' );
+	const [ error, setError ] = useState( '' );
+	const [ lessons, setLessons ] = useState( [] );
+	const [ attendanceDue, setAttendanceDue ] = useState( [] );
+	const [ tutorId, setTutorId ] = useState( boot.tutorId || 0 );
+	const [ weekCells, setWeekCells ] = useState( null );
+	const [ gridKey, setGridKey ] = useState( 0 );
+	const [ noteDrafts, setNoteDrafts ] = useState( {} );
+	const [ busyId, setBusyId ] = useState( 0 );
+
+	const load = async () => {
+		try {
+			const [ teaching, past ] = await Promise.all( [
+				get( 'bookings', {
+					scope: 'teaching',
+					per_page: 50,
+					tab: 'upcoming',
+				} ),
+				get( 'bookings', {
+					scope: 'teaching',
+					per_page: 50,
+					tab: 'past',
+					status: 'confirmed',
+				} ),
+			] );
+			const items = teaching.bookings || teaching.items || [];
+			const ended = ( past.bookings || past.items || [] ).filter(
+				( row ) => hasLessonEnded( row.end_utc )
+			);
+			setLessons( items );
+			setAttendanceDue( ended );
+			const tid =
+				boot.tutorId ||
+				items[ 0 ]?.tutor_id ||
+				ended[ 0 ]?.tutor_id ||
+				0;
+			setTutorId( tid );
+			if ( tid ) {
+				const avail = await get( `availability/${ tid }` );
+				setWeekCells( weekToCells( avail.week || [] ) );
+				setGridKey( ( k ) => k + 1 );
+			} else {
+				setWeekCells( null );
+			}
+			setStatus( 'ready' );
+		} catch ( err ) {
+			setError( err.message || 'Could not load tutor dashboard.' );
+			setStatus( 'error' );
+		}
+	};
+
+	useEffect( () => {
+		if ( ! boot.loggedIn ) {
+			setStatus( 'login' );
+			return;
+		}
+		load();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	const mark = async ( id, attendance ) => {
+		setBusyId( id );
+		try {
+			await post( `bookings/${ id }/attendance`, { status: attendance } );
+			announce(
+				attendance === 'completed'
+					? 'Marked complete.'
+					: 'Marked no-show.'
+			);
+			await load();
+		} catch ( err ) {
+			setError( err.message );
+		} finally {
+			setBusyId( 0 );
+		}
+	};
+
+	const saveNote = async ( id ) => {
+		setBusyId( id );
+		try {
+			await post( `bookings/${ id }/notes`, {
+				notes: noteDrafts[ id ] || '',
+			} );
+			announce( 'Note saved.' );
+			await load();
+		} catch ( err ) {
+			setError( err.message );
+		} finally {
+			setBusyId( 0 );
+		}
+	};
+
+	const onSaveWeek = async ( cells ) => {
+		if ( ! tutorId ) {
+			announce( 'No tutor profile is linked to this account yet.' );
+			return;
+		}
+		try {
+			await put( `availability/${ tutorId }`, {
+				week: cellsToWeek( cells ),
+			} );
+			setWeekCells( cells );
+			setError( '' );
+		} catch ( err ) {
+			setError( err.message || 'Could not save availability.' );
+			announce( err.message || 'Could not save availability.' );
+			throw err;
+		}
+	};
+
+	if ( status === 'login' ) {
+		return h(
+			'div',
+			{ class: 'ts-dash' },
+			h(
+				Callout,
+				{ title: 'Sign in:' },
+				'Tutors manage lessons from this page, not wp-admin.'
+			),
+			h(
+				Button,
+				{
+					onClick: () =>
+						navigateTo( boot.loginUrl, { sameOrigin: true } ),
+				},
+				'Sign in'
+			)
+		);
+	}
+
+	if ( status === 'loading' ) {
+		return h( 'div', { class: 'ts-dash' }, h( Skeleton, { lines: 6 } ) );
+	}
+
+	if ( status === 'error' ) {
+		return h(
+			'div',
+			{ class: 'ts-dash' },
+			h( ErrorState, {
+				title: 'Dashboard unavailable',
+				description: error,
+			} )
+		);
+	}
+
+	return h(
+		'div',
+		{ class: 'ts-dash' },
+		h(
+			'header',
+			{ class: 'ts-dash__hero' },
+			h( 'p', { class: 'ts-dash__eyebrow' }, boot.user?.name || 'Tutor' ),
+			h( 'h1', null, 'Your teaching schedule' )
+		),
+		error ? h( Callout, { tone: 'warn', title: 'Notice:' }, error ) : null,
+		h(
+			'div',
+			{ class: 'ts-dash__grid ts-dash__grid--tutor' },
+			h(
+				'section',
+				{ class: 'ts-dash__panel' },
+				h( 'h2', null, 'Upcoming lessons' ),
+				lessons.length === 0
+					? h( EmptyState, {
+							title: 'No lessons booked',
+							description:
+								'When students book you, they appear here.',
+					  } )
+					: lessons.map( ( row ) =>
+							h(
+								'article',
+								{
+									key: row.id,
+									class: 'ts-dash__lesson ts-dash__lesson--tutor',
+								},
+								h(
+									'div',
+									{ class: 'ts-dash__what' },
+									h(
+										'b',
+										null,
+										`${ row.subject } · ${ row.student }`
+									),
+									h(
+										'small',
+										{ class: 'ts-mono' },
+										[ row.start_utc, row.series_label ]
+											.filter( Boolean )
+											.join( ' · ' )
+									)
+								),
+								h(
+									StatusChip,
+									{ tone: statusTone( row.status ) },
+									row.status
+								),
+								h(
+									'label',
+									{ class: 'ts-dash__note-field' },
+									h( 'span', null, 'After-lesson note' ),
+									h( 'textarea', {
+										rows: 2,
+										value:
+											noteDrafts[ row.id ] ??
+											row.notes ??
+											'',
+										onInput: ( e ) =>
+											setNoteDrafts( ( d ) => ( {
+												...d,
+												[ row.id ]: e.target.value,
+											} ) ),
+									} ),
+									h(
+										Button,
+										{
+											variant: 'ghost',
+											disabled: busyId === row.id,
+											onClick: () => saveNote( row.id ),
+										},
+										'Save note'
+									)
+								)
+							)
+					  ),
+				h( 'h2', null, 'Attendance due' ),
+				attendanceDue.length === 0
+					? h( EmptyState, {
+							title: 'No attendance to record',
+							description:
+								'Completed lesson times that need an outcome appear here.',
+					  } )
+					: attendanceDue.map( ( row ) =>
+							h(
+								'article',
+								{
+									key: `attendance-${ row.id }`,
+									class: 'ts-dash__lesson ts-dash__lesson--tutor',
+								},
+								h(
+									'div',
+									{ class: 'ts-dash__what' },
+									h(
+										'b',
+										null,
+										`${ row.subject } · ${ row.student }`
+									),
+									h(
+										'small',
+										{ class: 'ts-mono' },
+										row.start_utc
+									)
+								),
+								h(
+									StatusChip,
+									{ tone: 'wait' },
+									'attendance due'
+								),
+								h(
+									'div',
+									{ class: 'ts-dash__actions' },
+									h(
+										Button,
+										{
+											variant: 'secondary',
+											disabled: busyId === row.id,
+											onClick: () =>
+												mark( row.id, 'completed' ),
+										},
+										'Complete'
+									),
+									h(
+										Button,
+										{
+											variant: 'ghost',
+											disabled: busyId === row.id,
+											onClick: () =>
+												mark( row.id, 'no_show' ),
+										},
+										'No-show'
+									)
+								)
+							)
+					  )
+			),
+			h(
+				'section',
+				{ class: 'ts-dash__panel' },
+				h(
+					'div',
+					{ class: 'ts-dash__panel-hd' },
+					h( 'h2', null, 'Your availability' )
+				),
+				weekCells
+					? h(
+							'div',
+							{ class: 'ts-dash__avail' },
+							h(
+								'p',
+								{ class: 'ts-dash__hint' },
+								'Paint the hours students can book, then save. This pattern repeats every week.'
+							),
+							h( TimetableGrid, {
+								key: gridKey,
+								initial: weekCells,
+								onSave: onSaveWeek,
+								saveLabel: 'Save hours',
+							} )
+					  )
+					: h( EmptyState, {
+							title: 'No tutor profile yet',
+							description:
+								'Accept your invite or ask the site manager to finish linking your account.',
+					  } )
+			)
+		)
+	);
+}
+
+function statusTone( status ) {
+	if ( status === 'confirmed' || status === 'completed' ) {
+		return 'ok';
+	}
+	if (
+		status === 'cancelled' ||
+		status === 'no_show' ||
+		status === 'payment_expired'
+	) {
+		return 'off';
+	}
+	return 'wait';
+}
+
+function hasLessonEnded( endUtc ) {
+	const normalized = String( endUtc || '' )
+		.trim()
+		.replace( ' ', 'T' );
+	const timestamp = Date.parse(
+		/[zZ]|[+-]\d{2}:?\d{2}$/.test( normalized )
+			? normalized
+			: `${ normalized }Z`
+	);
+
+	return Number.isFinite( timestamp ) && timestamp <= Date.now();
+}

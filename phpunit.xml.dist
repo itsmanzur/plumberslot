@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+	bootstrap="tests/bootstrap-unit.php"
+	colors="true"
+	failOnIncomplete="true"
+	failOnRisky="true"
+	failOnSkipped="true"
+	failOnWarning="true"
+	cacheResultFile=".phpunit.result.cache"
+>
+	<testsuites>
+		<testsuite name="TutorSlot unit tests">
+			<directory suffix="Test.php">tests/Unit</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
