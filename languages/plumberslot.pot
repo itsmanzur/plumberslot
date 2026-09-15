@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PlumberSlot 0.1.0\n"
-"Report-Msgid-Bugs-To: https://plumberslot.com\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/plumberslot\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-31T09:58:29+00:00\n"
+"POT-Creation-Date: 2026-09-15T09:34:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: plumberslot\n"
@@ -31,7 +31,13 @@ msgstr ""
 
 #. Description of the plugin
 #: plumberslot.php
-msgid "Scheduling for tutors with weekly availability, recurring lessons, parent accounts, lesson packages, optional payments and online meetings."
+msgid "Scheduling for plumbing businesses with technician-owned availability, service addresses, recurring appointments, Service Plans, optional payments and virtual estimates."
+msgstr ""
+
+#. translators: %s: required PHP version.
+#: plumberslot.php:45
+#, php-format
+msgid "PlumberSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again."
 msgstr ""
 
 #: src/Activator.php:23
@@ -47,7 +53,7 @@ msgid "Availability"
 msgstr ""
 
 #: src/Admin/AdminMenu.php:42
-msgid "Subjects"
+msgid "Services"
 msgstr ""
 
 #: src/Admin/AdminMenu.php:43
@@ -60,7 +66,7 @@ msgstr ""
 
 #: src/Admin/AdminMenu.php:54
 #: src/Admin/AdminMenu.php:55
-msgid "Tutors"
+msgid "Technicians"
 msgstr ""
 
 #: src/Admin/AdminMenu.php:63
@@ -81,85 +87,86 @@ msgstr ""
 msgid "Set up PlumberSlot"
 msgstr ""
 
-#: src/Domain/BookingService.php:64
+#: src/Domain/BookingService.php:66
 msgid "That slot was only held for a few minutes and the hold has expired. Pick a time again."
 msgstr ""
 
-#: src/Domain/BookingService.php:72
-#: src/Domain/BookingService.php:199
-msgid "Someone is booking with this tutor right now. Try again."
+#: src/Domain/BookingService.php:74
+#: src/Domain/BookingService.php:205
+msgid "Someone is booking with this technician right now. Try again."
 msgstr ""
 
-#: src/Domain/BookingService.php:86
-#: src/Domain/BookingService.php:209
+#: src/Domain/BookingService.php:88
+#: src/Domain/BookingService.php:215
 msgid "That time is no longer open. Choose another slot."
 msgstr ""
 
-#: src/Domain/BookingService.php:103
-#: src/Domain/BookingService.php:229
+#: src/Domain/BookingService.php:105
+#: src/Domain/BookingService.php:235
 msgid "Someone booked that time a moment ago. Choose another slot."
 msgstr ""
 
-#: src/Domain/BookingService.php:142
+#: src/Domain/BookingService.php:144
 msgid "The booking could not be saved. Try again."
 msgstr ""
 
-#: src/Domain/BookingService.php:159
-msgid "Only a confirmed lesson can be rescheduled."
+#: src/Domain/BookingService.php:161
+msgid "Only a confirmed appointment can be rescheduled."
 msgstr ""
 
-#: src/Domain/BookingService.php:241
+#: src/Domain/BookingService.php:247
 msgid "The booking changed before it could be rescheduled."
 msgstr ""
 
-#: src/Domain/BookingService.php:326
-msgid "Only a confirmed lesson can be cancelled."
+#: src/Domain/BookingService.php:336
+msgid "Only a confirmed appointment can be cancelled."
 msgstr ""
 
-#: src/Domain/BookingService.php:345
+#: src/Domain/BookingService.php:355
 msgid "The booking changed before it could be cancelled."
 msgstr ""
 
-#: src/Domain/BookingService.php:397
+#: src/Domain/BookingService.php:407
 msgid "Attendance must be completed or no_show."
 msgstr ""
 
-#: src/Domain/BookingService.php:426
-msgid "Attendance can be recorded only for a confirmed lesson."
+#: src/Domain/BookingService.php:436
+msgid "Attendance can be recorded only for a confirmed appointment."
 msgstr ""
 
-#: src/Domain/BookingService.php:434
-msgid "Attendance can be recorded after the lesson ends."
+#: src/Domain/BookingService.php:444
+msgid "Attendance can be recorded after the appointment ends."
 msgstr ""
 
-#: src/Domain/BookingService.php:448
+#: src/Domain/BookingService.php:458
 msgid "The booking changed before attendance could be recorded."
 msgstr ""
 
 #: src/Domain/CreditService.php:47
-msgid "This package has no lessons left on it."
+msgid "This package has no jobs left on it."
 msgstr ""
 
 #: src/Domain/CreditService.php:133
 #: src/Domain/CreditService.php:153
-msgid "Could not create the lesson package."
+msgid "Could not create the job package."
 msgstr ""
 
-#. translators: %s: student display name.
+#. translators: %s: customer display name.
 #: src/Domain/MeetingService.php:127
 #, php-format
-msgid "Lesson with %s"
+msgid "Appointment with %s"
 msgstr ""
 
 #: src/Domain/MeetingService.php:128
-#: src/Privacy/PrivacyHooks.php:225
-#: src/Privacy/PrivacyHooks.php:268
-#: src/Rest/BookingsController.php:589
+#: src/Privacy/PrivacyHooks.php:222
+#: src/Rest/BookingsController.php:613
 #: src/Rest/DashboardController.php:170
 #: src/Rest/DashboardController.php:202
 #: src/Rest/DashboardController.php:203
-#: src/Support/Capabilities.php:44
-msgid "Student"
+#: src/Rest/PublicTechnicianController.php:141
+#: src/Rest/PublicTechnicianController.php:142
+#: src/Support/Capabilities.php:43
+msgid "Customer"
 msgstr ""
 
 #: src/Domain/PaymentService.php:62
@@ -171,7 +178,7 @@ msgid "This booking cannot be paid right now."
 msgstr ""
 
 #: src/Domain/PaymentService.php:79
-msgid "This lesson does not need a payment."
+msgid "This appointment does not need a payment."
 msgstr ""
 
 #: src/Domain/PaymentService.php:88
@@ -179,7 +186,7 @@ msgid "That payment method is not available."
 msgstr ""
 
 #: src/Domain/PaymentService.php:260
-msgid "Only a completed lesson can be refunded."
+msgid "Only a completed appointment can be refunded."
 msgstr ""
 
 #: src/Domain/PaymentService.php:276
@@ -193,21 +200,21 @@ msgstr ""
 #. translators: %d: number of hours.
 #: src/Domain/PolicyService.php:36
 #, php-format
-msgid "Lessons need to be booked at least %d hour ahead."
-msgid_plural "Lessons need to be booked at least %d hours ahead."
+msgid "Appointments need to be booked at least %d hour ahead."
+msgid_plural "Appointments need to be booked at least %d hours ahead."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Domain/PolicyService.php:57
-msgid "This lesson is too close to its start time to move. Message your tutor instead."
+msgid "This appointment is too close to its start time to move. Message your technician instead."
 msgstr ""
 
 #: src/Domain/PolicyService.php:76
-msgid "This student has already used their free trial lesson."
+msgid "This customer has already used their free estimate."
 msgstr ""
 
 #: src/Domain/RecurrenceService.php:46
-msgid "A course can run between 1 and 104 lessons."
+msgid "A course can run between 1 and 104 appointments."
 msgstr ""
 
 #. translators: %s: viewer's timezone name.
@@ -217,18 +224,18 @@ msgid "Times shown in %s"
 msgstr ""
 
 #: src/Frontend/BlockRegistrar.php:61
-msgid "Lesson booking"
+msgid "Appointment booking"
 msgstr ""
 
 #: src/Frontend/BlockRegistrar.php:64
-msgid "Let visitors see your open hours and book a lesson."
+msgid "Let visitors see your open hours and book an appointment."
 msgstr ""
 
 #: src/Frontend/BookingPage.php:78
-msgid "Book a lesson"
+msgid "Book an appointment"
 msgstr ""
 
-#: src/Frontend/DashboardRoutes.php:79
+#: src/Frontend/DashboardRoutes.php:78
 msgid "Dashboard is temporarily unavailable."
 msgstr ""
 
@@ -245,28 +252,28 @@ msgid "This meeting link has expired or is invalid. Please check your email for 
 msgstr ""
 
 #: src/Frontend/JoinRoute.php:77
-msgid "Sign in with a lesson participant account to join this meeting."
+msgid "Sign in with an appointment participant account to join this meeting."
 msgstr ""
 
-#: src/Frontend/JoinRoute.php:95
-msgid "You are not a participant of this lesson."
+#: src/Frontend/JoinRoute.php:91
+msgid "You are not a participant of this appointment."
 msgstr ""
 
-#: src/Frontend/JoinRoute.php:103
+#: src/Frontend/JoinRoute.php:99
 msgid "Meeting reference is malformed."
 msgstr ""
 
-#: src/Frontend/JoinRoute.php:115
+#: src/Frontend/JoinRoute.php:111
 #: src/Meetings/ProviderRegistry.php:59
 msgid "The meeting provider is unavailable."
 msgstr ""
 
-#: src/Frontend/JoinRoute.php:121
-msgid "Could not retrieve the meeting link. Please contact your tutor."
+#: src/Frontend/JoinRoute.php:117
+msgid "Could not retrieve the meeting link. Please contact your technician."
 msgstr ""
 
 #: src/Frontend/Shortcode.php:51
-msgid "No tutor matches that name. Check the tutor slug in the shortcode."
+msgid "No technician matches that name. Check the technician slug in the shortcode."
 msgstr ""
 
 #: src/Frontend/Shortcode.php:58
@@ -296,7 +303,7 @@ msgid "Google did not return a refresh token."
 msgstr ""
 
 #: src/Meetings/GoogleMeetProvider.php:251
-msgid "Google Meet is not connected for this tutor."
+msgid "Google Meet is not connected for this technician."
 msgstr ""
 
 #: src/Meetings/GoogleMeetProvider.php:281
@@ -332,84 +339,94 @@ msgstr ""
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:55
 #, php-format
-msgid "Lesson requested for %s"
+msgid "Appointment requested for %s"
 msgstr ""
 
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:56
 #, php-format
-msgid "Lesson confirmed for %s"
+msgid "Appointment confirmed for %s"
 msgstr ""
 
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:57
 #, php-format
-msgid "Lesson on %s is cancelled"
+msgid "Appointment on %s is cancelled"
 msgstr ""
 
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:58
 #, php-format
-msgid "Lesson moved to %s"
+msgid "Appointment moved to %s"
 msgstr ""
 
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:59
 #, php-format
-msgid "Tomorrow: your lesson at %s"
+msgid "Tomorrow: your appointment at %s"
 msgstr ""
 
 #. translators: %s: date and time.
 #: src/Notifications/Channel/EmailChannel.php:60
-msgid "Your lesson starts in an hour"
+msgid "Your appointment starts in an hour"
 msgstr ""
 
 #: src/Notifications/Channel/EmailChannel.php:61
-msgid "Lesson update"
+msgid "Appointment update"
 msgstr ""
 
-#: src/Notifications/Channel/EmailChannel.php:83
-msgid "Open your lesson"
+#: src/Notifications/Channel/EmailChannel.php:84
+msgid "Service address:"
+msgstr ""
+
+#: src/Notifications/Channel/EmailChannel.php:93
+msgid "Join your video estimate"
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:99
+#: src/Notifications/Channel/EmailChannel.php:109
 #, php-format
-msgid "Your lesson is confirmed for %s."
+msgid "Your appointment is confirmed for %s."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:100
+#: src/Notifications/Channel/EmailChannel.php:110
 #, php-format
-msgid "The lesson on %s has been cancelled. Nothing further is needed from you."
+msgid "The appointment on %s has been cancelled. Nothing further is needed from you."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:101
+#: src/Notifications/Channel/EmailChannel.php:111
 #, php-format
-msgid "The lesson has moved to %s."
+msgid "The appointment has moved to %s."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:102
+#: src/Notifications/Channel/EmailChannel.php:112
 #, php-format
-msgid "A reminder that your lesson is tomorrow at %s."
+msgid "A reminder that your appointment is tomorrow at %s."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:103
+#: src/Notifications/Channel/EmailChannel.php:113
+#: src/Notifications/Channel/SmsChannel.php:65
+msgid "Your appointment starts in an hour."
+msgstr ""
+
+#. translators: %s: date and time.
+#: src/Notifications/Channel/EmailChannel.php:114
+#, php-format
+msgid "Your appointment is booked for %s."
+msgstr ""
+
 #: src/Notifications/Channel/SmsChannel.php:59
-msgid "Your lesson starts in an hour."
+msgid "Your appointment has been cancelled."
 msgstr ""
 
-#. translators: %s: date and time.
-#: src/Notifications/Channel/EmailChannel.php:104
+#. translators: %s: short job-site address (street and city).
+#: src/Notifications/Channel/SmsChannel.php:73
 #, php-format
-msgid "Your lesson is booked for %s."
-msgstr ""
-
-#: src/Notifications/Channel/SmsChannel.php:60
-msgid "Your lesson has been cancelled."
+msgid "Your appointment starts in an hour at %s."
 msgstr ""
 
 #: src/Payments/BkashGateway.php:30
@@ -441,9 +458,7 @@ msgid "Card"
 msgstr ""
 
 #: src/Payments/StripeGateway.php:61
-#: src/Rest/DashboardController.php:171
-#: src/Rest/DashboardController.php:207
-msgid "Lesson"
+msgid "Service Call"
 msgstr ""
 
 #: src/Payments/StripeGateway.php:73
@@ -468,24 +483,24 @@ msgid "PlumberSlot:"
 msgstr ""
 
 #: src/Plugin.php:125
-msgid "lesson reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on."
+msgid "appointment reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:38
 #: src/Privacy/PrivacyHooks.php:51
-msgid "PlumberSlot lessons"
+msgid "PlumberSlot appointments"
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:130
-msgid "PlumberSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records."
+msgid "PlumberSlot retained anonymized appointment dates, amounts, statuses and transaction references for accounting, tax and dispute records."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:157
-msgid "PlumberSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons."
+msgid "PlumberSlot stores appointment dates and times, customer and technician account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver appointments."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:158
-msgid "Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL."
+msgid "Appointment reminders may be sent to the customer and technician. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:159
@@ -493,7 +508,7 @@ msgid "When an optional online payment is selected, PlumberSlot sends the bookin
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:160
-msgid "When a meeting provider is connected, PlumberSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved."
+msgid "When a meeting provider is connected, PlumberSlot sends the customer display name, appointment schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved."
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:161
@@ -501,87 +516,51 @@ msgid "Email uses the site’s WordPress mail configuration. If the site connect
 msgstr ""
 
 #: src/Privacy/PrivacyHooks.php:162
-msgid "When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution."
+msgid "When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Appointment dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution."
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:228
-msgid "Paying parent"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:232
-#: src/Privacy/PrivacyHooks.php:268
+#: src/Privacy/PrivacyHooks.php:226
 msgid "Role"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:233
+#: src/Privacy/PrivacyHooks.php:227
 msgid "When"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:234
-#: src/Privacy/PrivacyHooks.php:293
+#: src/Privacy/PrivacyHooks.php:228
+#: src/Privacy/PrivacyHooks.php:262
 msgid "Status"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:235
+#: src/Privacy/PrivacyHooks.php:229
 msgid "Amount"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:236
+#: src/Privacy/PrivacyHooks.php:230
 msgid "Notes"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:240
+#: src/Privacy/PrivacyHooks.php:234
 msgid "Payment reference"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:245
-msgid "Lessons"
+#: src/Privacy/PrivacyHooks.php:239
+msgid "Appointments"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:265
-msgid "Family relationships"
+#: src/Privacy/PrivacyHooks.php:257
+msgid "Appointment reviews"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:268
-#: src/Rest/PublicTutorController.php:142
-#: src/Rest/PublicTutorController.php:143
-#: src/Support/Capabilities.php:53
-msgid "Parent"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:269
-msgid "Relationship"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:270
-msgid "Related account ID"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:271
-msgid "Confirmed"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:271
-msgid "Yes"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:271
-msgid "No"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:288
-msgid "Lesson reviews"
-msgstr ""
-
-#: src/Privacy/PrivacyHooks.php:291
+#: src/Privacy/PrivacyHooks.php:260
 msgid "Rating"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:292
+#: src/Privacy/PrivacyHooks.php:261
 msgid "Review"
 msgstr ""
 
-#: src/Privacy/PrivacyHooks.php:294
+#: src/Privacy/PrivacyHooks.php:263
 msgid "Booking ID"
 msgstr ""
 
@@ -606,37 +585,42 @@ msgstr ""
 msgid "Could not save the time off entry."
 msgstr ""
 
-#: src/Rest/BookingsController.php:314
+#: src/Rest/BookingsController.php:334
 msgid "Too many booking attempts. Wait a minute and try again."
 msgstr ""
 
-#: src/Rest/BookingsController.php:386
-msgid "Online rescheduling is disabled. Contact the tutor to move this lesson."
+#: src/Rest/BookingsController.php:406
+msgid "Online rescheduling is disabled. Contact the technician to move this appointment."
 msgstr ""
 
-#. translators: 1: current or booked lesson count, 2: total or requested lesson count
-#: src/Rest/BookingsController.php:548
-#: src/Rest/SeriesController.php:264
-#: src/Rest/SeriesController.php:297
+#. translators: 1: current or booked appointment count, 2: total or requested appointment count
+#: src/Rest/BookingsController.php:572
+#: src/Rest/SeriesController.php:283
+#: src/Rest/SeriesController.php:316
 #, php-format
 msgid "Weekly %1$d/%2$d"
 msgstr ""
 
-#: src/Rest/BookingsController.php:707
+#: src/Rest/BookingsController.php:736
 msgid "That hold is no longer available."
 msgstr ""
 
-#: src/Rest/BookingsController.php:718
+#: src/Rest/BookingsController.php:747
 msgid "Someone is booking that time right now. Pick another slot."
 msgstr ""
 
-#: src/Rest/BookingsController.php:767
-#: src/Rest/SeriesController.php:210
-msgid "There are no lessons left on this package."
+#: src/Rest/BookingsController.php:789
+#: src/Rest/SeriesController.php:225
+msgid "There are no jobs left on this package."
+msgstr ""
+
+#: src/Rest/DashboardController.php:171
+#: src/Rest/DashboardController.php:205
+msgid "Service call"
 msgstr ""
 
 #: src/Rest/DashboardController.php:196
-#: src/Rest/DashboardController.php:212
+#: src/Rest/DashboardController.php:210
 msgid "Credit used"
 msgstr ""
 
@@ -649,42 +633,31 @@ msgid "Paid"
 msgstr ""
 
 #: src/Rest/DashboardController.php:199
-#: src/Rest/DashboardController.php:212
+#: src/Rest/DashboardController.php:210
 msgid "Due"
 msgstr ""
 
-#. translators: %s: parent display name.
-#: src/Rest/DashboardController.php:205
-#, php-format
-msgid "Parent: %s"
-msgstr ""
-
-#. translators: %s: parent display name.
-#: src/Rest/DashboardController.php:206
-msgid "Books their own lessons"
-msgstr ""
-
-#: src/Rest/DashboardController.php:227
+#: src/Rest/DashboardController.php:225
 msgid "Bookings awaiting confirmation"
 msgstr ""
 
-#. translators: %s: student name
-#: src/Rest/DashboardController.php:240
+#. translators: %s: customer name
+#: src/Rest/DashboardController.php:238
 #, php-format
 msgid "Confirm booking for %s"
 msgstr ""
 
-#: src/Rest/DashboardController.php:241
-msgid "student"
+#: src/Rest/DashboardController.php:239
+msgid "customer"
 msgstr ""
 
 #. translators: %s: first name
-#: src/Rest/DashboardController.php:285
+#: src/Rest/DashboardController.php:283
 #, php-format
 msgid "Good day, %s"
 msgstr ""
 
-#: src/Rest/Guard.php:38
+#: src/Rest/Guard.php:37
 msgid "Not found."
 msgstr ""
 
@@ -692,28 +665,32 @@ msgstr ""
 msgid "Google client id is not set in PlumberSlot settings."
 msgstr ""
 
-#: src/Rest/PublicTutorController.php:75
+#: src/Rest/PublicTechnicianController.php:75
 #: src/Rest/SlotsController.php:91
 msgid "Too many requests. Wait a moment and try again."
 msgstr ""
 
-#: src/Rest/PublicTutorController.php:204
+#: src/Rest/PublicTechnicianController.php:203
 msgid "~2 hours"
 msgstr ""
 
-#: src/Rest/RelationsController.php:126
-msgid "No account matches that email. Ask your child to sign up first."
-msgstr ""
-
-#: src/Rest/RelationsController.php:136
-msgid "Choose a different student account to link."
-msgstr ""
-
-#: src/Rest/SeriesController.php:169
+#: src/Rest/SeriesController.php:189
 msgid "Pick at least one weekday for the course."
 msgstr ""
 
-#: src/Rest/SetupController.php:177
+#: src/Rest/ServicesController.php:166
+msgid "Could not save the service."
+msgstr ""
+
+#: src/Rest/ServicesController.php:193
+msgid "Could not update the service."
+msgstr ""
+
+#: src/Rest/ServicesController.php:214
+msgid "Could not delete the service."
+msgstr ""
+
+#: src/Rest/SetupController.php:175
 msgid "Could not save your weekly hours."
 msgstr ""
 
@@ -723,36 +700,24 @@ msgstr ""
 msgid "Ask for a window of up to %d days."
 msgstr ""
 
-#: src/Rest/SubjectsController.php:171
-msgid "Could not save the subject."
-msgstr ""
-
-#: src/Rest/SubjectsController.php:198
-msgid "Could not update the subject."
-msgstr ""
-
-#: src/Rest/SubjectsController.php:219
-msgid "Could not delete the subject."
-msgstr ""
-
-#: src/Rest/TutorsController.php:153
+#: src/Rest/TechniciansController.php:148
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/Rest/TutorsController.php:193
-msgid "Could not create the tutor account."
+#: src/Rest/TechniciansController.php:188
+msgid "Could not create the technician account."
 msgstr ""
 
-#: src/Rest/TutorsController.php:203
-msgid "That person is already a PlumberSlot tutor."
+#: src/Rest/TechniciansController.php:198
+msgid "That person is already a PlumberSlot technician."
 msgstr ""
 
-#: src/Rest/TutorsController.php:348
+#: src/Rest/TechniciansController.php:337
 msgid "You are invited to teach on PlumberSlot"
 msgstr ""
 
 #. translators: %s: set-password URL
-#: src/Rest/TutorsController.php:351
+#: src/Rest/TechniciansController.php:340
 #, php-format
 msgid ""
 "You have been invited to teach with PlumberSlot.\n"
@@ -762,9 +727,10 @@ msgid ""
 ""
 msgstr ""
 
-#: src/Support/Capabilities.php:33
+#: src/Support/Capabilities.php:32
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:109
-msgid "Tutor"
+msgid "Technician"
 msgstr ""
 
 #: src/Support/Validate.php:73
@@ -779,44 +745,47 @@ msgstr ""
 msgid "Each availability block needs a weekday 0–6 and minutes within 0–1440, with start before end."
 msgstr ""
 
-#. translators: %s: required PHP version.
-#: plumberslot.php:45
-#, php-format
-msgid "PlumberSlot needs PHP %s or newer. Ask your host to upgrade, then activate the plugin again."
-msgstr ""
-
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:82
-msgid "Select a tutor"
+msgid "Select a technician"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:90
-msgid "Any subject"
+msgid "Any service"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:101
 msgid "Booking widget"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:120
-msgid "Subject (optional)"
+msgid "Service (optional)"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:133
-msgid "Tutor slug"
+msgid "Technician slug"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:134
-msgid "Used if the tutor list is unavailable."
+msgid "Used if the technician list is unavailable."
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:148
 msgid "PlumberSlot booking"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:151
-msgid "Tutor:"
+msgid "Technician:"
 msgstr ""
 
+#: assets/dist/block.js:1
 #: assets/src/block/index.js:152
-msgid "Choose a tutor in the sidebar."
+msgid "Choose a technician in the sidebar."
 msgstr ""
