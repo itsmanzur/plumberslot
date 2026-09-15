@@ -189,7 +189,7 @@ final class PaymentsController extends AbstractController {
 			return $this->guard->deny();
 		}
 
-		if ( $this->guard->is_site_manager() || $this->guard->owns_tutor( (int) $booking->tutor_id ) ) {
+		if ( $this->guard->is_site_manager() || $this->guard->owns_technician( (int) $booking->technician_id ) ) {
 			return true;
 		}
 

@@ -15,7 +15,7 @@ declare( strict_types = 1 );
 
 namespace PlumberSlot\Rest;
 
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Database\Schema;
 use PlumberSlot\Support\Capabilities;
 use WP_Error;
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Guard {
 
-	public function __construct( private readonly TutorRepository $tutors ) {}
+	public function __construct( private readonly TechnicianRepository $technicians ) {}
 
 	/**
 	 * A deliberately indistinct rejection.
@@ -45,9 +45,9 @@ final class Guard {
 	}
 
 	/**
-	 * Can the current user act on this tutor's schedule?
+	 * Can the current user act on this technician's schedule?
 	 */
-	public function owns_tutor( int $tutor_id ): bool {
+	public function owns_technician( int $technician_id ): bool {
 		if ( $this->is_site_manager() ) {
 			return true;
 		}
@@ -56,14 +56,14 @@ final class Guard {
 			return false;
 		}
 
-		return $tutor_id > 0 && $this->tutors->tutor_id_for_user( get_current_user_id() ) === $tutor_id;
+		return $technician_id > 0 && $this->technicians->technician_id_for_user( get_current_user_id() ) === $technician_id;
 	}
 
 	/**
 	 * Can the current user see or change this booking?
 	 *
-	 * Four legitimate parties: the student, the paying parent, the tutor who
-	 * teaches it, and a site manager. Everyone else gets a 404.
+	 * Four legitimate parties: the customer, the paying parent, the technician who
+	 * does the work, and a site manager. Everyone else gets a 404.
 	 */
 	public function may_touch_booking( object $booking ): bool {
 		if ( $this->is_site_manager() ) {
@@ -76,7 +76,7 @@ final class Guard {
 			return false;
 		}
 
-		if ( (int) $booking->student_id === $user_id ) {
+		if ( (int) $booking->customer_id === $user_id ) {
 			return true;
 		}
 
@@ -84,7 +84,7 @@ final class Guard {
 			return true;
 		}
 
-		return $this->tutors->tutor_id_for_user( $user_id ) === (int) $booking->tutor_id;
+		return $this->technicians->technician_id_for_user( $user_id ) === (int) $booking->technician_id;
 	}
 
 	/**

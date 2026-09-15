@@ -1,6 +1,6 @@
 <?php
 /**
- * /plumberslot/v1/tutors — manager-only tutor directory and invites.
+ * /plumberslot/v1/technicians — manager-only technician directory and invites.
  *
  * @package PlumberSlot
  */
@@ -9,8 +9,8 @@ declare( strict_types = 1 );
 
 namespace PlumberSlot\Rest;
 
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Support\AuditLog;
 use PlumberSlot\Support\Capabilities;
 use WP_Error;
@@ -19,12 +19,12 @@ use WP_REST_Response;
 
 defined( 'ABSPATH' ) || exit;
 
-final class TutorsController extends AbstractController {
+final class TechniciansController extends AbstractController {
 
 	public function __construct(
 		Guard $guard,
-		private readonly TutorRepository $tutors,
-		private readonly SubjectRepository $subjects
+		private readonly TechnicianRepository $technicians,
+		private readonly ServiceRepository $services
 	) {
 		parent::__construct( $guard );
 	}
@@ -32,7 +32,7 @@ final class TutorsController extends AbstractController {
 	public function register_routes(): void {
 		register_rest_route(
 			self::NAMESPACE,
-			'/tutors',
+			'/technicians',
 			array(
 				array(
 					'methods'             => 'GET',
@@ -58,11 +58,6 @@ final class TutorsController extends AbstractController {
 							'sanitize_callback' => 'absint',
 							'default'           => 0,
 						),
-						'payout_share_pct'  => array(
-							'type'              => 'integer',
-							'sanitize_callback' => 'absint',
-							'default'           => 100,
-						),
 						'currency'          => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -75,7 +70,7 @@ final class TutorsController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/tutors/(?P<id>\d+)',
+			'/technicians/(?P<id>\d+)',
 			array(
 				array(
 					'methods'             => 'GET',
@@ -94,7 +89,7 @@ final class TutorsController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/tutors/(?P<id>\d+)/resend',
+			'/technicians/(?P<id>\d+)/resend',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'resend' ),
@@ -117,7 +112,7 @@ final class TutorsController extends AbstractController {
 			return $nonce;
 		}
 
-		if ( ! current_user_can( Capabilities::MANAGE_TUTORS ) ) {
+		if ( ! current_user_can( Capabilities::MANAGE_TECHNICIANS ) ) {
 			return $this->guard->deny();
 		}
 
@@ -127,21 +122,21 @@ final class TutorsController extends AbstractController {
 	public function index(): WP_REST_Response {
 		$rows = array();
 
-		foreach ( $this->tutors->all() as $tutor ) {
-			$rows[] = $this->present( $tutor );
+		foreach ( $this->technicians->all() as $technician ) {
+			$rows[] = $this->present( $technician );
 		}
 
-		return $this->ok( array( 'tutors' => $rows ) );
+		return $this->ok( array( 'technicians' => $rows ) );
 	}
 
 	public function show( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor = $this->tutors->find( (int) $request['id'] );
+		$technician = $this->technicians->find( (int) $request['id'] );
 
-		if ( ! $tutor ) {
+		if ( ! $technician ) {
 			return $this->guard->deny();
 		}
 
-		return $this->ok( $this->present( $tutor, true ) );
+		return $this->ok( $this->present( $technician, true ) );
 	}
 
 	public function invite( WP_REST_Request $request ): WP_REST_Response|WP_Error {
@@ -161,7 +156,7 @@ final class TutorsController extends AbstractController {
 			$login = sanitize_user( current( explode( '@', $email ) ), true );
 
 			if ( '' === $login || username_exists( $login ) ) {
-				$login = 'tutor_' . wp_generate_password( 8, false, false );
+				$login = 'technician_' . wp_generate_password( 8, false, false );
 			}
 
 			$user_id = wp_insert_user(
@@ -170,7 +165,7 @@ final class TutorsController extends AbstractController {
 					'user_email'   => $email,
 					'user_pass'    => wp_generate_password( 24 ),
 					'display_name' => (string) ( $request['display_name'] ? $request['display_name'] : $login ),
-					'role'         => Capabilities::ROLE_TUTOR,
+					'role'         => Capabilities::ROLE_TECHNICIAN,
 				)
 			);
 
@@ -184,23 +179,23 @@ final class TutorsController extends AbstractController {
 
 			$user = get_user_by( 'id', $user_id );
 		} else {
-			$user->add_role( Capabilities::ROLE_TUTOR );
+			$user->add_role( Capabilities::ROLE_TECHNICIAN );
 		}
 
 		if ( ! $user ) {
 			return new WP_Error(
 				'plumberslot_invite_failed',
-				__( 'Could not create the tutor account.', 'plumberslot' ),
+				__( 'Could not create the technician account.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
 
-		$existing = $this->tutors->find_by_user( (int) $user->ID );
+		$existing = $this->technicians->find_by_user( (int) $user->ID );
 
 		if ( $existing ) {
 			return new WP_Error(
-				'plumberslot_tutor_exists',
-				__( 'That person is already a PlumberSlot tutor.', 'plumberslot' ),
+				'plumberslot_technician_exists',
+				__( 'That person is already a PlumberSlot technician.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -208,11 +203,11 @@ final class TutorsController extends AbstractController {
 		$display = (string) ( $request['display_name'] ? $request['display_name'] : $user->display_name );
 		$slug    = sanitize_title( $display );
 
-		if ( '' === $slug || $this->tutors->find_by_slug( $slug ) ) {
+		if ( '' === $slug || $this->technicians->find_by_slug( $slug ) ) {
 			$slug = sanitize_title( $display . '-' . $user->ID );
 		}
 
-		$id = $this->tutors->create(
+		$id = $this->technicians->create(
 			array(
 				'user_id'           => (int) $user->ID,
 				'slug'              => $slug,
@@ -220,24 +215,23 @@ final class TutorsController extends AbstractController {
 				'timezone'          => wp_timezone_string(),
 				'hourly_rate_minor' => (int) $request['hourly_rate_minor'],
 				'currency'          => strtoupper( substr( (string) $request['currency'], 0, 3 ) ),
-				'payout_share_pct'  => min( 100, (int) $request['payout_share_pct'] ),
 				'status'            => 'invited',
 			)
 		);
 
 		$this->send_invite_email( (int) $user->ID, $email );
-		AuditLog::record( 'tutor.invited', 'tutor', $id, array( 'email' => $email ) );
+		AuditLog::record( 'technician.invited', 'technician', $id, array( 'email' => $email ) );
 
-		$tutor = $this->tutors->find( $id );
+		$technician = $this->technicians->find( $id );
 
-		return $this->ok( $this->present( $tutor ), 201 );
+		return $this->ok( $this->present( $technician ), 201 );
 	}
 
 	public function update( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$id    = (int) $request['id'];
-		$tutor = $this->tutors->find( $id );
+		$technician = $this->technicians->find( $id );
 
-		if ( ! $tutor ) {
+		if ( ! $technician ) {
 			return $this->guard->deny();
 		}
 
@@ -250,10 +244,6 @@ final class TutorsController extends AbstractController {
 
 		if ( isset( $body['hourly_rate_minor'] ) ) {
 			$data['hourly_rate_minor'] = absint( $body['hourly_rate_minor'] );
-		}
-
-		if ( isset( $body['payout_share_pct'] ) ) {
-			$data['payout_share_pct'] = min( 100, absint( $body['payout_share_pct'] ) );
 		}
 
 		if ( isset( $body['currency'] ) ) {
@@ -269,28 +259,28 @@ final class TutorsController extends AbstractController {
 		}
 
 		if ( array() !== $data ) {
-			$this->tutors->update( $id, $data );
-			AuditLog::record( 'tutor.updated', 'tutor', $id, array( 'keys' => array_keys( $data ) ) );
+			$this->technicians->update( $id, $data );
+			AuditLog::record( 'technician.updated', 'technician', $id, array( 'keys' => array_keys( $data ) ) );
 		}
 
-		return $this->ok( $this->present( $this->tutors->find( $id ), true ) );
+		return $this->ok( $this->present( $this->technicians->find( $id ), true ) );
 	}
 
 	public function resend( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor = $this->tutors->find( (int) $request['id'] );
+		$technician = $this->technicians->find( (int) $request['id'] );
 
-		if ( ! $tutor ) {
+		if ( ! $technician ) {
 			return $this->guard->deny();
 		}
 
-		$user = get_user_by( 'id', (int) $tutor->user_id );
+		$user = get_user_by( 'id', (int) $technician->user_id );
 
 		if ( ! $user ) {
 			return $this->guard->deny();
 		}
 
 		$this->send_invite_email( (int) $user->ID, $user->user_email );
-		AuditLog::record( 'tutor.invite_resent', 'tutor', (int) $tutor->id );
+		AuditLog::record( 'technician.invite_resent', 'technician', (int) $technician->id );
 
 		return $this->ok( array( 'resent' => true ) );
 	}
@@ -298,42 +288,41 @@ final class TutorsController extends AbstractController {
 	/**
 	 * @return array<string, mixed>
 	 */
-	private function present( ?object $tutor, bool $with_subjects = false ): array {
-		if ( ! $tutor ) {
+	private function present( ?object $technician, bool $with_services = false ): array {
+		if ( ! $technician ) {
 			return array();
 		}
 
-		$subjects = array();
+		$services = array();
 
-		if ( $with_subjects ) {
-			foreach ( $this->subjects->all_for_tutor( (int) $tutor->id ) as $subject ) {
-				$subjects[] = array(
-					'id'           => (int) $subject->id,
-					'name'         => (string) $subject->name,
-					'duration_min' => (int) $subject->duration_min,
-					'price_minor'  => (int) $subject->price_minor,
-					'status'       => (string) $subject->status,
+		if ( $with_services ) {
+			foreach ( $this->services->all_for_technician( (int) $technician->id ) as $service ) {
+				$services[] = array(
+					'id'           => (int) $service->id,
+					'name'         => (string) $service->name,
+					'duration_min' => (int) $service->duration_min,
+					'price_minor'  => (int) $service->price_minor,
+					'status'       => (string) $service->status,
 				);
 			}
 		} else {
-			foreach ( $this->subjects->all_for_tutor( (int) $tutor->id ) as $subject ) {
-				if ( 'active' === (string) $subject->status ) {
-					$subjects[] = (string) $subject->name;
+			foreach ( $this->services->all_for_technician( (int) $technician->id ) as $service ) {
+				if ( 'active' === (string) $service->status ) {
+					$services[] = (string) $service->name;
 				}
 			}
 		}
 
 		return array(
-			'id'                => (int) $tutor->id,
-			'user_id'           => (int) $tutor->user_id,
-			'slug'              => (string) $tutor->slug,
-			'display_name'      => (string) $tutor->display_name,
-			'timezone'          => (string) $tutor->timezone,
-			'hourly_rate_minor' => (int) $tutor->hourly_rate_minor,
-			'currency'          => (string) $tutor->currency,
-			'payout_share_pct'  => (int) $tutor->payout_share_pct,
-			'status'            => (string) $tutor->status,
-			'subjects'          => $subjects,
+			'id'                => (int) $technician->id,
+			'user_id'           => (int) $technician->user_id,
+			'slug'              => (string) $technician->slug,
+			'display_name'      => (string) $technician->display_name,
+			'timezone'          => (string) $technician->timezone,
+			'hourly_rate_minor' => (int) $technician->hourly_rate_minor,
+			'currency'          => (string) $technician->currency,
+			'status'            => (string) $technician->status,
+			'services'          => $services,
 		);
 	}
 

@@ -39,7 +39,7 @@ final class CreditsController extends AbstractController {
 					'callback'            => array( $this, 'index' ),
 					'permission_callback' => array( $this, 'can_act' ),
 					'args'                => array(
-						'tutor_id' => array(
+						'technician_id' => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
@@ -50,11 +50,11 @@ final class CreditsController extends AbstractController {
 					'callback'            => array( $this, 'purchase' ),
 					'permission_callback' => array( $this, 'can_act' ),
 					'args'                => array(
-						'tutor_id'   => array(
+						'technician_id'   => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
-						'subject_id' => array(
+						'service_id' => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
@@ -80,7 +80,7 @@ final class CreditsController extends AbstractController {
 				'callback'            => array( $this, 'balance' ),
 				'permission_callback' => array( $this, 'can_act' ),
 				'args'                => array(
-					'tutor_id' => array(
+					'technician_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
@@ -129,8 +129,8 @@ final class CreditsController extends AbstractController {
 
 	public function index( WP_REST_Request $request ): WP_REST_Response {
 		$owner_id = get_current_user_id();
-		$tutor_id = $request['tutor_id'] ? (int) $request['tutor_id'] : null;
-		$rows     = $this->repo->for_owner( $owner_id, $tutor_id );
+		$technician_id = $request['technician_id'] ? (int) $request['technician_id'] : null;
+		$rows     = $this->repo->for_owner( $owner_id, $technician_id );
 
 		return $this->ok(
 			array(
@@ -140,7 +140,7 @@ final class CreditsController extends AbstractController {
 	}
 
 	public function balance( WP_REST_Request $request ): WP_REST_Response {
-		return $this->ok( $this->credits->balance( get_current_user_id(), (int) $request['tutor_id'] ) );
+		return $this->ok( $this->credits->balance( get_current_user_id(), (int) $request['technician_id'] ) );
 	}
 
 	public function catalog(): WP_REST_Response {
@@ -174,8 +174,8 @@ final class CreditsController extends AbstractController {
 		$package = $this->credits->purchase(
 			array(
 				'owner_id'    => $owner_id,
-				'tutor_id'    => $request['tutor_id'] ? (int) $request['tutor_id'] : null,
-				'subject_id'  => $request['subject_id'] ? (int) $request['subject_id'] : null,
+				'technician_id'    => $request['technician_id'] ? (int) $request['technician_id'] : null,
+				'service_id'  => $request['service_id'] ? (int) $request['service_id'] : null,
 				'total'       => $total,
 				'price_minor' => Settings::int( 'credit_package_price_minor', 0 ),
 			)
@@ -208,8 +208,8 @@ final class CreditsController extends AbstractController {
 		return array(
 			'id'          => (int) $row->id,
 			'owner_id'    => (int) $row->owner_id,
-			'tutor_id'    => $row->tutor_id ? (int) $row->tutor_id : null,
-			'subject_id'  => $row->subject_id ? (int) $row->subject_id : null,
+			'technician_id'    => $row->technician_id ? (int) $row->technician_id : null,
+			'service_id'  => $row->service_id ? (int) $row->service_id : null,
 			'total'       => (int) $row->total,
 			'used'        => (int) $row->used,
 			'remaining'   => (int) $row->total - (int) $row->used,

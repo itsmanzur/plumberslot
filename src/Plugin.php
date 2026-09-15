@@ -17,7 +17,7 @@ use PlumberSlot\Frontend\AssetManager;
 use PlumberSlot\Frontend\BlockRegistrar;
 use PlumberSlot\Frontend\DashboardRoutes;
 use PlumberSlot\Frontend\Shortcode;
-use PlumberSlot\Frontend\TutorAdminGate;
+use PlumberSlot\Frontend\TechnicianAdminGate;
 use PlumberSlot\Domain\MeetingService;
 use PlumberSlot\Frontend\JoinRoute;
 use PlumberSlot\Meetings\MeetingCleanup;
@@ -76,7 +76,7 @@ final class Plugin {
 		$this->container->get( Shortcode::class )->register();
 		$this->container->get( BlockRegistrar::class )->register();
 		$this->container->get( DashboardRoutes::class )->register();
-		$this->container->get( TutorAdminGate::class )->register();
+		$this->container->get( TechnicianAdminGate::class )->register();
 		$this->container->get( PrivacyHooks::class )->register();
 
 		// Settings routes must be registered on every request (including REST) so

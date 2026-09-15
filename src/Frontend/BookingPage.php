@@ -16,11 +16,11 @@ defined( 'ABSPATH' ) || exit;
 final class BookingPage {
 
 	/**
-	 * Permalink for the tutor's public booking page.
+	 * Permalink for the technician's public booking page.
 	 * Creates the page on first use when none is saved yet.
 	 */
-	public static function url_for_tutor( object $tutor ): string {
-		$slug    = sanitize_title( (string) ( $tutor->slug ?? '' ) );
+	public static function url_for_technician( object $technician ): string {
+		$slug    = sanitize_title( (string) ( $technician->slug ?? '' ) );
 		$page_id = self::ensure( $slug );
 
 		if ( $page_id > 0 ) {
@@ -43,8 +43,8 @@ final class BookingPage {
 	 *
 	 * @return int Page ID, or 0 on failure.
 	 */
-	public static function ensure( string $tutor_slug ): int {
-		$slug = sanitize_title( $tutor_slug );
+	public static function ensure( string $technician_slug ): int {
+		$slug = sanitize_title( $technician_slug );
 
 		if ( '' === $slug ) {
 			return 0;
@@ -96,7 +96,7 @@ final class BookingPage {
 	}
 
 	private static function shortcode( string $slug ): string {
-		return sprintf( '[plumberslot tutor="%s"]', $slug );
+		return sprintf( '[plumberslot technician="%s"]', $slug );
 	}
 
 	private static function is_usable( int $page_id ): bool {

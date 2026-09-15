@@ -2,7 +2,7 @@
 /**
  * Settings schema and sanitisation.
  *
- * Eight settings are visible; the other forty live behind Advanced. A tutor
+ * Eight settings are visible; the other forty live behind Advanced. A technician
  * should be able to read the whole first screen without scrolling.
  *
  * @package PlumberSlot
@@ -102,11 +102,11 @@ final class SettingsRegistry {
 			'sms_enabled',
 			'bkash_sandbox',
 			'delete_data_on_uninstall',
-			'allow_student_reschedule',
-			'offer_free_trial',
-			'show_student_timezone',
+			'allow_customer_reschedule',
+			'offer_free_estimate',
+			'show_customer_timezone',
 			'reminder_email_24h',
-			'notify_tutor_on_book',
+			'notify_technician_on_book',
 			'payments_enabled',
 		) as $key ) {
 			if ( isset( $input[ $key ] ) ) {

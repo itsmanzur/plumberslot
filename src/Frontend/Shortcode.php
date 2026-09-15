@@ -9,7 +9,7 @@ declare( strict_types = 1 );
 
 namespace PlumberSlot\Frontend;
 
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,8 +28,8 @@ final class Shortcode {
 	public function render( array|string $atts = array() ): string {
 		$atts = shortcode_atts(
 			array(
-				'tutor'   => '',
-				'subject' => '',
+				'technician'   => '',
+				'service' => '',
 				'view'    => 'booking',
 			),
 			$atts,
@@ -37,18 +37,18 @@ final class Shortcode {
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( in_array( $view, array( 'parent', 'tutor' ), true ) ) {
+		if ( in_array( $view, array( 'parent', 'technician' ), true ) ) {
 			return $this->render_dashboard( array( 'view' => $view ) );
 		}
 
-		$tutor = '' !== $atts['tutor']
-			? ( new TutorRepository() )->find_by_slug( sanitize_title( $atts['tutor'] ) )
+		$technician = '' !== $atts['technician']
+			? ( new TechnicianRepository() )->find_by_slug( sanitize_title( $atts['technician'] ) )
 			: null;
 
-		if ( '' !== $atts['tutor'] && ! $tutor ) {
+		if ( '' !== $atts['technician'] && ! $technician ) {
 			return sprintf(
 				'<div class="plumberslot-empty"><p>%s</p></div>',
-				esc_html__( 'No tutor matches that name. Check the tutor slug in the shortcode.', 'plumberslot' )
+				esc_html__( 'No technician matches that name. Check the technician slug in the shortcode.', 'plumberslot' )
 			);
 		}
 
@@ -62,9 +62,9 @@ final class Shortcode {
 		$this->assets->mark_needed();
 
 		return sprintf(
-			'<div class="plumberslot-widget" data-tutor="%d" data-subject="%d" data-view="%s"></div>',
-			$tutor ? (int) $tutor->id : 0,
-			absint( $atts['subject'] ),
+			'<div class="plumberslot-widget" data-technician="%d" data-service="%d" data-view="%s"></div>',
+			$technician ? (int) $technician->id : 0,
+			absint( $atts['service'] ),
 			esc_attr( $view )
 		);
 	}
@@ -82,7 +82,7 @@ final class Shortcode {
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( ! in_array( $view, array( 'parent', 'tutor' ), true ) ) {
+		if ( ! in_array( $view, array( 'parent', 'technician' ), true ) ) {
 			$view = 'parent';
 		}
 

@@ -3,7 +3,7 @@
  * Rate limiting for public endpoints.
  *
  * The slot and booking endpoints answer to unauthenticated visitors, which
- * makes them both a scraping target and a cheap way to hold every slot a tutor
+ * makes them both a scraping target and a cheap way to hold every slot a technician
  * owns. A fixed window per identity is enough to stop both.
  *
  * @package PlumberSlot

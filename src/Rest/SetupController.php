@@ -10,8 +10,8 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Rest;
 
 use PlumberSlot\Database\Repository\AvailabilityRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Frontend\BookingPage;
 use PlumberSlot\Support\AuditLog;
 use PlumberSlot\Support\Capabilities;
@@ -27,8 +27,8 @@ final class SetupController extends AbstractController {
 
 	public function __construct(
 		Guard $guard,
-		private readonly TutorRepository $tutors,
-		private readonly SubjectRepository $subjects,
+		private readonly TechnicianRepository $technicians,
+		private readonly ServiceRepository $services,
 		private readonly AvailabilityRepository $availability
 	) {
 		parent::__construct( $guard );
@@ -74,8 +74,8 @@ final class SetupController extends AbstractController {
 	}
 
 	public function status(): WP_REST_Response {
-		$tutor_id = $this->tutors->tutor_id_for_user( get_current_user_id() );
-		$tutor    = $tutor_id ? $this->tutors->find( $tutor_id ) : null;
+		$technician_id = $this->technicians->technician_id_for_user( get_current_user_id() );
+		$technician    = $technician_id ? $this->technicians->find( $technician_id ) : null;
 		$started  = (int) get_user_meta( get_current_user_id(), 'plumberslot_setup_started_at', true );
 
 		return $this->ok(
@@ -83,14 +83,14 @@ final class SetupController extends AbstractController {
 				'completed'   => (bool) get_user_meta( get_current_user_id(), 'plumberslot_setup_completed', true ),
 				'started_at'  => $started ? $started : null,
 				'setup_mode'  => Settings::string( 'setup_mode', 'solo' ),
-				'tutor'       => $tutor ? array(
-					'id'           => (int) $tutor->id,
-					'slug'         => (string) $tutor->slug,
-					'display_name' => (string) $tutor->display_name,
-					'status'       => (string) $tutor->status,
+				'technician'       => $technician ? array(
+					'id'           => (int) $technician->id,
+					'slug'         => (string) $technician->slug,
+					'display_name' => (string) $technician->display_name,
+					'status'       => (string) $technician->status,
 				) : null,
-				'shortcode'   => $tutor ? sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ) : '[plumberslot]',
-				'booking_url' => $tutor ? BookingPage::url_for_tutor( $tutor ) : home_url( '/' ),
+				'shortcode'   => $technician ? sprintf( '[plumberslot technician="%s"]', esc_attr( (string) $technician->slug ) ) : '[plumberslot]',
+				'booking_url' => $technician ? BookingPage::url_for_technician( $technician ) : home_url( '/' ),
 				'payments'    => \PlumberSlot\Support\PaymentsStatus::snapshot(),
 			)
 		);
@@ -100,7 +100,7 @@ final class SetupController extends AbstractController {
 		$body     = (array) $request->get_json_params();
 		$user_id  = get_current_user_id();
 		$mode     = sanitize_key( (string) ( $body['mode'] ?? 'solo' ) );
-		$subjects = is_array( $body['subjects'] ?? null ) ? $body['subjects'] : array();
+		$services = is_array( $body['services'] ?? null ) ? $body['services'] : array();
 		$week     = $body['week'] ?? array();
 		$payments = ! empty( $body['payments_enabled'] );
 		$started  = (int) ( $body['started_at'] ?? get_user_meta( $user_id, 'plumberslot_setup_started_at', true ) );
@@ -112,50 +112,48 @@ final class SetupController extends AbstractController {
 		update_user_meta( $user_id, 'plumberslot_setup_started_at', $started );
 
 		$user  = wp_get_current_user();
-		$tutor = $this->tutors->find_by_user( $user_id );
+		$technician = $this->technicians->find_by_user( $user_id );
 
-		if ( ! $tutor ) {
+		if ( ! $technician ) {
 			$display = $user->display_name ? $user->display_name : $user->user_login;
 			$slug    = sanitize_title( $display );
 
-			if ( '' === $slug || $this->tutors->find_by_slug( $slug ) ) {
+			if ( '' === $slug || $this->technicians->find_by_slug( $slug ) ) {
 				$slug = sanitize_title( $display . '-' . $user_id );
 			}
 
-			$id = $this->tutors->create(
+			$id = $this->technicians->create(
 				array(
 					'user_id'          => $user_id,
 					'slug'             => $slug,
 					'display_name'     => $display,
 					'timezone'         => wp_timezone_string(),
 					'status'           => 'active',
-					'payout_share_pct' => 'centre' === $mode ? 70 : 100,
 				)
 			);
-			$user->add_role( Capabilities::ROLE_TUTOR );
-			$tutor = $this->tutors->find( $id );
+			$user->add_role( Capabilities::ROLE_TECHNICIAN );
+			$technician = $this->technicians->find( $id );
 		} else {
-			$this->tutors->update(
-				(int) $tutor->id,
+			$this->technicians->update(
+				(int) $technician->id,
 				array(
 					'status'           => 'active',
-					'payout_share_pct' => 'centre' === $mode ? (int) $tutor->payout_share_pct : 100,
 				)
 			);
-			$tutor = $this->tutors->find( (int) $tutor->id );
+			$technician = $this->technicians->find( (int) $technician->id );
 		}
 
-		$tutor_id = (int) $tutor->id;
+		$technician_id = (int) $technician->id;
 
-		foreach ( $subjects as $name ) {
+		foreach ( $services as $name ) {
 			$name = sanitize_text_field( (string) $name );
 
 			if ( '' === $name ) {
 				continue;
 			}
 
-			$this->subjects->create(
-				$tutor_id,
+			$this->services->create(
+				$technician_id,
 				array(
 					'name'         => $name,
 					'duration_min' => Settings::int( 'default_lesson_minutes', 60 ),
@@ -171,7 +169,7 @@ final class SetupController extends AbstractController {
 				return $clean;
 			}
 
-			if ( ! $this->availability->replace_week( $tutor_id, $clean ) ) {
+			if ( ! $this->availability->replace_week( $technician_id, $clean ) ) {
 				return new WP_Error(
 					'plumberslot_setup_availability_failed',
 					__( 'Could not save your weekly hours.', 'plumberslot' ),
@@ -187,8 +185,8 @@ final class SetupController extends AbstractController {
 			)
 		);
 
-		BookingPage::ensure( (string) $tutor->slug );
-		$booking_url = BookingPage::url_for_tutor( $tutor );
+		BookingPage::ensure( (string) $technician->slug );
+		$booking_url = BookingPage::url_for_technician( $technician );
 
 		$elapsed     = max( 0, time() - $started );
 		$bookable_at = time();
@@ -201,7 +199,7 @@ final class SetupController extends AbstractController {
 				'elapsed_seconds'             => $elapsed,
 				'time_to_first_bookable_slot' => $elapsed,
 				'completed_at'                => gmdate( 'c' ),
-				'tutor_id'                    => $tutor_id,
+				'technician_id'                    => $technician_id,
 				'mode'                        => $mode,
 			),
 			false
@@ -209,8 +207,8 @@ final class SetupController extends AbstractController {
 
 		AuditLog::record(
 			'setup.completed',
-			'tutor',
-			$tutor_id,
+			'technician',
+			$technician_id,
 			array(
 				'elapsed'  => $elapsed,
 				'bookable' => $bookable_at,
@@ -224,9 +222,9 @@ final class SetupController extends AbstractController {
 				'elapsed_seconds'             => $elapsed,
 				'time_to_first_bookable_slot' => $elapsed,
 				'setup_mode'                  => $mode,
-				'shortcode'                   => sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
+				'shortcode'                   => sprintf( '[plumberslot technician="%s"]', esc_attr( (string) $technician->slug ) ),
 				'booking_url'                 => $booking_url,
-				'tutor_id'                    => $tutor_id,
+				'technician_id'                    => $technician_id,
 			)
 		);
 	}

@@ -32,20 +32,20 @@ final class AvailabilityController extends AbstractController {
 	public function register_routes(): void {
 		register_rest_route(
 			self::NAMESPACE,
-			'/availability/(?P<tutor_id>\d+)',
+			'/availability/(?P<technician_id>\d+)',
 			array(
 				array(
 					'methods'             => 'GET',
 					'callback'            => array( $this, 'show' ),
 					'permission_callback' => array( $this, 'can_manage' ),
-					'args'                => array( 'tutor_id' => array( 'sanitize_callback' => 'absint' ) ),
+					'args'                => array( 'technician_id' => array( 'sanitize_callback' => 'absint' ) ),
 				),
 				array(
 					'methods'             => 'PUT',
 					'callback'            => array( $this, 'replace' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
-						'tutor_id' => array( 'sanitize_callback' => 'absint' ),
+						'technician_id' => array( 'sanitize_callback' => 'absint' ),
 						'week'     => array(
 							'required'          => true,
 							'type'              => 'array',
@@ -58,20 +58,20 @@ final class AvailabilityController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/availability/(?P<tutor_id>\d+)/exceptions',
+			'/availability/(?P<technician_id>\d+)/exceptions',
 			array(
 				array(
 					'methods'             => 'GET',
 					'callback'            => array( $this, 'list_exceptions' ),
 					'permission_callback' => array( $this, 'can_manage' ),
-					'args'                => array( 'tutor_id' => array( 'sanitize_callback' => 'absint' ) ),
+					'args'                => array( 'technician_id' => array( 'sanitize_callback' => 'absint' ) ),
 				),
 				array(
 					'methods'             => 'POST',
 					'callback'            => array( $this, 'add_exception' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
-						'tutor_id'  => array( 'sanitize_callback' => 'absint' ),
+						'technician_id'  => array( 'sanitize_callback' => 'absint' ),
 						'on_date'   => array(
 							'required'          => true,
 							'type'              => 'string',
@@ -95,13 +95,13 @@ final class AvailabilityController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/availability/(?P<tutor_id>\d+)/exceptions/(?P<id>\d+)',
+			'/availability/(?P<technician_id>\d+)/exceptions/(?P<id>\d+)',
 			array(
 				'methods'             => 'DELETE',
 				'callback'            => array( $this, 'delete_exception' ),
 				'permission_callback' => array( $this, 'can_manage' ),
 				'args'                => array(
-					'tutor_id' => array( 'sanitize_callback' => 'absint' ),
+					'technician_id' => array( 'sanitize_callback' => 'absint' ),
 					'id'       => array( 'sanitize_callback' => 'absint' ),
 				),
 			)
@@ -109,13 +109,13 @@ final class AvailabilityController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/availability/(?P<tutor_id>\d+)/defaults',
+			'/availability/(?P<technician_id>\d+)/defaults',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'save_defaults' ),
 				'permission_callback' => array( $this, 'can_manage_defaults' ),
 				'args'                => array(
-					'tutor_id' => array( 'sanitize_callback' => 'absint' ),
+					'technician_id' => array( 'sanitize_callback' => 'absint' ),
 				),
 			)
 		);
@@ -134,11 +134,11 @@ final class AvailabilityController extends AbstractController {
 			return $nonce;
 		}
 
-		return $this->guard->owns_tutor( (int) $request['tutor_id'] ) ? true : $this->guard->deny();
+		return $this->guard->owns_technician( (int) $request['technician_id'] ) ? true : $this->guard->deny();
 	}
 
 	/**
-	 * Lesson defaults are site settings — tutors who manage their own schedule
+	 * Lesson defaults are site settings — technicians who manage their own schedule
 	 * may update the three availability-related integers; site managers always can.
 	 */
 	public function can_manage_defaults( WP_REST_Request $request ): bool|WP_Error {
@@ -152,12 +152,12 @@ final class AvailabilityController extends AbstractController {
 	}
 
 	public function show( WP_REST_Request $request ): WP_REST_Response {
-		$tutor_id = (int) $request['tutor_id'];
+		$technician_id = (int) $request['technician_id'];
 
 		return $this->ok(
 			array(
-				'week'       => $this->availability->rules_for( $tutor_id ),
-				'exceptions' => $this->availability->exceptions_for_tutor( $tutor_id ),
+				'week'       => $this->availability->rules_for( $technician_id ),
+				'exceptions' => $this->availability->exceptions_for_technician( $technician_id ),
 				'defaults'   => array(
 					'default_lesson_minutes' => Settings::int( 'default_lesson_minutes', 60 ),
 					'buffer_minutes'         => Settings::int( 'buffer_minutes', 0 ),
@@ -168,11 +168,11 @@ final class AvailabilityController extends AbstractController {
 	}
 
 	public function replace( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor_id = (int) $request['tutor_id'];
+		$technician_id = (int) $request['technician_id'];
 		/** @var list<array{weekday:int,start_min:int,end_min:int}> $week */
 		$week = $request['week'];
 
-		if ( ! $this->availability->replace_week( $tutor_id, $week ) ) {
+		if ( ! $this->availability->replace_week( $technician_id, $week ) ) {
 			return new WP_Error(
 				'plumberslot_availability_save_failed',
 				__( 'Could not save availability. Try again.', 'plumberslot' ),
@@ -180,21 +180,21 @@ final class AvailabilityController extends AbstractController {
 			);
 		}
 
-		AuditLog::record( 'availability.replaced', 'tutor', $tutor_id, array( 'blocks' => count( $week ) ) );
+		AuditLog::record( 'availability.replaced', 'technician', $technician_id, array( 'blocks' => count( $week ) ) );
 
 		return $this->ok( array( 'saved' => count( $week ) ) );
 	}
 
 	public function list_exceptions( WP_REST_Request $request ): WP_REST_Response {
 		return $this->ok(
-			array( 'exceptions' => $this->availability->exceptions_for_tutor( (int) $request['tutor_id'] ) )
+			array( 'exceptions' => $this->availability->exceptions_for_technician( (int) $request['technician_id'] ) )
 		);
 	}
 
 	public function add_exception( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor_id = (int) $request['tutor_id'];
+		$technician_id = (int) $request['technician_id'];
 		$id       = $this->availability->add_exception(
-			$tutor_id,
+			$technician_id,
 			array(
 				'on_date'   => (string) $request['on_date'],
 				'kind'      => (string) $request['kind'],
@@ -212,16 +212,16 @@ final class AvailabilityController extends AbstractController {
 			);
 		}
 
-		AuditLog::record( 'exception.created', 'exception', $id, array( 'tutor_id' => $tutor_id ) );
+		AuditLog::record( 'exception.created', 'exception', $id, array( 'technician_id' => $technician_id ) );
 
 		return $this->ok( array( 'id' => $id ), 201 );
 	}
 
 	public function delete_exception( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor_id = (int) $request['tutor_id'];
+		$technician_id = (int) $request['technician_id'];
 		$id       = (int) $request['id'];
 
-		if ( ! $this->availability->delete_exception( $tutor_id, $id ) ) {
+		if ( ! $this->availability->delete_exception( $technician_id, $id ) ) {
 			return $this->guard->deny();
 		}
 
@@ -252,7 +252,7 @@ final class AvailabilityController extends AbstractController {
 
 		if ( array() !== $out ) {
 			Settings::update( $out );
-			AuditLog::record( 'availability.defaults', 'tutor', (int) $request['tutor_id'], $out );
+			AuditLog::record( 'availability.defaults', 'technician', (int) $request['technician_id'], $out );
 		}
 
 		return $this->ok(

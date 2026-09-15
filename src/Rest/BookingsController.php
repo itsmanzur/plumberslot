@@ -12,8 +12,8 @@ namespace PlumberSlot\Rest;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\LockRepository;
 use PlumberSlot\Database\Repository\SeriesRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\BookingService;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PolicyService;
@@ -38,8 +38,8 @@ final class BookingsController extends AbstractController {
 		private readonly BookingService $bookings,
 		private readonly BookingRepository $repo,
 		private readonly LockRepository $locks,
-		private readonly TutorRepository $tutors,
-		private readonly SubjectRepository $subjects,
+		private readonly TechnicianRepository $technicians,
+		private readonly ServiceRepository $services,
 		private readonly CreditService $credits,
 		private readonly SlotEngine $slots,
 		private readonly PolicyService $policy,
@@ -90,7 +90,7 @@ final class BookingsController extends AbstractController {
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'tutor_id' => array(
+						'technician_id' => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
@@ -172,7 +172,7 @@ final class BookingsController extends AbstractController {
 					'callback'            => array( $this, 'hold' ),
 					'permission_callback' => array( $this, 'can_create' ),
 					'args'                => array(
-						'tutor_id' => array(
+						'technician_id' => array(
 							'required'          => true,
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
@@ -239,19 +239,19 @@ final class BookingsController extends AbstractController {
 	/**
 	 * Accept only identity, schedule and notes from the client.
 	 *
-	 * Price, duration and currency are resolved server-side from tutor/subject
+	 * Price, duration and currency are resolved server-side from technician/service
 	 * records and must never appear in this schema.
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function create_args(): array {
 		return array(
-			'tutor_id'   => array(
+			'technician_id'   => array(
 				'required'          => true,
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
-			'subject_id' => array(
+			'service_id' => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
@@ -260,7 +260,7 @@ final class BookingsController extends AbstractController {
 				'type'              => 'string',
 				'validate_callback' => array( Validate::class, 'is_iso8601' ),
 			),
-			'student_id' => array(
+			'customer_id' => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
@@ -373,17 +373,17 @@ final class BookingsController extends AbstractController {
 			return $this->guard->deny();
 		}
 
-		if ( $this->guard->is_site_manager() || $this->guard->owns_tutor( (int) $booking->tutor_id ) ) {
+		if ( $this->guard->is_site_manager() || $this->guard->owns_technician( (int) $booking->technician_id ) ) {
 			return true;
 		}
 
-		if ( Settings::bool( 'allow_student_reschedule', false ) ) {
+		if ( Settings::bool( 'allow_customer_reschedule', false ) ) {
 			return true;
 		}
 
 		return new WP_Error(
 			'plumberslot_reschedule_disabled',
-			__( 'Online rescheduling is disabled. Contact the tutor to move this lesson.', 'plumberslot' ),
+			__( 'Online rescheduling is disabled. Contact the technician to move this lesson.', 'plumberslot' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -422,8 +422,8 @@ final class BookingsController extends AbstractController {
 
 		$result = match ( $scope ) {
 			'family'   => $this->repo->find_for_family( $user_id, $filters ),
-			'teaching' => $this->teaching_bookings( $user_id, $filters, (int) ( $request['tutor_id'] ?? 0 ) ),
-			default    => $this->repo->find_for_student( $user_id, $filters ),
+			'teaching' => $this->teaching_bookings( $user_id, $filters, (int) ( $request['technician_id'] ?? 0 ) ),
+			default    => $this->repo->find_for_customer( $user_id, $filters ),
 		};
 
 		$search   = strtolower( trim( (string) ( $request['search'] ?? '' ) ) );
@@ -434,7 +434,7 @@ final class BookingsController extends AbstractController {
 
 			if ( '' !== $search ) {
 				$hay = strtolower(
-					$presented['student'] . ' ' . $presented['subject'] . ' ' . $presented['status']
+					$presented['customer'] . ' ' . $presented['service'] . ' ' . $presented['status']
 				);
 
 				if ( ! str_contains( $hay, $search ) ) {
@@ -462,15 +462,15 @@ final class BookingsController extends AbstractController {
 
 		$list  = $this->index( $request );
 		$data  = $list->get_data();
-		$lines = array( 'id,student,subject,start_utc,status,price_minor,currency,series_id,payment_ref' );
+		$lines = array( 'id,customer,service,start_utc,status,price_minor,currency,series_id,payment_ref' );
 
 		foreach ( (array) ( $data['bookings'] ?? array() ) as $row ) {
 			$lines[] = implode(
 				',',
 				array(
 					(int) $row['id'],
-					$this->csv_escape( (string) $row['student'] ),
-					$this->csv_escape( (string) $row['subject'] ),
+					$this->csv_escape( (string) $row['customer'] ),
+					$this->csv_escape( (string) $row['service'] ),
 					$this->csv_escape( (string) $row['start_utc'] ),
 					$this->csv_escape( (string) $row['status'] ),
 					(int) $row['price_minor'],
@@ -501,12 +501,12 @@ final class BookingsController extends AbstractController {
 	 * @param array{from_utc?:?string,to_utc?:?string,status?:?string,page?:int,per_page?:int} $filters Filters.
 	 * @return array{items:list<object>,total:int,page:int,per_page:int}
 	 */
-	private function teaching_bookings( int $user_id, array $filters, int $requested_tutor = 0 ): array {
-		$tutor_id = $requested_tutor > 0 && $this->guard->is_site_manager()
-			? $requested_tutor
-			: $this->tutors->tutor_id_for_user( $user_id );
+	private function teaching_bookings( int $user_id, array $filters, int $requested_technician = 0 ): array {
+		$technician_id = $requested_technician > 0 && $this->guard->is_site_manager()
+			? $requested_technician
+			: $this->technicians->technician_id_for_user( $user_id );
 
-		if ( $tutor_id <= 0 || ! $this->guard->owns_tutor( $tutor_id ) ) {
+		if ( $technician_id <= 0 || ! $this->guard->owns_technician( $technician_id ) ) {
 			return array(
 				'items'    => array(),
 				'total'    => 0,
@@ -515,7 +515,7 @@ final class BookingsController extends AbstractController {
 			);
 		}
 
-		return $this->repo->find_for_tutor( $tutor_id, $filters );
+		return $this->repo->find_for_technician( $technician_id, $filters );
 	}
 
 	/**
@@ -523,11 +523,11 @@ final class BookingsController extends AbstractController {
 	 */
 	private function present_booking( object $row ): array {
 		$booking_id = (int) $row->id;
-		$student    = get_userdata( (int) $row->student_id );
-		$subject    = null;
+		$customer    = get_userdata( (int) $row->customer_id );
+		$service    = null;
 
-		if ( ! empty( $row->subject_id ) ) {
-			$subject = $this->subjects->find( (int) $row->subject_id );
+		if ( ! empty( $row->service_id ) ) {
+			$service = $this->services->find( (int) $row->service_id );
 		}
 
 		$payment = 'unpaid';
@@ -552,7 +552,7 @@ final class BookingsController extends AbstractController {
 			}
 		}
 
-		$tutor = $this->tutors->find( (int) $row->tutor_id );
+		$technician = $this->technicians->find( (int) $row->technician_id );
 
 		$start_ts = strtotime( (string) $row->start_utc . ' UTC' );
 		$end_ts   = strtotime( (string) $row->end_utc . ' UTC' );
@@ -560,7 +560,7 @@ final class BookingsController extends AbstractController {
 			? (int) round( ( $end_ts - $start_ts ) / MINUTE_IN_SECONDS )
 			: Settings::int( 'default_lesson_minutes', 60 );
 
-		$tz   = $tutor ? (string) $tutor->timezone : 'UTC';
+		$tz   = $technician ? (string) $technician->timezone : 'UTC';
 		$when = (string) $row->start_utc;
 		try {
 			$local = ( new \DateTimeImmutable( (string) $row->start_utc, new \DateTimeZone( 'UTC' ) ) )
@@ -582,13 +582,13 @@ final class BookingsController extends AbstractController {
 
 		return array(
 			'id'             => $booking_id,
-			'tutor_id'       => (int) $row->tutor_id,
-			'tutor'          => $tutor ? (string) $tutor->display_name : '',
-			'tutor_timezone' => $tz,
-			'student_id'     => (int) $row->student_id,
-			'student'        => $student ? $student->display_name : __( 'Student', 'plumberslot' ),
-			'subject_id'     => $row->subject_id ? (int) $row->subject_id : null,
-			'subject'        => $subject ? (string) $subject->name : '—',
+			'technician_id'       => (int) $row->technician_id,
+			'technician'          => $technician ? (string) $technician->display_name : '',
+			'technician_timezone' => $tz,
+			'customer_id'     => (int) $row->customer_id,
+			'customer'        => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
+			'service_id'     => $row->service_id ? (int) $row->service_id : null,
+			'service'        => $service ? (string) $service->name : '—',
 			'start_utc'      => (string) $row->start_utc,
 			'end_utc'        => (string) $row->end_utc,
 			'when'           => $when,
@@ -619,7 +619,7 @@ final class BookingsController extends AbstractController {
 			return $this->guard->deny();
 		}
 
-		if ( $this->guard->is_site_manager() || $this->guard->owns_tutor( (int) $booking->tutor_id ) ) {
+		if ( $this->guard->is_site_manager() || $this->guard->owns_technician( (int) $booking->technician_id ) ) {
 			return true;
 		}
 
@@ -654,33 +654,33 @@ final class BookingsController extends AbstractController {
 	 * Reserve a slot for the length of a checkout.
 	 */
 	public function hold( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor_id = (int) $request['tutor_id'];
-		$tutor    = $this->tutors->find( $tutor_id );
+		$technician_id = (int) $request['technician_id'];
+		$technician    = $this->technicians->find( $technician_id );
 
-		if ( ! $tutor || 'active' !== $tutor->status ) {
+		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
 		}
 
 		$start    = Time::from_iso( (string) $request['start'] );
 		$duration = Settings::int( 'default_lesson_minutes', 60 );
 
-		if ( ! $this->repo->acquire_tutor_lock( $tutor_id ) ) {
+		if ( ! $this->repo->acquire_technician_lock( $technician_id ) ) {
 			return $this->slot_taken();
 		}
 
 		try {
-			if ( ! $this->slots->is_open( $tutor_id, $start, (string) $tutor->timezone, $duration ) ) {
+			if ( ! $this->slots->is_open( $technician_id, $start, (string) $technician->timezone, $duration ) ) {
 				return $this->slot_taken();
 			}
 
 			$token = $this->locks->acquire(
-				$tutor_id,
+				$technician_id,
 				get_current_user_id(),
 				Time::sql( $start ),
 				Settings::int( 'hold_window_minutes', 10 )
 			);
 		} finally {
-			$this->repo->release_tutor_lock( $tutor_id );
+			$this->repo->release_technician_lock( $technician_id );
 		}
 
 		if ( null === $token ) {
@@ -721,19 +721,19 @@ final class BookingsController extends AbstractController {
 	}
 
 	public function create( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor = $this->tutors->find( (int) $request['tutor_id'] );
+		$technician = $this->technicians->find( (int) $request['technician_id'] );
 
-		if ( ! $tutor || 'active' !== $tutor->status ) {
+		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
 		}
 
-		$subject_id = $request['subject_id'] ? (int) $request['subject_id'] : null;
-		$subject    = null;
+		$service_id = $request['service_id'] ? (int) $request['service_id'] : null;
+		$service    = null;
 
-		if ( null !== $subject_id ) {
-			$subject = $this->subjects->find_for_tutor( $subject_id, (int) $tutor->id );
+		if ( null !== $service_id ) {
+			$service = $this->services->find_for_technician( $service_id, (int) $technician->id );
 
-			if ( ! $subject || 'active' !== $subject->status ) {
+			if ( ! $service || 'active' !== $service->status ) {
 				return $this->guard->deny();
 			}
 		}
@@ -741,25 +741,25 @@ final class BookingsController extends AbstractController {
 		$actor = get_current_user_id();
 
 		// The booker may be a parent acting for a child. Never take that on trust.
-		$student_id = (int) ( $request['student_id'] ? $request['student_id'] : $actor );
-		$parent_id  = $student_id === $actor ? null : $actor;
+		$customer_id = (int) ( $request['customer_id'] ? $request['customer_id'] : $actor );
+		$parent_id  = $customer_id === $actor ? null : $actor;
 
-		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $student_id ) ) {
+		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $customer_id ) ) {
 			return $this->guard->deny();
 		}
 
-		if ( null !== $subject ) {
-			$trial = $this->policy->can_use_trial( $student_id, $subject );
+		if ( null !== $service ) {
+			$free_estimate = $this->policy->can_use_free_estimate( $customer_id, $service );
 
-			if ( is_wp_error( $trial ) ) {
-				return $trial;
+			if ( is_wp_error( $free_estimate ) ) {
+				return $free_estimate;
 			}
 		}
 
 		$credit_id = null;
 
 		if ( $request['use_credit'] ) {
-			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $tutor->id, $subject_id );
+			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $technician->id, $service_id );
 
 			if ( ! $credit ) {
 				return new WP_Error(
@@ -772,33 +772,33 @@ final class BookingsController extends AbstractController {
 			$credit_id = (int) $credit->id;
 		}
 
-		$duration = null !== $subject
-			? (int) $subject->duration_min
+		$duration = null !== $service
+			? (int) $service->duration_min
 			: Settings::int( 'default_lesson_minutes', 60 );
 
 		if ( $credit_id ) {
 			$price = 0;
-		} elseif ( null !== $subject && ! empty( $subject->is_trial ) ) {
+		} elseif ( null !== $service && ! empty( $service->is_free_estimate ) ) {
 			$price = 0;
-		} elseif ( null !== $subject ) {
-			$price = (int) $subject->price_minor;
+		} elseif ( null !== $service ) {
+			$price = (int) $service->price_minor;
 		} else {
-			$price = (int) $tutor->hourly_rate_minor;
+			$price = (int) $technician->hourly_rate_minor;
 		}
 
-		// Currency lives on the tutor; subjects inherit it and clients never set it.
-		$currency = (string) $tutor->currency;
+		// Currency lives on the technician; services inherit it and clients never set it.
+		$currency = (string) $technician->currency;
 
 		$result = $this->bookings->create(
 			array(
-				'tutor_id'       => (int) $tutor->id,
-				'student_id'     => $student_id,
+				'technician_id'       => (int) $technician->id,
+				'customer_id'     => $customer_id,
 				'parent_id'      => $parent_id,
-				'subject_id'     => $subject_id,
+				'service_id'     => $service_id,
 				'start_utc'      => Time::from_iso( (string) $request['start'] ),
 				'duration_min'   => $duration,
-				'tutor_tz'       => (string) $tutor->timezone,
-				'student_tz'     => (string) ( $request['timezone'] ?? $tutor->timezone ),
+				'technician_tz'       => (string) $technician->timezone,
+				'customer_tz'     => (string) ( $request['timezone'] ?? $technician->timezone ),
 				'price_minor'    => $price,
 				'currency'       => $currency,
 				'credit_id'      => $credit_id,
@@ -813,11 +813,11 @@ final class BookingsController extends AbstractController {
 		}
 
 		$booking  = $this->repo->find( (int) $result );
-		$student  = get_userdata( $student_id );
+		$customer  = get_userdata( $customer_id );
 		$window   = Settings::int( 'reschedule_window_minutes', 720 );
 		$start    = Time::from_iso( (string) $request['start'] );
 		$deadline = $start->getTimestamp() - ( $window * MINUTE_IN_SECONDS );
-		$provider = (string) get_user_meta( (int) $tutor->user_id, 'plumberslot_meeting_provider', true );
+		$provider = (string) get_user_meta( (int) $technician->user_id, 'plumberslot_meeting_provider', true );
 
 		return $this->ok(
 			array(
@@ -829,9 +829,9 @@ final class BookingsController extends AbstractController {
 				'price_minor'         => $price,
 				'currency'            => $currency,
 				'payment'             => $credit_id ? 'credit' : ( 0 === $price ? 'free' : 'unpaid' ),
-				'subject'             => $subject ? (string) $subject->name : '',
-				'tutor'               => (string) $tutor->display_name,
-				'student'             => $student ? $student->display_name : '',
+				'service'             => $service ? (string) $service->name : '',
+				'technician'               => (string) $technician->display_name,
+				'customer'             => $customer ? $customer->display_name : '',
 				'meeting_provider'    => $provider ? $provider : 'Google Meet',
 				'reschedule_deadline' => gmdate( 'c', max( time(), $deadline ) ),
 				'dashboard_url'       => home_url( '/my-account/' ),

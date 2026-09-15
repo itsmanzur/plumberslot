@@ -3,7 +3,7 @@
  * Zoom, via a server-to-server OAuth app.
  *
  * Server-to-server OAuth issues an access token for the whole account; no
- * per-tutor grant is needed. Meetings use waiting room + auto-passcode so a
+ * per-technician grant is needed. Meetings use waiting room + auto-passcode so a
  * lesson with a child cannot be a bare open room.
  *
  * @package PlumberSlot
@@ -31,7 +31,7 @@ final class ZoomProvider implements ProviderInterface {
 		return __( 'Zoom', 'plumberslot' );
 	}
 
-	public function is_connected( int $tutor_id ): bool {
+	public function is_connected( int $technician_id ): bool {
 		return '' !== Settings::string( 'zoom_account_id' )
 			&& '' !== Settings::string( 'zoom_client_id' )
 			&& '' !== Settings::string( 'zoom_client_secret' );
@@ -42,7 +42,7 @@ final class ZoomProvider implements ProviderInterface {
 	 *
 	 * @return string|WP_Error Meeting id on success.
 	 */
-	public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+	public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
 		$access_token = $this->access_token();
 
 		if ( is_wp_error( $access_token ) ) {

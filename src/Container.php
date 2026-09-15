@@ -60,14 +60,14 @@ final class Container {
 	 */
 	public function register_defaults(): void {
 		// Repositories.
-		$this->set( Database\Repository\TutorRepository::class, static fn () => new Database\Repository\TutorRepository() );
+		$this->set( Database\Repository\TechnicianRepository::class, static fn () => new Database\Repository\TechnicianRepository() );
 		$this->set( Database\Repository\AvailabilityRepository::class, static fn () => new Database\Repository\AvailabilityRepository() );
 		$this->set( Database\Repository\BookingRepository::class, static fn () => new Database\Repository\BookingRepository() );
 		$this->set( Database\Repository\CreditRepository::class, static fn () => new Database\Repository\CreditRepository() );
 		$this->set( Database\Repository\SeriesRepository::class, static fn () => new Database\Repository\SeriesRepository() );
 		$this->set( Database\Repository\RelationRepository::class, static fn () => new Database\Repository\RelationRepository() );
 		$this->set( Database\Repository\LockRepository::class, static fn () => new Database\Repository\LockRepository() );
-		$this->set( Database\Repository\SubjectRepository::class, static fn () => new Database\Repository\SubjectRepository() );
+		$this->set( Database\Repository\ServiceRepository::class, static fn () => new Database\Repository\ServiceRepository() );
 		$this->set( Database\Repository\ReviewRepository::class, static fn () => new Database\Repository\ReviewRepository() );
 		$this->set( Database\Repository\PaymentRepository::class, static fn () => new Database\Repository\PaymentRepository() );
 		$this->set( Database\TransactionManager::class, static fn () => new Database\TransactionManager() );
@@ -161,7 +161,7 @@ final class Container {
 			static fn ( Container $c ) => new Domain\MeetingService(
 				$c->get( Meetings\ProviderRegistry::class ),
 				$c->get( Database\Repository\BookingRepository::class ),
-				$c->get( Database\Repository\TutorRepository::class )
+				$c->get( Database\Repository\TechnicianRepository::class )
 			)
 		);
 
@@ -178,7 +178,7 @@ final class Container {
 				$c->get( Meetings\ProviderRegistry::class )
 			)
 		);
-		$this->set( Frontend\TutorAdminGate::class, static fn () => new Frontend\TutorAdminGate() );
+		$this->set( Frontend\TechnicianAdminGate::class, static fn () => new Frontend\TechnicianAdminGate() );
 		$this->set( Admin\AdminMenu::class, static fn () => new Admin\AdminMenu() );
 		$this->set( Admin\SettingsRegistry::class, static fn () => new Admin\SettingsRegistry() );
 		$this->set( Admin\OnboardingWizard::class, static fn () => new Admin\OnboardingWizard() );

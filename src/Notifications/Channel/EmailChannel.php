@@ -36,7 +36,7 @@ final class EmailChannel implements ChannelInterface {
 
 		$when = Time::for_human(
 			Time::from_sql( (string) $booking->start_utc ),
-			(string) $booking->student_tz
+			(string) $booking->customer_tz
 		);
 
 		$subject = $this->subject( $event, $when );

@@ -1,6 +1,6 @@
 <?php
 /**
- * /plumberslot/v1/dashboard — tutor home aggregates.
+ * /plumberslot/v1/dashboard — technician home aggregates.
  *
  * @package PlumberSlot
  */
@@ -12,8 +12,8 @@ namespace PlumberSlot\Rest;
 use PlumberSlot\Database\Repository\AvailabilityRepository;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\CreditRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Frontend\BookingPage;
 use PlumberSlot\Support\Cache;
 use PlumberSlot\Support\Crypto;
@@ -28,11 +28,11 @@ final class DashboardController extends AbstractController {
 
 	public function __construct(
 		Guard $guard,
-		private readonly TutorRepository $tutors,
+		private readonly TechnicianRepository $technicians,
 		private readonly BookingRepository $bookings,
 		private readonly CreditRepository $credits,
 		private readonly AvailabilityRepository $availability,
-		private readonly SubjectRepository $subjects
+		private readonly ServiceRepository $services
 	) {
 		parent::__construct( $guard );
 	}
@@ -46,7 +46,7 @@ final class DashboardController extends AbstractController {
 				'callback'            => array( $this, 'show' ),
 				'permission_callback' => array( $this, 'can_view' ),
 				'args'                => array(
-					'tutor_id' => array(
+					'technician_id' => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
@@ -68,38 +68,38 @@ final class DashboardController extends AbstractController {
 			return $nonce;
 		}
 
-		$tutor_id = $this->resolve_tutor_id( $request );
+		$technician_id = $this->resolve_technician_id( $request );
 
-		if ( $tutor_id <= 0 ) {
+		if ( $technician_id <= 0 ) {
 			return $this->guard->deny();
 		}
 
-		return $this->guard->owns_tutor( $tutor_id ) ? true : $this->guard->deny();
+		return $this->guard->owns_technician( $technician_id ) ? true : $this->guard->deny();
 	}
 
 	public function show( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor_id = $this->resolve_tutor_id( $request );
-		$tutor    = $this->tutors->find( $tutor_id );
+		$technician_id = $this->resolve_technician_id( $request );
+		$technician    = $this->technicians->find( $technician_id );
 
-		if ( ! $tutor ) {
+		if ( ! $technician ) {
 			return $this->guard->deny();
 		}
 
-		$cached = Cache::dashboard( $tutor_id );
+		$cached = Cache::dashboard( $technician_id );
 		if ( null !== $cached ) {
 			$cached['greeting'] = $this->greeting();
 
 			return $this->ok( $cached );
 		}
 
-		$tz         = (string) ( $tutor->timezone ? $tutor->timezone : wp_timezone_string() );
+		$tz         = (string) ( $technician->timezone ? $technician->timezone : wp_timezone_string() );
 		$now        = new \DateTimeImmutable( 'now', new \DateTimeZone( $tz ) );
 		$today      = $now->format( 'Y-m-d' );
 		$week_start = $now->modify( 'monday this week' )->setTime( 0, 0 );
 		$week_end   = $week_start->modify( '+7 days' );
 
-		$week = $this->bookings->find_for_tutor(
-			$tutor_id,
+		$week = $this->bookings->find_for_technician(
+			$technician_id,
 			array(
 				'from_utc' => $week_start->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
 				'to_utc'   => $week_end->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
@@ -107,16 +107,16 @@ final class DashboardController extends AbstractController {
 			)
 		);
 
-		$upcoming = $this->bookings->find_for_tutor(
-			$tutor_id,
+		$upcoming = $this->bookings->find_for_technician(
+			$technician_id,
 			array(
 				'from_utc' => gmdate( 'Y-m-d H:i:s' ),
 				'per_page' => 8,
 			)
 		);
 
-		$pending = $this->bookings->find_for_tutor(
-			$tutor_id,
+		$pending = $this->bookings->find_for_technician(
+			$technician_id,
 			array(
 				'status'   => 'pending',
 				'from_utc' => gmdate( 'Y-m-d H:i:s' ),
@@ -139,7 +139,7 @@ final class DashboardController extends AbstractController {
 			}
 		}
 
-		$open_blocks = count( $this->availability->rules_for( $tutor_id ) );
+		$open_blocks = count( $this->availability->rules_for( $technician_id ) );
 		$fill_rate   = $open_blocks > 0
 			? (int) min( 100, round( ( count( $active_week ) / max( 1, $open_blocks * 2 ) ) * 100 ) )
 			: 0;
@@ -161,14 +161,14 @@ final class DashboardController extends AbstractController {
 			$end    = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
 			$width  = max( 4, (int) round( ( ( $end->getTimestamp() - $start->getTimestamp() ) / $day_span ) * 100 ) );
 
-			$student       = get_userdata( (int) $row->student_id );
-			$subject       = $row->subject_id ? $this->subjects->find( (int) $row->subject_id ) : null;
+			$customer       = get_userdata( (int) $row->customer_id );
+			$service       = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$today_items[] = array(
 				'id'       => (int) $row->id,
 				'title'    => sprintf(
 					'%1$s · %2$s',
-					$student ? $student->display_name : __( 'Student', 'plumberslot' ),
-					$subject ? $subject->name : __( 'Lesson', 'plumberslot' )
+					$customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
+					$service ? $service->name : __( 'Lesson', 'plumberslot' )
 				),
 				'time'     => $local->format( 'H:i' ),
 				'startPct' => (int) round( ( $offset / $day_span ) * 100 ),
@@ -185,9 +185,9 @@ final class DashboardController extends AbstractController {
 				continue;
 			}
 			$booking_id = (int) $row->id;
-			$student    = get_userdata( (int) $row->student_id );
+			$customer    = get_userdata( (int) $row->customer_id );
 			$parent     = $row->parent_id ? get_userdata( (int) $row->parent_id ) : null;
-			$subject    = $row->subject_id ? $this->subjects->find( (int) $row->subject_id ) : null;
+			$service    = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$start      = new \DateTimeImmutable( (string) $row->start_utc, new \DateTimeZone( 'UTC' ) );
 			$end        = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
 			$local      = $start->setTimezone( new \DateTimeZone( $tz ) );
@@ -199,12 +199,12 @@ final class DashboardController extends AbstractController {
 					: __( 'Due', 'plumberslot' ) );
 			$next_up[]  = array(
 				'id'            => $booking_id,
-				'student'       => $student ? $student->display_name : __( 'Student', 'plumberslot' ),
-				'initials'      => $this->initials( $student ? $student->display_name : __( 'Student', 'plumberslot' ) ),
+				'customer'       => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
+				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
 				'context'       => $parent
 					? sprintf( /* translators: %s: parent display name. */ __( 'Parent: %s', 'plumberslot' ), $parent->display_name )
 					: __( 'Books their own lessons', 'plumberslot' ),
-				'subject'       => $subject ? (string) $subject->name : __( 'Lesson', 'plumberslot' ),
+				'service'       => $service ? (string) $service->name : __( 'Lesson', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )
 					: $local->format( 'D H:i' ),
@@ -231,14 +231,14 @@ final class DashboardController extends AbstractController {
 		}
 
 		foreach ( $pending['items'] as $row ) {
-			$student = get_userdata( (int) $row->student_id );
+			$customer = get_userdata( (int) $row->customer_id );
 			$needs[] = array(
 				'id'         => (int) $row->id,
 				'booking_id' => (int) $row->id,
 				'label'      => sprintf(
-					/* translators: %s: student name */
+					/* translators: %s: customer name */
 					__( 'Confirm booking for %s', 'plumberslot' ),
-					$student ? $student->display_name : __( 'student', 'plumberslot' )
+					$customer ? $customer->display_name : __( 'customer', 'plumberslot' )
 				),
 				'start'      => (string) $row->start_utc,
 				'value'      => '→',
@@ -257,14 +257,14 @@ final class DashboardController extends AbstractController {
 			'tiles'           => array(
 				'weekly_sessions' => count( $active_week ),
 				'earnings_minor'  => $earnings,
-				'currency'        => (string) $tutor->currency,
+				'currency'        => (string) $technician->currency,
 				'fill_rate'       => $fill_rate,
-				'credits_held'    => $this->credits->remaining_for_tutor( $tutor_id ),
+				'credits_held'    => $this->credits->remaining_for_technician( $technician_id ),
 			),
 			'next_up'         => $next_up,
 			'needs_attention' => $needs,
-			'booking_url'     => $this->booking_url( $tutor ),
-			'shortcode'       => sprintf( '[plumberslot tutor="%s"]', esc_attr( (string) $tutor->slug ) ),
+			'booking_url'     => $this->booking_url( $technician ),
+			'shortcode'       => sprintf( '[plumberslot technician="%s"]', esc_attr( (string) $technician->slug ) ),
 			'defaults'        => array(
 				'lesson_minutes'    => Settings::int( 'default_lesson_minutes', 60 ),
 				'buffer_minutes'    => Settings::int( 'buffer_minutes', 0 ),
@@ -272,7 +272,7 @@ final class DashboardController extends AbstractController {
 			),
 		);
 
-		Cache::set_dashboard( $tutor_id, $payload );
+		Cache::set_dashboard( $technician_id, $payload );
 
 		return $this->ok( $payload );
 	}
@@ -287,20 +287,20 @@ final class DashboardController extends AbstractController {
 		);
 	}
 
-	private function resolve_tutor_id( WP_REST_Request $request ): int {
-		$requested = (int) $request['tutor_id'];
+	private function resolve_technician_id( WP_REST_Request $request ): int {
+		$requested = (int) $request['technician_id'];
 
 		if ( $requested > 0 ) {
 			return $requested;
 		}
 
-		$owned = $this->tutors->tutor_id_for_user( get_current_user_id() );
+		$owned = $this->technicians->technician_id_for_user( get_current_user_id() );
 
 		if ( $owned > 0 || ! $this->guard->is_site_manager() ) {
 			return $owned;
 		}
 
-		$active = $this->tutors->all_active();
+		$active = $this->technicians->all_active();
 
 		return $active ? (int) $active[0]->id : 0;
 	}
@@ -317,7 +317,7 @@ final class DashboardController extends AbstractController {
 		return strtoupper( substr( $first, 0, 1 ) . substr( $last, 0, 1 ) );
 	}
 
-	private function booking_url( object $tutor ): string {
-		return BookingPage::url_for_tutor( $tutor );
+	private function booking_url( object $technician ): string {
+		return BookingPage::url_for_technician( $technician );
 	}
 }

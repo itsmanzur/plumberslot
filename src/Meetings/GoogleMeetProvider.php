@@ -2,7 +2,7 @@
 /**
  * Google Meet, created through a Calendar event.
  *
- * OAuth2 uses the per-tutor refresh token stored encrypted in user meta.
+ * OAuth2 uses the per-technician refresh token stored encrypted in user meta.
  * The Calendar API creates an event with conferenceData; the hangoutLink
  * returned with the event becomes the join URL, resolved only at join time
  * through the signed /plumberslot/join route.
@@ -38,22 +38,22 @@ final class GoogleMeetProvider implements ProviderInterface {
 		return __( 'Google Meet', 'plumberslot' );
 	}
 
-	public function is_connected( int $tutor_id ): bool {
-		return '' !== $this->refresh_token( $tutor_id );
+	public function is_connected( int $technician_id ): bool {
+		return '' !== $this->refresh_token( $technician_id );
 	}
 
 	/**
 	 * Create a Calendar event with a Meet conference and return the event id.
 	 *
 	 * @param int    $booking_id  Booking id.
-	 * @param int    $tutor_id    WordPress user id of the tutor.
+	 * @param int    $technician_id    WordPress user id of the technician.
 	 * @param string $start_utc   ISO-8601 UTC start.
 	 * @param int    $duration_min Lesson length in minutes.
 	 * @param string $title       Event title.
 	 * @return string|WP_Error Event id on success.
 	 */
-	public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
-		$access_token = $this->access_token( $tutor_id );
+	public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error {
+		$access_token = $this->access_token( $technician_id );
 
 		if ( is_wp_error( $access_token ) ) {
 			return $access_token;
@@ -105,7 +105,7 @@ final class GoogleMeetProvider implements ProviderInterface {
 	}
 
 	public function cancel( string $reference ): bool|WP_Error {
-		// reference is the event id; look up the tutor from booking context is
+		// reference is the event id; look up the technician from booking context is
 		// not available here, so we need to try with site-level token if any.
 		// Best-effort: if we cannot cancel, MeetingCleanup will retry.
 		return true;
@@ -118,15 +118,15 @@ final class GoogleMeetProvider implements ProviderInterface {
 		// reference = "google_meet|{event_id}" already split by ProviderRegistry.
 		// Here $reference is just the event_id portion.
 
-		// We cannot determine which tutor's token to use here without the booking.
-		// The JoinController passes the booking's tutor_id via a hook/filter.
-		$tutor_id = (int) apply_filters( 'plumberslot_join_tutor_id', 0 );
+		// We cannot determine which technician's token to use here without the booking.
+		// The JoinController passes the booking's technician_id via a hook/filter.
+		$technician_id = (int) apply_filters( 'plumberslot_join_technician_id', 0 );
 
-		if ( $tutor_id <= 0 ) {
+		if ( $technician_id <= 0 ) {
 			return null;
 		}
 
-		$access_token = $this->access_token( $tutor_id );
+		$access_token = $this->access_token( $technician_id );
 
 		if ( is_wp_error( $access_token ) ) {
 			return null;
@@ -155,12 +155,12 @@ final class GoogleMeetProvider implements ProviderInterface {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * Build the authorization URL for connecting a tutor's Google account.
+	 * Build the authorization URL for connecting a technician's Google account.
 	 */
-	public static function authorization_url( int $tutor_user_id ): string {
-		$state = wp_create_nonce( 'plumberslot_google_oauth_' . $tutor_user_id );
-		update_user_meta( $tutor_user_id, self::META_PENDING, $state );
-		AuditLog::record( 'meeting.connection_started', 'user', $tutor_user_id, array( 'provider' => 'google_meet' ), $tutor_user_id );
+	public static function authorization_url( int $technician_user_id ): string {
+		$state = wp_create_nonce( 'plumberslot_google_oauth_' . $technician_user_id );
+		update_user_meta( $technician_user_id, self::META_PENDING, $state );
+		AuditLog::record( 'meeting.connection_started', 'user', $technician_user_id, array( 'provider' => 'google_meet' ), $technician_user_id );
 
 		return add_query_arg(
 			array(
@@ -170,7 +170,7 @@ final class GoogleMeetProvider implements ProviderInterface {
 				'scope'         => self::SCOPES,
 				'access_type'   => 'offline',
 				'prompt'        => 'consent',
-				'state'         => $state . ':' . $tutor_user_id,
+				'state'         => $state . ':' . $technician_user_id,
 			),
 			self::AUTH_URL
 		);
@@ -224,11 +224,11 @@ final class GoogleMeetProvider implements ProviderInterface {
 	}
 
 	/**
-	 * Disconnect a tutor's Google account.
+	 * Disconnect a technician's Google account.
 	 */
-	public static function disconnect( int $tutor_user_id ): void {
-		delete_user_meta( $tutor_user_id, self::META_REFRESH );
-		AuditLog::record( 'meeting.disconnected', 'user', $tutor_user_id, array( 'provider' => 'google_meet' ), $tutor_user_id );
+	public static function disconnect( int $technician_user_id ): void {
+		delete_user_meta( $technician_user_id, self::META_REFRESH );
+		AuditLog::record( 'meeting.disconnected', 'user', $technician_user_id, array( 'provider' => 'google_meet' ), $technician_user_id );
 	}
 
 	public static function redirect_uri(): string {
@@ -244,14 +244,14 @@ final class GoogleMeetProvider implements ProviderInterface {
 	 *
 	 * @return string|WP_Error
 	 */
-	private function access_token( int $tutor_user_id ): string|WP_Error {
-		$refresh = $this->refresh_token( $tutor_user_id );
+	private function access_token( int $technician_user_id ): string|WP_Error {
+		$refresh = $this->refresh_token( $technician_user_id );
 
 		if ( '' === $refresh ) {
-			return new WP_Error( 'plumberslot_google_not_connected', __( 'Google Meet is not connected for this tutor.', 'plumberslot' ) );
+			return new WP_Error( 'plumberslot_google_not_connected', __( 'Google Meet is not connected for this technician.', 'plumberslot' ) );
 		}
 
-		$transient = 'plumberslot_google_at_' . $tutor_user_id;
+		$transient = 'plumberslot_google_at_' . $technician_user_id;
 		$cached    = get_transient( $transient );
 
 		if ( is_string( $cached ) && '' !== $cached ) {
@@ -287,8 +287,8 @@ final class GoogleMeetProvider implements ProviderInterface {
 		return (string) $payload['access_token'];
 	}
 
-	private function refresh_token( int $tutor_user_id ): string {
-		$stored = get_user_meta( $tutor_user_id, self::META_REFRESH, true );
+	private function refresh_token( int $technician_user_id ): string {
+		$stored = get_user_meta( $technician_user_id, self::META_REFRESH, true );
 
 		return is_string( $stored ) ? (string) ( Crypto::decrypt( $stored ) ?? '' ) : '';
 	}

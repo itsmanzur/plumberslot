@@ -39,7 +39,7 @@ final class AdminMenu {
 
 		$pages = array(
 			'plumberslot-availability' => __( 'Availability', 'plumberslot' ),
-			'plumberslot-subjects'     => __( 'Subjects', 'plumberslot' ),
+			'plumberslot-services'     => __( 'Services', 'plumberslot' ),
 			'plumberslot-bookings'     => __( 'Bookings', 'plumberslot' ),
 			'plumberslot-help'         => __( 'Help & Docs', 'plumberslot' ),
 		);
@@ -48,13 +48,13 @@ final class AdminMenu {
 			add_submenu_page( self::SLUG, $title, $title, Capabilities::MANAGE_OWN, $slug, array( $this, 'render' ) );
 		}
 
-		// Tutor and settings management is a site-manager job, not a tutor one.
+		// Technician and settings management is a site-manager job, not a technician one.
 		add_submenu_page(
 			self::SLUG,
-			__( 'Tutors', 'plumberslot' ),
-			__( 'Tutors', 'plumberslot' ),
-			Capabilities::MANAGE_TUTORS,
-			'plumberslot-tutors',
+			__( 'Technicians', 'plumberslot' ),
+			__( 'Technicians', 'plumberslot' ),
+			Capabilities::MANAGE_TECHNICIANS,
+			'plumberslot-technicians',
 			array( $this, 'render' )
 		);
 
@@ -93,7 +93,7 @@ final class AdminMenu {
 			'dependencies' => array(),
 			'version'      => \PlumberSlot\VERSION,
 		);
-		$tutor_id   = ( new \PlumberSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
+		$technician_id   = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->technician_id_for_user( get_current_user_id() );
 		$page       = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing.
 
 		/**
@@ -119,17 +119,17 @@ final class AdminMenu {
 			array(
 				'root'             => esc_url_raw( rest_url( 'plumberslot/v1' ) ),
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
-				'tutorId'          => $tutor_id,
+				'technicianId'     => $technician_id,
 				'timezone'         => wp_timezone_string(),
 				'version'          => \PlumberSlot\VERSION,
-				'initialDashboard' => self::SLUG === $page ? $this->preload_dashboard( $tutor_id ) : null,
+				'initialDashboard' => self::SLUG === $page ? $this->preload_dashboard( $technician_id ) : null,
 				'user'             => array(
 					'id'   => get_current_user_id(),
 					'name' => wp_get_current_user()->display_name,
 				),
 				'caps'             => array(
 					'manageOwn'    => current_user_can( Capabilities::MANAGE_OWN ),
-					'manageTutors' => current_user_can( Capabilities::MANAGE_TUTORS ),
+					'manageTechnicians' => current_user_can( Capabilities::MANAGE_TECHNICIANS ),
 					'manageAll'    => current_user_can( Capabilities::MANAGE_ALL ),
 					'viewReports'  => current_user_can( Capabilities::VIEW_REPORTS ),
 				),
@@ -137,9 +137,9 @@ final class AdminMenu {
 				'screens'          => array(
 					'dashboard'    => 'plumberslot',
 					'availability' => 'plumberslot-availability',
-					'subjects'     => 'plumberslot-subjects',
+					'services'     => 'plumberslot-services',
 					'bookings'     => 'plumberslot-bookings',
-					'tutors'       => 'plumberslot-tutors',
+					'technicians'       => 'plumberslot-technicians',
 					'settings'     => 'plumberslot-settings',
 					'setup'        => 'plumberslot-setup',
 					'help'         => 'plumberslot-help',
@@ -165,13 +165,13 @@ final class AdminMenu {
 	 *
 	 * @return array<string, mixed>|null
 	 */
-	private function preload_dashboard( int $tutor_id ): ?array {
-		if ( $tutor_id <= 0 ) {
+	private function preload_dashboard( int $technician_id ): ?array {
+		if ( $technician_id <= 0 ) {
 			return null;
 		}
 
 		$request = new \WP_REST_Request( 'GET', '/plumberslot/v1/dashboard' );
-		$request->set_param( 'tutor_id', $tutor_id );
+		$request->set_param( 'technician_id', $technician_id );
 		$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		$response = rest_do_request( $request );
 

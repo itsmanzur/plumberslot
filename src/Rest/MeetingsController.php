@@ -28,7 +28,7 @@ final class MeetingsController extends AbstractController {
 	}
 
 	public function register_routes(): void {
-		// List provider status for the current tutor.
+		// List provider status for the current technician.
 		register_rest_route(
 			self::NAMESPACE,
 			'/meetings/providers',
@@ -79,14 +79,14 @@ final class MeetingsController extends AbstractController {
 			return $nonce;
 		}
 
-		$tutor_user_id = get_current_user_id();
+		$technician_user_id = get_current_user_id();
 		$out           = array();
 
 		foreach ( $this->providers->all() as $provider ) {
 			$out[] = array(
 				'id'          => $provider->id(),
 				'label'       => $provider->label(),
-				'connected'   => $provider->is_connected( $tutor_user_id ),
+				'connected'   => $provider->is_connected( $technician_user_id ),
 				'connect_url' => 'google_meet' === $provider->id()
 					? rest_url( self::NAMESPACE . '/meetings/google/connect' )
 					: null,

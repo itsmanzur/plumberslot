@@ -13,7 +13,7 @@ declare( strict_types = 1 );
 
 namespace PlumberSlot\Rest;
 
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\SlotEngine;
 use PlumberSlot\Support\RateLimiter;
 use PlumberSlot\Support\Settings;
@@ -30,7 +30,7 @@ final class SlotsController extends AbstractController {
 	public function __construct(
 		Guard $guard,
 		private readonly SlotEngine $engine,
-		private readonly TutorRepository $tutors
+		private readonly TechnicianRepository $technicians
 	) {
 		parent::__construct( $guard );
 	}
@@ -44,7 +44,7 @@ final class SlotsController extends AbstractController {
 				'callback'            => array( $this, 'index' ),
 				'permission_callback' => array( $this, 'can_read' ),
 				'args'                => array(
-					'tutor_id'        => array(
+					'technician_id'        => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
@@ -97,16 +97,16 @@ final class SlotsController extends AbstractController {
 	}
 
 	public function index( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor = $this->tutors->find( (int) $request['tutor_id'] );
+		$technician = $this->technicians->find( (int) $request['technician_id'] );
 
-		if ( ! $tutor || 'active' !== $tutor->status ) {
+		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
 		}
 
 		$exclude = (int) ( $request['exclude_booking'] ?? 0 );
 
 		if ( $exclude > 0 ) {
-			$allowed = $this->can_exclude_booking( $request, (int) $tutor->id );
+			$allowed = $this->can_exclude_booking( $request, (int) $technician->id );
 
 			if ( true !== $allowed ) {
 				return is_wp_error( $allowed ) ? $allowed : $this->guard->deny();
@@ -131,20 +131,20 @@ final class SlotsController extends AbstractController {
 		}
 
 		$slots = $this->engine->slots_for(
-			(int) $tutor->id,
+			(int) $technician->id,
 			$from,
 			$to,
-			(string) $tutor->timezone,
+			(string) $technician->timezone,
 			min( 480, max( 15, (int) $request['duration'] ) ),
 			$exclude
 		);
 
-		$display_tz = (string) ( $request['timezone'] ?? $tutor->timezone );
+		$display_tz = (string) ( $request['timezone'] ?? $technician->timezone );
 
 		return $this->ok(
 			array(
 				'timezone'       => $display_tz,
-				'tutor_timezone' => $tutor->timezone,
+				'technician_timezone' => $technician->timezone,
 				'hold_minutes'   => Settings::int( 'hold_window_minutes', 10 ),
 				'slots'          => $slots,
 			)
@@ -152,9 +152,9 @@ final class SlotsController extends AbstractController {
 	}
 
 	/**
-	 * Only the tutor (or a site manager) may ask the slot engine to ignore a booking.
+	 * Only the technician (or a site manager) may ask the slot engine to ignore a booking.
 	 */
-	private function can_exclude_booking( WP_REST_Request $request, int $tutor_id ): bool|WP_Error {
+	private function can_exclude_booking( WP_REST_Request $request, int $technician_id ): bool|WP_Error {
 		$logged_in = $this->require_login();
 
 		if ( is_wp_error( $logged_in ) ) {
@@ -167,6 +167,6 @@ final class SlotsController extends AbstractController {
 			return $nonce;
 		}
 
-		return $this->guard->owns_tutor( $tutor_id ) ? true : $this->guard->deny();
+		return $this->guard->owns_technician( $technician_id ) ? true : $this->guard->deny();
 	}
 }

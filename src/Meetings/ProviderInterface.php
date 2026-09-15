@@ -19,7 +19,7 @@ interface ProviderInterface {
 
 	public function label(): string;
 
-	public function is_connected( int $tutor_id ): bool;
+	public function is_connected( int $technician_id ): bool;
 
 	/**
 	 * Create a meeting for a booking.
@@ -28,7 +28,7 @@ interface ProviderInterface {
 	 *                         ProviderRegistry::reference() so cleanup can
 	 *                         route it back to the correct provider.
 	 */
-	public function create( int $booking_id, int $tutor_id, string $start_utc, int $duration_min, string $title ): string|WP_Error;
+	public function create( int $booking_id, int $technician_id, string $start_utc, int $duration_min, string $title ): string|WP_Error;
 
 	public function cancel( string $reference ): bool|WP_Error;
 

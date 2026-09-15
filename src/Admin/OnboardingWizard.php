@@ -3,7 +3,7 @@
  * Four steps from activation to a working booking link.
  *
  * The number this screen is judged against is time to first bookable slot,
- * target under ninety seconds. Anything that does not move a new tutor closer
+ * target under ninety seconds. Anything that does not move a new technician closer
  * to a link they can paste does not belong in the wizard.
  *
  * @package PlumberSlot

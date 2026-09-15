@@ -62,7 +62,7 @@ final class JoinRoute {
 			wp_die( esc_html__( 'Invalid meeting link.', 'plumberslot' ), '', array( 'response' => 400 ) );
 		}
 
-		/** @var object{meeting_token:string,student_id:int,tutor_id:int,parent_id:?int,meeting_ref:string}|null $booking */
+		/** @var object{meeting_token:string,customer_id:int,technician_id:int,parent_id:?int,meeting_ref:string}|null $booking */
 		$booking = $this->bookings->find( $booking_id );
 
 		if ( ! $booking || empty( $booking->meeting_token ) ) {
@@ -79,16 +79,16 @@ final class JoinRoute {
 
 		// Only the confirmed participants may join.
 		$user_id = get_current_user_id();
-		$allowed = array( (int) $booking->student_id );
+		$allowed = array( (int) $booking->customer_id );
 
 		if ( $booking->parent_id ) {
 			$allowed[] = (int) $booking->parent_id;
 		}
 
-		// Resolve tutor user_id from tutor row.
-		$tutor_row = ( new \PlumberSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
-		if ( $tutor_row ) {
-			$allowed[] = (int) $tutor_row->user_id;
+		// Resolve technician user_id from technician row.
+		$technician_row = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->find( (int) $booking->technician_id );
+		if ( $technician_row ) {
+			$allowed[] = (int) $technician_row->user_id;
 		}
 
 		if ( ! in_array( $user_id, $allowed, true ) && ! current_user_can( 'manage_options' ) ) {
@@ -103,10 +103,10 @@ final class JoinRoute {
 			wp_die( esc_html__( 'Meeting reference is malformed.', 'plumberslot' ), '', array( 'response' => 500 ) );
 		}
 
-		// Let the provider know which tutor this is for join_url resolution.
+		// Let the provider know which technician this is for join_url resolution.
 		add_filter(
-			'plumberslot_join_tutor_id',
-			static fn() => $tutor_row ? (int) $tutor_row->user_id : 0
+			'plumberslot_join_technician_id',
+			static fn() => $technician_row ? (int) $technician_row->user_id : 0
 		);
 
 		$provider = $this->providers->get( $parts[0] );
@@ -118,7 +118,7 @@ final class JoinRoute {
 		$join_url = $provider->join_url( $parts[1] );
 
 		if ( ! $join_url ) {
-			wp_die( esc_html__( 'Could not retrieve the meeting link. Please contact your tutor.', 'plumberslot' ), '', array( 'response' => 503 ) );
+			wp_die( esc_html__( 'Could not retrieve the meeting link. Please contact your technician.', 'plumberslot' ), '', array( 'response' => 503 ) );
 		}
 
 		wp_redirect( esc_url_raw( $join_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- provider URL is external.

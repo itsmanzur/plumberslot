@@ -40,7 +40,7 @@ final class AssetManager {
 
 	public function mark_dashboard_needed( string $view = 'parent' ): void {
 		$this->dashboard_needed = true;
-		$this->dashboard_view   = in_array( $view, array( 'parent', 'tutor' ), true ) ? $view : 'parent';
+		$this->dashboard_view   = in_array( $view, array( 'parent', 'technician' ), true ) ? $view : 'parent';
 
 		if ( did_action( 'wp_enqueue_scripts' ) ) {
 			$this->enqueue_dashboard();
@@ -93,11 +93,11 @@ final class AssetManager {
 	 */
 	private function boot_payload( string $surface ): array {
 		$user        = wp_get_current_user();
-		$tutor_id    = 0;
+		$technician_id    = 0;
 		$current_url = $this->current_public_url();
 
 		if ( is_user_logged_in() ) {
-			$tutor_id = ( new \PlumberSlot\Database\Repository\TutorRepository() )->tutor_id_for_user( get_current_user_id() );
+			$technician_id = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->technician_id_for_user( get_current_user_id() );
 		}
 
 		return array(
@@ -106,11 +106,11 @@ final class AssetManager {
 			'loggedIn'     => is_user_logged_in(),
 			'loginUrl'     => wp_login_url( $current_url ),
 			'dashboardUrl' => home_url( '/parent-dashboard/' ),
-			'tutorDashUrl' => home_url( '/tutor-dashboard/' ),
+			'technicianDashUrl' => home_url( '/technician-dashboard/' ),
 			'bookingUrl'   => $this->booking_page_url(),
 			'view'         => $this->dashboard_view,
 			'surface'      => $surface,
-			'tutorId'      => $tutor_id,
+			'technicianId' => $technician_id,
 			'user'         => is_user_logged_in()
 				? array(
 					'id'    => get_current_user_id(),

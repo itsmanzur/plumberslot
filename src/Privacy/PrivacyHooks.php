@@ -155,7 +155,7 @@ final class PrivacyHooks {
 
 	public function policy_text(): string {
 		return '<p>' . esc_html__( 'PlumberSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons.', 'plumberslot' ) . '</p>'
-			. '<p>' . esc_html__( 'Lesson reminders may be sent to the student, paying parent and tutor. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'Lesson reminders may be sent to the student, paying parent and technician. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL.', 'plumberslot' ) . '</p>'
 			. '<p>' . esc_html__( 'When an optional online payment is selected, PlumberSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by PlumberSlot.', 'plumberslot' ) . '</p>'
 			. '<p>' . esc_html__( 'When a meeting provider is connected, PlumberSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved.', 'plumberslot' ) . '</p>'
 			. '<p>' . esc_html__( 'Email uses the site’s WordPress mail configuration. If the site connects an SMS add-on, the add-on receives the recipient mobile number, reminder or cancellation message and booking record; consult the site’s selected delivery provider policies.', 'plumberslot' ) . '</p>'
@@ -172,7 +172,7 @@ final class PrivacyHooks {
 		$relations = Schema::table( Schema::RELATIONS );
 		$reviews   = Schema::table( Schema::REVIEWS );
 		$queries   = array(
-			"SELECT 'booking' AS record_type, id, created_at AS sort_at FROM {$bookings} WHERE student_id = %d OR parent_id = %d",
+			"SELECT 'booking' AS record_type, id, created_at AS sort_at FROM {$bookings} WHERE customer_id = %d OR parent_id = %d",
 			"SELECT 'relation' AS record_type, id, created_at AS sort_at FROM {$relations} WHERE parent_id = %d OR student_id = %d",
 			"SELECT 'review' AS record_type, id, created_at AS sort_at FROM {$reviews} WHERE author_id = %d",
 		);
@@ -182,7 +182,7 @@ final class PrivacyHooks {
 			$series    = Schema::table( Schema::SERIES );
 			$credits   = Schema::table( Schema::CREDITS );
 			$audit     = Schema::table( Schema::AUDIT );
-			$queries[] = "SELECT 'series' AS record_type, id, created_at AS sort_at FROM {$series} WHERE student_id = %d";
+			$queries[] = "SELECT 'series' AS record_type, id, created_at AS sort_at FROM {$series} WHERE customer_id = %d";
 			$queries[] = "SELECT 'credit' AS record_type, id, created_at AS sort_at FROM {$credits} WHERE owner_id = %d";
 			$queries[] = "SELECT 'audit' AS record_type, id, created_at AS sort_at FROM {$audit} WHERE actor_id = %d";
 			$params[]  = $user_id;
@@ -221,8 +221,8 @@ final class PrivacyHooks {
 		}
 
 		$roles = array();
-		if ( $user_id === (int) $booking->student_id ) {
-			$roles[] = __( 'Student', 'plumberslot' );
+		if ( $user_id === (int) $booking->customer_id ) {
+			$roles[] = __( 'Customer', 'plumberslot' );
 		}
 		if ( $user_id === (int) $booking->parent_id ) {
 			$roles[] = __( 'Paying parent', 'plumberslot' );
@@ -230,7 +230,7 @@ final class PrivacyHooks {
 
 		$data = array(
 			$this->export_field( __( 'Role', 'plumberslot' ), implode( ', ', $roles ) ),
-			$this->export_field( __( 'When', 'plumberslot' ), Time::for_human( Time::from_sql( (string) $booking->start_utc ), (string) $booking->student_tz ) ),
+			$this->export_field( __( 'When', 'plumberslot' ), Time::for_human( Time::from_sql( (string) $booking->start_utc ), (string) $booking->customer_tz ) ),
 			$this->export_field( __( 'Status', 'plumberslot' ), (string) $booking->status ),
 			$this->export_field( __( 'Amount', 'plumberslot' ), Money::format( (int) $booking->price_minor, (string) $booking->currency ) ),
 			$this->export_field( __( 'Notes', 'plumberslot' ), (string) $booking->notes ),
@@ -313,7 +313,7 @@ final class PrivacyHooks {
 				$changed = (int) $wpdb->query(
 					$wpdb->prepare(
 						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from the schema whitelist; values are prepared below.
-						'UPDATE ' . $table . ' SET student_id = IF(student_id = %d, 0, student_id), parent_id = IF(parent_id = %d, NULL, parent_id), notes = NULL, updated_at = %s WHERE id = %d',
+						'UPDATE ' . $table . ' SET customer_id = IF(customer_id = %d, 0, customer_id), parent_id = IF(parent_id = %d, NULL, parent_id), notes = NULL, updated_at = %s WHERE id = %d',
 						$user_id,
 						$user_id,
 						gmdate( 'Y-m-d H:i:s' ),
@@ -343,7 +343,7 @@ final class PrivacyHooks {
 
 			case 'series':
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- series id comes from a prepared internal query.
-				$changed = (int) $wpdb->update( Schema::table( Schema::SERIES ), array( 'student_id' => 0 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
+				$changed = (int) $wpdb->update( Schema::table( Schema::SERIES ), array( 'customer_id' => 0 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
 				break;
 
 			case 'credit':

@@ -64,7 +64,7 @@ final class Dispatcher {
 			return;
 		}
 
-		$recipients = array( (int) $booking->student_id );
+		$recipients = array( (int) $booking->customer_id );
 		$parent_id  = $booking->parent_id ? (int) $booking->parent_id : 0;
 
 		// Receipts always go to the payer when a parent paid for the child.
@@ -73,16 +73,16 @@ final class Dispatcher {
 			$recipients[] = $parent_id;
 		}
 
-		// Reminders always reach both student and parent when linked.
+		// Reminders always reach both customer and parent when linked.
 		if ( $parent_id > 0 && str_starts_with( $event, 'reminder_' ) ) {
 			$recipients[] = $parent_id;
 		}
 
-		// Tutor gets a copy on booking_created, booking_cancelled, reminder_24h.
+		// Technician gets a copy on booking_created, booking_cancelled, reminder_24h.
 		if ( in_array( $event, array( 'booking_created', 'booking_cancelled', 'reminder_24h' ), true ) ) {
-			$tutor_row = ( new \PlumberSlot\Database\Repository\TutorRepository() )->find( (int) $booking->tutor_id );
-			if ( $tutor_row ) {
-				$recipients[] = (int) $tutor_row->user_id;
+			$technician_row = ( new \PlumberSlot\Database\Repository\TechnicianRepository() )->find( (int) $booking->technician_id );
+			if ( $technician_row ) {
+				$recipients[] = (int) $technician_row->user_id;
 			}
 		}
 

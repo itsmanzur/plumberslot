@@ -11,8 +11,8 @@ namespace PlumberSlot\Rest;
 
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\SeriesRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PolicyService;
 use PlumberSlot\Domain\RecurrenceService;
@@ -32,8 +32,8 @@ final class SeriesController extends AbstractController {
 		private readonly RecurrenceService $recurrence,
 		private readonly SeriesRepository $series,
 		private readonly BookingRepository $bookings,
-		private readonly TutorRepository $tutors,
-		private readonly SubjectRepository $subjects,
+		private readonly TechnicianRepository $technicians,
+		private readonly ServiceRepository $services,
 		private readonly CreditService $credits,
 		private readonly PolicyService $policy
 	) {
@@ -49,16 +49,16 @@ final class SeriesController extends AbstractController {
 				'callback'            => array( $this, 'create' ),
 				'permission_callback' => array( $this, 'can_create' ),
 				'args'                => array(
-					'tutor_id'   => array(
+					'technician_id'   => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'subject_id' => array(
+					'service_id' => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'student_id' => array(
+					'customer_id' => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
@@ -149,8 +149,8 @@ final class SeriesController extends AbstractController {
 	}
 
 	public function create( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$tutor = $this->tutors->find( (int) $request['tutor_id'] );
-		if ( ! $tutor || 'active' !== $tutor->status ) {
+		$technician = $this->technicians->find( (int) $request['technician_id'] );
+		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
 		}
 
@@ -171,39 +171,39 @@ final class SeriesController extends AbstractController {
 			);
 		}
 
-		$subject_id = $request['subject_id'] ? (int) $request['subject_id'] : null;
-		$subject    = null;
-		if ( null !== $subject_id ) {
-			$subject = $this->subjects->find_for_tutor( $subject_id, (int) $tutor->id );
-			if ( ! $subject || 'active' !== $subject->status ) {
+		$service_id = $request['service_id'] ? (int) $request['service_id'] : null;
+		$service    = null;
+		if ( null !== $service_id ) {
+			$service = $this->services->find_for_technician( $service_id, (int) $technician->id );
+			if ( ! $service || 'active' !== $service->status ) {
 				return $this->guard->deny();
 			}
 		}
 
 		$actor      = get_current_user_id();
-		$student_id = (int) ( $request['student_id'] ? $request['student_id'] : $actor );
-		$parent_id  = $student_id === $actor ? null : $actor;
+		$customer_id = (int) ( $request['customer_id'] ? $request['customer_id'] : $actor );
+		$parent_id  = $customer_id === $actor ? null : $actor;
 
-		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $student_id ) ) {
+		if ( null !== $parent_id && ! $this->guard->is_guardian_of( $actor, $customer_id ) ) {
 			return $this->guard->deny();
 		}
 
-		if ( null !== $subject ) {
-			$trial = $this->policy->can_use_trial( $student_id, $subject );
-			if ( is_wp_error( $trial ) ) {
-				return $trial;
+		if ( null !== $service ) {
+			$free_estimate = $this->policy->can_use_free_estimate( $customer_id, $service );
+			if ( is_wp_error( $free_estimate ) ) {
+				return $free_estimate;
 			}
 		}
 
 		$start    = Time::from_iso( (string) $request['start'] );
-		$duration = null !== $subject
-			? (int) $subject->duration_min
+		$duration = null !== $service
+			? (int) $service->duration_min
 			: Settings::int( 'default_lesson_minutes', 60 );
 
 		$use_credit = (bool) $request['use_credit'];
 		$credit_id  = null;
 		if ( $use_credit ) {
-			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $tutor->id, $subject_id );
+			$credit = $this->credits->pick_usable( $parent_id ?? $actor, (int) $technician->id, $service_id );
 			if ( ! $credit ) {
 				return new WP_Error(
 					'plumberslot_no_credits',
@@ -216,27 +216,27 @@ final class SeriesController extends AbstractController {
 
 		if ( $credit_id ) {
 			$price = 0;
-		} elseif ( null !== $subject && ! empty( $subject->is_trial ) ) {
+		} elseif ( null !== $service && ! empty( $service->is_free_estimate ) ) {
 			$price = 0;
-		} elseif ( null !== $subject ) {
-			$price = (int) $subject->price_minor;
+		} elseif ( null !== $service ) {
+			$price = (int) $service->price_minor;
 		} else {
-			$price = (int) $tutor->hourly_rate_minor;
+			$price = (int) $technician->hourly_rate_minor;
 		}
 
-		$student_tz = (string) ( $request['timezone'] ? $request['timezone'] : $tutor->timezone );
-		$currency   = (string) $tutor->currency;
+		$customer_tz = (string) ( $request['timezone'] ? $request['timezone'] : $technician->timezone );
+		$currency   = (string) $technician->currency;
 
 		$result = $this->recurrence->create_series(
 			array(
-				'tutor_id'       => (int) $tutor->id,
-				'student_id'     => $student_id,
+				'technician_id'       => (int) $technician->id,
+				'customer_id'     => $customer_id,
 				'parent_id'      => $parent_id,
-				'subject_id'     => $subject_id,
+				'service_id'     => $service_id,
 				'start_utc'      => $start,
 				'duration_min'   => $duration,
-				'tutor_tz'       => (string) $tutor->timezone,
-				'student_tz'     => $student_tz,
+				'technician_tz'       => (string) $technician->timezone,
+				'customer_tz'     => $customer_tz,
 				'price_minor'    => $price,
 				'currency'       => $currency,
 				'credit_id'      => $credit_id,
@@ -287,8 +287,8 @@ final class SeriesController extends AbstractController {
 		return $this->ok(
 			array(
 				'id'          => (int) $series->id,
-				'tutor_id'    => (int) $series->tutor_id,
-				'student_id'  => (int) $series->student_id,
+				'technician_id'    => (int) $series->technician_id,
+				'customer_id'  => (int) $series->customer_id,
 				'rrule'       => (string) $series->rrule,
 				'total_count' => (int) $series->total_count,
 				'active'      => count( $active ),
@@ -337,14 +337,14 @@ final class SeriesController extends AbstractController {
 		}
 
 		$user_id = get_current_user_id();
-		if ( (int) $series->student_id === $user_id ) {
+		if ( (int) $series->customer_id === $user_id ) {
 			return true;
 		}
 
-		if ( $this->guard->is_guardian_of( $user_id, (int) $series->student_id ) ) {
+		if ( $this->guard->is_guardian_of( $user_id, (int) $series->customer_id ) ) {
 			return true;
 		}
 
-		return $this->guard->owns_tutor( (int) $series->tutor_id );
+		return $this->guard->owns_technician( (int) $series->technician_id );
 	}
 }

@@ -17,8 +17,8 @@ use PlumberSlot\Database\Repository\LockRepository;
 use PlumberSlot\Database\Repository\RelationRepository;
 use PlumberSlot\Database\Repository\ReviewRepository;
 use PlumberSlot\Database\Repository\SeriesRepository;
-use PlumberSlot\Database\Repository\SubjectRepository;
-use PlumberSlot\Database\Repository\TutorRepository;
+use PlumberSlot\Database\Repository\ServiceRepository;
+use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\BookingService;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PaymentService;
@@ -39,21 +39,21 @@ final class RestServiceProvider {
 	}
 
 	public function register_routes(): void {
-		$guard = new Guard( $this->container->get( TutorRepository::class ) );
+		$guard = new Guard( $this->container->get( TechnicianRepository::class ) );
 
 		$controllers = array(
 			new SlotsController(
 				$guard,
 				$this->container->get( SlotEngine::class ),
-				$this->container->get( TutorRepository::class )
+				$this->container->get( TechnicianRepository::class )
 			),
 			new BookingsController(
 				$guard,
 				$this->container->get( BookingService::class ),
 				$this->container->get( BookingRepository::class ),
 				$this->container->get( LockRepository::class ),
-				$this->container->get( TutorRepository::class ),
-				$this->container->get( SubjectRepository::class ),
+				$this->container->get( TechnicianRepository::class ),
+				$this->container->get( ServiceRepository::class ),
 				$this->container->get( CreditService::class ),
 				$this->container->get( SlotEngine::class ),
 				$this->container->get( PolicyService::class ),
@@ -64,8 +64,8 @@ final class RestServiceProvider {
 				$this->container->get( RecurrenceService::class ),
 				$this->container->get( SeriesRepository::class ),
 				$this->container->get( BookingRepository::class ),
-				$this->container->get( TutorRepository::class ),
-				$this->container->get( SubjectRepository::class ),
+				$this->container->get( TechnicianRepository::class ),
+				$this->container->get( ServiceRepository::class ),
 				$this->container->get( CreditService::class ),
 				$this->container->get( PolicyService::class )
 			),
@@ -88,39 +88,39 @@ final class RestServiceProvider {
 				$guard,
 				$this->container->get( AvailabilityRepository::class )
 			),
-			new TutorsController(
+			new TechniciansController(
 				$guard,
-				$this->container->get( TutorRepository::class ),
-				$this->container->get( SubjectRepository::class )
+				$this->container->get( TechnicianRepository::class ),
+				$this->container->get( ServiceRepository::class )
 			),
-			new SubjectsController(
+			new ServicesController(
 				$guard,
-				$this->container->get( SubjectRepository::class ),
-				$this->container->get( TutorRepository::class )
+				$this->container->get( ServiceRepository::class ),
+				$this->container->get( TechnicianRepository::class )
 			),
 			new DashboardController(
 				$guard,
-				$this->container->get( TutorRepository::class ),
+				$this->container->get( TechnicianRepository::class ),
 				$this->container->get( BookingRepository::class ),
 				$this->container->get( CreditRepository::class ),
 				$this->container->get( AvailabilityRepository::class ),
-				$this->container->get( SubjectRepository::class )
+				$this->container->get( ServiceRepository::class )
 			),
 			new AuditController( $guard ),
 			new SetupController(
 				$guard,
-				$this->container->get( TutorRepository::class ),
-				$this->container->get( SubjectRepository::class ),
+				$this->container->get( TechnicianRepository::class ),
+				$this->container->get( ServiceRepository::class ),
 				$this->container->get( AvailabilityRepository::class )
 			),
 			new MeetingsController(
 				$guard,
 				$this->container->get( ProviderRegistry::class )
 			),
-			new PublicTutorController(
+			new PublicTechnicianController(
 				$guard,
-				$this->container->get( TutorRepository::class ),
-				$this->container->get( SubjectRepository::class ),
+				$this->container->get( TechnicianRepository::class ),
+				$this->container->get( ServiceRepository::class ),
 				$this->container->get( ReviewRepository::class ),
 				$this->container->get( SlotEngine::class ),
 				$this->container->get( BookingRepository::class )
