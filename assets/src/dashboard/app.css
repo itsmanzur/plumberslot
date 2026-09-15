@@ -126,7 +126,7 @@
 	line-height: 1.4;
 }
 
-.ts-dash__lesson {
+.ts-dash__job {
 	display: grid;
 	grid-template-columns: 48px 1fr auto;
 	gap: 14px;
@@ -135,7 +135,7 @@
 	border-top: 1px solid var(--ts-rule, #e7ebf3);
 }
 
-.ts-dash__lesson--technician {
+.ts-dash__job--technician {
 	grid-template-columns: 1fr;
 }
 

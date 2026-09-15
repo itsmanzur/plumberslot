@@ -168,12 +168,13 @@ final class DashboardController extends AbstractController {
 				'title'    => sprintf(
 					'%1$s · %2$s',
 					$customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
-					$service ? $service->name : __( 'Lesson', 'plumberslot' )
+					$service ? $service->name : __( 'Service call', 'plumberslot' )
 				),
 				'time'     => $local->format( 'H:i' ),
 				'startPct' => (int) round( ( $offset / $day_span ) * 100 ),
 				'widthPct' => $width,
 				'done'     => $local < $now,
+				'address'  => $this->short_address( $row ),
 			);
 		}
 
@@ -200,8 +201,8 @@ final class DashboardController extends AbstractController {
 				'id'            => $booking_id,
 				'customer'       => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
-				'context'       => __( 'Books their own lessons', 'plumberslot' ),
-				'service'       => $service ? (string) $service->name : __( 'Lesson', 'plumberslot' ),
+				'address'       => $this->short_address( $row ),
+				'service'       => $service ? (string) $service->name : __( 'Service call', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )
 					: $local->format( 'D H:i' ),
@@ -300,6 +301,20 @@ final class DashboardController extends AbstractController {
 		$active = $this->technicians->all_active();
 
 		return $active ? (int) $active[0]->id : 0;
+	}
+
+	/**
+	 * Compact "city, zip" (or street line, if city is missing) for a booking
+	 * row's job-site address — kept short for list and timeline views.
+	 */
+	private function short_address( object $row ): string {
+		$city  = trim( (string) ( $row->address_city ?? '' ) );
+		$zip   = trim( (string) ( $row->address_zip ?? '' ) );
+		$line1 = trim( (string) ( $row->address_line1 ?? '' ) );
+
+		$city_zip = trim( implode( ' ', array_filter( array( $city, $zip ) ) ) );
+
+		return '' !== $city_zip ? $city_zip : $line1;
 	}
 
 	private function initials( string $name ): string {

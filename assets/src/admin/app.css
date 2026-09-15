@@ -326,7 +326,7 @@
 }
 
 .ts-dashboard__person-name,
-.ts-dashboard__person-context {
+.ts-dashboard__person-address {
 	display: block;
 }
 
@@ -335,7 +335,7 @@
 	font-size: var(--ts-text-md);
 }
 
-.ts-dashboard__person-context {
+.ts-dashboard__person-address {
 	color: var(--ts-mute);
 	font-size: 11.5px;
 	white-space: nowrap;

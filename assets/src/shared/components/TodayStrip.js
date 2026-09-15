@@ -4,7 +4,7 @@ import { h } from 'preact';
  * Horizontal day schedule strip (timeline).
  *
  * @param {Object}   props
- * @param {Array}    props.items     Sessions: { id, title, startPct, widthPct, done? }
+ * @param {Array}    props.items     Sessions: { id, title, startPct, widthPct, done?, address? }
  * @param {number}   props.nowPct    Now-marker position 0–100
  * @param {string}   props.nowLabel  e.g. "14:20"
  * @param {string[]} props.ticks     Hour labels under the line
@@ -46,7 +46,9 @@ export function TodayStrip( {
 							left: `${ item.startPct }%`,
 							width: `${ item.widthPct }%`,
 						},
-						title: item.title,
+						title: item.address
+							? `${ item.title } — ${ item.address }`
+							: item.title,
 					},
 					item.time
 						? h( 'span', { class: 'ts-strip__time' }, item.time )

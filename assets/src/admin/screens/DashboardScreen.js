@@ -207,7 +207,7 @@ export function DashboardScreen() {
 							h( StatTile, {
 								label: 'Credits held',
 								value: String( data.tiles?.credits_held ?? 0 ),
-								hint: 'lessons prepaid',
+								hint: 'appointments prepaid',
 							} )
 						),
 						h(
@@ -302,13 +302,15 @@ export function DashboardScreen() {
 																			},
 																			row.customer
 																		),
-																		h(
+																	row.address
+																		? h(
 																			'small',
 																			{
-																				class: 'ts-dashboard__person-context',
+																				class: 'ts-dashboard__person-address',
 																			},
-																			row.context
+																			row.address
 																		)
+																		: null
 																	)
 																)
 															),
@@ -366,7 +368,7 @@ export function DashboardScreen() {
 									: h(
 											'p',
 											{ class: 'ts-dashboard__empty' },
-											'No upcoming lessons.'
+											'No upcoming appointments.'
 									  )
 							),
 							h(

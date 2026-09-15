@@ -18,7 +18,7 @@ export function TechnicianDashboard() {
 	const boot = getBoot();
 	const [ status, setStatus ] = useState( 'loading' );
 	const [ error, setError ] = useState( '' );
-	const [ lessons, setLessons ] = useState( [] );
+	const [ jobs, setJobs ] = useState( [] );
 	const [ attendanceDue, setAttendanceDue ] = useState( [] );
 	const [ technicianId, setTechnicianId ] = useState( boot.technicianId || 0 );
 	const [ weekCells, setWeekCells ] = useState( null );
@@ -43,9 +43,9 @@ export function TechnicianDashboard() {
 			] );
 			const items = teaching.bookings || teaching.items || [];
 			const ended = ( past.bookings || past.items || [] ).filter(
-				( row ) => hasLessonEnded( row.end_utc )
+				( row ) => hasJobEnded( row.end_utc )
 			);
-			setLessons( items );
+			setJobs( items );
 			setAttendanceDue( ended );
 			const tid =
 				boot.technicianId ||
@@ -133,7 +133,7 @@ export function TechnicianDashboard() {
 			h(
 				Callout,
 				{ title: 'Sign in:' },
-				'Technicians manage lessons from this page, not wp-admin.'
+				'Technicians manage jobs from this page, not wp-admin.'
 			),
 			h(
 				Button,
@@ -168,7 +168,7 @@ export function TechnicianDashboard() {
 			'header',
 			{ class: 'ts-dash__hero' },
 			h( 'p', { class: 'ts-dash__eyebrow' }, boot.user?.name || 'Technician' ),
-			h( 'h1', null, 'Your teaching schedule' )
+			h( 'h1', null, 'Your job schedule' )
 		),
 		error ? h( Callout, { tone: 'warn', title: 'Notice:' }, error ) : null,
 		h(
@@ -177,19 +177,19 @@ export function TechnicianDashboard() {
 			h(
 				'section',
 				{ class: 'ts-dash__panel' },
-				h( 'h2', null, 'Upcoming lessons' ),
-				lessons.length === 0
+				h( 'h2', null, 'Upcoming jobs' ),
+				jobs.length === 0
 					? h( EmptyState, {
-							title: 'No lessons booked',
+							title: 'No jobs booked',
 							description:
 								'When customers book you, they appear here.',
 					  } )
-					: lessons.map( ( row ) =>
+					: jobs.map( ( row ) =>
 							h(
 								'article',
 								{
 									key: row.id,
-									class: 'ts-dash__lesson ts-dash__lesson--technician',
+									class: 'ts-dash__job ts-dash__job--technician',
 								},
 								h(
 									'div',
@@ -215,7 +215,7 @@ export function TechnicianDashboard() {
 								h(
 									'label',
 									{ class: 'ts-dash__note-field' },
-									h( 'span', null, 'After-lesson note' ),
+									h( 'span', null, 'After-job note' ),
 									h( 'textarea', {
 										rows: 2,
 										value:
@@ -245,14 +245,14 @@ export function TechnicianDashboard() {
 					? h( EmptyState, {
 							title: 'No attendance to record',
 							description:
-								'Completed lesson times that need an outcome appear here.',
+								'Completed job times that need an outcome appear here.',
 					  } )
 					: attendanceDue.map( ( row ) =>
 							h(
 								'article',
 								{
 									key: `attendance-${ row.id }`,
-									class: 'ts-dash__lesson ts-dash__lesson--technician',
+									class: 'ts-dash__job ts-dash__job--technician',
 								},
 								h(
 									'div',
@@ -348,7 +348,7 @@ function statusTone( status ) {
 	return 'wait';
 }
 
-function hasLessonEnded( endUtc ) {
+function hasJobEnded( endUtc ) {
 	const normalized = String( endUtc || '' )
 		.trim()
 		.replace( ' ', 'T' );
