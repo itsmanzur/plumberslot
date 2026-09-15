@@ -98,7 +98,7 @@ final class PublicTechnicianController extends AbstractController {
 		}
 
 		$rating   = $this->reviews->rating_summary( (int) $technician->id );
-		$lessons  = $this->completed_lesson_count( (int) $technician->id );
+		$jobs     = $this->completed_job_count( (int) $technician->id );
 		$services = array();
 
 		foreach ( $this->services->all_for_technician( (int) $technician->id ) as $service ) {
@@ -158,7 +158,7 @@ final class PublicTechnicianController extends AbstractController {
 				'from_price_minor'          => $from_price ?? (int) $technician->hourly_rate_minor,
 				'rating'                    => $rating['average'],
 				'review_count'              => $rating['count'],
-				'lesson_count'              => $lessons,
+				'job_count'                 => $jobs,
 				'years_teaching'            => $meta['years_teaching'],
 				'response_time'             => $meta['response_time'],
 				'languages'                 => $meta['languages'],
@@ -206,7 +206,7 @@ final class PublicTechnicianController extends AbstractController {
 		);
 	}
 
-	private function completed_lesson_count( int $technician_id ): int {
+	private function completed_job_count( int $technician_id ): int {
 		$result = $this->bookings->find_for_technician(
 			$technician_id,
 			array(
@@ -215,7 +215,7 @@ final class PublicTechnicianController extends AbstractController {
 			)
 		);
 
-		// Prefer total from a broader query without status filter for "lessons taught".
+		// Prefer total from a broader query without status filter for "jobs completed".
 		$all = $this->bookings->find_for_technician(
 			$technician_id,
 			array(

@@ -4,7 +4,7 @@
  *
  * Meeting creation is decoupled from the booking write so a provider API
  * failure never rolls back a confirmed payment. If the meeting fails, the
- * booking stays confirmed and an admin notice appears; the lesson still runs,
+ * booking stays confirmed and an admin notice appears; the appointment still runs,
  * the customer just has to use the fallback link.
  *
  * @package PlumberSlot
@@ -124,7 +124,7 @@ final class MeetingService {
 
 		return sprintf(
 			/* translators: %s: customer display name. */
-			__( 'Lesson with %s', 'plumberslot' ),
+			__( 'Appointment with %s', 'plumberslot' ),
 			$customer ? $customer->display_name : __( 'Customer', 'plumberslot' )
 		);
 	}

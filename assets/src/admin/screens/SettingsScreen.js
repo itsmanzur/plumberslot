@@ -22,7 +22,7 @@ const BOOKING_TOGGLES = [
 	{
 		key: 'allow_customer_reschedule',
 		label: 'Let customers reschedule',
-		explanation: 'Up to the reschedule window before the lesson starts.',
+		explanation: 'Up to the reschedule window before the appointment starts.',
 	},
 	{
 		key: 'offer_free_estimate',

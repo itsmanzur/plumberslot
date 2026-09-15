@@ -418,7 +418,7 @@ export function SetupWizardScreen() {
 									title: 'Connect a gateway next:',
 									style: { marginTop: '14px' },
 								},
-								'Online payments are on, but Stripe/bKash are not set yet. Until then parents will book with “pay technician directly” or lesson packages. Add keys under Settings → Connections after you finish.'
+								'Online payments are on, but Stripe/bKash are not set yet. Until then customers will book with “pay technician directly” or job packages. Add keys under Settings → Connections after you finish.'
 						  )
 						: null
 			  )

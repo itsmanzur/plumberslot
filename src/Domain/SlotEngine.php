@@ -46,7 +46,7 @@ final class SlotEngine {
 	 * @param DateTimeImmutable $from_utc      Window start, UTC.
 	 * @param DateTimeImmutable $to_utc        Window end, UTC.
 	 * @param string            $technician_tz      Technician's IANA zone.
-	 * @param int               $duration_min  Lesson length.
+	 * @param int               $duration_min  Appointment length.
 	 * @return list<Slot>
 	 * @throws \InvalidArgumentException When the window is empty or too wide.
 	 */
@@ -152,8 +152,8 @@ final class SlotEngine {
 			}
 
 			foreach ( $windows as $window ) {
-				// Step by at least the lesson length so candidates never overlap;
-				// granularity still wins when it is longer than the lesson.
+				// Step by at least the appointment length so candidates never overlap;
+				// granularity still wins when it is longer than the appointment.
 				$step = max( $granularity, $duration_min ) + $buffer;
 
 				for ( $min = $window['start']; $min + $duration_min <= $window['end']; $min += $step ) {

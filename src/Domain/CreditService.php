@@ -1,6 +1,6 @@
 <?php
 /**
- * Lesson packages. A family buys ten lessons and spends them whenever.
+ * Job packages. A customer buys ten jobs and spends them whenever.
  *
  * @package PlumberSlot
  */
@@ -22,7 +22,7 @@ final class CreditService {
 	public function __construct( private readonly CreditRepository $credits ) {}
 
 	/**
-	 * Find a package that can pay for this lesson.
+	 * Find a package that can pay for this job.
 	 */
 	public function pick_usable( int $owner_id, int $technician_id, ?int $service_id = null ): ?object {
 		foreach ( $this->credits->usable_for( $owner_id, $technician_id ) as $credit ) {
@@ -44,7 +44,7 @@ final class CreditService {
 		if ( ! $this->credits->consume_one( $credit_id ) ) {
 			return new WP_Error(
 				'plumberslot_no_credits',
-				__( 'This package has no lessons left on it.', 'plumberslot' ),
+				__( 'This package has no jobs left on it.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -95,7 +95,7 @@ final class CreditService {
 	}
 
 	/**
-	 * Create a prepaid package. Optionally rolls unused lessons from an
+	 * Create a prepaid package. Optionally rolls unused jobs from an
 	 * expiring pack into the new one when rollover is enabled.
 	 *
 	 * @param array{owner_id:int, technician_id:?int, service_id:?int, total:int, price_minor?:int} $args Package fields.
@@ -130,7 +130,7 @@ final class CreditService {
 		if ( $id <= 0 ) {
 			return new WP_Error(
 				'plumberslot_credit_create_failed',
-				__( 'Could not create the lesson package.', 'plumberslot' ),
+				__( 'Could not create the job package.', 'plumberslot' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -150,7 +150,7 @@ final class CreditService {
 
 		return $package ? $package : new WP_Error(
 			'plumberslot_credit_create_failed',
-			__( 'Could not create the lesson package.', 'plumberslot' ),
+			__( 'Could not create the job package.', 'plumberslot' ),
 			array( 'status' => 500 )
 		);
 	}

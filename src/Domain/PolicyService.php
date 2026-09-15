@@ -34,8 +34,8 @@ final class PolicyService {
 				sprintf(
 					/* translators: %d: number of hours. */
 					_n(
-						'Lessons need to be booked at least %d hour ahead.',
-						'Lessons need to be booked at least %d hours ahead.',
+						'Appointments need to be booked at least %d hour ahead.',
+						'Appointments need to be booked at least %d hours ahead.',
 						(int) round( $lead / 60 ),
 						'plumberslot'
 					),
@@ -54,7 +54,7 @@ final class PolicyService {
 		if ( strtotime( $booking->start_utc ) - time() < $window * MINUTE_IN_SECONDS ) {
 			return new WP_Error(
 				'plumberslot_reschedule_closed',
-				__( 'This lesson is too close to its start time to move. Message your technician instead.', 'plumberslot' ),
+				__( 'This appointment is too close to its start time to move. Message your technician instead.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}

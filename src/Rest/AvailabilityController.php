@@ -1,6 +1,6 @@
 <?php
 /**
- * /plumberslot/v1/availability — week grid + exceptions + lesson defaults.
+ * /plumberslot/v1/availability — week grid + exceptions + appointment defaults.
  *
  * @package PlumberSlot
  */
@@ -138,7 +138,7 @@ final class AvailabilityController extends AbstractController {
 	}
 
 	/**
-	 * Lesson defaults are site settings — technicians who manage their own schedule
+	 * Appointment defaults are site settings — technicians who manage their own schedule
 	 * may update the three availability-related integers; site managers always can.
 	 */
 	public function can_manage_defaults( WP_REST_Request $request ): bool|WP_Error {

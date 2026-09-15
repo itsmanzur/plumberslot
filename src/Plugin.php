@@ -122,7 +122,7 @@ final class Plugin {
 				printf(
 					'<div class="notice notice-warning"><p><strong>%s</strong> %s</p></div>',
 					esc_html__( 'PlumberSlot:', 'plumberslot' ),
-					esc_html__( 'lesson reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on.', 'plumberslot' )
+					esc_html__( 'appointment reminders and pending-payment expiry are switched off because Action Scheduler is not installed. Run composer install in the plugin folder to turn them on.', 'plumberslot' )
 				);
 			}
 		);

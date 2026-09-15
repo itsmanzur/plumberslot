@@ -2,8 +2,8 @@
 /**
  * Money is always an integer number of minor units.
  *
- * Floats and currency do not mix; a rounding error in a lesson package is a
- * support ticket that costs more than the lesson.
+ * Floats and currency do not mix; a rounding error in a job package is a
+ * support ticket that costs more than the job.
  *
  * @package PlumberSlot
  */

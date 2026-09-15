@@ -403,7 +403,7 @@ final class BookingsController extends AbstractController {
 
 		return new WP_Error(
 			'plumberslot_reschedule_disabled',
-			__( 'Online rescheduling is disabled. Contact the technician to move this lesson.', 'plumberslot' ),
+			__( 'Online rescheduling is disabled. Contact the technician to move this appointment.', 'plumberslot' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -568,7 +568,7 @@ final class BookingsController extends AbstractController {
 			$series_total = $series ? (int) $series->total_count : null;
 			if ( $series_total ) {
 				$series_label = sprintf(
-					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
+					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
 					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					(int) ( isset( $row->series_index ) && $row->series_index ? $row->series_index : 1 ),
 					$series_total
@@ -786,7 +786,7 @@ final class BookingsController extends AbstractController {
 			if ( ! $credit ) {
 				return new WP_Error(
 					'plumberslot_no_credits',
-					__( 'There are no lessons left on this package.', 'plumberslot' ),
+					__( 'There are no jobs left on this package.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}

@@ -37,7 +37,7 @@ final class BookingService {
 	 * Create one booking.
 	 *
 	 * A per-technician MySQL advisory lock serializes the overlap check and insert.
-	 * The locked range query prevents different starts whose lesson intervals cross.
+	 * The locked range query prevents different starts whose appointment intervals cross.
 	 *
 	 * @param array{
 	 *   technician_id:int, customer_id:int, service_id:?int,
@@ -147,7 +147,7 @@ final class BookingService {
 	}
 
 	/**
-	 * Move a single booking. A lesson inside a series moves alone; the other
+	 * Move a single booking. An appointment inside a series moves alone; the other
 	 * eleven are untouched.
 	 */
 	public function reschedule( int $booking_id, DateTimeImmutable $new_start_utc ): bool|WP_Error {
@@ -158,7 +158,7 @@ final class BookingService {
 		}
 
 		if ( 'confirmed' !== (string) $booking->status ) {
-			return $this->invalid_transition( __( 'Only a confirmed lesson can be rescheduled.', 'plumberslot' ) );
+			return $this->invalid_transition( __( 'Only a confirmed appointment can be rescheduled.', 'plumberslot' ) );
 		}
 
 		$window = $this->policy->can_reschedule( $booking );
@@ -333,7 +333,7 @@ final class BookingService {
 		}
 
 		if ( 'confirmed' !== (string) $booking->status ) {
-			return $this->invalid_transition( __( 'Only a confirmed lesson can be cancelled.', 'plumberslot' ) );
+			return $this->invalid_transition( __( 'Only a confirmed appointment can be cancelled.', 'plumberslot' ) );
 		}
 
 		if ( ! $this->transactions->begin() ) {
@@ -398,7 +398,7 @@ final class BookingService {
 	}
 
 	/**
-	 * Technician marks a lesson complete or as a no-show.
+	 * Technician marks a job complete or as a no-show.
 	 */
 	public function mark_attendance( int $booking_id, string $status ): bool|WP_Error {
 		if ( ! in_array( $status, array( 'completed', 'no_show' ), true ) ) {
@@ -433,7 +433,7 @@ final class BookingService {
 		if ( 'confirmed' !== (string) $booking->status ) {
 			return new WP_Error(
 				'plumberslot_invalid_transition',
-				__( 'Attendance can be recorded only for a confirmed lesson.', 'plumberslot' ),
+				__( 'Attendance can be recorded only for a confirmed appointment.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -441,7 +441,7 @@ final class BookingService {
 		if ( Time::from_sql( (string) $booking->end_utc ) > new DateTimeImmutable( 'now', Time::utc() ) ) {
 			return new WP_Error(
 				'plumberslot_lesson_not_ended',
-				__( 'Attendance can be recorded after the lesson ends.', 'plumberslot' ),
+				__( 'Attendance can be recorded after the appointment ends.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}

@@ -65,7 +65,7 @@ final class Crypto {
 	 * A short-lived signed URL for a meeting link.
 	 *
 	 * The join link never travels in an email body. A forwarded confirmation
-	 * cannot be used to walk into a live lesson with a child in it.
+	 * cannot be used to walk into a live appointment at someone else's address.
 	 */
 	public static function signed_join_url( int $booking_id, string $token, int $ttl = HOUR_IN_SECONDS * 3 ): string {
 		$expires   = time() + $ttl;

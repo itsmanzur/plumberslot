@@ -3,8 +3,8 @@
  * Time handling.
  *
  * One rule: every stored instant is UTC, and conversion happens at the edge.
- * Storing a local wall clock works until a family moves country or a DST
- * boundary lands mid-course, and then it silently produces lessons an hour off.
+ * Storing a local wall clock works until a customer moves country or a DST
+ * boundary lands mid-course, and then it silently produces appointments an hour off.
  *
  * @package PlumberSlot
  */

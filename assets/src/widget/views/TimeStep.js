@@ -220,7 +220,7 @@ export function TimeStep( {
 						h(
 							'p',
 							{ class: 'ts-book__muted' },
-							`Each lesson runs ${ duration } minutes. Taken slots update live.`
+							`Each appointment runs ${ duration } minutes. Taken slots update live.`
 						)
 				  )
 				: null

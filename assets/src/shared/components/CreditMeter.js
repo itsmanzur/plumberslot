@@ -3,7 +3,7 @@ import { h } from 'preact';
 export function CreditMeter( {
 	used = 0,
 	total = 0,
-	label = 'Lesson credits',
+	label = 'Job credits',
 	variant = 'bar',
 } ) {
 	const safeTotal = Math.max( 0, Number( total ) || 0 );

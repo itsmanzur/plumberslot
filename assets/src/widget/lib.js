@@ -79,7 +79,7 @@ export function icsDownload( {
 	startIso,
 	endIso,
 	description,
-	uid = 'lesson@plumberslot',
+	uid = 'appointment@plumberslot',
 } ) {
 	const stamp = ( iso ) =>
 		new Date( iso )
@@ -98,7 +98,7 @@ export function icsDownload( {
 		`DTSTART:${ stamp( startIso ) }`,
 		`DTEND:${ stamp( endIso ) }`,
 		`SUMMARY:${ escapeIcsText( title ) }`,
-		`DESCRIPTION:${ escapeIcsText( description || 'PlumberSlot lesson' ) }`,
+		`DESCRIPTION:${ escapeIcsText( description || 'PlumberSlot appointment' ) }`,
 		'END:VEVENT',
 		'END:VCALENDAR',
 	].join( '\r\n' );
@@ -106,7 +106,7 @@ export function icsDownload( {
 	const url = URL.createObjectURL( blob );
 	const a = document.createElement( 'a' );
 	a.href = url;
-	a.download = 'plumberslot-lesson.ics';
+	a.download = 'plumberslot-appointment.ics';
 	a.click();
 	window.setTimeout( () => URL.revokeObjectURL( url ), 0 );
 }

@@ -116,19 +116,19 @@ export function DesignSystemDemo() {
 			h(
 				Callout,
 				{ title: 'Tip:' },
-				'Times follow the tutor timezone below.'
+				'Times follow the technician timezone below.'
 			),
 			h(
 				Callout,
 				{ tone: 'warn', title: 'Heads up:' },
-				'Buffer minutes apply between lessons.'
+				'Buffer minutes apply between appointments.'
 			),
 			h(
 				'div',
 				{ class: 'ts-ds__row', style: { marginTop: '16px' } },
 				h( EmptyState, {
-					title: 'No lessons yet',
-					description: 'When students book, they will appear here.',
+					title: 'No bookings yet',
+					description: 'When customers book, they will appear here.',
 					actionLabel: 'Add availability',
 					onAction: () => announce( 'Add availability action' ),
 				} ),
@@ -165,7 +165,7 @@ export function DesignSystemDemo() {
 			h( Toggle, {
 				label: 'Accept card payments',
 				explanation:
-					'Students can pay online before the lesson is confirmed.',
+					'Customers can pay online before the appointment is confirmed.',
 				checked: payments,
 				onChange: setPayments,
 			} ),
@@ -223,7 +223,7 @@ export function DesignSystemDemo() {
 				'div',
 				{ class: 'ts-tiles', style: { marginTop: '16px' } },
 				h( StatTile, {
-					label: 'Lessons',
+					label: 'Jobs',
 					value: '12',
 					hint: '+3 this week',
 				} ),
@@ -235,7 +235,7 @@ export function DesignSystemDemo() {
 				h( StatTile, {
 					label: 'Credits',
 					value: '4',
-					hint: '2 students',
+					hint: '2 customers',
 				} ),
 				h( StatTile, { label: 'Revenue', value: '৳8.2k', hint: 'MTD' } )
 			),
@@ -248,20 +248,20 @@ export function DesignSystemDemo() {
 					items: [
 						{
 							id: 1,
-							title: 'Ayaan · Math',
+							title: 'Ayaan · Drain cleaning',
 							startPct: 8,
 							widthPct: 14,
 							done: true,
 						},
 						{
 							id: 2,
-							title: 'Tasnim · Eng',
+							title: 'Tasnim · Water heater',
 							startPct: 45,
 							widthPct: 16,
 						},
 						{
 							id: 3,
-							title: 'Rafi · Physics',
+							title: 'Rafi · Leak repair',
 							startPct: 70,
 							widthPct: 18,
 						},

@@ -2,7 +2,7 @@
 /**
  * Append-only record of privileged actions.
  *
- * Two audiences: support, answering "who cancelled this lesson", and incident
+ * Two audiences: support, answering "who cancelled this appointment", and incident
  * response, answering "what did that account touch".
  *
  * @package PlumberSlot

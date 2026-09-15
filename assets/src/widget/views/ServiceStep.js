@@ -22,7 +22,7 @@ export function ServiceStep( {
 	if ( ! services.length ) {
 		return h( EmptyState, {
 			title: 'No services yet',
-			description: 'This technician has not published lesson services.',
+			description: 'This technician has not published any services.',
 		} );
 	}
 
@@ -44,7 +44,7 @@ export function ServiceStep( {
 			h(
 				'p',
 				{ class: 'ts-book__sub' },
-				'Pick a service. Prices and lesson length can differ.'
+				'Pick a service. Prices and appointment length can differ.'
 			),
 			h(
 				'div',
@@ -61,7 +61,7 @@ export function ServiceStep( {
 							? `${ money(
 									service.price_minor,
 									service.currency
-							  ) } / lesson`
+							  ) } / appointment`
 							: 'Free';
 					return h(
 						'button',
@@ -95,7 +95,7 @@ export function ServiceStep( {
 						h(
 							'p',
 							{ class: 'ts-book__muted' },
-							details || `${ service.duration_min } minute lesson`
+							details || `${ service.duration_min } minute appointment`
 						),
 						h(
 							'span',

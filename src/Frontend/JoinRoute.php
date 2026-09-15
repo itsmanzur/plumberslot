@@ -74,7 +74,7 @@ final class JoinRoute {
 		}
 
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Sign in with a lesson participant account to join this meeting.', 'plumberslot' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Sign in with an appointment participant account to join this meeting.', 'plumberslot' ), '', array( 'response' => 403 ) );
 		}
 
 		// Only the confirmed participants may join.
@@ -88,7 +88,7 @@ final class JoinRoute {
 		}
 
 		if ( ! in_array( $user_id, $allowed, true ) && ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not a participant of this lesson.', 'plumberslot' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You are not a participant of this appointment.', 'plumberslot' ), '', array( 'response' => 403 ) );
 		}
 
 		// Resolve the real URL through the provider.

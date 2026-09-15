@@ -35,7 +35,7 @@ final class PrivacyHooks {
 	 */
 	public function add_exporter( array $exporters ): array {
 		$exporters['plumberslot'] = array(
-			'exporter_friendly_name' => __( 'PlumberSlot lessons', 'plumberslot' ),
+			'exporter_friendly_name' => __( 'PlumberSlot appointments', 'plumberslot' ),
 			'callback'               => array( $this, 'export' ),
 		);
 
@@ -48,7 +48,7 @@ final class PrivacyHooks {
 	 */
 	public function add_eraser( array $erasers ): array {
 		$erasers['plumberslot'] = array(
-			'eraser_friendly_name' => __( 'PlumberSlot lessons', 'plumberslot' ),
+			'eraser_friendly_name' => __( 'PlumberSlot appointments', 'plumberslot' ),
 			'callback'             => array( $this, 'erase' ),
 		);
 
@@ -127,7 +127,7 @@ final class PrivacyHooks {
 		$messages = array();
 
 		if ( $retained ) {
-			$messages[] = __( 'PlumberSlot retained anonymized lesson dates, amounts, statuses and transaction references for accounting, tax and dispute records.', 'plumberslot' );
+			$messages[] = __( 'PlumberSlot retained anonymized appointment dates, amounts, statuses and transaction references for accounting, tax and dispute records.', 'plumberslot' );
 		}
 
 		if ( $done && ( $removed || $retained ) ) {
@@ -154,12 +154,12 @@ final class PrivacyHooks {
 	}
 
 	public function policy_text(): string {
-		return '<p>' . esc_html__( 'PlumberSlot stores lesson dates and times, participant and paying-adult account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver lessons.', 'plumberslot' ) . '</p>'
-			. '<p>' . esc_html__( 'Lesson reminders may be sent to the student, paying parent and technician. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL.', 'plumberslot' ) . '</p>'
+		return '<p>' . esc_html__( 'PlumberSlot stores appointment dates and times, customer and technician account identifiers, timezone, booking notes, reviews, payment status and meeting-provider references to schedule and deliver appointments.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'Appointment reminders may be sent to the customer and technician. Meeting emails contain a signed PlumberSlot join link rather than the provider’s private meeting URL.', 'plumberslot' ) . '</p>'
 			. '<p>' . esc_html__( 'When an optional online payment is selected, PlumberSlot sends the booking reference, amount, currency and return URLs to Stripe or bKash. Payment account, card, OTP and PIN details are entered on the provider’s hosted pages and are not stored by PlumberSlot.', 'plumberslot' ) . '</p>'
-			. '<p>' . esc_html__( 'When a meeting provider is connected, PlumberSlot sends the student display name, lesson schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved.', 'plumberslot' ) . '</p>'
+			. '<p>' . esc_html__( 'When a meeting provider is connected, PlumberSlot sends the customer display name, appointment schedule and duration, and a booking-derived reference to Google Calendar and Meet or to Zoom so that the meeting can be created and retrieved.', 'plumberslot' ) . '</p>'
 			. '<p>' . esc_html__( 'Email uses the site’s WordPress mail configuration. If the site connects an SMS add-on, the add-on receives the recipient mobile number, reminder or cancellation message and booking record; consult the site’s selected delivery provider policies.', 'plumberslot' ) . '</p>'
-			. '<p>' . esc_html__( 'When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Lesson dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution.', 'plumberslot' ) . '</p>';
+			. '<p>' . esc_html__( 'When a verified erasure request is processed, PlumberSlot removes relationships and anonymizes account identifiers, notes, review text and security metadata. Appointment dates, amounts, statuses and transaction references may be retained where required for accounting, tax, fraud prevention or dispute resolution.', 'plumberslot' ) . '</p>';
 	}
 
 	/**
@@ -236,7 +236,7 @@ final class PrivacyHooks {
 
 		return array(
 			'group_id'    => 'plumberslot-bookings',
-			'group_label' => __( 'Lessons', 'plumberslot' ),
+			'group_label' => __( 'Appointments', 'plumberslot' ),
 			'item_id'     => 'booking-' . $booking->id,
 			'data'        => $data,
 		);
@@ -254,7 +254,7 @@ final class PrivacyHooks {
 
 		return array(
 			'group_id'    => 'plumberslot-reviews',
-			'group_label' => __( 'Lesson reviews', 'plumberslot' ),
+			'group_label' => __( 'Appointment reviews', 'plumberslot' ),
 			'item_id'     => 'review-' . $review->id,
 			'data'        => array(
 				$this->export_field( __( 'Rating', 'plumberslot' ), (string) $review->rating ),

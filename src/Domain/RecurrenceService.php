@@ -4,7 +4,7 @@
  *
  * The single most common shape in tutoring, and the one no competitor models
  * in its core. A series is a first-class row, so a course can be reported on,
- * paused or cancelled as a unit while an individual lesson still moves alone.
+ * paused or cancelled as a unit while an individual appointment still moves alone.
  *
  * @package PlumberSlot
  */
@@ -28,7 +28,7 @@ final class RecurrenceService {
 	) {}
 
 	/**
-	 * Create a series and every lesson in it.
+	 * Create a series and every appointment in it.
 	 *
 	 * Slots already taken are skipped rather than failing the whole course; the
 	 * caller gets back both lists so the customer can be told exactly which
@@ -36,14 +36,14 @@ final class RecurrenceService {
 	 *
 	 * @param array<string, mixed> $args   Same shape as BookingService::create().
 	 * @param list<int>            $days   Weekdays, 0 = Sunday.
-	 * @param int                  $count  How many lessons.
+	 * @param int                  $count  How many appointments.
 	 * @return array{series_id:int, booked:list<int>, skipped:list<string>}|WP_Error
 	 */
 	public function create_series( array $args, array $days, int $count ): array|WP_Error {
 		if ( $count < 1 || $count > 104 ) {
 			return new WP_Error(
 				'plumberslot_bad_count',
-				__( 'A course can run between 1 and 104 lessons.', 'plumberslot' ),
+				__( 'A course can run between 1 and 104 appointments.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}

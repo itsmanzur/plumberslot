@@ -2,7 +2,7 @@
 /**
  * Custom capabilities.
  *
- * Never reuse manage_options. A technician needs to manage their own lessons and
+ * Never reuse manage_options. A technician needs to manage their own jobs and
  * nothing else; handing them an administrator-adjacent capability is how a
  * booking plugin turns into a site takeover.
  *

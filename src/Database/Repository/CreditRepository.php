@@ -1,6 +1,6 @@
 <?php
 /**
- * Prepaid lesson packages.
+ * Prepaid job packages.
  *
  * @package PlumberSlot
  */
@@ -63,7 +63,7 @@ final class CreditRepository extends AbstractRepository {
 	}
 
 	/**
-	 * Remaining prepaid lessons held against this technician (or site-wide packs).
+	 * Remaining prepaid jobs held against this technician (or site-wide packs).
 	 */
 	public function remaining_for_technician( int $technician_id ): int {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
@@ -128,9 +128,9 @@ final class CreditRepository extends AbstractRepository {
 	}
 
 	/**
-	 * Burn remaining lessons on near-expiry packs so they can roll into a repurchase.
+	 * Burn remaining jobs on near-expiry packs so they can roll into a repurchase.
 	 *
-	 * @return int Lessons rolled over (removed from old packs).
+	 * @return int Jobs rolled over (removed from old packs).
 	 */
 	public function roll_unused_into( int $owner_id, int $technician_id ): int {
 		$now     = $this->now();

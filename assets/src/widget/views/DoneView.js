@@ -41,19 +41,19 @@ export function DoneView( {
 		announce(
 			context === 'payment'
 				? 'Payment and booking confirmed.'
-				: 'Lesson booked.'
+				: 'Appointment booked.'
 		);
 	}, [ context ] );
 
 	const addCalendar = () => {
 		icsDownload( {
-			title: `${ service?.name || 'Lesson' } with ${
+			title: `${ service?.name || 'Appointment' } with ${
 				technician.display_name
 			}`,
 			startIso: start,
 			endIso: end || start,
 			description: calendarDescription( joinUrl, reference ),
-			uid: `booking-${ booking.id || 'lesson' }@plumberslot`,
+			uid: `booking-${ booking.id || 'appointment' }@plumberslot`,
 		} );
 		announce( 'Calendar file downloaded.' );
 	};
@@ -86,7 +86,7 @@ export function DoneView( {
 			{ class: 'ts-book__muted' },
 			context === 'payment'
 				? 'Your verified payment is recorded. Booking details and reminders are on their way.'
-				: "We've emailed the booking details. Reminders go out 24 hours and 1 hour before the lesson."
+				: "We've emailed the booking details. Reminders go out 24 hours and 1 hour before the appointment."
 		),
 		h(
 			'section',
@@ -100,7 +100,7 @@ export function DoneView( {
 				h(
 					'span',
 					null,
-					`${ service?.name || 'Lesson' } with ${
+					`${ service?.name || 'Appointment' } with ${
 						technician.display_name
 					}`
 				),
@@ -144,7 +144,7 @@ export function DoneView( {
 							onClick: () =>
 								navigateTo( joinUrl, { sameOrigin: true } ),
 						},
-						'Join lesson'
+						'Join appointment'
 				  )
 				: null,
 			h(
@@ -169,7 +169,7 @@ export function DoneView( {
 			? h(
 					'p',
 					{ class: 'ts-book__muted' },
-					`Need a different time? You can move this lesson yourself until ${ deadline }.`
+					`Need a different time? You can move this appointment yourself until ${ deadline }.`
 			  )
 			: null
 	);
@@ -198,13 +198,13 @@ function meetingDetails( booking, technician ) {
 				href: joinUrl,
 				class: 'ts-book__secure-link',
 			},
-			'Open secure lesson link'
+			'Open secure appointment link'
 		);
 	}
 
 	return `${
-		booking.meeting_provider || technician.meeting_provider || 'Online lesson'
-	} · link before the lesson`;
+		booking.meeting_provider || technician.meeting_provider || 'Online appointment'
+	} · link before the appointment`;
 }
 
 function completionPaymentLabel( booking, technician ) {
@@ -224,11 +224,11 @@ function completionPaymentLabel( booking, technician ) {
 }
 
 function calendarDescription( joinUrl, reference ) {
-	const parts = [ `PlumberSlot lesson · ${ reference }` ];
+	const parts = [ `PlumberSlot appointment · ${ reference }` ];
 	if ( joinUrl ) {
 		parts.push( `Join: ${ joinUrl }` );
 	} else {
-		parts.push( 'The secure join link arrives before the lesson.' );
+		parts.push( 'The secure join link arrives before the appointment.' );
 	}
 	return parts.join( '\n' );
 }

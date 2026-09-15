@@ -137,7 +137,7 @@ export function BookingApp( { technicianId, serviceId = 0, view = 'booking' } ) 
 		} else if ( boot.loggedIn ) {
 			setStep( 'confirm' );
 			clearBookingDraft();
-			announce( 'Welcome back — confirm your lesson.' );
+			announce( 'Welcome back — confirm your appointment.' );
 		} else {
 			setStep( 'account' );
 		}

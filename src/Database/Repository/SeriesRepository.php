@@ -39,7 +39,7 @@ final class SeriesRepository extends AbstractRepository {
 	}
 
 	/**
-	 * Active (non-cancelled) lesson count for progress labels like Weekly 9/12.
+	 * Active (non-cancelled) appointment count for progress labels like Weekly 9/12.
 	 */
 	public function active_count( int $series_id ): int {
 		$bookings = Schema::table( Schema::BOOKINGS );

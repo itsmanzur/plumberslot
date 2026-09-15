@@ -165,7 +165,7 @@ export function PaymentReturnView( { outcome, bookingId, timezone } ) {
 			'dl',
 			{ class: 'ts-book__result-details ts-book__kv' },
 			resultRow( 'Booking', bookingReference( booking.id ) ),
-			resultRow( 'Lesson', booking.service || 'Lesson' ),
+			resultRow( 'Appointment', booking.service || 'Appointment' ),
 			resultRow(
 				'When',
 				booking.when ||
@@ -257,7 +257,7 @@ function resultCopy( state ) {
 			title: 'Your payment window has closed',
 			callout: 'No active booking:',
 			message:
-				'The lesson time was released. Return to booking to choose an available time again.',
+				'The appointment time was released. Return to booking to choose an available time again.',
 			tone: 'warn',
 		};
 	}
@@ -310,14 +310,14 @@ function bookingTechnician( booking ) {
 	return {
 		display_name: booking.technician || 'your technician',
 		default_duration: booking.duration_min || 60,
-		meeting_provider: booking.meeting_provider || 'Online lesson',
+		meeting_provider: booking.meeting_provider || 'Online appointment',
 		currency: booking.currency || 'USD',
 	};
 }
 
 function bookingService( booking ) {
 	return {
-		name: booking.service || 'Lesson',
+		name: booking.service || 'Appointment',
 		duration_min: booking.duration_min || 60,
 	};
 }

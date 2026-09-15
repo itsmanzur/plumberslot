@@ -47,7 +47,7 @@ export function AccountStep( {
 			h(
 				Callout,
 				{ title: 'Ready to book:' },
-				[ service?.name || 'Lesson', technician?.display_name, when ]
+				[ service?.name || 'Appointment', technician?.display_name, when ]
 					.filter( Boolean )
 					.join( ' · ' )
 			),

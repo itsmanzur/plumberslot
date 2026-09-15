@@ -279,7 +279,7 @@ export function BookingsScreen() {
 				? h( EmptyState, {
 						title: 'No bookings yet',
 						description:
-							'Your schedule is saved. Share your booking link to get the first lesson.',
+							'Your schedule is saved. Share your booking link to get your first job.',
 						actionLabel: 'Copy booking link',
 						onAction: copyLink,
 						secondaryLabel: 'Open booking page',
@@ -514,7 +514,7 @@ export function BookingsScreen() {
 								class: 'ts-admin__muted',
 								style: { padding: '0 20px 16px' },
 							},
-							'Series lessons stay linked. Moving one week leaves the others alone.'
+							'Series appointments stay linked. Moving one week leaves the others alone.'
 						)
 				  )
 		),
@@ -562,7 +562,7 @@ export function BookingsScreen() {
 													sameOrigin: true,
 												} ),
 										},
-										'Join lesson'
+										'Join appointment'
 								  )
 								: null,
 							h(
@@ -606,7 +606,7 @@ export function BookingsScreen() {
 			{
 				open: Boolean( reschedule ),
 				title: reschedule
-					? `Move ${ reschedule.customer }’s lesson`
+					? `Move ${ reschedule.customer }’s appointment`
 					: 'Reschedule',
 				onClose: closeReschedule,
 				primaryLabel: savingMove ? 'Saving…' : 'Save new time',

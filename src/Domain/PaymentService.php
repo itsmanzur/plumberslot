@@ -76,7 +76,7 @@ final class PaymentService {
 		if ( $amount <= 0 ) {
 			return new WP_Error(
 				'plumberslot_zero_amount',
-				__( 'This lesson does not need a payment.', 'plumberslot' ),
+				__( 'This appointment does not need a payment.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -257,7 +257,7 @@ final class PaymentService {
 		if ( 'completed' !== (string) $booking->status ) {
 			return new WP_Error(
 				'plumberslot_invalid_transition',
-				__( 'Only a completed lesson can be refunded.', 'plumberslot' ),
+				__( 'Only a completed appointment can be refunded.', 'plumberslot' ),
 				array( 'status' => 409 )
 			);
 		}

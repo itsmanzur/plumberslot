@@ -75,7 +75,7 @@ final class BookingPage {
 
 		$created = wp_insert_post(
 			array(
-				'post_title'   => __( 'Book a lesson', 'plumberslot' ),
+				'post_title'   => __( 'Book an appointment', 'plumberslot' ),
 				'post_name'    => 'book',
 				'post_content' => self::shortcode( $slug ),
 				'post_status'  => 'publish',

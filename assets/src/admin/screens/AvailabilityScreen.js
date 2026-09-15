@@ -79,7 +79,7 @@ export function AvailabilityScreen() {
 	const onSaveDefaults = async () => {
 		await post( `availability/${ technicianId }/defaults`, defaults );
 		setDirtyDefaults( false );
-		announce( 'Lesson defaults saved.' );
+		announce( 'Appointment defaults saved.' );
 	};
 
 	const onAddException = async () => {
@@ -180,13 +180,13 @@ export function AvailabilityScreen() {
 						h(
 							'h2',
 							{ class: 'ts-admin__side-h' },
-							'Lesson defaults'
+							'Appointment defaults'
 						),
 						h(
 							'div',
 							{ class: 'ts-admin-fields' },
 							h( Field, {
-								label: 'Lesson length',
+								label: 'Appointment length',
 								type: 'number',
 								value: defaults.default_lesson_minutes,
 								suffix: 'min',
@@ -199,7 +199,7 @@ export function AvailabilityScreen() {
 								},
 							} ),
 							h( Field, {
-								label: 'Buffer between lessons',
+								label: 'Buffer between appointments',
 								type: 'number',
 								value: defaults.buffer_minutes,
 								suffix: 'min',

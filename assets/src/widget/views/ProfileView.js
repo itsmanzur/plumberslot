@@ -44,11 +44,11 @@ export function ProfileView( { technician, onBook } ) {
 										'span',
 										{ class: 'ts-book__muted' },
 										`${ rating } · ${
-											technician.lesson_count || 0
-										} lessons taught`
+											technician.job_count || 0
+										} jobs completed`
 									)
 							  )
-							: `${ technician.lesson_count || 0 } lessons taught`
+							: `${ technician.job_count || 0 } jobs completed`
 					)
 				)
 			),
@@ -59,7 +59,7 @@ export function ProfileView( { technician, onBook } ) {
 					'li',
 					null,
 					h( 'b', null, `${ technician.years_teaching } years` ),
-					' teaching'
+					' in business'
 				),
 				h(
 					'li',
@@ -88,7 +88,7 @@ export function ProfileView( { technician, onBook } ) {
 				? h(
 						'section',
 						{ class: 'ts-book__reviews' },
-						h( 'h2', null, 'What families say' ),
+						h( 'h2', null, 'What customers say' ),
 						technician.reviews.map( ( r ) =>
 							h(
 								'article',
@@ -158,7 +158,7 @@ export function ProfileView( { technician, onBook } ) {
 				h(
 					'div',
 					null,
-					h( 'dt', null, 'Lesson length' ),
+					h( 'dt', null, 'Appointment length' ),
 					h( 'dd', null, `${ technician.default_duration } min` )
 				),
 				h(

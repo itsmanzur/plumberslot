@@ -9,18 +9,18 @@ const QUICK_START = [
 	{
 		id: 'profile',
 		number: '01',
-		title: 'Add your tutor profile',
-		text: 'Choose the tutor, timezone and meeting preference students should see.',
+		title: 'Add your technician profile',
+		text: 'Choose the technician, timezone and meeting preference customers should see.',
 		screen: 'plumberslot-technicians',
-		action: 'Open tutors',
+		action: 'Open technicians',
 	},
 	{
-		id: 'subject',
+		id: 'service',
 		number: '02',
-		title: 'Create at least one subject',
-		text: 'Give it a clear name, lesson length and price. Keep the first offer simple.',
+		title: 'Create at least one service',
+		text: 'Give it a clear name, appointment length and price. Keep the first offer simple.',
 		screen: 'plumberslot-services',
-		action: 'Add a subject',
+		action: 'Add a service',
 	},
 	{
 		id: 'availability',
@@ -43,18 +43,18 @@ const QUICK_START = [
 const USP_ITEMS = [
 	{
 		mark: '01',
-		title: 'Tutor-first availability',
+		title: 'Technician-first availability',
 		text: 'A visual weekly timetable makes “when can people book me?” easy to answer. Buffers, notice time and one-off closures live beside it.',
 	},
 	{
 		mark: '02',
 		title: 'A slot cannot be quietly double-booked',
-		text: 'Short booking holds and overlap protection keep two people from confirming the same lesson time.',
+		text: 'Short booking holds and overlap protection keep two people from confirming the same appointment time.',
 	},
 	{
 		mark: '04',
-		title: 'Free, paid or prepaid lessons',
-		text: 'Start with free or offline payment. Add packages, Stripe or bKash only when your teaching business needs them.',
+		title: 'Free, paid or prepaid jobs',
+		text: 'Start with free or offline payment. Add packages, Stripe or bKash only when your business needs them.',
 	},
 	{
 		mark: '05',
@@ -72,12 +72,12 @@ const GUIDES = [
 	{
 		id: 'availability',
 		label: 'Availability',
-		title: 'Decide when students may book',
-		intro: 'Use this before sharing your booking page. It creates the open times students can actually choose.',
+		title: 'Decide when customers may book',
+		intro: 'Use this before sharing your booking page. It creates the open times customers can actually choose.',
 		steps: [
 			'Open Availability and confirm the timezone shown above the grid.',
-			'Click a cell, or drag across several cells, to mark open teaching time.',
-			'Set lesson length, buffer time and minimum booking notice.',
+			'Click a cell, or drag across several cells, to mark open working time.',
+			'Set appointment length, buffer time and minimum booking notice.',
 			'Use Time off for holidays, appointments or any one-day closure.',
 			'Save availability and preview the public booking page.',
 		],
@@ -85,46 +85,46 @@ const GUIDES = [
 		screen: 'plumberslot-availability',
 	},
 	{
-		id: 'subjects',
-		label: 'Subjects & pricing',
-		title: 'Explain what a student can book',
-		intro: 'A subject is the lesson offer: what you teach, how long it runs and what it costs.',
+		id: 'services',
+		label: 'Services & pricing',
+		title: 'Explain what a customer can book',
+		intro: 'A service is the job offer: what you do, how long it runs and what it costs.',
 		steps: [
-			'Open Subjects and choose the tutor who teaches the lesson.',
-			'Use a student-friendly name such as “GCSE Mathematics” instead of an internal code.',
-			'Add level, duration and price. A zero price appears as Free.',
-			'Enable a trial only when the tutor wants to offer one.',
-			'Save, then make sure the subject is active.',
+			'Open Services and choose the technician who handles the job.',
+			'Use a customer-friendly name such as “Drain Cleaning” instead of an internal code.',
+			'Add category, duration and price. A zero price appears as Free.',
+			'Enable a free estimate only when the technician wants to offer one.',
+			'Save, then make sure the service is active.',
 		],
-		tip: 'Students only see subjects assigned to the tutor they selected.',
+		tip: 'Customers only see services assigned to the technician they selected.',
 		screen: 'plumberslot-services',
 	},
 	{
 		id: 'booking',
 		label: 'Public booking',
-		title: 'Let a student choose and confirm a lesson',
-		intro: 'The booking flow asks one question at a time: subject, time, learner and confirmation.',
+		title: 'Let a customer choose and confirm an appointment',
+		intro: 'The booking flow asks one question at a time: service, time, address and confirmation.',
 		steps: [
 			'Place the PlumberSlot block on a page, or use the shortcode shown below.',
-			'Share that page. Visitors may browse subjects and open times before signing in.',
-			'The student chooses a subject and an available day and time.',
-			'PlumberSlot briefly holds that time while the student reviews the details.',
-			'After confirmation, the student sees the booking summary and next actions.',
+			'Share that page. Visitors may browse services and open times before signing in.',
+			'The customer chooses a service and an available day and time.',
+			'PlumberSlot briefly holds that time while the customer reviews the details.',
+			'After confirmation, the customer sees the booking summary and next actions.',
 		],
 		tip: 'Times are shown in the visitor’s timezone when that setting is enabled.',
 		booking: true,
 	},
 	{
 		id: 'bookings',
-		label: 'Manage lessons',
+		label: 'Manage bookings',
 		title: 'Handle a booking after it is made',
-		intro: 'Bookings is the tutor’s working list for upcoming and past lessons.',
+		intro: 'Bookings is the technician’s working list for upcoming and past jobs.',
 		steps: [
-			'Open Bookings and search by student, subject or booking reference.',
-			'Use View to check the learner, payment and meeting details.',
-			'Reschedule only to an open time; the old lesson is marked as moved.',
-			'Cancel when the lesson will not happen. Scheduled reminders and meetings are cleaned up.',
-			'After the lesson, mark Completed or No show and add a short tutor note.',
+			'Open Bookings and search by customer, service or booking reference.',
+			'Use View to check the customer, payment and meeting details.',
+			'Reschedule only to an open time; the old appointment is marked as moved.',
+			'Cancel when the appointment will not happen. Scheduled reminders and meetings are cleaned up.',
+			'After the appointment, mark Completed or No show and add a short technician note.',
 		],
 		tip: 'Status changes are permission-checked and recorded for accountability.',
 		screen: 'plumberslot-bookings',
@@ -132,12 +132,12 @@ const GUIDES = [
 	{
 		id: 'payments',
 		label: 'Credits & payments',
-		title: 'Choose how lessons are paid for',
+		title: 'Choose how jobs are paid for',
 		intro: 'PlumberSlot works without online payment. Turn on only the payment method you intend to use.',
 		steps: [
-			'For free lessons, leave the subject price at zero.',
+			'For free jobs, leave the service price at zero.',
 			'For manual payment, agree payment outside the site and manage the booking normally.',
-			'For packages, create lesson credits that can be spent during confirmation.',
+			'For packages, create job credits that can be spent during confirmation.',
 			'For online checkout, configure Stripe or bKash under Settings → Connections.',
 			'Run a low-value test booking before sharing a live paid page.',
 		],
@@ -147,12 +147,12 @@ const GUIDES = [
 	{
 		id: 'meetings',
 		label: 'Meetings & reminders',
-		title: 'Deliver the lesson without manual link chasing',
-		intro: 'Connect a meeting provider once, then let each confirmed booking carry the correct lesson link.',
+		title: 'Deliver the appointment without manual link chasing',
+		intro: 'Connect a meeting provider once, then let each confirmed booking carry the correct appointment link.',
 		steps: [
 			'Open Settings → Connections and choose Google Meet, Zoom or no online meeting.',
 			'Complete the provider connection and save the settings.',
-			'Confirm a test lesson and check that its meeting information appears.',
+			'Confirm a test appointment and check that its meeting information appears.',
 			'Keep the 24-hour and 1-hour email reminders enabled when they suit your workflow.',
 			'Cancel the test booking and confirm the old meeting is no longer used.',
 		],
@@ -163,7 +163,7 @@ const GUIDES = [
 		id: 'privacy',
 		label: 'Privacy & safe operation',
 		title: 'Know what PlumberSlot stores and shares',
-		intro: 'Bookings need names, lesson details and account relationships. Optional services receive data only when configured and used.',
+		intro: 'Bookings need names, appointment details and account relationships. Optional services receive data only when configured and used.',
 		steps: [
 			'Review PlumberSlot’s suggested text under Settings → Privacy.',
 			'Document any payment, meeting, email or SMS provider your site enables.',
@@ -179,14 +179,14 @@ const GUIDES = [
 const FAQS = [
 	{
 		question: 'Do I need WooCommerce?',
-		answer: 'No. Free lessons, manual payment, packages, Stripe and bKash can work without WooCommerce.',
+		answer: 'No. Free jobs, manual payment, packages, Stripe and bKash can work without WooCommerce.',
 	},
 	{
 		question: 'Can a visitor book without an account?',
-		answer: 'A visitor can browse subjects and open times. They sign in before holding and confirming a lesson so PlumberSlot can protect ownership.',
+		answer: 'A visitor can browse services and open times. They sign in before holding and confirming an appointment so PlumberSlot can protect ownership.',
 	},
 	{
-		question: 'What happens if two students choose the same time?',
+		question: 'What happens if two customers choose the same time?',
 		answer: 'PlumberSlot uses a short hold and database overlap protection. Only one valid booking can own the slot.',
 	},
 	{
@@ -285,7 +285,7 @@ export function HelpDocsScreen() {
 	};
 
 	const copyShortcode = async () => {
-		await copyText( '[plumberslot tutor="your-tutor-slug"]' );
+		await copyText( '[plumberslot technician="your-technician-slug"]' );
 		setCopied( true );
 		announce( 'Shortcode copied.' );
 		window.setTimeout( () => setCopied( false ), 1800 );
@@ -304,12 +304,12 @@ export function HelpDocsScreen() {
 				h(
 					'h1',
 					{ id: 'ts-docs-title' },
-					'Teaching time, without scheduling chaos.'
+					'Service time, without scheduling chaos.'
 				),
 				h(
 					'p',
 					{ class: 'ts-docs__lead' },
-					'PlumberSlot is a WordPress lesson-booking workspace for tutors, students and parents. You decide what you teach and when you are free. Students choose a real open time, confirm the lesson, and receive the right reminders and meeting details.'
+					'PlumberSlot is a WordPress appointment-booking workspace for technicians and customers. You decide what services you offer and when you are free. Customers choose a real open time, confirm the appointment, and receive the right reminders and meeting details.'
 				),
 				h(
 					'p',
@@ -341,7 +341,7 @@ export function HelpDocsScreen() {
 				h(
 					'p',
 					null,
-					'Open hours + a subject + a booking page = ready for the first student.'
+					'Open hours + a service + a booking page = ready for your first customer.'
 				)
 			)
 		),
@@ -408,11 +408,11 @@ export function HelpDocsScreen() {
 					'ol',
 					null,
 					[
-						'PlumberSlot turns your real teaching hours into bookable lesson times.',
-						'Create a subject with a clear name, duration and price.',
+						'PlumberSlot turns your real working hours into bookable appointment times.',
+						'Create a service with a clear name, duration and price.',
 						'Paint weekly availability and add one-off time away.',
-						'Students choose a subject and an open time, then review the lesson before confirming.',
-						'Tutors manage rescheduling, cancellation, attendance, meetings and notes from Bookings.',
+						'Customers choose a service and an open time, then review the appointment before confirming.',
+						'Technicians manage rescheduling, cancellation, attendance, meetings and notes from Bookings.',
 					].map( ( line ) => h( 'li', { key: line }, line ) )
 				)
 			)
@@ -431,7 +431,7 @@ export function HelpDocsScreen() {
 				h(
 					'h2',
 					null,
-					'One lesson record, from open time to tutor note'
+					'One booking record, from open time to technician note'
 				),
 				h(
 					'p',
@@ -650,10 +650,10 @@ export function HelpDocsScreen() {
 					h(
 						'p',
 						null,
-						'Replace the example slug with the tutor slug from Tutors.'
+						'Replace the example slug with the technician slug from Technicians.'
 					)
 				),
-				h( 'code', null, '[plumberslot tutor="your-tutor-slug"]' ),
+				h( 'code', null, '[plumberslot technician="your-technician-slug"]' ),
 				h(
 					'button',
 					{
@@ -707,7 +707,7 @@ export function HelpDocsScreen() {
 				h(
 					'ol',
 					null,
-					h( 'li', null, 'Confirm the tutor has an active subject.' ),
+					h( 'li', null, 'Confirm the technician has an active service.' ),
 					h(
 						'li',
 						null,
@@ -716,7 +716,7 @@ export function HelpDocsScreen() {
 					h(
 						'li',
 						null,
-						'Open the booking page in a private window and test the same steps as a student.'
+						'Open the booking page in a private window and test the same steps as a customer.'
 					)
 				)
 			),

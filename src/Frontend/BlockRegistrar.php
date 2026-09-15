@@ -58,10 +58,10 @@ final class BlockRegistrar {
 			// @phpstan-ignore-next-line argument.type
 			array(
 				'api_version'     => 3,
-				'title'           => __( 'Lesson booking', 'plumberslot' ),
+				'title'           => __( 'Appointment booking', 'plumberslot' ),
 				'category'        => 'widgets',
 				'icon'            => 'calendar-alt',
-				'description'     => __( 'Let visitors see your open hours and book a lesson.', 'plumberslot' ),
+				'description'     => __( 'Let visitors see your open hours and book an appointment.', 'plumberslot' ),
 				'attributes'      => array(
 					'technician'   => array(
 						'type'    => 'string',

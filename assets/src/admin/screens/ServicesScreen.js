@@ -165,7 +165,7 @@ export function ServicesScreen() {
 		h( PageHeader, {
 			eyebrow: 'Offerings',
 			title: 'Services & pricing',
-			subtitle: `${ countLabel } Set what parents can book and what each lesson costs.`,
+			subtitle: `${ countLabel } Set what customers can book and what each job costs.`,
 			actions: technicianId
 				? [
 						{
@@ -358,7 +358,7 @@ export function ServicesScreen() {
 					setForm( { ...form, category: v } )
 				),
 				field(
-					'Lesson length (minutes)',
+					'Appointment length (minutes)',
 					form.duration_min,
 					( v ) =>
 						setForm( {
@@ -368,7 +368,7 @@ export function ServicesScreen() {
 					'number'
 				),
 				field(
-					`Price per lesson (${ currency })`,
+					`Price per appointment (${ currency })`,
 					form.price_major,
 					( v ) => setForm( { ...form, price_major: v } ),
 					'number'

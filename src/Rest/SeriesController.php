@@ -222,7 +222,7 @@ final class SeriesController extends AbstractController {
 			if ( ! $credit ) {
 				return new WP_Error(
 					'plumberslot_no_credits',
-					__( 'There are no lessons left on this package.', 'plumberslot' ),
+					__( 'There are no jobs left on this package.', 'plumberslot' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -279,7 +279,7 @@ final class SeriesController extends AbstractController {
 				'booked'      => $result['booked'],
 				'skipped'     => $result['skipped'],
 				'label'       => sprintf(
-					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
+					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
 					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					count( $result['booked'] ),
 					(int) $request['count']
@@ -295,10 +295,10 @@ final class SeriesController extends AbstractController {
 			return $this->guard->deny();
 		}
 
-		$lessons = $this->bookings->find_for_series( (int) $series->id );
+		$appointments = $this->bookings->find_for_series( (int) $series->id );
 		$active  = array_values(
 			array_filter(
-				$lessons,
+				$appointments,
 				static fn ( object $b ): bool => ! in_array( (string) $b->status, array( 'cancelled', 'refunded', 'moved', 'payment_expired' ), true )
 			)
 		);
@@ -312,12 +312,12 @@ final class SeriesController extends AbstractController {
 				'total_count' => (int) $series->total_count,
 				'active'      => count( $active ),
 				'label'       => sprintf(
-					/* translators: 1: current or booked lesson count, 2: total or requested lesson count */
+					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
 					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
 					count( $active ),
 					(int) $series->total_count
 				),
-				'lessons'     => array_map(
+				'appointments' => array_map(
 					static function ( object $b ): array {
 						return array(
 							'id'           => (int) $b->id,
@@ -326,7 +326,7 @@ final class SeriesController extends AbstractController {
 							'status'       => (string) $b->status,
 						);
 					},
-					$lessons
+					$appointments
 				),
 			)
 		);
