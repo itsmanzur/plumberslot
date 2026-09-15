@@ -5,6 +5,7 @@
 /.phpunit.integration.result.cache
 /coverage/
 /dist/
+/assets/dist/
 /playwright-report/
 /test-results/
 /.wp-env.json
