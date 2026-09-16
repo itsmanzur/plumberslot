@@ -456,12 +456,26 @@
 	margin-right: 6px;
 }
 
-.ts-book__emergency-badge {
-	display: inline-block;
+.ts-book__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 10px;
 	margin-top: 4px;
+}
+
+.ts-book__emergency-badge,
+.ts-book__free-badge {
+	display: inline-block;
 	font-size: 12px;
 	font-weight: 600;
+}
+
+.ts-book__emergency-badge {
 	color: var(--ts-warn);
+}
+
+.ts-book__free-badge {
+	color: var(--ts-ok);
 }
 
 .ts-book__slots {
