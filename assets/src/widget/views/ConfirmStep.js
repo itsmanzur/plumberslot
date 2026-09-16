@@ -38,6 +38,7 @@ export function ConfirmStep( {
 		const d = new Date( start );
 		return Number.isNaN( d.getTime() ) ? [ 1 ] : [ d.getUTCDay() ];
 	} );
+	const [ seriesInterval, setSeriesInterval ] = useState( 1 );
 	const [ seriesCount, setSeriesCount ] = useState( 8 );
 	const [ skipped, setSkipped ] = useState( [] );
 	const [ busy, setBusy ] = useState( false );
@@ -181,6 +182,7 @@ export function ConfirmStep( {
 					timezone,
 					days: seriesDays,
 					count: seriesCount,
+					interval_weeks: seriesInterval,
 					notes: composedNotes,
 					use_credit: useCredit,
 					address_line1: address?.line1 || '',
@@ -194,10 +196,10 @@ export function ConfirmStep( {
 				if ( ( result.skipped || [] ).length ) {
 					setSkipped( result.skipped );
 					announce(
-						`Course booked with ${ result.skipped.length } skipped dates.`
+						`Recurring plan booked with ${ result.skipped.length } skipped dates.`
 					);
 				} else {
-					announce( 'Weekly course booked.' );
+					announce( 'Recurring plan booked.' );
 				}
 				clearBookingDraft();
 				onBooked( {
@@ -389,7 +391,7 @@ export function ConfirmStep( {
 			h(
 				'details',
 				{ key: 'series', class: 'ts-book__more' },
-				h( 'summary', null, 'Book as a weekly course' ),
+				h( 'summary', null, 'Set up a recurring maintenance plan' ),
 				h(
 					'div',
 					{ class: 'ts-book__series' },
@@ -401,7 +403,7 @@ export function ConfirmStep( {
 							checked: seriesOn,
 							onChange: ( e ) => setSeriesOn( e.target.checked ),
 						} ),
-						h( 'span', null, 'Repeat this appointment weekly' )
+						h( 'span', null, 'Repeat this appointment' )
 					),
 					seriesOn
 						? h(
@@ -430,6 +432,34 @@ export function ConfirmStep( {
 													toggleDay( d.value ),
 											} ),
 											h( 'span', null, d.label )
+										)
+									)
+								),
+								h(
+									'label',
+									{ class: 'ts-book__field' },
+									h( 'span', null, 'How often' ),
+									h(
+										'select',
+										{
+											value: seriesInterval,
+											onChange: ( e ) =>
+												setSeriesInterval(
+													Number.parseInt(
+														e.target.value,
+														10
+													) || 1
+												),
+										},
+										CADENCE_OPTS.map( ( opt ) =>
+											h(
+												'option',
+												{
+													key: opt.value,
+													value: opt.value,
+												},
+												opt.label
+											)
 										)
 									)
 								),
@@ -718,6 +748,18 @@ const DAY_OPTS = [
 	{ value: 4, label: 'Thu' },
 	{ value: 5, label: 'Fri' },
 	{ value: 6, label: 'Sat' },
+];
+
+// Weeks between qualifying weeks -- the only cadences the REST endpoint
+// accepts (SeriesController::ALLOWED_INTERVALS), matching how maintenance
+// contracts are actually sold: weekly, biweekly, ~monthly, ~quarterly,
+// ~biannual.
+const CADENCE_OPTS = [
+	{ value: 1, label: 'Every week' },
+	{ value: 2, label: 'Every 2 weeks' },
+	{ value: 4, label: 'Monthly' },
+	{ value: 13, label: 'Quarterly' },
+	{ value: 26, label: 'Every 6 months' },
 ];
 
 function gatewayFor( payMethod, payments = {} ) {
