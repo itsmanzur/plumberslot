@@ -1,9 +1,12 @@
 <?php
 /**
- * Weekly courses: "every Monday and Wednesday at 17:00, twelve times".
+ * Recurring maintenance plans: "every Monday and Wednesday at 17:00, twelve
+ * times", at a cadence of every week, every 2 weeks, monthly, quarterly, or
+ * every 6 months.
  *
- * A common shape for recurring maintenance work, and one many competitors
- * don't model in their core. A series is a first-class row, so a course can be reported on,
+ * A common shape for recurring maintenance work -- a quarterly drain check, a
+ * biannual water-heater flush -- and one many competitors don't model in
+ * their core. A series is a first-class row, so a plan can be reported on,
  * paused or cancelled as a unit while an individual appointment still moves alone.
  *
  * @package PlumberSlot
@@ -30,41 +33,59 @@ final class RecurrenceService {
 	/**
 	 * Create a series and every appointment in it.
 	 *
-	 * Slots already taken are skipped rather than failing the whole course; the
+	 * Slots already taken are skipped rather than failing the whole plan; the
 	 * caller gets back both lists so the customer can be told exactly which
 	 * weeks need a different time.
 	 *
-	 * @param array<string, mixed> $args   Same shape as BookingService::create().
-	 * @param list<int>            $days   Weekdays, 0 = Sunday.
-	 * @param int                  $count  How many appointments.
+	 * @param array<string, mixed> $args           Same shape as BookingService::create().
+	 * @param list<int>            $days           Weekdays, 0 = Sunday.
+	 * @param int                  $count          How many appointments.
+	 * @param int                  $interval_weeks Weeks between qualifying weeks: 1 = every
+	 *                                              week (today's only behaviour), 2 =
+	 *                                              biweekly, 4 = ~monthly, 13 = ~quarterly,
+	 *                                              26 = ~biannual. Week 0 is always the
+	 *                                              series' own start week, so it always
+	 *                                              qualifies regardless of the interval.
 	 * @return array{series_id:int, booked:list<int>, skipped:list<string>}|WP_Error
 	 */
-	public function create_series( array $args, array $days, int $count ): array|WP_Error {
+	public function create_series( array $args, array $days, int $count, int $interval_weeks = 1 ): array|WP_Error {
 		if ( $count < 1 || $count > 104 ) {
 			return new WP_Error(
 				'plumberslot_bad_count',
-				__( 'A course can run between 1 and 104 appointments.', 'plumberslot' ),
+				__( 'A recurring plan can run between 1 and 104 appointments.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
 
+		$interval_weeks = max( 1, $interval_weeks );
+
 		$series_id = $this->series->create(
 			array(
-				'technician_id' => (int) $args['technician_id'],
-				'customer_id'   => (int) $args['customer_id'],
-				'rrule'         => $this->to_rrule( $days, $count ),
-				'total_count'   => $count,
+				'technician_id'  => (int) $args['technician_id'],
+				'customer_id'    => (int) $args['customer_id'],
+				'rrule'          => $this->to_rrule( $days, $count, $interval_weeks ),
+				'total_count'    => $count,
+				'interval_weeks' => $interval_weeks,
 			)
 		);
 
-		$booked    = array();
-		$skipped   = array();
-		$cursor    = $args['start_utc'];
-		$index     = 0;
-		$processed = 0;
+		$booked       = array();
+		$skipped      = array();
+		$series_start = $args['start_utc'];
+		$cursor       = $series_start;
+		$index        = 0;
+		$processed    = 0;
 
 		while ( $processed < $count ) {
-			if ( in_array( (int) $cursor->format( 'w' ), $days, true ) ) {
+			// Whole weeks between the series' own start date and this cursor
+			// date, not a running day-count -- so the answer is correct no
+			// matter which weekdays are selected. Week 0 (the start week)
+			// always qualifies; interval_weeks = 1 makes every week qualify,
+			// reproducing the original always-weekly loop exactly.
+			$weeks_since_start = (int) floor( ( $cursor->getTimestamp() - $series_start->getTimestamp() ) / WEEK_IN_SECONDS );
+
+			if ( in_array( (int) $cursor->format( 'w' ), $days, true )
+				&& 0 === $weeks_since_start % $interval_weeks ) {
 				++$index;
 				++$processed;
 
@@ -89,7 +110,7 @@ final class RecurrenceService {
 
 			$cursor = $cursor->modify( '+1 day' );
 
-			if ( $cursor->getTimestamp() > $args['start_utc']->getTimestamp() + ( 2 * YEAR_IN_SECONDS ) ) {
+			if ( $cursor->getTimestamp() > $series_start->getTimestamp() + ( 2 * YEAR_IN_SECONDS * max( 1, $interval_weeks ) ) ) {
 				break; // Guard against an unsatisfiable rule looping forever.
 			}
 		}
@@ -142,10 +163,15 @@ final class RecurrenceService {
 	/**
 	 * @param list<int> $days Weekdays, 0 = Sunday.
 	 */
-	private function to_rrule( array $days, int $count ): string {
+	private function to_rrule( array $days, int $count, int $interval_weeks = 1 ): string {
 		$map   = array( 'SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA' );
 		$names = array_map( static fn ( int $d ): string => $map[ $d ], $days );
 
-		return sprintf( 'FREQ=WEEKLY;BYDAY=%s;COUNT=%d', implode( ',', $names ), $count );
+		// Omitting INTERVAL entirely for the weekly (1) case keeps the stored
+		// label identical to every series created before this cadence concept
+		// existed -- it is a display string, never read back by the loop above.
+		$interval = $interval_weeks > 1 ? sprintf( ';INTERVAL=%d', $interval_weeks ) : '';
+
+		return sprintf( 'FREQ=WEEKLY%s;BYDAY=%s;COUNT=%d', $interval, implode( ',', $names ), $count );
 	}
 }

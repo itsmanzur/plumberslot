@@ -31,6 +31,7 @@ final class Migrator {
 		8  => 'step_8_booking_photos',
 		9  => 'step_9_emergency_booking',
 		10 => 'step_10_service_plan_payments',
+		11 => 'step_11_recurrence_cadence',
 	);
 
 	public function maybe_upgrade(): void {
@@ -150,6 +151,16 @@ final class Migrator {
 	 * confident that is without a live install to verify against.
 	 */
 	private function step_10_service_plan_payments(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * Adds `interval_weeks` to SERIES: how many weeks apart the recurring
+	 * plan's qualifying weeks are, not just which weekdays. Every existing
+	 * series row keeps its current every-matching-weekday-every-week
+	 * behaviour because the column default is 1.
+	 */
+	private function step_11_recurrence_cadence(): void {
 		Schema::create_all();
 	}
 }

@@ -420,7 +420,7 @@ export function BookingsScreen() {
 												null,
 												row.series_label ||
 													( row.series_id
-														? `Weekly ${
+														? `Visit ${
 																row.series_index ||
 																1
 															}/${

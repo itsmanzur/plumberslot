@@ -580,7 +580,7 @@ final class BookingsController extends AbstractController {
 			if ( $series_total ) {
 				$series_label = sprintf(
 					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
-					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
+					__( 'Visit %1$d/%2$d', 'plumberslot' ),
 					(int) ( isset( $row->series_index ) && $row->series_index ? $row->series_index : 1 ),
 					$series_total
 				);

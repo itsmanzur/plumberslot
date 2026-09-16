@@ -158,12 +158,19 @@ final class Schema {
 			) {$charset};",
 
 			// A recurring job: several visits that live and die together.
+			// interval_weeks is the cadence between qualifying weeks -- 1 is
+			// every matching weekday every week (today's only behaviour before
+			// this column existed), 2 biweekly, 4 ~monthly, 13 ~quarterly, 26
+			// ~biannual, matching how maintenance-plan contracts are actually
+			// sold. The default keeps every pre-existing and newly-created
+			// weekly row byte-for-byte equivalent to the old always-weekly loop.
 			"CREATE TABLE {$p( self::SERIES )} (
 				id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 				technician_id BIGINT UNSIGNED NOT NULL,
 				customer_id BIGINT UNSIGNED NOT NULL,
 				rrule       VARCHAR(255)    NOT NULL,
 				total_count SMALLINT UNSIGNED NOT NULL,
+				interval_weeks SMALLINT UNSIGNED NOT NULL DEFAULT 1,
 				created_at  DATETIME        NOT NULL,
 				PRIMARY KEY (id),
 				KEY idx_technician (technician_id)

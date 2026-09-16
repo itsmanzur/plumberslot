@@ -1,6 +1,6 @@
 <?php
 /**
- * /plumberslot/v1/series — weekly courses.
+ * /plumberslot/v1/series — recurring maintenance plans.
  *
  * @package PlumberSlot
  */
@@ -29,6 +29,13 @@ defined( 'ABSPATH' ) || exit;
 
 final class SeriesController extends AbstractController {
 
+	/**
+	 * The only cadences the widget ever offers: weekly, biweekly, ~monthly,
+	 * ~quarterly, ~biannual. Not an exhaustive enum of what the column can
+	 * hold -- an arbitrary interval is deliberately not a supported input.
+	 */
+	private const ALLOWED_INTERVALS = array( 1, 2, 4, 13, 26 );
+
 	public function __construct(
 		Guard $guard,
 		private readonly RecurrenceService $recurrence,
@@ -51,73 +58,79 @@ final class SeriesController extends AbstractController {
 				'callback'            => array( $this, 'create' ),
 				'permission_callback' => array( $this, 'can_create' ),
 				'args'                => array(
-					'technician_id' => array(
+					'technician_id'  => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'service_id'    => array(
+					'service_id'     => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'start'         => array(
+					'start'          => array(
 						'required'          => true,
 						'type'              => 'string',
 						'validate_callback' => array( Validate::class, 'is_iso8601' ),
 					),
-					'days'          => array(
+					'days'           => array(
 						'required' => true,
 						'type'     => 'array',
 						'items'    => array( 'type' => 'integer' ),
 					),
-					'count'         => array(
+					'count'          => array(
 						'required' => true,
 						'type'     => 'integer',
 						'minimum'  => 1,
 						'maximum'  => 104,
 					),
-					'use_credit'    => array(
+					'interval_weeks' => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => array( self::class, 'is_allowed_interval' ),
+					),
+					'use_credit'     => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
-					'notes'         => array(
+					'notes'          => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
-					'timezone'      => array(
+					'timezone'       => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'address_line1' => array(
+					'address_line1'  => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'address_line2' => array(
+					'address_line2'  => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'address_city'  => array(
+					'address_city'   => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'address_state' => array(
+					'address_state'  => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'address_zip'   => array(
+					'address_zip'    => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'photo_ids'     => array(
+					'photo_ids'      => array(
 						'type'    => 'array',
 						'items'   => array( 'type' => 'integer' ),
 						'default' => array(),
 					),
-					'is_emergency'  => array(
+					'is_emergency'   => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
@@ -205,7 +218,7 @@ final class SeriesController extends AbstractController {
 		if ( array() === $days ) {
 			return new WP_Error(
 				'plumberslot_bad_days',
-				__( 'Pick at least one weekday for the course.', 'plumberslot' ),
+				__( 'Pick at least one weekday for the recurring plan.', 'plumberslot' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -263,7 +276,7 @@ final class SeriesController extends AbstractController {
 
 		// Only ids that are real attachments still marked as an unclaimed
 		// pending upload survive — never trust an id the client sends. Every
-		// appointment in the course shares this same photo set, the same way
+		// appointment in the plan shares this same photo set, the same way
 		// it shares one address.
 		$photo_ids = BookingPhotos::validate_pending( (array) ( $request['photo_ids'] ?? array() ) );
 
@@ -297,7 +310,8 @@ final class SeriesController extends AbstractController {
 				'is_emergency'   => $is_emergency,
 			),
 			$days,
-			(int) $request['count']
+			(int) $request['count'],
+			(int) $request['interval_weeks']
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -308,13 +322,14 @@ final class SeriesController extends AbstractController {
 
 		return $this->ok(
 			array(
-				'series_id'   => (int) $result['series_id'],
-				'total_count' => $series ? (int) $series->total_count : (int) $request['count'],
-				'booked'      => $result['booked'],
-				'skipped'     => $result['skipped'],
-				'label'       => sprintf(
+				'series_id'      => (int) $result['series_id'],
+				'total_count'    => $series ? (int) $series->total_count : (int) $request['count'],
+				'interval_weeks' => $series ? (int) $series->interval_weeks : (int) $request['interval_weeks'],
+				'booked'         => $result['booked'],
+				'skipped'        => $result['skipped'],
+				'label'          => sprintf(
 					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
-					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
+					__( 'Visit %1$d/%2$d', 'plumberslot' ),
 					count( $result['booked'] ),
 					(int) $request['count']
 				),
@@ -339,19 +354,20 @@ final class SeriesController extends AbstractController {
 
 		return $this->ok(
 			array(
-				'id'            => (int) $series->id,
-				'technician_id' => (int) $series->technician_id,
-				'customer_id'   => (int) $series->customer_id,
-				'rrule'         => (string) $series->rrule,
-				'total_count'   => (int) $series->total_count,
-				'active'        => count( $active ),
-				'label'         => sprintf(
+				'id'             => (int) $series->id,
+				'technician_id'  => (int) $series->technician_id,
+				'customer_id'    => (int) $series->customer_id,
+				'rrule'          => (string) $series->rrule,
+				'total_count'    => (int) $series->total_count,
+				'interval_weeks' => (int) $series->interval_weeks,
+				'active'         => count( $active ),
+				'label'          => sprintf(
 					/* translators: 1: current or booked appointment count, 2: total or requested appointment count */
-					__( 'Weekly %1$d/%2$d', 'plumberslot' ),
+					__( 'Visit %1$d/%2$d', 'plumberslot' ),
 					count( $active ),
 					(int) $series->total_count
 				),
-				'appointments'  => array_map(
+				'appointments'   => array_map(
 					static function ( object $b ): array {
 						return array(
 							'id'           => (int) $b->id,
@@ -382,6 +398,15 @@ final class SeriesController extends AbstractController {
 				'future_only' => $future_only,
 			)
 		);
+	}
+
+	/**
+	 * Restricts `interval_weeks` to the five cadence presets the widget
+	 * offers -- weekly, biweekly, monthly, quarterly, biannual. An arbitrary
+	 * integer is rejected outright rather than merely clamped.
+	 */
+	public static function is_allowed_interval( mixed $value ): bool {
+		return is_numeric( $value ) && in_array( (int) $value, self::ALLOWED_INTERVALS, true );
 	}
 
 	private function may_access_series( object $series ): bool {
