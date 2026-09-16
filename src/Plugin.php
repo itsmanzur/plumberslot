@@ -22,6 +22,7 @@ use PlumberSlot\Domain\MeetingService;
 use PlumberSlot\Frontend\JoinRoute;
 use PlumberSlot\Media\PendingPhotoCleanup;
 use PlumberSlot\Meetings\MeetingCleanup;
+use PlumberSlot\Notifications\CreditExpiryReminder;
 use PlumberSlot\Notifications\Scheduler;
 use PlumberSlot\Payments\WebhookController;
 use PlumberSlot\Privacy\PrivacyHooks;
@@ -71,6 +72,7 @@ final class Plugin {
 		$this->container->get( Scheduler::class )->register();
 		$this->container->get( MeetingCleanup::class )->register();
 		$this->container->get( PendingPhotoCleanup::class )->register();
+		$this->container->get( CreditExpiryReminder::class )->register();
 		$this->container->get( MeetingService::class )->register();
 		$this->container->get( JoinRoute::class )->register();
 		$this->container->get( WebhookController::class )->register();

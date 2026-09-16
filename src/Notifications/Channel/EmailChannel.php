@@ -51,6 +51,78 @@ final class EmailChannel implements ChannelInterface {
 		);
 	}
 
+	/**
+	 * A Service Plan nearing its expiry date, with jobs still left on it.
+	 *
+	 * Deliberately not routed through send()/ChannelInterface: that contract
+	 * is shaped around a booking row (start_utc, customer_tz, address,
+	 * meeting_ref -- see subject()/body()/sentence()'s match statements), and
+	 * a credit package has none of those. Forcing this through it would mean
+	 * either faking a booking-shaped object just to satisfy the signature, or
+	 * widening ChannelInterface for every other channel (SmsChannel included)
+	 * for a single event type -- a new, minimal method here is the smaller
+	 * change.
+	 */
+	public function send_credit_expiring( int $user_id, object $credit, int $appointments_left ): void {
+		$user = get_userdata( $user_id );
+
+		if ( ! $user || ! is_email( $user->user_email ) ) {
+			return;
+		}
+
+		$when = Time::for_human(
+			Time::from_sql( (string) $credit->expires_at ),
+			Time::is_valid_zone( wp_timezone_string() ) ? wp_timezone_string() : 'UTC',
+			get_option( 'date_format' )
+		);
+
+		$subject = sprintf(
+			/* translators: %s: expiry date. */
+			__( 'Your Service Plan expires %s', 'plumberslot' ),
+			$when
+		);
+
+		$lines   = $this->header_lines();
+		$lines[] = sprintf( '<p>%s,</p>', esc_html( $user->display_name ) );
+		$lines[] = sprintf(
+			'<p>%s</p>',
+			esc_html(
+				sprintf(
+					/* translators: 1: number of appointments left, 2: expiry date. */
+					_n(
+						'Your Service Plan expires %2$s. You have %1$d appointment left on it.',
+						'Your Service Plan expires %2$s. You have %1$d appointments left on it.',
+						$appointments_left,
+						'plumberslot'
+					),
+					$appointments_left,
+					$when
+				)
+			)
+		);
+		$lines[] = sprintf(
+			'<p style="color:#555555;">%s</p>',
+			esc_html__( "Book before it expires to use what's left, or renew to keep going.", 'plumberslot' )
+		);
+
+		array_push( $lines, ...$this->footer_lines() );
+
+		/**
+		 * Filter the rendered Service Plan expiry email body.
+		 *
+		 * @param string $html   Message body.
+		 * @param object $credit Credit package row.
+		 */
+		$body = apply_filters( 'plumberslot_credit_expiry_email_body', implode( "\n", $lines ), $credit );
+
+		wp_mail(
+			$user->user_email,
+			$subject,
+			$body,
+			array( 'Content-Type: text/html; charset=UTF-8' )
+		);
+	}
+
 	private function subject( string $event, string $when ): string {
 		return match ( $event ) {
 			'booking_created'     => sprintf( /* translators: %s: date and time. */ __( 'Appointment requested for %s', 'plumberslot' ), $when ),
