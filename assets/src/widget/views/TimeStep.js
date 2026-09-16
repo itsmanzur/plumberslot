@@ -28,6 +28,8 @@ export function TimeStep( {
 	onContinue,
 	continueLabel = 'Continue →',
 	onBack,
+	emergencyRequested = false,
+	onEmergencyRequestedChange,
 } ) {
 	const [ days ] = useState( () =>
 		buildDayStrip( new Date(), 7, timezone || detectTimezone() )
@@ -44,15 +46,26 @@ export function TimeStep( {
 	// business object (see PublicTechnicianController::business()) — earliest
 	// opening across every technician who offers this service, not just one.
 	const isBusiness = technician.id === 0;
+	// Only a service the technician explicitly marked is offered the "need
+	// it today?" toggle at all -- guards against a stale flag surviving a
+	// service switch even if a caller forgets to reset it.
+	const emergencyEligible = Boolean( service?.is_emergency_available );
+	const emergencyActive = emergencyEligible && emergencyRequested;
+	const emergencyWindowHours =
+		Number( technician.emergency_window_hours ) || 6;
 
 	const load = async ( { silent = false } = {} ) => {
 		if ( ! silent ) {
 			setStatus( 'loading' );
 		}
 		try {
-			const from = new Date();
-			from.setHours( 0, 0, 0, 0 );
-			const to = new Date( from.getTime() + 8 * 86400000 );
+			const now = new Date();
+			const from = emergencyActive
+				? now
+				: new Date( now.getFullYear(), now.getMonth(), now.getDate() );
+			const to = emergencyActive
+				? new Date( now.getTime() + emergencyWindowHours * 3600000 )
+				: new Date( from.getTime() + 8 * 86400000 );
 			const duration =
 				service?.duration_min || technician.default_duration || 60;
 			const data = isBusiness
@@ -89,7 +102,11 @@ export function TimeStep( {
 		);
 		return () => window.clearInterval( timer );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ technician.id, service?.id, tz ] );
+	}, [ technician.id, service?.id, tz, emergencyActive ] );
+
+	const hasOpenSlots = slots.some( ( slot ) => slot.state === 'open' );
+	const showNoEmergencySlots =
+		emergencyActive && ! isBusiness && status === 'ready' && ! hasOpenSlots;
 
 	const byDay = useMemo( () => {
 		const map = {};
@@ -134,6 +151,71 @@ export function TimeStep( {
 		? formatRange( selectedStart, duration, tz )
 		: 'Pick a time';
 
+	const timeFieldsContent = showNoEmergencySlots
+		? [
+				h(
+					Callout,
+					{
+						key: 'no-emergency',
+						tone: 'warn',
+						title: 'No emergency slots:',
+					},
+					`No emergency openings in the next ${ emergencyWindowHours } hours. Try a regular booking, or turn off “Need it today?” above.`
+				),
+			]
+		: [
+				h( 'h3', { key: 'day-h3' }, 'Pick a day' ),
+				h(
+					'p',
+					{ key: 'day-sub', class: 'ts-book__sub' },
+					'Dots mark days with at least one open slot.'
+				),
+				h( DayStrip, {
+					key: 'day-strip',
+					days: dayItems,
+					value: day,
+					onChange: ( nextDay ) => {
+						setDay( nextDay );
+						onSelectStart( null );
+					},
+				} ),
+				stale
+					? h(
+							Callout,
+							{ key: 'stale', tone: 'warn', title: 'Updated:' },
+							'Some slots were taken. Pick again.'
+						)
+					: null,
+				h( 'h3', { key: 'time-h3' }, 'Pick a time' ),
+				h(
+					'div',
+					{
+						key: 'slots',
+						class: 'ts-book__slots',
+						role: 'listbox',
+						'aria-label': 'Open times',
+					},
+					status === 'loading'
+						? h(
+								'p',
+								{ class: 'ts-book__muted' },
+								'Loading times…'
+							)
+						: renderSlots(
+								daySlots,
+								tz,
+								selectedStart,
+								onSelectStart,
+								setStale
+							)
+				),
+				h(
+					'p',
+					{ key: 'note', class: 'ts-book__muted' },
+					`Each appointment runs ${ duration } minutes. Taken slots update live.`
+				),
+			];
+
 	return h(
 		'div',
 		{ class: 'ts-book ts-book--step' },
@@ -146,6 +228,27 @@ export function TimeStep( {
 			'div',
 			{ class: 'ts-book__body' },
 			h( 'h2', null, 'When works for you?' ),
+			emergencyEligible
+				? h(
+						'label',
+						{
+							class: 'ts-book__field ts-book__check ts-book__emergency-toggle',
+						},
+						h( 'input', {
+							type: 'checkbox',
+							checked: emergencyRequested,
+							onChange: ( event ) =>
+								onEmergencyRequestedChange?.(
+									event.target.checked
+								),
+						} ),
+						h(
+							'span',
+							null,
+							`⚡ Need it today? Show the soonest openings in the next ${ emergencyWindowHours } hours.`
+						)
+					)
+				: null,
 			h(
 				'div',
 				{ class: 'ts-book__tz-row' },
@@ -188,58 +291,7 @@ export function TimeStep( {
 					} )
 				: null,
 			status !== 'error'
-				? h(
-						'div',
-						{ class: 'ts-book__fields' },
-						h( 'h3', null, 'Pick a day' ),
-						h(
-							'p',
-							{ class: 'ts-book__sub' },
-							'Dots mark days with at least one open slot.'
-						),
-						h( DayStrip, {
-							days: dayItems,
-							value: day,
-							onChange: ( nextDay ) => {
-								setDay( nextDay );
-								onSelectStart( null );
-							},
-						} ),
-						stale
-							? h(
-									Callout,
-									{ tone: 'warn', title: 'Updated:' },
-									'Some slots were taken. Pick again.'
-								)
-							: null,
-						h( 'h3', null, 'Pick a time' ),
-						h(
-							'div',
-							{
-								class: 'ts-book__slots',
-								role: 'listbox',
-								'aria-label': 'Open times',
-							},
-							status === 'loading'
-								? h(
-										'p',
-										{ class: 'ts-book__muted' },
-										'Loading times…'
-									)
-								: renderSlots(
-										daySlots,
-										tz,
-										selectedStart,
-										onSelectStart,
-										setStale
-									)
-						),
-						h(
-							'p',
-							{ class: 'ts-book__muted' },
-							`Each appointment runs ${ duration } minutes. Taken slots update live.`
-						)
-					)
+				? h( 'div', { class: 'ts-book__fields' }, timeFieldsContent )
 				: null
 		),
 		h(

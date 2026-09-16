@@ -20,6 +20,7 @@ export function ConfirmStep( {
 	timezone,
 	address,
 	photoIds,
+	emergencyRequested,
 	onBack,
 	onBooked,
 	onRetakeSlot,
@@ -188,6 +189,7 @@ export function ConfirmStep( {
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
 					photo_ids: photoIdList,
+					is_emergency: Boolean( emergencyRequested ),
 				} );
 				if ( ( result.skipped || [] ).length ) {
 					setSkipped( result.skipped );
@@ -223,6 +225,7 @@ export function ConfirmStep( {
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
 					photo_ids: photoIdList,
+					is_emergency: Boolean( emergencyRequested ),
 				} );
 
 				const gateway = gatewayFor( payMethod, boot.payments );
@@ -322,6 +325,9 @@ export function ConfirmStep( {
 				'dl',
 				{ key: 'sum', class: 'ts-book__summary' },
 				row( 'Service', serviceLine || service?.name ),
+				emergencyRequested
+					? row( 'Priority', 'Emergency — next available' )
+					: null,
 				row( 'Address', formatAddress( address ) ),
 				row( 'When', formatInZone( start, timezone ) ),
 				row(

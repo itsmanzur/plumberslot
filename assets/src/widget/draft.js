@@ -18,6 +18,7 @@ export function saveBookingDraft( technicianId, draft ) {
 				timezone: draft.timezone || '',
 				address: normalizeAddress( draft.address ),
 				photoIds: normalizePhotoIds( draft.photoIds ),
+				emergencyRequested: Boolean( draft.emergencyRequested ),
 				step: draft.step || 'confirm',
 				savedAt: Date.now(),
 			} )

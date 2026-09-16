@@ -81,6 +81,9 @@ export function ServiceStep( {
 								service.is_free_estimate
 									? 'is-free-estimate'
 									: '',
+								service.is_emergency_available
+									? 'is-emergency'
+									: '',
 							]
 								.filter( Boolean )
 								.join( ' ' ),
@@ -100,6 +103,13 @@ export function ServiceStep( {
 							details ||
 								`${ service.duration_min } minute appointment`
 						),
+						service.is_emergency_available
+							? h(
+									'span',
+									{ class: 'ts-book__emergency-badge' },
+									'⚡ Emergency available'
+								)
+							: null,
 						h(
 							'span',
 							{ class: 'ts-book__service-price' },

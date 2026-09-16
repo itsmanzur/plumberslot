@@ -430,6 +430,14 @@
 	margin-right: 6px;
 }
 
+.ts-book__emergency-badge {
+	display: inline-block;
+	margin-top: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ts-warn);
+}
+
 .ts-book__slots {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));

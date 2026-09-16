@@ -70,6 +70,9 @@ export function BookingApp( {
 	// Attachment ids (plus their preview URLs) for job-site photos uploaded
 	// on the Address step, before a booking row exists to attach them to.
 	const [ photoIds, setPhotoIds ] = useState( [] );
+	// "Need it today?" — only meaningful while the selected service offers
+	// is_emergency_available; reset whenever the service changes underneath it.
+	const [ emergencyRequested, setEmergencyRequested ] = useState( false );
 	const [ booking, setBooking ] = useState( null );
 	const [ draftRestored, setDraftRestored ] = useState( false );
 
@@ -150,6 +153,7 @@ export function BookingApp( {
 		if ( draft.photoIds ) {
 			setPhotoIds( draft.photoIds );
 		}
+		setEmergencyRequested( Boolean( draft.emergencyRequested ) );
 		if ( ! addressComplete ) {
 			// Missing address: send the customer back to fill it in rather
 			// than discarding the rest of an otherwise-resumable draft.
@@ -192,6 +196,7 @@ export function BookingApp( {
 			timezone,
 			address,
 			photoIds,
+			emergencyRequested,
 			step: 'account',
 		} );
 		setStep( 'account' );
@@ -208,6 +213,7 @@ export function BookingApp( {
 			timezone,
 			address,
 			photoIds,
+			emergencyRequested,
 			step: 'confirm',
 		} );
 		setStep( 'confirm' );
@@ -320,7 +326,12 @@ export function BookingApp( {
 			h( ServiceStep, {
 				technician,
 				selectedId: selectedServiceId,
-				onSelect: setSelectedServiceId,
+				onSelect: ( id ) => {
+					if ( id !== selectedServiceId ) {
+						setEmergencyRequested( false );
+					}
+					setSelectedServiceId( id );
+				},
 				onContinue: () => setStep( 'time' ),
 				onBack: view === 'profile' ? () => setStep( 'profile' ) : null,
 			} )
@@ -341,6 +352,8 @@ export function BookingApp( {
 				onContinue: leaveTimeStep,
 				continueLabel: 'Continue →',
 				onBack: () => setStep( 'service' ),
+				emergencyRequested,
+				onEmergencyRequestedChange: setEmergencyRequested,
 			} )
 		);
 	}
@@ -387,6 +400,7 @@ export function BookingApp( {
 			timezone,
 			address,
 			photoIds,
+			emergencyRequested,
 			onBack: () => setStep( 'address' ),
 			onBooked: ( result ) => {
 				setBooking( result );
