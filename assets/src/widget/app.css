@@ -377,6 +377,32 @@
 	text-align: right;
 }
 
+.ts-book__reviews-summary {
+	display: grid;
+	gap: 6px;
+	margin: 2px 0 4px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid var(--ts-rule-2);
+}
+
+.ts-book__rating-inline {
+	font-size: var(--ts-text-md);
+}
+
+.ts-book__reviews-summary-list {
+	display: grid;
+	gap: 4px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 12.5px;
+	color: var(--ts-ink-2);
+}
+
+.ts-book__reviews-summary-list q {
+	font-style: italic;
+}
+
 .ts-book__services {
 	display: grid;
 	grid-template-columns: 1fr 1fr;

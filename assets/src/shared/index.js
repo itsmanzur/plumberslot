@@ -3,6 +3,7 @@ export { copyText } from './copyText';
 export { navigateTo, openUrl, safeUrl } from './url';
 export { Button } from './components/Button';
 export { StatusChip } from './components/StatusChip';
+export { RatingStars } from './components/RatingStars';
 export { Callout } from './components/Callout';
 export { EmptyState, ErrorState, Skeleton } from './components/EmptyState';
 export { Toggle } from './components/Toggle';

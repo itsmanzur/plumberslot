@@ -138,6 +138,8 @@ final class PublicTechnicianController extends AbstractController {
 			$jobs += $this->completed_job_count( (int) $technician->id );
 		}
 
+		$rating       = $this->aggregate_rating_summary( $technicians );
+		$review_rows  = $this->aggregate_reviews( $technicians );
 		$display_name = get_bloginfo( 'name' );
 
 		return $this->ok(
@@ -151,8 +153,8 @@ final class PublicTechnicianController extends AbstractController {
 				'currency'                  => Settings::string( 'default_currency', 'USD' ),
 				'hourly_rate_minor'         => 0,
 				'from_price_minor'          => $from_price ?? 0,
-				'rating'                    => 0,
-				'review_count'              => 0,
+				'rating'                    => $rating['average'],
+				'review_count'              => $rating['count'],
 				'job_count'                 => $jobs,
 				'years_teaching'            => 0,
 				'response_time'             => '',
@@ -166,9 +168,7 @@ final class PublicTechnicianController extends AbstractController {
 				// Specific to one technician's calendar; nothing to show yet.
 				'next_opening'              => null,
 				'services'                  => $services,
-				// Kept simple: an aggregate reviews feed is future scope, not
-				// needed before a technician is resolved.
-				'reviews'                   => array(),
+				'reviews'                   => $review_rows,
 				'email'                     => '',
 				'service_area_zips'         => ServiceArea::list(),
 			)
@@ -380,6 +380,68 @@ final class PublicTechnicianController extends AbstractController {
 			'languages'        => $languages,
 			'meeting_provider' => '' !== $provider ? $provider : 'Google Meet',
 		);
+	}
+
+	/**
+	 * Business-wide rating: a weighted average across every active
+	 * technician's own average, weighted by their own review count -- not a
+	 * plain average of averages, which would let a technician with one
+	 * five-star review outweigh one with fifty reviews at 4.2.
+	 *
+	 * @param list<object> $technicians Active technician rows.
+	 * @return array{average:float,count:int}
+	 */
+	private function aggregate_rating_summary( array $technicians ): array {
+		$weighted = 0.0;
+		$count    = 0;
+
+		foreach ( $technicians as $technician ) {
+			$summary = $this->reviews->rating_summary( (int) $technician->id );
+			if ( $summary['count'] <= 0 ) {
+				continue;
+			}
+
+			$weighted += $summary['average'] * $summary['count'];
+			$count    += $summary['count'];
+		}
+
+		return array(
+			'average' => $count > 0 ? round( $weighted / $count, 1 ) : 0.0,
+			'count'   => $count,
+		);
+	}
+
+	/**
+	 * Most recent approved reviews across every active technician, for the
+	 * business-wide (no technician pinned yet) booking flow.
+	 *
+	 * @param list<object> $technicians Active technician rows.
+	 * @return list<array{id:int,rating:int,body:string,author:string,role:string}>
+	 */
+	private function aggregate_reviews( array $technicians, int $limit = 10 ): array {
+		$rows = array();
+
+		foreach ( $technicians as $technician ) {
+			foreach ( $this->reviews->approved_for_technician( (int) $technician->id, $limit ) as $row ) {
+				$rows[] = $row;
+			}
+		}
+
+		usort( $rows, static fn( $a, $b ) => strcmp( (string) $b->created_at, (string) $a->created_at ) );
+
+		$out = array();
+		foreach ( array_slice( $rows, 0, $limit ) as $row ) {
+			$author = get_userdata( (int) $row->author_id );
+			$out[]  = array(
+				'id'     => (int) $row->id,
+				'rating' => (int) $row->rating,
+				'body'   => (string) $row->body,
+				'author' => $author ? $author->display_name : __( 'Customer', 'plumberslot' ),
+				'role'   => __( 'Customer', 'plumberslot' ),
+			);
+		}
+
+		return $out;
 	}
 
 	private function completed_job_count( int $technician_id ): int {

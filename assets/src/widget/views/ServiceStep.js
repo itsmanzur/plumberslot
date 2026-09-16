@@ -1,7 +1,17 @@
 import { h } from 'preact';
-import { Button, EmptyState, WizardRail } from '../../shared';
+import { Button, EmptyState, RatingStars, WizardRail } from '../../shared';
 import { handleListboxKeyDown } from '../a11y';
 import { money } from '../lib';
+
+const EXCERPT_LENGTH = 90;
+
+function excerpt( body = '' ) {
+	const text = String( body ).trim();
+
+	return text.length > EXCERPT_LENGTH
+		? `${ text.slice( 0, EXCERPT_LENGTH ).trim() }…`
+		: text;
+}
 
 const RAIL = [
 	{ id: 'service', label: 'Service' },
@@ -46,6 +56,36 @@ export function ServiceStep( {
 				{ class: 'ts-book__sub' },
 				'Pick a service. Prices and appointment length can differ.'
 			),
+			technician.review_count
+				? h(
+						'section',
+						{ class: 'ts-book__reviews-summary' },
+						h( RatingStars, {
+							rating: technician.rating,
+							count: technician.review_count,
+						} ),
+						technician.reviews?.length
+							? h(
+									'ul',
+									{ class: 'ts-book__reviews-summary-list' },
+									technician.reviews
+										.slice( 0, 3 )
+										.map( ( r ) =>
+											h(
+												'li',
+												{ key: r.id },
+												h(
+													'q',
+													null,
+													excerpt( r.body )
+												),
+												` — ${ r.author }`
+											)
+										)
+								)
+							: null
+					)
+				: null,
 			h(
 				'div',
 				{
