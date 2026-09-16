@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Notifications\Channel;
 
 use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
 
 defined( 'ABSPATH' ) || exit;
@@ -71,10 +72,15 @@ final class EmailChannel implements ChannelInterface {
 			? Crypto::signed_join_url( (int) $booking->id, (string) $booking->meeting_token )
 			: '';
 
-		$lines = array(
-			sprintf( '<p>%s,</p>', esc_html( $name ) ),
-			sprintf( '<p>%s</p>', esc_html( $this->sentence( $event, $when ) ) ),
-		);
+		$lines   = $this->header_lines();
+		$lines[] = sprintf( '<p>%s,</p>', esc_html( $name ) );
+		$lines[] = sprintf( '<p>%s</p>', esc_html( $this->sentence( $event, $when ) ) );
+
+		$expect = $this->expectation( $event );
+
+		if ( '' !== $expect ) {
+			$lines[] = sprintf( '<p style="color:#555555;">%s</p>', esc_html( $expect ) );
+		}
 
 		$address_line1 = trim( (string) ( $booking->address_line1 ?? '' ) );
 
@@ -94,6 +100,8 @@ final class EmailChannel implements ChannelInterface {
 			);
 		}
 
+		array_push( $lines, ...$this->footer_lines() );
+
 		/**
 		 * Filter the rendered email body.
 		 *
@@ -102,6 +110,80 @@ final class EmailChannel implements ChannelInterface {
 		 * @param object $booking Booking row.
 		 */
 		return apply_filters( 'plumberslot_email_body', implode( "\n", $lines ), $event, $booking );
+	}
+
+	/**
+	 * The site's Custom Logo (Customizer "Site Identity") and a business-name
+	 * header line, when one is set -- reusing WordPress's own logo upload
+	 * rather than building new upload infrastructure just for email.
+	 *
+	 * @return list<string>
+	 */
+	private function header_lines(): array {
+		$lines = array();
+
+		if ( has_custom_logo() ) {
+			$logo_url = wp_get_attachment_image_url( (int) get_theme_mod( 'custom_logo' ), 'medium' );
+
+			if ( $logo_url ) {
+				$lines[] = sprintf(
+					'<p><img src="%s" alt="%s" style="max-width:160px;height:auto;"></p>',
+					esc_url( $logo_url ),
+					esc_attr( $this->business_name() )
+				);
+			}
+		}
+
+		$lines[] = sprintf(
+			'<p style="font-weight:600;margin:0 0 12px;">%s</p>',
+			esc_html( $this->business_name() )
+		);
+
+		return $lines;
+	}
+
+	private function business_name(): string {
+		$name = Settings::string( 'business_name', '' );
+
+		return '' !== $name ? $name : get_bloginfo( 'name' );
+	}
+
+	/**
+	 * A short, generic line on what happens next, tailored to the event --
+	 * kept to one sentence per event, matching sentence()'s own weight.
+	 */
+	private function expectation( string $event ): string {
+		return match ( $event ) {
+			'booking_created'     => __( "We'll confirm this shortly.", 'plumberslot' ),
+			'booking_confirmed'   => __( "Your technician will arrive at the scheduled time. You'll get a reminder beforehand.", 'plumberslot' ),
+			'booking_rescheduled' => __( 'Your technician will arrive at the new time above.', 'plumberslot' ),
+			'reminder_24h',
+			'reminder_1h'         => __( 'Your technician will arrive at the scheduled time.', 'plumberslot' ),
+			default               => '',
+		};
+	}
+
+	/**
+	 * Business hours, when set -- omitted entirely rather than showing a
+	 * blank "Hours:" label.
+	 *
+	 * @return list<string>
+	 */
+	private function footer_lines(): array {
+		$hours = trim( Settings::string( 'business_hours', '' ) );
+
+		if ( '' === $hours ) {
+			return array();
+		}
+
+		return array(
+			'<hr style="border:none;border-top:1px solid #e2e2e2;margin:20px 0;">',
+			sprintf(
+				'<p style="color:#888888;font-size:12px;">%s %s</p>',
+				esc_html__( 'Hours:', 'plumberslot' ),
+				esc_html( $hours )
+			),
+		);
 	}
 
 	private function sentence( string $event, string $when ): string {

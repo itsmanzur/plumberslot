@@ -137,11 +137,16 @@ export function SettingsScreen() {
 			} )
 		);
 
-	const textField = ( key, label ) =>
+	const textField = ( key, label, explanation ) =>
 		h(
 			'label',
 			{ class: 'ts-admin-field' },
-			h( 'span', null, label ),
+			h(
+				'span',
+				null,
+				label,
+				explanation ? h( 'small', null, explanation ) : null
+			),
 			h( 'input', {
 				type: 'text',
 				value: values[ key ] || '',
@@ -194,6 +199,25 @@ export function SettingsScreen() {
 				h(
 					'div',
 					{ class: 'ts-admin-stack' },
+					h(
+						'section',
+						{ class: 'ts-admin-card' },
+						h( 'h2', null, 'Business' ),
+						h(
+							'div',
+							{ class: 'ts-admin-fields' },
+							textField(
+								'business_name',
+								'Business name',
+								'Shown in confirmation and reminder emails. Defaults to your site title.'
+							),
+							textField(
+								'business_hours',
+								'Business hours',
+								'Shown in the email footer, e.g. "Mon–Fri 8am–6pm". Leave blank to omit.'
+							)
+						)
+					),
 					h(
 						'section',
 						{ class: 'ts-admin-card' },
