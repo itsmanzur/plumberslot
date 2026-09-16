@@ -37,7 +37,7 @@ final class Shortcode {
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( 'technician' === $view ) {
+		if ( in_array( $view, array( 'technician', 'customer' ), true ) ) {
 			return $this->render_dashboard( array( 'view' => $view ) );
 		}
 
@@ -82,7 +82,7 @@ final class Shortcode {
 		);
 
 		$view = sanitize_key( $atts['view'] );
-		if ( 'technician' !== $view ) {
+		if ( ! in_array( $view, array( 'technician', 'customer' ), true ) ) {
 			$view = 'technician';
 		}
 

@@ -23,11 +23,12 @@ final class DashboardRoutes {
 
 	public function add_rewrites(): void {
 		add_rewrite_rule( '^technician-dashboard/?$', 'index.php?plumberslot_dash=technician', 'top' );
+		add_rewrite_rule( '^customer-dashboard/?$', 'index.php?plumberslot_dash=customer', 'top' );
 
 		$flag = (string) get_option( 'plumberslot_rewrite_version', '' );
-		if ( '6' !== $flag ) {
+		if ( '7' !== $flag ) {
 			flush_rewrite_rules( false );
-			update_option( 'plumberslot_rewrite_version', '6', false );
+			update_option( 'plumberslot_rewrite_version', '7', false );
 		}
 	}
 
@@ -43,7 +44,7 @@ final class DashboardRoutes {
 
 	public function render(): void {
 		$view = get_query_var( 'plumberslot_dash' );
-		if ( 'technician' !== $view ) {
+		if ( ! in_array( $view, array( 'technician', 'customer' ), true ) ) {
 			return;
 		}
 

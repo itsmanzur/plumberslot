@@ -894,7 +894,7 @@ final class BookingsController extends AbstractController {
 				'customer'            => $customer ? $customer->display_name : '',
 				'meeting_provider'    => $provider ? $provider : 'Google Meet',
 				'reschedule_deadline' => gmdate( 'c', max( time(), $deadline ) ),
-				'dashboard_url'       => home_url( '/my-account/' ),
+				'dashboard_url'       => home_url( '/customer-dashboard/' ),
 				'address_line1'       => (string) $request['address_line1'],
 				'address_line2'       => $request['address_line2'] ? (string) $request['address_line2'] : null,
 				'address_city'        => (string) $request['address_city'],

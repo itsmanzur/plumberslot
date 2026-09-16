@@ -40,7 +40,7 @@ final class AssetManager {
 
 	public function mark_dashboard_needed( string $view = 'technician' ): void {
 		$this->dashboard_needed = true;
-		$this->dashboard_view   = 'technician' === $view ? $view : 'technician';
+		$this->dashboard_view   = in_array( $view, array( 'technician', 'customer' ), true ) ? $view : 'technician';
 
 		if ( did_action( 'wp_enqueue_scripts' ) ) {
 			$this->enqueue_dashboard();
@@ -105,7 +105,11 @@ final class AssetManager {
 			'nonce'             => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 			'loggedIn'          => is_user_logged_in(),
 			'loginUrl'          => wp_login_url( $current_url ),
-			'dashboardUrl'      => home_url( '/technician-dashboard/' ),
+			// The widget is where customers book, so the generic "go to my
+			// dashboard" link they see there always points at their own
+			// dashboard, not the technician's.
+			'dashboardUrl'      => home_url( '/customer-dashboard/' ),
+			'customerDashUrl'   => home_url( '/customer-dashboard/' ),
 			'technicianDashUrl' => home_url( '/technician-dashboard/' ),
 			'bookingUrl'        => $this->booking_page_url(),
 			'view'              => $this->dashboard_view,
