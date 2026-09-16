@@ -156,6 +156,116 @@ final class CreditService {
 	}
 
 	/**
+	 * Start a paid Service Plan purchase. Mirrors purchase()'s field handling,
+	 * but a package with a real price is inserted 'pending' -- unusable,
+	 * uncounted in a balance (CreditRepository::usable_for() filters on
+	 * status) -- until PaymentService::apply_event() confirms the charge and
+	 * calls activate_package(). A free (price_minor === 0) package still
+	 * needs no payment step at all, so that case is delegated straight to the
+	 * existing purchase() to keep its behaviour (including rollover)
+	 * identical to today.
+	 *
+	 * expires_at is deliberately left unset here: an abandoned, never-paid
+	 * checkout must not carry an expiry clock that started ticking before the
+	 * package was ever usable. activate_package() computes it at activation
+	 * time instead.
+	 *
+	 * Rollover (burning down a near-expiry pack into this one) is
+	 * deliberately NOT applied on the pending/paid path -- purchase() rolls
+	 * old credits over immediately because the new package is usable right
+	 * away, but here the new package might never be paid for, and burning a
+	 * customer's remaining credits before their payment even confirms would
+	 * be a real loss if the charge then fails.
+	 *
+	 * @param array{owner_id:int, technician_id:?int, service_id:?int, total:int, price_minor?:int} $args Package fields.
+	 * @return int|WP_Error Credit package id.
+	 */
+	public function create_pending( array $args ): int|WP_Error {
+		$price = (int) ( $args['price_minor'] ?? 0 );
+
+		if ( $price <= 0 ) {
+			$package = $this->purchase( $args );
+
+			return is_wp_error( $package ) ? $package : (int) $package->id;
+		}
+
+		$owner_id      = (int) $args['owner_id'];
+		$total         = max( 1, min( 100, (int) $args['total'] ) );
+		$technician_id = isset( $args['technician_id'] ) && $args['technician_id'] ? (int) $args['technician_id'] : null;
+		$service       = isset( $args['service_id'] ) && $args['service_id'] ? (int) $args['service_id'] : null;
+
+		$id = $this->credits->create_package(
+			array(
+				'owner_id'      => $owner_id,
+				'technician_id' => $technician_id,
+				'service_id'    => $service,
+				'total'         => $total,
+				'price_minor'   => $price,
+				'currency'      => Settings::string( 'default_currency', 'USD' ),
+				'status'        => 'pending',
+				'expires_at'    => null,
+			)
+		);
+
+		if ( $id <= 0 ) {
+			return new WP_Error(
+				'plumberslot_credit_create_failed',
+				__( 'Could not create the job package.', 'plumberslot' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		AuditLog::record(
+			'credit.purchase_pending',
+			'credit',
+			$id,
+			array(
+				'total'         => $total,
+				'technician_id' => $technician_id,
+				'price_minor'   => $price,
+			)
+		);
+
+		return $id;
+	}
+
+	/**
+	 * Confirm a paid Service Plan purchase: flips 'pending' -> 'active' and
+	 * computes expires_at now, since the usable window should start when the
+	 * package actually becomes usable, not when checkout began. Guarded by
+	 * CreditRepository::activate()'s compare-and-set, so a duplicate webhook
+	 * can never re-activate (and re-roll the expiry clock on) the same
+	 * package twice.
+	 */
+	public function activate_package( int $credit_id, string $payment_ref ): bool {
+		$days       = Settings::int( 'credit_expiry_days', 180 );
+		$expires_at = $days > 0 ? gmdate( 'Y-m-d H:i:s', time() + ( $days * DAY_IN_SECONDS ) ) : null;
+
+		if ( ! $this->credits->activate( $credit_id, $payment_ref, $expires_at ) ) {
+			return false;
+		}
+
+		AuditLog::record( 'credit.activated', 'credit', $credit_id, array( 'ref' => $payment_ref ) );
+
+		return true;
+	}
+
+	/**
+	 * Terminal, audit-trail state for a purchase that never got paid --
+	 * mirrors the "don't delete, mark terminal" convention BookingService
+	 * already uses for payment_failed/cancelled bookings.
+	 */
+	public function mark_purchase_failed( int $credit_id ): bool {
+		if ( ! $this->credits->mark_failed( $credit_id ) ) {
+			return false;
+		}
+
+		AuditLog::record( 'credit.purchase_failed', 'credit', $credit_id );
+
+		return true;
+	}
+
+	/**
 	 * @return array{total:int, used:int, remaining:int}
 	 */
 	public function balance( int $owner_id, int $technician_id ): array {

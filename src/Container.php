@@ -171,6 +171,12 @@ final class Container {
 			)
 		);
 		$this->set( Media\PendingPhotoCleanup::class, static fn () => new Media\PendingPhotoCleanup() );
+		$this->set(
+			Notifications\CreditExpiryReminder::class,
+			static fn ( Container $c ) => new Notifications\CreditExpiryReminder(
+				$c->get( Database\Repository\CreditRepository::class )
+			)
+		);
 
 		// Presentation.
 		$this->set( Rest\RestServiceProvider::class, static fn ( Container $c ) => new Rest\RestServiceProvider( $c ) );

@@ -263,7 +263,7 @@ final class PaymentsController extends AbstractController {
 
 		if ( in_array( $status, array( 'cancel', 'failure', 'failed' ), true ) || '' === $payment_id ) {
 			if ( $booking_id > 0 ) {
-				$this->payments->cancel_pending( $booking_id );
+				$this->payments->cancel_pending( $booking_id, $payment_id );
 			}
 			wp_safe_redirect(
 				add_query_arg(

@@ -71,7 +71,8 @@ final class RestServiceProvider {
 			new CreditsController(
 				$guard,
 				$this->container->get( CreditService::class ),
-				$this->container->get( CreditRepository::class )
+				$this->container->get( CreditRepository::class ),
+				$this->container->get( PaymentService::class )
 			),
 			new PaymentsController(
 				$guard,
