@@ -22,7 +22,7 @@
   "scripts": {
     "lint":    "phpcs",
     "fix":     "phpcbf",
-    "analyse": "phpstan analyse --memory-limit=1G --debug",
+    "analyse": "phpstan analyse --memory-limit=2G",
     "test":    "phpunit -c phpunit.xml.dist",
     "test:integration": "phpunit -c phpunit.integration.xml.dist",
     "test:perf:slots-cached": "phpunit -c phpunit.integration.xml.dist --filter test_cached_slots_rest_response --testdox",
