@@ -82,3 +82,48 @@ export function post( path, body ) {
 export function remove( path, body, { keepalive = false } = {} ) {
 	return api( path, { method: 'DELETE', body, keepalive } );
 }
+
+/**
+ * Upload one photo as multipart form data. Separate from api()/post() above
+ * because those always JSON-encode the body and force a JSON Content-Type —
+ * a multipart upload needs the browser to set its own boundary, so the
+ * Content-Type header is left out entirely here.
+ *
+ * @param {File} file
+ * @return {Promise<{id:number,url:string}>} The new attachment id and a preview URL.
+ */
+export async function uploadPhoto( file ) {
+	const bootCfg = getBoot();
+	const url = `${ bootCfg.root.replace( /\/$/, '' ) }/public/uploads`;
+	const formData = new FormData();
+	formData.append( 'file', file );
+
+	const response = await fetch( url, {
+		method: 'POST',
+		credentials: 'same-origin',
+		headers: {
+			Accept: 'application/json',
+			...( bootCfg.nonce ? { 'X-WP-Nonce': bootCfg.nonce } : {} ),
+		},
+		body: formData,
+	} );
+
+	let payload = null;
+	const text = await response.text();
+	if ( text ) {
+		try {
+			payload = JSON.parse( text );
+		} catch {
+			payload = text;
+		}
+	}
+
+	if ( ! response.ok ) {
+		throw new ApiError( payload?.message || 'Upload failed.', {
+			code: payload?.code || 'error',
+			status: response.status,
+		} );
+	}
+
+	return payload;
+}

@@ -19,6 +19,7 @@ export function ConfirmStep( {
 	start,
 	timezone,
 	address,
+	photoIds,
 	onBack,
 	onBooked,
 	onRetakeSlot,
@@ -169,6 +170,7 @@ export function ConfirmStep( {
 		setSkipped( [] );
 		try {
 			const composedNotes = composeNotes( { notes, payMethod } );
+			const photoIdList = ( photoIds || [] ).map( ( p ) => p.id );
 
 			if ( seriesOn ) {
 				const result = await post( 'series', {
@@ -185,6 +187,7 @@ export function ConfirmStep( {
 					address_city: address?.city || '',
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
+					photo_ids: photoIdList,
 				} );
 				if ( ( result.skipped || [] ).length ) {
 					setSkipped( result.skipped );
@@ -219,6 +222,7 @@ export function ConfirmStep( {
 					address_city: address?.city || '',
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
+					photo_ids: photoIdList,
 				} );
 
 				const gateway = gatewayFor( payMethod, boot.payments );

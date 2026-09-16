@@ -17,6 +17,7 @@ export function saveBookingDraft( technicianId, draft ) {
 				start: draft.start || '',
 				timezone: draft.timezone || '',
 				address: normalizeAddress( draft.address ),
+				photoIds: normalizePhotoIds( draft.photoIds ),
 				step: draft.step || 'confirm',
 				savedAt: Date.now(),
 			} )
@@ -39,6 +40,24 @@ function normalizeAddress( address ) {
 		state: a.state || '',
 		zip: a.zip || '',
 	};
+}
+
+/**
+ * Uploaded photos are already-persisted attachments (see UploadsController),
+ * so the draft only needs to remember which ones the customer picked and the
+ * preview URL to show without another round trip.
+ *
+ * @param {Array} [photoIds]
+ * @return {Array<{id:number,url:string}>} Photos with every field defaulted and the list capped at 3.
+ */
+function normalizePhotoIds( photoIds ) {
+	if ( ! Array.isArray( photoIds ) ) {
+		return [];
+	}
+	return photoIds
+		.filter( ( p ) => p && Number.isFinite( Number( p.id ) ) )
+		.slice( 0, 3 )
+		.map( ( p ) => ( { id: Number( p.id ), url: String( p.url || '' ) } ) );
 }
 
 /**

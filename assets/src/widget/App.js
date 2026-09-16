@@ -67,6 +67,9 @@ export function BookingApp( {
 		state: '',
 		zip: '',
 	} );
+	// Attachment ids (plus their preview URLs) for job-site photos uploaded
+	// on the Address step, before a booking row exists to attach them to.
+	const [ photoIds, setPhotoIds ] = useState( [] );
 	const [ booking, setBooking ] = useState( null );
 	const [ draftRestored, setDraftRestored ] = useState( false );
 
@@ -144,6 +147,9 @@ export function BookingApp( {
 				zip: draftAddress.zip || '',
 			} );
 		}
+		if ( draft.photoIds ) {
+			setPhotoIds( draft.photoIds );
+		}
 		if ( ! addressComplete ) {
 			// Missing address: send the customer back to fill it in rather
 			// than discarding the rest of an otherwise-resumable draft.
@@ -185,6 +191,7 @@ export function BookingApp( {
 			start: selectedStart,
 			timezone,
 			address,
+			photoIds,
 			step: 'account',
 		} );
 		setStep( 'account' );
@@ -200,6 +207,7 @@ export function BookingApp( {
 			start: selectedStart,
 			timezone,
 			address,
+			photoIds,
 			step: 'confirm',
 		} );
 		setStep( 'confirm' );
@@ -344,6 +352,8 @@ export function BookingApp( {
 			h( AddressStep, {
 				address,
 				onChange: setAddress,
+				photoIds,
+				onPhotoIdsChange: setPhotoIds,
 				onContinue: goConfirm,
 				onBack: () => setStep( 'time' ),
 				serviceAreaZips: technician.service_area_zips || [],
@@ -376,6 +386,7 @@ export function BookingApp( {
 			start: selectedStart,
 			timezone,
 			address,
+			photoIds,
 			onBack: () => setStep( 'address' ),
 			onBooked: ( result ) => {
 				setBooking( result );
