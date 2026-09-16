@@ -357,6 +357,81 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		);
 	}
 
+	/**
+	 * Confirmed/completed booking count per technician whose appointment
+	 * falls inside the window, busiest first. Used by the manager-only
+	 * business snapshot to name the busiest technician.
+	 *
+	 * @return list<object{technician_id:int,total:int}>
+	 */
+	public function busiest_technicians( string $from_utc, string $to_utc, int $limit = 1 ): array {
+		$sql = 'SELECT technician_id, COUNT(*) AS total FROM ' . $this->table() . "
+			 WHERE start_utc BETWEEN %s AND %s
+			   AND status IN ( 'confirmed', 'completed' )
+			 GROUP BY technician_id
+			 ORDER BY total DESC
+			 LIMIT %d";
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- prepared below with the whitelist table.
+		return (array) $this->db->get_results( $this->db->prepare( $sql, $from_utc, $to_utc, $limit ) );
+	}
+
+	/**
+	 * Confirmed/completed booking count per service whose appointment falls
+	 * inside the window, grouped case-insensitively by name the same way
+	 * PublicTechnicianController::aggregate_services() groups a cross-technician
+	 * service list, so "Drain Cleaning" offered by two technicians counts as
+	 * one service rather than two. Busiest first.
+	 *
+	 * @return list<object{name:string,total:int}>
+	 */
+	public function most_booked_services( string $from_utc, string $to_utc, int $limit = 1 ): array {
+		$services = Schema::table( Schema::SERVICES );
+
+		$sql = 'SELECT MIN(s.name) AS name, COUNT(*) AS total FROM ' . $this->table() . ' b
+			 INNER JOIN ' . $services . " s ON s.id = b.service_id
+			 WHERE b.start_utc BETWEEN %s AND %s
+			   AND b.status IN ( 'confirmed', 'completed' )
+			 GROUP BY LOWER( TRIM( s.name ) )
+			 ORDER BY total DESC
+			 LIMIT %d";
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- prepared below with whitelist tables.
+		return (array) $this->db->get_results( $this->db->prepare( $sql, $from_utc, $to_utc, $limit ) );
+	}
+
+	/**
+	 * `completed` vs `no_show` counts for appointments in the window, for the
+	 * business snapshot's no-show rate. Only these two final attendance
+	 * states are counted -- a still-pending or cancelled booking was never
+	 * attended either way, so it would misrepresent the rate.
+	 *
+	 * @return array{completed:int,no_show:int}
+	 */
+	public function attendance_counts( string $from_utc, string $to_utc ): array {
+		$sql = 'SELECT status, COUNT(*) AS total FROM ' . $this->table() . "
+			 WHERE start_utc BETWEEN %s AND %s
+			   AND status IN ( 'completed', 'no_show' )
+			 GROUP BY status";
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- prepared below with the whitelist table.
+		$rows = (array) $this->db->get_results( $this->db->prepare( $sql, $from_utc, $to_utc ) );
+
+		$counts = array(
+			'completed' => 0,
+			'no_show'   => 0,
+		);
+
+		foreach ( $rows as $row ) {
+			$status = (string) $row->status;
+			if ( array_key_exists( $status, $counts ) ) {
+				$counts[ $status ] = (int) $row->total;
+			}
+		}
+
+		return $counts;
+	}
+
 	private function technician_lock_name( int $technician_id ): string {
 		return 'plumberslot:' . md5( $this->db->prefix . '|' . $technician_id );
 	}

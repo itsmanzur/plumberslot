@@ -17,6 +17,7 @@ use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Frontend\BookingPage;
 use PlumberSlot\Media\BookingPhotos;
 use PlumberSlot\Support\Cache;
+use PlumberSlot\Support\Capabilities;
 use PlumberSlot\Support\Crypto;
 use PlumberSlot\Support\Settings;
 use WP_Error;
@@ -26,6 +27,13 @@ use WP_REST_Response;
 defined( 'ABSPATH' ) || exit;
 
 final class DashboardController extends AbstractController {
+
+	/**
+	 * Rolling window for the manager-only business snapshot. Fixed rather
+	 * than a Settings field -- nothing in this first pass needs it to be
+	 * configurable per site.
+	 */
+	private const SNAPSHOT_WINDOW_DAYS = 30;
 
 	public function __construct(
 		Guard $guard,
@@ -54,6 +62,23 @@ final class DashboardController extends AbstractController {
 				),
 			)
 		);
+
+		// A site-wide rollup -- busiest technician, top service, no-show rate
+		// -- is deliberately its own route rather than a key folded into
+		// `/dashboard`: that response is cached per technician_id (see
+		// Cache::dashboard()), and a manager-only field riding along inside a
+		// cache entry a technician's own request can also warm would leak
+		// (or wrongly withhold) the snapshot depending on request order.
+		// A separate, uncached, MANAGE_ALL-gated route has no such hazard.
+		register_rest_route(
+			self::NAMESPACE,
+			'/dashboard/snapshot',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'snapshot' ),
+				'permission_callback' => array( $this, 'can_view_snapshot' ),
+			)
+		);
 	}
 
 	public function can_view( WP_REST_Request $request ): bool|WP_Error {
@@ -76,6 +101,34 @@ final class DashboardController extends AbstractController {
 		}
 
 		return $this->guard->owns_technician( $technician_id ) ? true : $this->guard->deny();
+	}
+
+	/**
+	 * Manager-only, same gating pattern as AuditController::can_manage() --
+	 * a technician should not see a ranking of how busy their coworkers are.
+	 */
+	public function can_view_snapshot( WP_REST_Request $request ): bool|WP_Error {
+		$logged_in = $this->require_login();
+
+		if ( is_wp_error( $logged_in ) ) {
+			return $logged_in;
+		}
+
+		$nonce = $this->verify_nonce( $request );
+
+		if ( is_wp_error( $nonce ) ) {
+			return $nonce;
+		}
+
+		if ( ! current_user_can( Capabilities::MANAGE_ALL ) ) {
+			return $this->guard->deny();
+		}
+
+		return true;
+	}
+
+	public function snapshot( WP_REST_Request $request ): WP_REST_Response {
+		return $this->ok( $this->business_snapshot() );
 	}
 
 	public function show( WP_REST_Request $request ): WP_REST_Response|WP_Error {
@@ -278,6 +331,56 @@ final class DashboardController extends AbstractController {
 		Cache::set_dashboard( $technician_id, $payload );
 
 		return $this->ok( $payload );
+	}
+
+	/**
+	 * Busiest technician, top service, and no-show rate across every
+	 * technician's bookings in the rolling window, for a manager's one-screen
+	 * view of how the business is running. Every figure is omitted rather
+	 * than reported as a misleading zero when there is nothing to measure yet.
+	 *
+	 * @return array{busiest_technician:array{name:string,count:int}|null,top_service:array{name:string,count:int}|null,no_show_rate:int|null,window_days:int}
+	 */
+	private function business_snapshot(): array {
+		$to   = gmdate( 'Y-m-d H:i:s' );
+		$from = gmdate( 'Y-m-d H:i:s', time() - self::SNAPSHOT_WINDOW_DAYS * DAY_IN_SECONDS );
+
+		$busiest_technician = null;
+		$technician_rows    = $this->bookings->busiest_technicians( $from, $to, 1 );
+
+		if ( $technician_rows ) {
+			$technician = $this->technicians->find( (int) $technician_rows[0]->technician_id );
+
+			if ( $technician ) {
+				$busiest_technician = array(
+					'name'  => (string) $technician->display_name,
+					'count' => (int) $technician_rows[0]->total,
+				);
+			}
+		}
+
+		$top_service  = null;
+		$service_rows = $this->bookings->most_booked_services( $from, $to, 1 );
+
+		if ( $service_rows ) {
+			$top_service = array(
+				'name'  => (string) $service_rows[0]->name,
+				'count' => (int) $service_rows[0]->total,
+			);
+		}
+
+		$attendance   = $this->bookings->attendance_counts( $from, $to );
+		$denominator  = $attendance['completed'] + $attendance['no_show'];
+		$no_show_rate = $denominator > 0
+			? (int) round( ( $attendance['no_show'] / $denominator ) * 100 )
+			: null;
+
+		return array(
+			'busiest_technician' => $busiest_technician,
+			'top_service'        => $top_service,
+			'no_show_rate'       => $no_show_rate,
+			'window_days'        => self::SNAPSHOT_WINDOW_DAYS,
+		);
 	}
 
 	private function greeting(): string {

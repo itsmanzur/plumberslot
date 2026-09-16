@@ -52,12 +52,20 @@ function onBookingAction( row, openAdmin ) {
 	openAdmin( 'plumberslot-bookings' );
 }
 
+function formatSnapshotHint( windowDays, count ) {
+	if ( count === undefined ) {
+		return `Last ${ windowDays } days`;
+	}
+	return `${ count } booking${ count === 1 ? '' : 's' } · last ${ windowDays } days`;
+}
+
 export function DashboardScreen() {
 	const config = getConfig();
 	const initialData = config.initialDashboard || null;
 	const [ status, setStatus ] = useState( initialData ? 'ready' : 'loading' );
 	const [ error, setError ] = useState( '' );
 	const [ data, setData ] = useState( initialData );
+	const [ snapshot, setSnapshot ] = useState( null );
 
 	useEffect( () => {
 		if ( initialData ) {
@@ -88,6 +96,29 @@ export function DashboardScreen() {
 			alive = false;
 		};
 	}, [ config.technicianId, initialData ] );
+
+	// A site manager's business-wide rollup. The endpoint itself denies a
+	// non-manager (404, the same indistinct rejection every gated route in
+	// this plugin uses), so a failed or empty response just means nothing
+	// renders here -- no separate capability check needed on this side.
+	useEffect( () => {
+		let alive = true;
+
+		( async () => {
+			try {
+				const payload = await get( 'dashboard/snapshot' );
+				if ( alive ) {
+					setSnapshot( payload );
+				}
+			} catch {
+				// Not a manager, or the snapshot route isn't reachable -- fine, render nothing.
+			}
+		} )();
+
+		return () => {
+			alive = false;
+		};
+	}, [] );
 
 	const adminUrl = ( page ) => `${ config.urls.admin }?page=${ page }`;
 	const openAdmin = ( page ) => {
@@ -154,6 +185,40 @@ export function DashboardScreen() {
 				)
 			)
 		),
+		snapshot
+			? h(
+					'div',
+					{
+						class: 'ts-tiles ts-dashboard__snapshot',
+						'aria-label': 'Business snapshot',
+					},
+					h( StatTile, {
+						label: 'Busiest technician',
+						value: snapshot.busiest_technician?.name || '—',
+						hint: formatSnapshotHint(
+							snapshot.window_days,
+							snapshot.busiest_technician?.count
+						),
+					} ),
+					h( StatTile, {
+						label: 'Top service',
+						value: snapshot.top_service?.name || '—',
+						hint: formatSnapshotHint(
+							snapshot.window_days,
+							snapshot.top_service?.count
+						),
+					} ),
+					h( StatTile, {
+						label: 'No-show rate',
+						value:
+							snapshot.no_show_rate === null ||
+							snapshot.no_show_rate === undefined
+								? '—'
+								: `${ snapshot.no_show_rate }%`,
+						hint: formatSnapshotHint( snapshot.window_days ),
+					} )
+				)
+			: null,
 		h(
 			ScreenState,
 			{ status, error },
