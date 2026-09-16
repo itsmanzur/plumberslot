@@ -219,7 +219,11 @@ final class Schema {
 				KEY idx_owner (owner_id, expires_at)
 			) {$charset};",
 
-			// Prepaid service packages.
+			// Prepaid service packages. A package with a price starts life
+			// 'pending' and only becomes 'active' (spendable, counted in a
+			// balance) once PaymentService::apply_event() confirms the charge --
+			// the existing free/admin-issued path still inserts straight to
+			// 'active' via the column default, so nothing about that flow changes.
 			"CREATE TABLE {$p( self::CREDITS )} (
 				id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 				owner_id    BIGINT UNSIGNED NOT NULL,
@@ -228,10 +232,15 @@ final class Schema {
 				total       SMALLINT UNSIGNED NOT NULL,
 				used        SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 				price_minor INT UNSIGNED    NOT NULL DEFAULT 0,
+				currency    CHAR(3)         NOT NULL DEFAULT 'USD',
+				status      VARCHAR(20)     NOT NULL DEFAULT 'active',
+				payment_ref VARCHAR(191)    NULL,
 				expires_at  DATETIME        NULL,
+				reminded_at DATETIME        NULL,
 				created_at  DATETIME        NOT NULL,
 				PRIMARY KEY (id),
-				KEY idx_owner (owner_id, expires_at)
+				KEY idx_owner (owner_id, expires_at),
+				KEY idx_status_expiry (status, expires_at)
 			) {$charset};",
 
 			"CREATE TABLE {$p( self::REVIEWS )} (
@@ -263,11 +272,15 @@ final class Schema {
 				KEY idx_actor (actor_id, created_at)
 			) {$charset};",
 
-			// Payment attempts against a booking. Amount is copied from the booking
-			// at start time so a client cannot underpay by editing the request.
+			// Payment attempts against a booking OR a Service Plan (credit)
+			// purchase -- exactly one of booking_id/credit_id is ever set on a
+			// given row, never both, and it is set once at creation and never
+			// changed. Amount is copied from the booking/credit row at start
+			// time so a client cannot underpay by editing the request.
 			"CREATE TABLE {$p( self::PAYMENTS )} (
 				id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-				booking_id    BIGINT UNSIGNED NOT NULL,
+				booking_id    BIGINT UNSIGNED NULL,
+				credit_id     BIGINT UNSIGNED NULL,
 				gateway       VARCHAR(32)     NOT NULL,
 				reference     VARCHAR(191)    NULL,
 				amount_minor  INT UNSIGNED    NOT NULL,
@@ -279,6 +292,7 @@ final class Schema {
 				updated_at    DATETIME        NOT NULL,
 				PRIMARY KEY (id),
 				KEY idx_booking (booking_id, status),
+				KEY idx_credit (credit_id, status),
 				KEY idx_reference (gateway, reference),
 				KEY idx_idempotency (gateway, idempotency)
 			) {$charset};",

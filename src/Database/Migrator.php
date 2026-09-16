@@ -21,15 +21,16 @@ final class Migrator {
 	 * @var array<int, string>
 	 */
 	private const STEPS = array(
-		1 => 'step_1_initial',
-		2 => 'step_2_lock_ownership',
-		3 => 'step_3_service_status',
-		4 => 'step_4_drop_unique_slot_key',
-		5 => 'step_5_payments',
-		6 => 'step_6_performance_hardening',
-		7 => 'step_7_service_address',
-		8 => 'step_8_booking_photos',
-		9 => 'step_9_emergency_booking',
+		1  => 'step_1_initial',
+		2  => 'step_2_lock_ownership',
+		3  => 'step_3_service_status',
+		4  => 'step_4_drop_unique_slot_key',
+		5  => 'step_5_payments',
+		6  => 'step_6_performance_hardening',
+		7  => 'step_7_service_address',
+		8  => 'step_8_booking_photos',
+		9  => 'step_9_emergency_booking',
+		10 => 'step_10_service_plan_payments',
 	);
 
 	public function maybe_upgrade(): void {
@@ -129,6 +130,26 @@ final class Migrator {
 	 * appointment was made through that path).
 	 */
 	private function step_9_emergency_booking(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * A Service Plan can now be bought with a real charge instead of being
+	 * issued for free: CREDITS gains a pending/active/failed `status` (default
+	 * 'active', so every existing row and the still-unchanged free/admin
+	 * purchase() path keep today's "usable immediately" behaviour), a
+	 * `currency` to freeze at purchase time (mirrors BOOKINGS.currency rather
+	 * than trusting a live Settings read at webhook time), `payment_ref`, and
+	 * `reminded_at` (dedupe for the expiry-reminder job, the same
+	 * durable-column pattern the webhooks table uses instead of a transient).
+	 *
+	 * PAYMENTS.booking_id moves from NOT NULL to NULL and gains a nullable
+	 * `credit_id`, so one payment row can point at either a booking or a
+	 * credit package. This step relies on dbDelta() altering an existing
+	 * column's NOT NULL -> NULL -- see the migration report for how
+	 * confident that is without a live install to verify against.
+	 */
+	private function step_10_service_plan_payments(): void {
 		Schema::create_all();
 	}
 }

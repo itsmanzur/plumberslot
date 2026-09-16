@@ -24,13 +24,18 @@ final class PaymentRepository extends AbstractRepository {
 	}
 
 	/**
-	 * @param array{booking_id:int, gateway:string, amount_minor:int, currency:string, reference?:?string, status?:string, idempotency?:?string, meta?:?array<string, mixed>} $data Payment fields.
+	 * Exactly one of booking_id/credit_id is ever passed -- the other is left
+	 * out (and stored NULL) by the caller. start() only ever sets booking_id;
+	 * start_credit_purchase() only ever sets credit_id.
+	 *
+	 * @param array{booking_id?:?int, credit_id?:?int, gateway:string, amount_minor:int, currency:string, reference?:?string, status?:string, idempotency?:?string, meta?:?array<string, mixed>} $data Payment fields.
 	 */
 	public function create( array $data ): int {
 		$this->db->insert(
 			$this->table(),
 			array(
-				'booking_id'   => (int) $data['booking_id'],
+				'booking_id'   => ! empty( $data['booking_id'] ) ? (int) $data['booking_id'] : null,
+				'credit_id'    => ! empty( $data['credit_id'] ) ? (int) $data['credit_id'] : null,
 				'gateway'      => (string) $data['gateway'],
 				'reference'    => $data['reference'] ?? null,
 				'amount_minor' => (int) $data['amount_minor'],
@@ -46,7 +51,7 @@ final class PaymentRepository extends AbstractRepository {
 		return (int) $this->db->insert_id;
 	}
 
-	/** @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int}|null */
+	/** @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int,credit_id:?int}|null */
 	public function find_by_reference( string $gateway, string $reference ): ?object {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
 		$row = $this->db->get_row(
@@ -65,7 +70,7 @@ final class PaymentRepository extends AbstractRepository {
 	 * stays with the original booking while the provider reference is carried
 	 * to the replacement booking.
 	 *
-	 * @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int}|null
+	 * @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int,credit_id:?int}|null
 	 */
 	public function find_latest_by_reference( string $reference ): ?object {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
@@ -82,7 +87,7 @@ final class PaymentRepository extends AbstractRepository {
 	/**
 	 * Latest payment row for a booking.
 	 *
-	 * @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int}|null
+	 * @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int,credit_id:?int}|null
 	 */
 	public function latest_for_booking( int $booking_id ): ?object {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
@@ -90,6 +95,28 @@ final class PaymentRepository extends AbstractRepository {
 			$this->db->prepare(
 				'SELECT * FROM ' . $this->table() . ' WHERE booking_id = %d ORDER BY id DESC LIMIT 1',
 				$booking_id
+			)
+		);
+
+		return $row ? $row : null;
+	}
+
+	/**
+	 * Latest payment row for a credit (Service Plan) purchase. The credit_id
+	 * column is set once at row-creation time by start_credit_purchase() and
+	 * never changes, unlike a gateway's own reference (bKash in particular
+	 * rotates from paymentID to trxID between start and completion) -- so
+	 * this is the reliable way to find "the" payment for a given credit id,
+	 * where matching on reference alone would not be.
+	 *
+	 * @return object{id:int,gateway:string,status:string,reference:?string,amount_minor:int,credit_id:?int}|null
+	 */
+	public function latest_for_credit( int $credit_id ): ?object {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from whitelist.
+		$row = $this->db->get_row(
+			$this->db->prepare(
+				'SELECT * FROM ' . $this->table() . ' WHERE credit_id = %d ORDER BY id DESC LIMIT 1',
+				$credit_id
 			)
 		);
 

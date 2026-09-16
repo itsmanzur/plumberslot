@@ -108,6 +108,7 @@ final class Container {
 				$c->get( Database\Repository\BookingRepository::class ),
 				$c->get( Domain\BookingService::class ),
 				$c->get( Domain\CreditService::class ),
+				$c->get( Database\Repository\CreditRepository::class ),
 				$c->get( Database\TransactionManager::class )
 			)
 		);
