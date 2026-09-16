@@ -240,6 +240,21 @@
 	font-size: 13px;
 }
 
+.ts-dash__buy-plan {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--ts-rule, #e7ebf3);
+}
+
+.ts-dash__buy-plan h3 {
+	margin: 0 0 6px;
+	font-size: 14px;
+}
+
+.ts-dash__buy-plan p {
+	margin: 0 0 8px;
+}
+
 .ts-dash__reschedule .ts-callout {
 	margin-bottom: 12px;
 }

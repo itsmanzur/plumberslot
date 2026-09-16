@@ -14,7 +14,7 @@ import {
 	announce,
 	navigateTo,
 } from '../shared';
-import { del, get, getBoot, post } from './api';
+import { ApiError, del, get, getBoot, post } from './api';
 
 const TABS = [
 	{ id: 'upcoming', label: 'Upcoming' },
@@ -32,6 +32,12 @@ export function CustomerDashboard() {
 	const [ ledger, setLedger ] = useState( [] );
 	const [ busyId, setBusyId ] = useState( 0 );
 	const [ cancelTarget, setCancelTarget ] = useState( null );
+
+	// Buy a Service Plan.
+	const [ catalog, setCatalog ] = useState( null );
+	const [ catalogStatus, setCatalogStatus ] = useState( 'loading' );
+	const [ buying, setBuying ] = useState( false );
+	const [ planNotice, setPlanNotice ] = useState( null );
 
 	// Reschedule dialog state. There is no shared slot-picker component to pull
 	// in from the admin bundle (BookingsScreen.js's version lives in a
@@ -82,6 +88,117 @@ export function CustomerDashboard() {
 		load();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	const loadCatalog = async () => {
+		setCatalogStatus( 'loading' );
+		try {
+			const data = await get( 'credits/packages' );
+			setCatalog( data );
+			setCatalogStatus( 'ready' );
+		} catch {
+			// A public, read-only catalog lookup failing is not worth surfacing
+			// as a dashboard-wide error -- the Buy a Service Plan card just
+			// stays hidden.
+			setCatalogStatus( 'error' );
+		}
+	};
+
+	useEffect( () => {
+		if ( ! boot.loggedIn ) {
+			return;
+		}
+		loadCatalog();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	// Returning from a Service Plan checkout: ?plumberslot_credit=success|cancel
+	// on this same dashboard URL, mirroring how the booking widget's
+	// PaymentReturnView reads ?plumberslot_pay=... . The true balance only
+	// updates once the gateway's webhook actually lands, which can trail the
+	// redirect by a beat, so a success is followed by one delayed re-check
+	// rather than an indefinite poll -- a plain refresh-on-return would also
+	// be an acceptable MVP, this just closes the common race without adding
+	// real complexity.
+	useEffect( () => {
+		if ( typeof window === 'undefined' || ! boot.loggedIn ) {
+			return;
+		}
+
+		const params = new URLSearchParams( window.location.search );
+		const flag = params.get( 'plumberslot_credit' );
+		if ( ! flag ) {
+			return;
+		}
+
+		const cleared = new URL( window.location.href );
+		cleared.searchParams.delete( 'plumberslot_credit' );
+		window.history.replaceState( {}, '', cleared.toString() );
+
+		if ( flag === 'success' ) {
+			setPlanNotice( {
+				tone: 'ok',
+				message:
+					"Payment received. It can take a moment to reflect below — we'll refresh automatically.",
+			} );
+			window.setTimeout( load, 2500 );
+		} else {
+			setPlanNotice( {
+				tone: 'warn',
+				message: 'Checkout was cancelled. No charge was made.',
+			} );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	const buyPlan = async () => {
+		if ( ! catalog || buying ) {
+			return;
+		}
+		setBuying( true );
+		setPlanNotice( null );
+		try {
+			const requiresPayment = ( catalog.price_minor || 0 ) > 0;
+			const gateway = requiresPayment
+				? pickGateway( boot.payments )
+				: 'none';
+
+			if ( requiresPayment && ! gateway ) {
+				throw new ApiError(
+					'Online payment is not available right now.'
+				);
+			}
+
+			const result = await post( 'credits/checkout', {
+				total: catalog.default_total,
+				gateway,
+				success_url: creditReturnUrl( 'success' ),
+				cancel_url: creditReturnUrl( 'cancel' ),
+			} );
+
+			if ( result.requires_payment && result.url ) {
+				announce( 'Redirecting to payment…' );
+				if ( navigateTo( result.url ) ) {
+					return;
+				}
+				throw new ApiError(
+					'Payment provider returned an unsafe redirect URL.'
+				);
+			}
+
+			announce( 'Service plan added.' );
+			setPlanNotice( {
+				tone: 'ok',
+				message: 'Your Service Plan is ready to use.',
+			} );
+			await load();
+		} catch ( err ) {
+			const message = err.message || 'Could not start the purchase.';
+			setPlanNotice( { tone: 'warn', message } );
+			announce( message );
+		} finally {
+			setBuying( false );
+		}
+	};
 
 	const tz = useMemo(
 		() => reschedule?.technician_timezone || detectTimezone(),
@@ -420,6 +537,13 @@ export function CustomerDashboard() {
 				'section',
 				{ class: 'ts-dash__panel' },
 				h( 'h2', null, 'Service plan balance' ),
+				planNotice
+					? h(
+							Callout,
+							{ tone: planNotice.tone },
+							planNotice.message
+						)
+					: null,
 				credits.length === 0
 					? h( EmptyState, {
 							title: 'No service plan',
@@ -466,7 +590,14 @@ export function CustomerDashboard() {
 								)
 							)
 						)
-					: null
+					: null,
+				renderBuyPlan( {
+					catalog,
+					catalogStatus,
+					buying,
+					payments: boot.payments,
+					onBuy: buyPlan,
+				} )
 			)
 		),
 		h(
@@ -551,6 +682,74 @@ function statusTone( status ) {
 		return 'off';
 	}
 	return 'wait';
+}
+
+function renderBuyPlan( { catalog, catalogStatus, buying, payments, onBuy } ) {
+	if ( catalogStatus !== 'ready' || ! catalog ) {
+		return null;
+	}
+
+	const requiresPayment = ( catalog.price_minor || 0 ) > 0;
+	const gatewayReady =
+		! requiresPayment || Boolean( pickGateway( payments ) );
+	const buyLabel = buying ? 'Starting…' : buyButtonLabel( requiresPayment );
+
+	return h(
+		'div',
+		{ class: 'ts-dash__buy-plan' },
+		h( 'h3', null, 'Buy a Service Plan' ),
+		h(
+			'p',
+			null,
+			`${ catalog.default_total } appointments for ${ formatMoney( catalog.price_minor, catalog.currency ) }`
+		),
+		catalog.expiry_days
+			? h(
+					'p',
+					{ class: 'ts-dash__meta' },
+					`Valid ${ catalog.expiry_days } days from purchase`
+				)
+			: null,
+		gatewayReady
+			? h( Button, { onClick: onBuy, disabled: buying }, buyLabel )
+			: h(
+					'p',
+					{ class: 'ts-dash__meta' },
+					'Online payment is not available right now.'
+				)
+	);
+}
+
+function buyButtonLabel( requiresPayment ) {
+	return requiresPayment ? 'Buy now' : 'Get it free';
+}
+
+function pickGateway( payments = {} ) {
+	if ( payments?.stripe ) {
+		return 'stripe';
+	}
+	if ( payments?.bkash ) {
+		return 'bkash';
+	}
+	return null;
+}
+
+function creditReturnUrl( flag ) {
+	const url = new URL( window.location.href );
+	url.searchParams.set( 'plumberslot_credit', flag );
+	return url.toString();
+}
+
+function formatMoney( minor, currency = 'USD' ) {
+	try {
+		return new Intl.NumberFormat( undefined, {
+			style: 'currency',
+			currency,
+			maximumFractionDigits: 0,
+		} ).format( ( Number( minor ) || 0 ) / 100 );
+	} catch {
+		return `${ ( Number( minor ) || 0 ) / 100 } ${ currency }`;
+	}
 }
 
 function renderOpenTimes( {
