@@ -40,6 +40,11 @@ export function TimeStep( {
 	const [ editingTz, setEditingTz ] = useState( false );
 	const tz = timezone || detectTimezone();
 
+	// technician.id === 0 is the synthetic "no technician chosen yet"
+	// business object (see PublicTechnicianController::business()) — earliest
+	// opening across every technician who offers this service, not just one.
+	const isBusiness = technician.id === 0;
+
 	const load = async ( { silent = false } = {} ) => {
 		if ( ! silent ) {
 			setStatus( 'loading' );
@@ -48,14 +53,25 @@ export function TimeStep( {
 			const from = new Date();
 			from.setHours( 0, 0, 0, 0 );
 			const to = new Date( from.getTime() + 8 * 86400000 );
-			const data = await get( 'slots', {
-				technician_id: technician.id,
-				from: from.toISOString(),
-				to: to.toISOString(),
-				duration:
-					service?.duration_min || technician.default_duration || 60,
-				timezone: tz,
-			} );
+			const duration =
+				service?.duration_min || technician.default_duration || 60;
+			const data = isBusiness
+				? await get( 'slots-any', {
+						technician_ids: ( service?.technician_ids || [] ).join(
+							','
+						),
+						from: from.toISOString(),
+						to: to.toISOString(),
+						duration,
+						timezone: tz,
+					} )
+				: await get( 'slots', {
+						technician_id: technician.id,
+						from: from.toISOString(),
+						to: to.toISOString(),
+						duration,
+						timezone: tz,
+					} );
 			setSlots( data.slots || [] );
 			setStale( false );
 			setStatus( 'ready' );
@@ -307,7 +323,7 @@ function renderSlots( daySlots, tz, selectedStart, onSelectStart, setStale ) {
 					? 0
 					: -1,
 			onClick: () => {
-				onSelectStart( slot.start );
+				onSelectStart( slot.start, slot.technician_id );
 				setStale( false );
 			},
 			onKeyDown: ( event ) =>
@@ -316,7 +332,7 @@ function renderSlots( daySlots, tz, selectedStart, onSelectStart, setStale ) {
 					currentIndex: index,
 					isDisabled: ( item ) => item.state !== 'open',
 					onSelect: ( nextSlot ) => {
-						onSelectStart( nextSlot.start );
+						onSelectStart( nextSlot.start, nextSlot.technician_id );
 						setStale( false );
 					},
 				} ),

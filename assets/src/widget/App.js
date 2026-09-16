@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { EmptyState, ErrorState, Skeleton, announce } from '../shared';
+import { ErrorState, Skeleton, announce } from '../shared';
 import { get, getBoot } from './api';
 import { clearBookingDraft, readBookingDraft, saveBookingDraft } from './draft';
 import { detectTimezone } from './lib';
@@ -51,6 +51,15 @@ export function BookingApp( {
 	);
 	const [ timezone, setTimezone ] = useState( detectTimezone() );
 	const [ selectedStart, setSelectedStart ] = useState( '' );
+	// The technician a chosen slot actually belongs to, in business mode
+	// (technicianId falsy — no technician was pinned in the shortcode).
+	const [ selectedTechnicianId, setSelectedTechnicianId ] = useState( 0 );
+	// Real technician id backing the `technician` state below. Equal to
+	// technicianId in the normal single-technician flow; starts at 0 in
+	// business mode and becomes real once a slot is resolved.
+	const [ resolvedTechnicianId, setResolvedTechnicianId ] = useState(
+		technicianId || 0
+	);
 	const [ address, setAddress ] = useState( {
 		line1: '',
 		line2: '',
@@ -62,19 +71,17 @@ export function BookingApp( {
 	const [ draftRestored, setDraftRestored ] = useState( false );
 
 	useEffect( () => {
-		if ( ! technicianId ) {
-			setStatus( 'empty' );
-			return;
-		}
 		( async () => {
 			try {
-				const data = await get(
-					`public/technicians/${ technicianId }`,
-					{
-						timezone,
-					}
-				);
+				// No technician pinned in the shortcode: let the customer pick a
+				// service first and resolve a real technician once they pick a slot.
+				const data = technicianId
+					? await get( `public/technicians/${ technicianId }`, {
+							timezone,
+						} )
+					: await get( 'public/business', { timezone } );
 				setTechnician( data );
+				setResolvedTechnicianId( data.id );
 				if ( serviceId ) {
 					const exists = ( data.services || [] ).some(
 						( s ) => s.id === serviceId
@@ -104,7 +111,7 @@ export function BookingApp( {
 		) {
 			return;
 		}
-		const draft = readBookingDraft( technicianId );
+		const draft = readBookingDraft( resolvedTechnicianId );
 		if ( ! draft?.start || ! draft?.serviceId ) {
 			setDraftRestored( true );
 			return;
@@ -152,7 +159,7 @@ export function BookingApp( {
 	}, [
 		status,
 		technician,
-		technicianId,
+		resolvedTechnicianId,
 		draftRestored,
 		view,
 		boot.loggedIn,
@@ -173,7 +180,7 @@ export function BookingApp( {
 	);
 
 	const persistAndAccount = () => {
-		saveBookingDraft( technicianId, {
+		saveBookingDraft( resolvedTechnicianId, {
 			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
@@ -188,7 +195,7 @@ export function BookingApp( {
 			persistAndAccount();
 			return;
 		}
-		saveBookingDraft( technicianId, {
+		saveBookingDraft( resolvedTechnicianId, {
 			serviceId: selectedServiceId,
 			start: selectedStart,
 			timezone,
@@ -196,6 +203,56 @@ export function BookingApp( {
 			step: 'confirm',
 		} );
 		setStep( 'confirm' );
+	};
+
+	/**
+	 * Business mode only: a slot has just been picked, and it belongs to a
+	 * real technician (carried on the slot as `technician_id`). Swap the
+	 * synthetic id-0 business object for that technician's real profile, and
+	 * re-point selectedServiceId at that technician's own service row —
+	 * the aggregate service's `id` is only a representative id from one
+	 * technician in the group, not necessarily this one.
+	 *
+	 * @param {number} realTechnicianId The technician id the chosen slot came from.
+	 */
+	const onSlotResolved = async ( realTechnicianId ) => {
+		if ( technician?.id !== 0 || ! realTechnicianId ) {
+			return;
+		}
+		try {
+			const real = await get(
+				`public/technicians/${ realTechnicianId }`,
+				{ timezone }
+			);
+			const currentName = (
+				( technician.services || [] ).find(
+					( s ) => s.id === selectedServiceId
+				)?.name || ''
+			).toLowerCase();
+			const ownService = ( real.services || [] ).find(
+				( s ) => s.name.toLowerCase() === currentName
+			);
+			setTechnician( real );
+			setResolvedTechnicianId( realTechnicianId );
+			if ( ownService ) {
+				setSelectedServiceId( ownService.id );
+			}
+		} catch ( err ) {
+			setError( err.message || 'That time is no longer available.' );
+			setStatus( 'error' );
+		}
+	};
+
+	const selectSlot = ( start, slotTechnicianId = 0 ) => {
+		setSelectedStart( start );
+		setSelectedTechnicianId( slotTechnicianId || 0 );
+	};
+
+	const leaveTimeStep = async () => {
+		if ( technician?.id === 0 ) {
+			await onSlotResolved( selectedTechnicianId );
+		}
+		setStep( 'address' );
 	};
 
 	if ( payReturn === 'success' || payReturn === 'cancel' ) {
@@ -215,18 +272,6 @@ export function BookingApp( {
 			'div',
 			{ class: 'plumberslot-widget plumberslot-root' },
 			h( Skeleton, { lines: 5 } )
-		);
-	}
-
-	if ( status === 'empty' ) {
-		return h(
-			'div',
-			{ class: 'plumberslot-widget plumberslot-root' },
-			h( EmptyState, {
-				title: 'Choose a technician',
-				description:
-					'Add a technician slug to the shortcode to open booking.',
-			} )
 		);
 	}
 
@@ -284,8 +329,8 @@ export function BookingApp( {
 				timezone,
 				onTimezone: setTimezone,
 				selectedStart,
-				onSelectStart: setSelectedStart,
-				onContinue: () => setStep( 'address' ),
+				onSelectStart: selectSlot,
+				onContinue: leaveTimeStep,
 				continueLabel: 'Continue →',
 				onBack: () => setStep( 'service' ),
 			} )
