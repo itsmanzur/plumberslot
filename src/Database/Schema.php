@@ -192,6 +192,7 @@ final class Schema {
 				address_city  VARCHAR(96)     NOT NULL DEFAULT '',
 				address_state VARCHAR(64)     NOT NULL DEFAULT '',
 				address_zip   VARCHAR(16)     NOT NULL DEFAULT '',
+				photos        LONGTEXT        NULL,
 				created_at    DATETIME        NOT NULL,
 				updated_at    DATETIME        NOT NULL,
 				PRIMARY KEY (id),

@@ -28,6 +28,7 @@ final class Migrator {
 		5 => 'step_5_payments',
 		6 => 'step_6_performance_hardening',
 		7 => 'step_7_service_address',
+		8 => 'step_8_booking_photos',
 	);
 
 	public function maybe_upgrade(): void {
@@ -110,6 +111,14 @@ final class Migrator {
 	 * on-site trade, unlike the remote tutoring this plugin was forked from.
 	 */
 	private function step_7_service_address(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * Adds the `photos` column: a JSON array of WordPress attachment ids for
+	 * the job-site photos a customer optionally attaches to a booking.
+	 */
+	private function step_8_booking_photos(): void {
 		Schema::create_all();
 	}
 }
