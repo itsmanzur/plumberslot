@@ -67,6 +67,22 @@ final class PublicTechnicianController extends AbstractController {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/public/business',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'business' ),
+				'permission_callback' => array( $this, 'can_read' ),
+				'args'                => array(
+					'timezone' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
 	}
 
 	public function can_read(): bool|WP_Error {
@@ -91,6 +107,159 @@ final class PublicTechnicianController extends AbstractController {
 		$technician = $this->technicians->find_by_slug( (string) $request['slug'] );
 
 		return $this->present_or_deny( $technician, '' );
+	}
+
+	/**
+	 * A synthetic "technician" for a customer who has not picked one yet.
+	 *
+	 * Shaped identically to present_or_deny() so the widget can treat it as a
+	 * normal technician until a specific slot is chosen (id 0 is the
+	 * sentinel: real technician ids are always positive AUTO_INCREMENT
+	 * values). Per-technician-only fields (bio, rating, meeting provider,
+	 * etc.) are zeroed out rather than omitted, since the JSON shape must
+	 * stay identical either way.
+	 */
+	public function business( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$technicians = $this->technicians->all_active();
+		$services    = $this->aggregate_services( $technicians );
+
+		$from_price = null;
+		foreach ( $services as $service ) {
+			if ( $service['is_free_estimate'] ) {
+				continue;
+			}
+			if ( null === $from_price || $service['price_minor'] < $from_price ) {
+				$from_price = $service['price_minor'];
+			}
+		}
+
+		$jobs = 0;
+		foreach ( $technicians as $technician ) {
+			$jobs += $this->completed_job_count( (int) $technician->id );
+		}
+
+		$display_name = get_bloginfo( 'name' );
+
+		return $this->ok(
+			array(
+				'id'                        => 0,
+				'slug'                      => '',
+				'display_name'              => $display_name,
+				'initials'                  => $this->initials( (string) $display_name ),
+				'bio'                       => '',
+				'timezone'                  => wp_timezone_string(),
+				'currency'                  => Settings::string( 'default_currency', 'USD' ),
+				'hourly_rate_minor'         => 0,
+				'from_price_minor'          => $from_price ?? 0,
+				'rating'                    => 0,
+				'review_count'              => 0,
+				'job_count'                 => $jobs,
+				'years_teaching'            => 0,
+				'response_time'             => '',
+				'languages'                 => array(),
+				'meeting_provider'          => '',
+				'offer_free_estimate'       => Settings::bool( 'offer_free_estimate', true ),
+				'reschedule_window_minutes' => Settings::int( 'reschedule_window_minutes', 720 ),
+				'hold_minutes'              => Settings::int( 'hold_window_minutes', 10 ),
+				'default_duration'          => $this->common_duration( $services ),
+				// Specific to one technician's calendar; nothing to show yet.
+				'next_opening'              => null,
+				'services'                  => $services,
+				// Kept simple: an aggregate reviews feed is future scope, not
+				// needed before a technician is resolved.
+				'reviews'                   => array(),
+				'email'                     => '',
+				'service_area_zips'         => ServiceArea::list(),
+			)
+		);
+	}
+
+	/**
+	 * Group every active service of every active technician by an exact,
+	 * case-insensitive name match, so "Drain Cleaning" offered by two
+	 * technicians surfaces as one bookable entry.
+	 *
+	 * @param list<object> $technicians Active technician rows.
+	 * @return list<array{id:int,name:string,category:string|null,duration_min:int,price_minor:int,currency:string,is_free_estimate:bool,technician_ids:list<int>}>
+	 */
+	private function aggregate_services( array $technicians ): array {
+		$groups = array();
+
+		foreach ( $technicians as $technician ) {
+			foreach ( $this->services->all_for_technician( (int) $technician->id ) as $service ) {
+				if ( 'active' !== (string) $service->status ) {
+					continue;
+				}
+
+				$key = strtolower( trim( (string) $service->name ) );
+
+				$groups[ $key ]['technician_ids'][] = (int) $technician->id;
+				$groups[ $key ]['rows'][]           = array(
+					'id'               => (int) $service->id,
+					'name'             => (string) $service->name,
+					'category'         => $service->category,
+					'duration_min'     => (int) $service->duration_min,
+					'price_minor'      => (int) $service->price_minor,
+					'currency'         => (string) $technician->currency,
+					'is_free_estimate' => (bool) $service->is_free_estimate,
+				);
+			}
+		}
+
+		$out = array();
+
+		foreach ( $groups as $group ) {
+			// The lowest-priced non-free-estimate row stands in for the
+			// group; real per-technician values are re-resolved once a
+			// specific slot -- and therefore a specific technician -- is chosen.
+			$representative = null;
+			foreach ( $group['rows'] as $row ) {
+				if ( $row['is_free_estimate'] ) {
+					continue;
+				}
+				if ( null === $representative || $row['price_minor'] < $representative['price_minor'] ) {
+					$representative = $row;
+				}
+			}
+			$representative = $representative ?? $group['rows'][0];
+
+			$technician_ids = array_values( array_unique( $group['technician_ids'] ) );
+			sort( $technician_ids );
+
+			$out[] = array(
+				'id'               => $representative['id'],
+				'name'             => $representative['name'],
+				'category'         => $representative['category'],
+				'duration_min'     => $representative['duration_min'],
+				'price_minor'      => $representative['price_minor'],
+				'currency'         => $representative['currency'],
+				'is_free_estimate' => $representative['is_free_estimate'],
+				'technician_ids'   => $technician_ids,
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * The most common appointment length across the aggregate list. Only
+	 * used as a fallback before a specific service is selected, so ties are
+	 * broken by whichever duration was seen first -- low stakes either way.
+	 *
+	 * @param list<array{duration_min:int}> $services Aggregated services.
+	 */
+	private function common_duration( array $services ): int {
+		if ( array() === $services ) {
+			return Settings::int( 'default_lesson_minutes', 60 );
+		}
+
+		$counts = array();
+		foreach ( $services as $service ) {
+			$counts[ $service['duration_min'] ] = ( $counts[ $service['duration_min'] ] ?? 0 ) + 1;
+		}
+		arsort( $counts );
+
+		return (int) array_key_first( $counts );
 	}
 
 	private function present_or_deny( ?object $technician, string $display_tz ): WP_REST_Response|WP_Error {

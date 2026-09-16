@@ -36,6 +36,17 @@ final class Validate {
 		return is_string( $value ) && Time::is_valid_zone( $value );
 	}
 
+	/**
+	 * Comma-separated list of positive integers, e.g. "3,5,12".
+	 */
+	public static function is_id_list( mixed $value ): bool {
+		if ( ! is_string( $value ) || '' === $value ) {
+			return false;
+		}
+
+		return 1 === preg_match( '/^\d+(,\d+)*$/', $value );
+	}
+
 	public static function is_date( mixed $value ): bool {
 		return is_string( $value ) && (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value );
 	}
