@@ -162,6 +162,15 @@ final class SetupController extends AbstractController {
 			);
 		}
 
+		// A technician who finishes the wizard with no services yet (skipped
+		// the services step, or re-runs setup after clearing their list) gets
+		// a friendlier starting point than an empty booking widget. Skipped
+		// entirely once they have any service of their own, so this never
+		// runs twice and never overwrites something they built themselves.
+		if ( array() === $this->services->all_for_technician( $technician_id ) ) {
+			$this->seed_starter_services( $technician_id );
+		}
+
 		if ( is_array( $week ) && array() !== $week ) {
 			$clean = Validate::sanitize_week( $week );
 
@@ -227,5 +236,53 @@ final class SetupController extends AbstractController {
 				'technician_id'               => $technician_id,
 			)
 		);
+	}
+
+	/**
+	 * Four editable, deletable placeholder services covering the common
+	 * plumbing job shapes -- a friendlier default than a blank services list,
+	 * not a locked-in default. Each row is created independently so one bad
+	 * row can't take the others down, and any failure here is swallowed
+	 * rather than surfaced, since this is a nice-to-have and must never block
+	 * wizard completion.
+	 */
+	private function seed_starter_services( int $technician_id ): void {
+		$starters = array(
+			array(
+				'name'         => __( 'Drain Cleaning', 'plumberslot' ),
+				'category'     => __( 'Repair', 'plumberslot' ),
+				'duration_min' => 60,
+				'price_minor'  => 15000,
+			),
+			array(
+				'name'         => __( 'Water Heater Service', 'plumberslot' ),
+				'category'     => __( 'Installation & Repair', 'plumberslot' ),
+				'duration_min' => 90,
+				'price_minor'  => 22000,
+			),
+			array(
+				'name'                   => __( 'Leak Repair', 'plumberslot' ),
+				'category'               => __( 'Repair', 'plumberslot' ),
+				'duration_min'           => 60,
+				'price_minor'            => 17500,
+				'is_emergency_available' => 1,
+			),
+			array(
+				'name'             => __( 'Free Estimate / Inspection', 'plumberslot' ),
+				'category'         => __( 'Estimate', 'plumberslot' ),
+				'duration_min'     => 30,
+				'price_minor'      => 0,
+				'is_free_estimate' => 1,
+			),
+		);
+
+		foreach ( $starters as $starter ) {
+			try {
+				$this->services->create( $technician_id, $starter );
+			} catch ( \Throwable $error ) {
+				// Best-effort convenience default -- never block setup completion.
+				$error = null;
+			}
+		}
 	}
 }
