@@ -139,6 +139,17 @@
 	grid-template-columns: 1fr;
 }
 
+.ts-dash__job--customer {
+	grid-template-columns: 1fr auto;
+}
+
+.ts-dash__job-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+}
+
 .ts-dash__when {
 	text-align: center;
 	line-height: 1.1;
@@ -188,6 +199,54 @@
 	border-radius: 8px;
 	padding: 8px;
 	font: inherit;
+}
+
+.ts-dash__photos {
+	display: flex;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.ts-dash__photo-thumb {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	object-fit: cover;
+	border: 1px solid var(--ts-rule, #d8dde8);
+}
+
+.ts-dash__credit + .ts-dash__credit {
+	margin-top: 16px;
+}
+
+.ts-dash__ledger-wrap {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--ts-rule, #e7ebf3);
+}
+
+.ts-dash__ledger {
+	list-style: none;
+	margin: 8px 0 0;
+	padding: 0;
+	display: grid;
+	gap: 8px;
+}
+
+.ts-dash__ledger li {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	font-size: 13px;
+}
+
+.ts-dash__reschedule .ts-callout {
+	margin-bottom: 12px;
+}
+
+.ts-dash-stack {
+	display: grid;
+	gap: 12px;
 }
 
 @media (max-width: 800px) {
