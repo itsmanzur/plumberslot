@@ -15,6 +15,7 @@ use PlumberSlot\Database\Repository\CreditRepository;
 use PlumberSlot\Database\Repository\ServiceRepository;
 use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Frontend\BookingPage;
+use PlumberSlot\Media\BookingPhotos;
 use PlumberSlot\Support\Cache;
 use PlumberSlot\Support\Crypto;
 use PlumberSlot\Support\Settings;
@@ -164,17 +165,18 @@ final class DashboardController extends AbstractController {
 			$customer      = get_userdata( (int) $row->customer_id );
 			$service       = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$today_items[] = array(
-				'id'       => (int) $row->id,
-				'title'    => sprintf(
+				'id'         => (int) $row->id,
+				'title'      => sprintf(
 					'%1$s · %2$s',
 					$customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 					$service ? $service->name : __( 'Service call', 'plumberslot' )
 				),
-				'time'     => $local->format( 'H:i' ),
-				'startPct' => (int) round( ( $offset / $day_span ) * 100 ),
-				'widthPct' => $width,
-				'done'     => $local < $now,
-				'address'  => $this->short_address( $row ),
+				'time'       => $local->format( 'H:i' ),
+				'startPct'   => (int) round( ( $offset / $day_span ) * 100 ),
+				'widthPct'   => $width,
+				'done'       => $local < $now,
+				'address'    => $this->short_address( $row ),
+				'has_photos' => array() !== BookingPhotos::decode( $row->photos ?? null ),
 			);
 		}
 
@@ -202,6 +204,7 @@ final class DashboardController extends AbstractController {
 				'customer'      => $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
 				'address'       => $this->short_address( $row ),
+				'has_photos'    => array() !== BookingPhotos::decode( $row->photos ?? null ),
 				'service'       => $service ? (string) $service->name : __( 'Service call', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )

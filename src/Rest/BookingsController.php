@@ -18,6 +18,7 @@ use PlumberSlot\Domain\BookingService;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PolicyService;
 use PlumberSlot\Domain\SlotEngine;
+use PlumberSlot\Media\BookingPhotos;
 use PlumberSlot\Support\Capabilities;
 use PlumberSlot\Support\Crypto;
 use PlumberSlot\Support\AuditLog;
@@ -300,6 +301,11 @@ final class BookingsController extends AbstractController {
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'photo_ids'     => array(
+				'type'    => 'array',
+				'items'   => array( 'type' => 'integer' ),
+				'default' => array(),
 			),
 		);
 	}
@@ -633,6 +639,7 @@ final class BookingsController extends AbstractController {
 			'address_city'        => (string) ( $row->address_city ?? '' ),
 			'address_state'       => (string) ( $row->address_state ?? '' ),
 			'address_zip'         => (string) ( $row->address_zip ?? '' ),
+			'photos'              => BookingPhotos::present( $row->photos ?? null ),
 			'meeting_ready'       => $meeting_ready && '' !== $join_url,
 			'join_url'            => $join_url,
 		);
@@ -820,6 +827,10 @@ final class BookingsController extends AbstractController {
 		// Currency lives on the technician; services inherit it and clients never set it.
 		$currency = (string) $technician->currency;
 
+		// Only ids that are real attachments still marked as an unclaimed
+		// pending upload survive — never trust an id the client sends.
+		$photo_ids = BookingPhotos::validate_pending( (array) ( $request['photo_ids'] ?? array() ) );
+
 		$result = $this->bookings->create(
 			array(
 				'technician_id'  => (int) $technician->id,
@@ -840,6 +851,7 @@ final class BookingsController extends AbstractController {
 				'address_city'   => (string) $request['address_city'],
 				'address_state'  => (string) $request['address_state'],
 				'address_zip'    => (string) $request['address_zip'],
+				'photo_ids'      => $photo_ids,
 			)
 		);
 
@@ -875,6 +887,7 @@ final class BookingsController extends AbstractController {
 				'address_city'        => (string) $request['address_city'],
 				'address_state'       => (string) $request['address_state'],
 				'address_zip'         => (string) $request['address_zip'],
+				'photos'              => BookingPhotos::present_ids( $photo_ids ),
 				// Join links are never returned raw on create — they are issued
 				// behind a signed short-lived URL after confirmation.
 				'meeting_ready'       => false,

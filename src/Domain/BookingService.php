@@ -13,6 +13,8 @@ use DateTimeImmutable;
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\LockRepository;
 use PlumberSlot\Database\TransactionManager;
+use PlumberSlot\Media\BookingPhotos;
+use PlumberSlot\Media\PendingPhoto;
 use PlumberSlot\Notifications\Dispatcher;
 use PlumberSlot\Support\AuditLog;
 use PlumberSlot\Support\Cache;
@@ -45,7 +47,7 @@ final class BookingService {
 	 *   customer_tz:string, price_minor:int, currency:string,
 	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string,
 	 *   address_line1:string, address_line2:?string, address_city:string,
-	 *   address_state:string, address_zip:string
+	 *   address_state:string, address_zip:string, photo_ids?:list<int>
 	 * } $args Booking arguments, already validated by the controller.
 	 * @return int|WP_Error Booking id, or an error.
 	 */
@@ -192,6 +194,9 @@ final class BookingService {
 			'address_city'   => (string) $booking->address_city,
 			'address_state'  => (string) $booking->address_state,
 			'address_zip'    => (string) $booking->address_zip,
+			// Carried forward the same way the address fields are, so a
+			// rescheduled appointment does not silently lose its photos.
+			'photo_ids'      => BookingPhotos::decode( $booking->photos ?? null ),
 		);
 
 		$allowed = $this->policy->can_be_booked( $technician_id, $new_start_utc );
@@ -297,6 +302,7 @@ final class BookingService {
 			'address_city'  => $args['address_city'] ?? '',
 			'address_state' => $args['address_state'] ?? '',
 			'address_zip'   => $args['address_zip'] ?? '',
+			'photos'        => BookingPhotos::encode( $args['photo_ids'] ?? array() ),
 		);
 	}
 
@@ -307,6 +313,10 @@ final class BookingService {
 	 */
 	private function after_booking_created( int $id, array $args ): void {
 		AuditLog::record( 'booking.created', 'booking', $id );
+
+		foreach ( (array) ( $args['photo_ids'] ?? array() ) as $photo_id ) {
+			PendingPhoto::attach_to_booking( (int) $photo_id, $id );
+		}
 
 		/**
 		 * Fires after a booking row exists.

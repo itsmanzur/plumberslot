@@ -16,6 +16,7 @@ use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PolicyService;
 use PlumberSlot\Domain\RecurrenceService;
+use PlumberSlot\Media\BookingPhotos;
 use PlumberSlot\Support\ServiceArea;
 use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
@@ -110,6 +111,11 @@ final class SeriesController extends AbstractController {
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'photo_ids'     => array(
+						'type'    => 'array',
+						'items'   => array( 'type' => 'integer' ),
+						'default' => array(),
 					),
 				),
 			)
@@ -251,6 +257,12 @@ final class SeriesController extends AbstractController {
 		$customer_tz = (string) ( $request['timezone'] ? $request['timezone'] : $technician->timezone );
 		$currency    = (string) $technician->currency;
 
+		// Only ids that are real attachments still marked as an unclaimed
+		// pending upload survive — never trust an id the client sends. Every
+		// appointment in the course shares this same photo set, the same way
+		// it shares one address.
+		$photo_ids = BookingPhotos::validate_pending( (array) ( $request['photo_ids'] ?? array() ) );
+
 		$result = $this->recurrence->create_series(
 			array(
 				'technician_id'  => (int) $technician->id,
@@ -270,6 +282,7 @@ final class SeriesController extends AbstractController {
 				'address_city'   => (string) $request['address_city'],
 				'address_state'  => (string) $request['address_state'],
 				'address_zip'    => (string) $request['address_zip'],
+				'photo_ids'      => $photo_ids,
 			),
 			$days,
 			(int) $request['count']

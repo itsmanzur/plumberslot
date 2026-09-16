@@ -163,6 +163,7 @@ final class Container {
 				$c->get( Database\Repository\TechnicianRepository::class )
 			)
 		);
+		$this->set( Media\PendingPhotoCleanup::class, static fn () => new Media\PendingPhotoCleanup() );
 
 		// Presentation.
 		$this->set( Rest\RestServiceProvider::class, static fn ( Container $c ) => new Rest\RestServiceProvider( $c ) );

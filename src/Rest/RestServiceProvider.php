@@ -120,6 +120,7 @@ final class RestServiceProvider {
 				$this->container->get( SlotEngine::class ),
 				$this->container->get( BookingRepository::class )
 			),
+			new UploadsController( $guard ),
 		);
 
 		/**

@@ -20,6 +20,7 @@ use PlumberSlot\Frontend\Shortcode;
 use PlumberSlot\Frontend\TechnicianAdminGate;
 use PlumberSlot\Domain\MeetingService;
 use PlumberSlot\Frontend\JoinRoute;
+use PlumberSlot\Media\PendingPhotoCleanup;
 use PlumberSlot\Meetings\MeetingCleanup;
 use PlumberSlot\Notifications\Scheduler;
 use PlumberSlot\Payments\WebhookController;
@@ -69,6 +70,7 @@ final class Plugin {
 		$this->container->get( RestServiceProvider::class )->register();
 		$this->container->get( Scheduler::class )->register();
 		$this->container->get( MeetingCleanup::class )->register();
+		$this->container->get( PendingPhotoCleanup::class )->register();
 		$this->container->get( MeetingService::class )->register();
 		$this->container->get( JoinRoute::class )->register();
 		$this->container->get( WebhookController::class )->register();
