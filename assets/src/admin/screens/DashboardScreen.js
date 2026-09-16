@@ -314,6 +314,18 @@ export function DashboardScreen() {
 																					'📷'
 																				)
 																			: null,
+																		row.is_emergency
+																			? h(
+																					'span',
+																					{
+																						class: 'ts-dashboard__emergency-flag',
+																						title: 'Emergency booking',
+																						'aria-label':
+																							'Emergency booking',
+																					},
+																					'⚡'
+																				)
+																			: null,
 																		row.address
 																			? h(
 																					'small',

@@ -18,6 +18,7 @@ const emptyForm = () => ( {
 	duration_min: 60,
 	price_major: '',
 	is_free_estimate: false,
+	is_emergency_available: false,
 	status: 'active',
 } );
 
@@ -97,6 +98,7 @@ export function ServicesScreen() {
 			duration_min: row.duration_min || 60,
 			price_major: String( ( Number( row.price_minor ) || 0 ) / 100 ),
 			is_free_estimate: Boolean( row.is_free_estimate ),
+			is_emergency_available: Boolean( row.is_emergency_available ),
 			status: row.status || 'active',
 		} );
 		setModal( 'edit' );
@@ -115,6 +117,7 @@ export function ServicesScreen() {
 			duration_min: Math.max( 15, Number( form.duration_min ) || 60 ),
 			price_minor: majorToMinor( form.price_major ),
 			is_free_estimate: Boolean( form.is_free_estimate ),
+			is_emergency_available: Boolean( form.is_emergency_available ),
 			status: form.status === 'inactive' ? 'inactive' : 'active',
 		};
 		try {
@@ -280,6 +283,15 @@ export function ServicesScreen() {
 																},
 																'Free estimate'
 															)
+														: null,
+													row.is_emergency_available
+														? h(
+																'small',
+																{
+																	class: 'ts-services__emergency',
+																},
+																'⚡ Emergency available'
+															)
 														: null
 												)
 											),
@@ -389,6 +401,17 @@ export function ServicesScreen() {
 					checked: form.is_free_estimate,
 					onChange: ( checked ) =>
 						setForm( { ...form, is_free_estimate: checked } ),
+				} ),
+				h( Toggle, {
+					label: 'Emergency available',
+					explanation:
+						'Customers booking this service can ask "Need it today?" and see the soonest slot from every technician who offers it.',
+					checked: form.is_emergency_available,
+					onChange: ( checked ) =>
+						setForm( {
+							...form,
+							is_emergency_available: checked,
+						} ),
 				} ),
 				h(
 					'label',

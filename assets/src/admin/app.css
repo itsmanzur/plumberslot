@@ -345,6 +345,10 @@
 	font-size: 11px;
 }
 
+.ts-dashboard__emergency-flag {
+	font-size: 11px;
+}
+
 .ts-dashboard__avatar {
 	display: grid;
 	place-items: center;
@@ -495,6 +499,10 @@
 .ts-bookings__photo-strip {
 	display: flex;
 	gap: 4px;
+}
+
+.ts-bookings__emergency-chip {
+	margin-left: 8px;
 }
 
 .ts-bookings__photo-thumb {
@@ -737,6 +745,11 @@
 
 .ts-services__free-estimate {
 	color: var(--ts-accent, #0b6e4f);
+	font-weight: 600;
+}
+
+.ts-services__emergency {
+	color: var(--ts-warn);
 	font-weight: 600;
 }
 

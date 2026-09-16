@@ -384,7 +384,22 @@ export function BookingsScreen() {
 													initials: row.initials,
 												} )
 											),
-											h( 'td', null, row.service ),
+											h(
+												'td',
+												null,
+												row.service,
+												row.is_emergency
+													? h(
+															StatusChip,
+															{
+																tone: 'wait',
+																className:
+																	'ts-bookings__emergency-chip',
+															},
+															'Emergency'
+														)
+													: null
+											),
 											h(
 												'td',
 												{ class: 'plumberslot-mono' },
@@ -546,7 +561,18 @@ export function BookingsScreen() {
 							'p',
 							null,
 							h( 'b', null, detail.customer ),
-							` · ${ detail.service }`
+							` · ${ detail.service }`,
+							detail.is_emergency
+								? h(
+										StatusChip,
+										{
+											tone: 'wait',
+											className:
+												'ts-bookings__emergency-chip',
+										},
+										'Emergency'
+									)
+								: null
 						),
 						h(
 							'p',
