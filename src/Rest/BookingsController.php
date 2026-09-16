@@ -22,6 +22,7 @@ use PlumberSlot\Support\Capabilities;
 use PlumberSlot\Support\Crypto;
 use PlumberSlot\Support\AuditLog;
 use PlumberSlot\Support\RateLimiter;
+use PlumberSlot\Support\ServiceArea;
 use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
 use PlumberSlot\Support\Validate;
@@ -754,6 +755,14 @@ final class BookingsController extends AbstractController {
 
 		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
+		}
+
+		if ( ! ServiceArea::allows( (string) $request['address_zip'] ) ) {
+			return new WP_Error(
+				'plumberslot_outside_service_area',
+				__( 'That address is outside the area we currently serve. Please contact us directly to check availability.', 'plumberslot' ),
+				array( 'status' => 422 )
+			);
 		}
 
 		$service_id = $request['service_id'] ? (int) $request['service_id'] : null;

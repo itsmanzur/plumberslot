@@ -15,6 +15,7 @@ use PlumberSlot\Database\Repository\ServiceRepository;
 use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\SlotEngine;
 use PlumberSlot\Support\RateLimiter;
+use PlumberSlot\Support\ServiceArea;
 use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
 use WP_Error;
@@ -171,6 +172,7 @@ final class PublicTechnicianController extends AbstractController {
 				'services'                  => $services,
 				'reviews'                   => $review_rows,
 				'email'                     => $user ? $user->user_email : '',
+				'service_area_zips'         => ServiceArea::list(),
 			)
 		);
 	}

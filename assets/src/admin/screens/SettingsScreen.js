@@ -154,6 +154,29 @@ export function SettingsScreen() {
 			} )
 		);
 
+	const textareaField = ( key, label, explanation ) =>
+		h(
+			'label',
+			{ class: 'ts-admin-field' },
+			h(
+				'span',
+				null,
+				label,
+				explanation ? h( 'small', null, explanation ) : null
+			),
+			h( 'textarea', {
+				rows: 2,
+				value: values[ key ] || '',
+				placeholder: '90210, 90211, 90212',
+				onInput: ( event ) =>
+					setValues( ( prev ) => ( {
+						...prev,
+						[ key ]: event.target.value,
+					} ) ),
+				onBlur: () => save( { [ key ]: values[ key ] || '' } ),
+			} )
+		);
+
 	return h(
 		'div',
 		{ class: 'ts-admin-screen', 'data-screen': 'settings' },
@@ -186,6 +209,11 @@ export function SettingsScreen() {
 									save( { [ item.key ]: checked } );
 								},
 							} )
+						),
+						textareaField(
+							'service_area_zips',
+							'Service area (ZIP / postal codes)',
+							'Comma or line separated. Leave blank to serve every address.'
 						)
 					),
 					h(

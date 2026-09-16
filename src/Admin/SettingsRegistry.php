@@ -122,6 +122,10 @@ final class SettingsRegistry {
 			}
 		}
 
+		if ( isset( $input['service_area_zips'] ) ) {
+			$out['service_area_zips'] = sanitize_textarea_field( (string) $input['service_area_zips'] );
+		}
+
 		if ( isset( $input['timezone'] ) && Time::is_valid_zone( (string) $input['timezone'] ) ) {
 			$out['timezone'] = (string) $input['timezone'];
 		}

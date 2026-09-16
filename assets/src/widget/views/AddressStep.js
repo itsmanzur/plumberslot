@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { Button, WizardRail } from '../../shared';
+import { Button, Callout, WizardRail } from '../../shared';
 import { RAIL } from './ServiceStep';
 
 /**
@@ -8,12 +8,19 @@ import { RAIL } from './ServiceStep';
  * complete without knowing where the technician needs to show up.
  *
  * @param {Object}   props
- * @param {Object}   props.address    { line1, line2, city, state, zip }
- * @param {Function} props.onChange   ( nextAddress ) => void
+ * @param {Object}   props.address         { line1, line2, city, state, zip }
+ * @param {Function} props.onChange        ( nextAddress ) => void
  * @param {Function} props.onContinue
  * @param {Function} props.onBack
+ * @param {string[]} [props.serviceAreaZips] Allowed ZIPs; empty/absent means unrestricted.
  */
-export function AddressStep( { address, onChange, onContinue, onBack } ) {
+export function AddressStep( {
+	address,
+	onChange,
+	onContinue,
+	onBack,
+	serviceAreaZips = [],
+} ) {
 	const value = address || {};
 
 	const set = ( field ) => ( event ) => {
@@ -25,6 +32,12 @@ export function AddressStep( { address, onChange, onContinue, onBack } ) {
 		Boolean( ( value.city || '' ).trim() ) &&
 		Boolean( ( value.state || '' ).trim() ) &&
 		Boolean( ( value.zip || '' ).trim() );
+
+	const zipEntered = ( value.zip || '' ).trim();
+	const outsideArea =
+		serviceAreaZips.length > 0 &&
+		zipEntered.length >= 5 &&
+		! serviceAreaZips.includes( zipEntered.toUpperCase() );
 
 	return h(
 		'div',
@@ -129,7 +142,14 @@ export function AddressStep( { address, onChange, onContinue, onBack } ) {
 							onInput: set( 'zip' ),
 						} )
 					)
-				)
+				),
+				outsideArea
+					? h(
+							Callout,
+							{ tone: 'warn', title: 'Outside our service area:' },
+							"That ZIP code is outside the area we currently serve. Please call or email us directly to check availability before booking."
+					  )
+					: null
 			)
 		),
 		h(
@@ -138,7 +158,7 @@ export function AddressStep( { address, onChange, onContinue, onBack } ) {
 			h( Button, { variant: 'ghost', onClick: onBack }, '← Back' ),
 			h(
 				Button,
-				{ disabled: ! isComplete, onClick: onContinue },
+				{ disabled: ! isComplete || outsideArea, onClick: onContinue },
 				'Continue →'
 			)
 		)

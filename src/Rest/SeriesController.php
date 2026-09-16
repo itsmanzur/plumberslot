@@ -16,6 +16,7 @@ use PlumberSlot\Database\Repository\TechnicianRepository;
 use PlumberSlot\Domain\CreditService;
 use PlumberSlot\Domain\PolicyService;
 use PlumberSlot\Domain\RecurrenceService;
+use PlumberSlot\Support\ServiceArea;
 use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
 use PlumberSlot\Support\Validate;
@@ -172,6 +173,14 @@ final class SeriesController extends AbstractController {
 		$technician = $this->technicians->find( (int) $request['technician_id'] );
 		if ( ! $technician || 'active' !== $technician->status ) {
 			return $this->guard->deny();
+		}
+
+		if ( ! ServiceArea::allows( (string) $request['address_zip'] ) ) {
+			return new WP_Error(
+				'plumberslot_outside_service_area',
+				__( 'That address is outside the area we currently serve. Please contact us directly to check availability.', 'plumberslot' ),
+				array( 'status' => 422 )
+			);
 		}
 
 		$days = array_values(

@@ -301,6 +301,7 @@ export function BookingApp( {
 				onChange: setAddress,
 				onContinue: goConfirm,
 				onBack: () => setStep( 'time' ),
+				serviceAreaZips: technician.service_area_zips || [],
 			} )
 		);
 	}
