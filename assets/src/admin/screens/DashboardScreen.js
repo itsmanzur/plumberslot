@@ -302,6 +302,18 @@ export function DashboardScreen() {
 																			},
 																			row.customer
 																		),
+																		row.has_photos
+																			? h(
+																					'span',
+																					{
+																						class: 'ts-dashboard__photo-flag',
+																						title: 'Photos attached',
+																						'aria-label':
+																							'Photos attached',
+																					},
+																					'📷'
+																				)
+																			: null,
 																		row.address
 																			? h(
 																					'small',

@@ -360,6 +360,7 @@ export function BookingsScreen() {
 										h( 'th', null, 'Customer' ),
 										h( 'th', null, 'Service' ),
 										h( 'th', null, 'Address' ),
+										h( 'th', null, 'Photos' ),
 										h( 'th', null, 'When' ),
 										h( 'th', null, 'Series' ),
 										h( 'th', null, 'Payment' ),
@@ -388,6 +389,11 @@ export function BookingsScreen() {
 												'td',
 												{ class: 'plumberslot-mono' },
 												formatCityZip( row )
+											),
+											h(
+												'td',
+												null,
+												renderPhotoStrip( row.photos )
 											),
 											h(
 												'td',
@@ -548,6 +554,34 @@ export function BookingsScreen() {
 							detail.when || formatWhen( detail )
 						),
 						h( 'p', null, `Address: ${ formatAddress( detail ) }` ),
+						detail.photos && detail.photos.length
+							? h(
+									'div',
+									{ class: 'ts-bookings__photos' },
+									detail.photos.map( ( photo ) =>
+										h(
+											'button',
+											{
+												key: photo.id,
+												type: 'button',
+												class: 'ts-bookings__photo-btn',
+												'aria-label':
+													'View photo full size',
+												onClick: () =>
+													openUrl( photo.url, {
+														sameOrigin: true,
+													} ),
+											},
+											h( 'img', {
+												src:
+													photo.thumb_url ||
+													photo.url,
+												alt: '',
+											} )
+										)
+									)
+								)
+							: null,
 						h( 'p', null, `Payment: ${ detail.payment }` ),
 						h( 'p', null, `Status: ${ detail.status }` ),
 						h(
@@ -722,6 +756,28 @@ function formatWhen( row ) {
 	} catch {
 		return row.start_utc;
 	}
+}
+
+function renderPhotoStrip( photos ) {
+	if ( ! photos || ! photos.length ) {
+		return h( 'span', { class: 'ts-admin__muted' }, '—' );
+	}
+	return h(
+		'div',
+		{ class: 'ts-bookings__photo-strip' },
+		photos.slice( 0, 3 ).map( ( photo ) =>
+			h( 'img', {
+				key: photo.id,
+				class: 'ts-bookings__photo-thumb',
+				src: photo.thumb_url || photo.url,
+				alt: '',
+				onClick: ( event ) => {
+					event.stopPropagation();
+					openUrl( photo.url, { sameOrigin: true } );
+				},
+			} )
+		)
+	);
 }
 
 function formatCityZip( row ) {
