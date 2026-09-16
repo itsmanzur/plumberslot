@@ -8,8 +8,8 @@ import { RAIL } from './ServiceStep';
  * complete without knowing where the technician needs to show up.
  *
  * @param {Object}   props
- * @param {Object}   props.address         { line1, line2, city, state, zip }
- * @param {Function} props.onChange        ( nextAddress ) => void
+ * @param {Object}   props.address           { line1, line2, city, state, zip }
+ * @param {Function} props.onChange          ( nextAddress ) => void
  * @param {Function} props.onContinue
  * @param {Function} props.onBack
  * @param {string[]} [props.serviceAreaZips] Allowed ZIPs; empty/absent means unrestricted.
@@ -146,9 +146,12 @@ export function AddressStep( {
 				outsideArea
 					? h(
 							Callout,
-							{ tone: 'warn', title: 'Outside our service area:' },
-							"That ZIP code is outside the area we currently serve. Please call or email us directly to check availability before booking."
-					  )
+							{
+								tone: 'warn',
+								title: 'Outside our service area:',
+							},
+							'That ZIP code is outside the area we currently serve. Please call or email us directly to check availability before booking.'
+						)
 					: null
 			)
 		),
