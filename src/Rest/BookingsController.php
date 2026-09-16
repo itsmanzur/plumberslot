@@ -307,6 +307,10 @@ final class BookingsController extends AbstractController {
 				'items'   => array( 'type' => 'integer' ),
 				'default' => array(),
 			),
+			'is_emergency'  => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
 		);
 	}
 
@@ -640,6 +644,7 @@ final class BookingsController extends AbstractController {
 			'address_state'       => (string) ( $row->address_state ?? '' ),
 			'address_zip'         => (string) ( $row->address_zip ?? '' ),
 			'photos'              => BookingPhotos::present( $row->photos ?? null ),
+			'is_emergency'        => (bool) ( $row->is_emergency ?? false ),
 			'meeting_ready'       => $meeting_ready && '' !== $join_url,
 			'join_url'            => $join_url,
 		);
@@ -831,6 +836,13 @@ final class BookingsController extends AbstractController {
 		// pending upload survive — never trust an id the client sends.
 		$photo_ids = BookingPhotos::validate_pending( (array) ( $request['photo_ids'] ?? array() ) );
 
+		// A customer cannot fake urgency on a service the technician never
+		// marked emergency-eligible. The widget already hides the checkbox
+		// for such a service, so this is defense-in-depth, not a hard error.
+		$is_emergency = (bool) $request['is_emergency']
+			&& null !== $service
+			&& ! empty( $service->is_emergency_available );
+
 		$result = $this->bookings->create(
 			array(
 				'technician_id'  => (int) $technician->id,
@@ -852,6 +864,7 @@ final class BookingsController extends AbstractController {
 				'address_state'  => (string) $request['address_state'],
 				'address_zip'    => (string) $request['address_zip'],
 				'photo_ids'      => $photo_ids,
+				'is_emergency'   => $is_emergency,
 			)
 		);
 
@@ -888,6 +901,7 @@ final class BookingsController extends AbstractController {
 				'address_state'       => (string) $request['address_state'],
 				'address_zip'         => (string) $request['address_zip'],
 				'photos'              => BookingPhotos::present_ids( $photo_ids ),
+				'is_emergency'        => $is_emergency,
 				// Join links are never returned raw on create — they are issued
 				// behind a signed short-lived URL after confirmation.
 				'meeting_ready'       => false,

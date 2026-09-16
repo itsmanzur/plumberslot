@@ -137,10 +137,11 @@ final class ServiceRepository extends AbstractRepository {
 		}
 
 		foreach ( array(
-			'duration_min'     => 60,
-			'price_minor'      => 0,
-			'is_free_estimate' => 0,
-			'sort_order'       => 0,
+			'duration_min'           => 60,
+			'price_minor'            => 0,
+			'is_free_estimate'       => 0,
+			'is_emergency_available' => 0,
+			'sort_order'             => 0,
 		) as $field => $default ) {
 			if ( ! $include_defaults && ! array_key_exists( $field, $data ) ) {
 				continue;
@@ -151,6 +152,10 @@ final class ServiceRepository extends AbstractRepository {
 
 		if ( isset( $values['is_free_estimate'] ) ) {
 			$values['is_free_estimate'] = min( 1, $values['is_free_estimate'] );
+		}
+
+		if ( isset( $values['is_emergency_available'] ) ) {
+			$values['is_emergency_available'] = min( 1, $values['is_emergency_available'] );
 		}
 
 		if ( $include_defaults || array_key_exists( 'status', $data ) ) {

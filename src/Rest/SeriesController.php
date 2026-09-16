@@ -117,6 +117,10 @@ final class SeriesController extends AbstractController {
 						'items'   => array( 'type' => 'integer' ),
 						'default' => array(),
 					),
+					'is_emergency'  => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
 				),
 			)
 		);
@@ -263,6 +267,13 @@ final class SeriesController extends AbstractController {
 		// it shares one address.
 		$photo_ids = BookingPhotos::validate_pending( (array) ( $request['photo_ids'] ?? array() ) );
 
+		// A customer cannot fake urgency on a service the technician never
+		// marked emergency-eligible. The widget already hides the checkbox
+		// for such a service, so this is defense-in-depth, not a hard error.
+		$is_emergency = (bool) $request['is_emergency']
+			&& null !== $service
+			&& ! empty( $service->is_emergency_available );
+
 		$result = $this->recurrence->create_series(
 			array(
 				'technician_id'  => (int) $technician->id,
@@ -283,6 +294,7 @@ final class SeriesController extends AbstractController {
 				'address_state'  => (string) $request['address_state'],
 				'address_zip'    => (string) $request['address_zip'],
 				'photo_ids'      => $photo_ids,
+				'is_emergency'   => $is_emergency,
 			),
 			$days,
 			(int) $request['count']

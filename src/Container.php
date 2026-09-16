@@ -113,7 +113,13 @@ final class Container {
 		);
 
 		// Infrastructure.
-		$this->set( Notifications\Dispatcher::class, static fn () => new Notifications\Dispatcher() );
+		$this->set(
+			Notifications\Dispatcher::class,
+			static fn ( Container $c ) => new Notifications\Dispatcher(
+				$c->get( Database\Repository\TechnicianRepository::class ),
+				$c->get( Database\Repository\ServiceRepository::class )
+			)
+		);
 		$this->set(
 			Notifications\Scheduler::class,
 			static fn ( Container $c ) => new Notifications\Scheduler(

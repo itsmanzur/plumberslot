@@ -165,18 +165,19 @@ final class DashboardController extends AbstractController {
 			$customer      = get_userdata( (int) $row->customer_id );
 			$service       = $row->service_id ? $this->services->find( (int) $row->service_id ) : null;
 			$today_items[] = array(
-				'id'         => (int) $row->id,
-				'title'      => sprintf(
+				'id'           => (int) $row->id,
+				'title'        => sprintf(
 					'%1$s · %2$s',
 					$customer ? $customer->display_name : __( 'Customer', 'plumberslot' ),
 					$service ? $service->name : __( 'Service call', 'plumberslot' )
 				),
-				'time'       => $local->format( 'H:i' ),
-				'startPct'   => (int) round( ( $offset / $day_span ) * 100 ),
-				'widthPct'   => $width,
-				'done'       => $local < $now,
-				'address'    => $this->short_address( $row ),
-				'has_photos' => array() !== BookingPhotos::decode( $row->photos ?? null ),
+				'time'         => $local->format( 'H:i' ),
+				'startPct'     => (int) round( ( $offset / $day_span ) * 100 ),
+				'widthPct'     => $width,
+				'done'         => $local < $now,
+				'address'      => $this->short_address( $row ),
+				'has_photos'   => array() !== BookingPhotos::decode( $row->photos ?? null ),
+				'is_emergency' => ! empty( $row->is_emergency ),
 			);
 		}
 
@@ -205,6 +206,7 @@ final class DashboardController extends AbstractController {
 				'initials'      => $this->initials( $customer ? $customer->display_name : __( 'Customer', 'plumberslot' ) ),
 				'address'       => $this->short_address( $row ),
 				'has_photos'    => array() !== BookingPhotos::decode( $row->photos ?? null ),
+				'is_emergency'  => ! empty( $row->is_emergency ),
 				'service'       => $service ? (string) $service->name : __( 'Service call', 'plumberslot' ),
 				'when'          => $local->format( 'Y-m-d' ) === $today
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )

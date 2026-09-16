@@ -161,6 +161,7 @@ final class PublicTechnicianController extends AbstractController {
 				'offer_free_estimate'       => Settings::bool( 'offer_free_estimate', true ),
 				'reschedule_window_minutes' => Settings::int( 'reschedule_window_minutes', 720 ),
 				'hold_minutes'              => Settings::int( 'hold_window_minutes', 10 ),
+				'emergency_window_hours'    => Settings::int( 'emergency_window_hours', 6 ),
 				'default_duration'          => $this->common_duration( $services ),
 				// Specific to one technician's calendar; nothing to show yet.
 				'next_opening'              => null,
@@ -180,7 +181,7 @@ final class PublicTechnicianController extends AbstractController {
 	 * technicians surfaces as one bookable entry.
 	 *
 	 * @param list<object> $technicians Active technician rows.
-	 * @return list<array{id:int,name:string,category:string|null,duration_min:int,price_minor:int,currency:string,is_free_estimate:bool,technician_ids:list<int>}>
+	 * @return list<array{id:int,name:string,category:string|null,duration_min:int,price_minor:int,currency:string,is_free_estimate:bool,is_emergency_available:bool,technician_ids:list<int>}>
 	 */
 	private function aggregate_services( array $technicians ): array {
 		$groups = array();
@@ -195,13 +196,14 @@ final class PublicTechnicianController extends AbstractController {
 
 				$groups[ $key ]['technician_ids'][] = (int) $technician->id;
 				$groups[ $key ]['rows'][]           = array(
-					'id'               => (int) $service->id,
-					'name'             => (string) $service->name,
-					'category'         => $service->category,
-					'duration_min'     => (int) $service->duration_min,
-					'price_minor'      => (int) $service->price_minor,
-					'currency'         => (string) $technician->currency,
-					'is_free_estimate' => (bool) $service->is_free_estimate,
+					'id'                     => (int) $service->id,
+					'name'                   => (string) $service->name,
+					'category'               => $service->category,
+					'duration_min'           => (int) $service->duration_min,
+					'price_minor'            => (int) $service->price_minor,
+					'currency'               => (string) $technician->currency,
+					'is_free_estimate'       => (bool) $service->is_free_estimate,
+					'is_emergency_available' => (bool) $service->is_emergency_available,
 				);
 			}
 		}
@@ -227,14 +229,15 @@ final class PublicTechnicianController extends AbstractController {
 			sort( $technician_ids );
 
 			$out[] = array(
-				'id'               => $representative['id'],
-				'name'             => $representative['name'],
-				'category'         => $representative['category'],
-				'duration_min'     => $representative['duration_min'],
-				'price_minor'      => $representative['price_minor'],
-				'currency'         => $representative['currency'],
-				'is_free_estimate' => $representative['is_free_estimate'],
-				'technician_ids'   => $technician_ids,
+				'id'                     => $representative['id'],
+				'name'                   => $representative['name'],
+				'category'               => $representative['category'],
+				'duration_min'           => $representative['duration_min'],
+				'price_minor'            => $representative['price_minor'],
+				'currency'               => $representative['currency'],
+				'is_free_estimate'       => $representative['is_free_estimate'],
+				'is_emergency_available' => $representative['is_emergency_available'],
+				'technician_ids'         => $technician_ids,
 			);
 		}
 
@@ -277,13 +280,14 @@ final class PublicTechnicianController extends AbstractController {
 			}
 
 			$services[] = array(
-				'id'               => (int) $service->id,
-				'name'             => (string) $service->name,
-				'category'         => $service->category,
-				'duration_min'     => (int) $service->duration_min,
-				'price_minor'      => (int) $service->price_minor,
-				'currency'         => (string) $technician->currency,
-				'is_free_estimate' => (bool) $service->is_free_estimate,
+				'id'                     => (int) $service->id,
+				'name'                   => (string) $service->name,
+				'category'               => $service->category,
+				'duration_min'           => (int) $service->duration_min,
+				'price_minor'            => (int) $service->price_minor,
+				'currency'               => (string) $technician->currency,
+				'is_free_estimate'       => (bool) $service->is_free_estimate,
+				'is_emergency_available' => (bool) $service->is_emergency_available,
 			);
 		}
 
@@ -336,6 +340,7 @@ final class PublicTechnicianController extends AbstractController {
 				'offer_free_estimate'       => Settings::bool( 'offer_free_estimate', true ),
 				'reschedule_window_minutes' => Settings::int( 'reschedule_window_minutes', 720 ),
 				'hold_minutes'              => Settings::int( 'hold_window_minutes', 10 ),
+				'emergency_window_hours'    => Settings::int( 'emergency_window_hours', 6 ),
 				'default_duration'          => $duration,
 				'next_opening'              => $next,
 				'services'                  => $services,

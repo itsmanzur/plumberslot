@@ -47,7 +47,8 @@ final class BookingService {
 	 *   customer_tz:string, price_minor:int, currency:string,
 	 *   credit_id:?int, consume_credit?:bool, lock_token:?string, notes:?string,
 	 *   address_line1:string, address_line2:?string, address_city:string,
-	 *   address_state:string, address_zip:string, photo_ids?:list<int>
+	 *   address_state:string, address_zip:string, photo_ids?:list<int>,
+	 *   is_emergency?:bool
 	 * } $args Booking arguments, already validated by the controller.
 	 * @return int|WP_Error Booking id, or an error.
 	 */
@@ -197,6 +198,9 @@ final class BookingService {
 			// Carried forward the same way the address fields are, so a
 			// rescheduled appointment does not silently lose its photos.
 			'photo_ids'      => BookingPhotos::decode( $booking->photos ?? null ),
+			// Carried forward too: moving an emergency booking to a new time
+			// does not make it any less of one.
+			'is_emergency'   => ! empty( $booking->is_emergency ),
 		);
 
 		$allowed = $this->policy->can_be_booked( $technician_id, $new_start_utc );
@@ -303,6 +307,7 @@ final class BookingService {
 			'address_state' => $args['address_state'] ?? '',
 			'address_zip'   => $args['address_zip'] ?? '',
 			'photos'        => BookingPhotos::encode( $args['photo_ids'] ?? array() ),
+			'is_emergency'  => ! empty( $args['is_emergency'] ) ? 1 : 0,
 		);
 	}
 

@@ -44,31 +44,35 @@ final class ServicesController extends AbstractController {
 					'callback'            => array( $this, 'create' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 					'args'                => array(
-						'technician_id'    => array( 'sanitize_callback' => 'absint' ),
-						'name'             => array(
+						'technician_id'          => array( 'sanitize_callback' => 'absint' ),
+						'name'                   => array(
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'duration_min'     => array(
+						'duration_min'           => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'default'           => 60,
 						),
-						'price_minor'      => array(
+						'price_minor'            => array(
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'default'           => 0,
 						),
-						'is_free_estimate' => array(
+						'is_free_estimate'       => array(
 							'type'    => 'boolean',
 							'default' => false,
 						),
-						'category'         => array(
+						'is_emergency_available' => array(
+							'type'    => 'boolean',
+							'default' => false,
+						),
+						'category'               => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'status'           => array(
+						'status'                 => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
 						),
@@ -151,12 +155,13 @@ final class ServicesController extends AbstractController {
 		$id = $this->services->create(
 			$technician_id,
 			array(
-				'name'             => (string) $request['name'],
-				'duration_min'     => (int) $request['duration_min'],
-				'price_minor'      => (int) $request['price_minor'],
-				'is_free_estimate' => $request['is_free_estimate'] ? 1 : 0,
-				'category'         => (string) ( $request['category'] ?? '' ),
-				'status'           => (string) ( $request['status'] ?? 'active' ),
+				'name'                   => (string) $request['name'],
+				'duration_min'           => (int) $request['duration_min'],
+				'price_minor'            => (int) $request['price_minor'],
+				'is_free_estimate'       => $request['is_free_estimate'] ? 1 : 0,
+				'is_emergency_available' => $request['is_emergency_available'] ? 1 : 0,
+				'category'               => (string) ( $request['category'] ?? '' ),
+				'status'                 => (string) ( $request['status'] ?? 'active' ),
 			)
 		);
 
@@ -230,16 +235,17 @@ final class ServicesController extends AbstractController {
 		}
 
 		return array(
-			'id'               => (int) $row->id,
-			'technician_id'    => (int) $row->technician_id,
-			'name'             => (string) $row->name,
-			'category'         => $row->category,
-			'duration_min'     => (int) $row->duration_min,
-			'price_minor'      => (int) $row->price_minor,
-			'currency'         => $technician ? (string) $technician->currency : 'USD',
-			'is_free_estimate' => (bool) $row->is_free_estimate,
-			'status'           => (string) $row->status,
-			'sort_order'       => (int) $row->sort_order,
+			'id'                     => (int) $row->id,
+			'technician_id'          => (int) $row->technician_id,
+			'name'                   => (string) $row->name,
+			'category'               => $row->category,
+			'duration_min'           => (int) $row->duration_min,
+			'price_minor'            => (int) $row->price_minor,
+			'currency'               => $technician ? (string) $technician->currency : 'USD',
+			'is_free_estimate'       => (bool) $row->is_free_estimate,
+			'is_emergency_available' => (bool) $row->is_emergency_available,
+			'status'                 => (string) $row->status,
+			'sort_order'             => (int) $row->sort_order,
 		);
 	}
 }
