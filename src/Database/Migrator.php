@@ -29,6 +29,7 @@ final class Migrator {
 		6 => 'step_6_performance_hardening',
 		7 => 'step_7_service_address',
 		8 => 'step_8_booking_photos',
+		9 => 'step_9_emergency_booking',
 	);
 
 	public function maybe_upgrade(): void {
@@ -119,6 +120,15 @@ final class Migrator {
 	 * the job-site photos a customer optionally attaches to a booking.
 	 */
 	private function step_8_booking_photos(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * Adds `is_emergency_available` to services (a technician marks which jobs
+	 * are bookable ASAP) and `is_emergency` to bookings (whether this specific
+	 * appointment was made through that path).
+	 */
+	private function step_9_emergency_booking(): void {
 		Schema::create_all();
 	}
 }

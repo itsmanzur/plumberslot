@@ -87,6 +87,7 @@ final class SettingsRegistry {
 			'credit_package_price_minor'   => array( 0, 100000000 ),
 			'credit_expiry_days'           => array( 0, 3650 ),
 			'credit_refund_window_minutes' => array( 0, 20160 ),
+			'emergency_window_hours'       => array( 1, 48 ),
 		);
 
 		foreach ( $integers as $key => [$min, $max] ) {
