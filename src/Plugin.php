@@ -28,6 +28,7 @@ use PlumberSlot\Notifications\Scheduler;
 use PlumberSlot\Payments\WebhookController;
 use PlumberSlot\Privacy\PrivacyHooks;
 use PlumberSlot\Rest\RestServiceProvider;
+use PlumberSlot\Sms\TwilioProvider;
 use PlumberSlot\Support\SecretMasker;
 
 defined( 'ABSPATH' ) || exit;
@@ -77,6 +78,7 @@ final class Plugin {
 		$this->container->get( MeetingService::class )->register();
 		$this->container->get( JoinRoute::class )->register();
 		$this->container->get( TrackRoute::class )->register();
+		$this->container->get( TwilioProvider::class )->register();
 		$this->container->get( WebhookController::class )->register();
 		$this->container->get( AssetManager::class )->register();
 		$this->container->get( Shortcode::class )->register();

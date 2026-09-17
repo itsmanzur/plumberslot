@@ -191,6 +191,23 @@ export function AddressStep( {
 						} )
 					)
 				),
+				h(
+					'label',
+					{ class: 'ts-book__field' },
+					h(
+						'span',
+						null,
+						'Mobile number',
+						h( 'small', null, 'Optional — for SMS updates' )
+					),
+					h( 'input', {
+						type: 'tel',
+						autocomplete: 'tel',
+						value: value.mobile || '',
+						placeholder: '+1 555 123 4567',
+						onInput: set( 'mobile' ),
+					} )
+				),
 				outsideArea
 					? h(
 							Callout,

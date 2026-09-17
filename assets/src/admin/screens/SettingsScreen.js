@@ -482,6 +482,18 @@ export function SettingsScreen() {
 									label: 'SMS reminders enabled',
 								} ),
 								secretField( 'sms_api_key', 'SMS API key' ),
+								textField(
+									'twilio_account_sid',
+									'Twilio account SID'
+								),
+								secretField(
+									'twilio_auth_token',
+									'Twilio auth token'
+								),
+								textField(
+									'twilio_from_number',
+									'Twilio SMS from number (e.g. +15551234567)'
+								),
 								h(
 									Callout,
 									{ title: 'Note:' },

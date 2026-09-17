@@ -200,6 +200,7 @@ final class Container {
 			)
 		);
 		$this->set( Frontend\TechnicianAdminGate::class, static fn () => new Frontend\TechnicianAdminGate() );
+		$this->set( Sms\TwilioProvider::class, static fn () => new Sms\TwilioProvider() );
 		$this->set( Admin\AdminMenu::class, static fn () => new Admin\AdminMenu() );
 		$this->set( Admin\SettingsRegistry::class, static fn () => new Admin\SettingsRegistry() );
 		$this->set( Admin\OnboardingWizard::class, static fn () => new Admin\OnboardingWizard() );

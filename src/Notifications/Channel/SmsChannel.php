@@ -29,7 +29,7 @@ final class SmsChannel implements ChannelInterface {
 		}
 
 		// SMS costs money per message: reminders only, never every status change.
-		return in_array( $event, array( 'reminder_1h', 'booking_cancelled' ), true );
+		return in_array( $event, array( 'reminder_1h', 'booking_cancelled', 'booking_on_the_way' ), true );
 	}
 
 	/**
@@ -55,23 +55,33 @@ final class SmsChannel implements ChannelInterface {
 	}
 
 	private function message( string $event, object $booking ): string {
-		if ( 'reminder_1h' !== $event ) {
+		if ( 'booking_cancelled' === $event ) {
 			return __( 'Your appointment has been cancelled.', 'plumberslot' );
 		}
 
-		$address_line1 = trim( (string) ( $booking->address_line1 ?? '' ) );
-
-		if ( '' === $address_line1 ) {
-			return __( 'Your appointment starts in an hour.', 'plumberslot' );
+		if ( 'booking_on_the_way' === $event ) {
+			return __( 'Your technician is on the way.', 'plumberslot' );
 		}
 
-		$city  = trim( (string) ( $booking->address_city ?? '' ) );
-		$where = '' !== $city ? sprintf( '%s, %s', $address_line1, $city ) : $address_line1;
+		if ( 'reminder_1h' === $event ) {
+			$address_line1 = trim( (string) ( $booking->address_line1 ?? '' ) );
 
-		return sprintf(
-			/* translators: %s: short job-site address (street and city). */
-			__( 'Your appointment starts in an hour at %s.', 'plumberslot' ),
-			$where
-		);
+			if ( '' === $address_line1 ) {
+				return __( 'Your appointment starts in an hour.', 'plumberslot' );
+			}
+
+			$city  = trim( (string) ( $booking->address_city ?? '' ) );
+			$where = '' !== $city ? sprintf( '%s, %s', $address_line1, $city ) : $address_line1;
+
+			return sprintf(
+				/* translators: %s: short job-site address (street and city). */
+				__( 'Your appointment starts in an hour at %s.', 'plumberslot' ),
+				$where
+			);
+		}
+
+		// Unreachable given is_enabled()'s whitelist, but never fall back to
+		// cancellation copy for an event this method does not recognise.
+		return __( 'You have an update on your appointment.', 'plumberslot' );
 	}
 }

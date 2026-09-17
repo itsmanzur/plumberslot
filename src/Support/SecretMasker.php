@@ -52,6 +52,7 @@ final class SecretMasker {
 			'zoom_client_secret',
 			'google_client_secret',
 			'sms_api_key',
+			'twilio_auth_token',
 		);
 	}
 

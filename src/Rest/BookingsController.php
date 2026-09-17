@@ -320,6 +320,10 @@ final class BookingsController extends AbstractController {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			'mobile'        => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
 			'photo_ids'     => array(
 				'type'    => 'array',
 				'items'   => array( 'type' => 'integer' ),
@@ -901,6 +905,12 @@ final class BookingsController extends AbstractController {
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		// A number on file today is ready for SMS the moment a site owner
+		// turns it on, regardless of whether it is enabled right now.
+		if ( ! empty( $request['mobile'] ) ) {
+			update_user_meta( $customer_id, '_plumberslot_mobile', sanitize_text_field( (string) $request['mobile'] ) );
 		}
 
 		$booking  = $this->repo->find( (int) $result );

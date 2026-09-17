@@ -193,6 +193,7 @@ export function ConfirmStep( {
 					address_city: address?.city || '',
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
+					mobile: address?.mobile || '',
 					photo_ids: photoIdList,
 					is_emergency: Boolean( emergencyRequested ),
 				} );
@@ -229,6 +230,7 @@ export function ConfirmStep( {
 					address_city: address?.city || '',
 					address_state: address?.state || '',
 					address_zip: address?.zip || '',
+					mobile: address?.mobile || '',
 					photo_ids: photoIdList,
 					is_emergency: Boolean( emergencyRequested ),
 				} );
