@@ -56,6 +56,7 @@ final class RestServiceProvider {
 				$this->container->get( CreditService::class ),
 				$this->container->get( SlotEngine::class ),
 				$this->container->get( PolicyService::class ),
+				$this->container->get( ReviewRepository::class ),
 				$this->container->get( SeriesRepository::class )
 			),
 			new SeriesController(
@@ -122,6 +123,12 @@ final class RestServiceProvider {
 				$this->container->get( BookingRepository::class )
 			),
 			new UploadsController( $guard ),
+			new ReviewsController(
+				$guard,
+				$this->container->get( ReviewRepository::class ),
+				$this->container->get( BookingRepository::class ),
+				$this->container->get( TechnicianRepository::class )
+			),
 		);
 
 		/**

@@ -10,8 +10,8 @@ import {
 	navigateTo,
 	openUrl,
 } from '../../shared';
-import { get } from '../api/client';
-import { getConfig } from '../api/config';
+import { get, post } from '../api/client';
+import { can, getConfig } from '../api/config';
 import { ScreenState } from '../components/PageHeader';
 
 function formatMoney( minor, currency ) {
@@ -66,6 +66,9 @@ export function DashboardScreen() {
 	const [ error, setError ] = useState( '' );
 	const [ data, setData ] = useState( initialData );
 	const [ snapshot, setSnapshot ] = useState( null );
+	const manageAll = can( 'manageAll' );
+	const [ pendingReviews, setPendingReviews ] = useState( [] );
+	const [ reviewActionId, setReviewActionId ] = useState( 0 );
 
 	useEffect( () => {
 		if ( initialData ) {
@@ -119,6 +122,51 @@ export function DashboardScreen() {
 			alive = false;
 		};
 	}, [] );
+
+	// Compact "pending reviews" queue, fetched only for a site manager --
+	// /reviews itself is MANAGE_ALL-gated, so this client-side check just
+	// avoids a request that would 404 for anyone else.
+	useEffect( () => {
+		if ( ! manageAll ) {
+			return undefined;
+		}
+
+		let alive = true;
+
+		( async () => {
+			try {
+				const payload = await get( 'reviews' );
+				if ( alive ) {
+					setPendingReviews( payload.items || [] );
+				}
+			} catch {
+				// Not fatal -- the dashboard renders fine without this section.
+			}
+		} )();
+
+		return () => {
+			alive = false;
+		};
+	}, [ manageAll ] );
+
+	const moderateReview = async ( id, reviewStatus ) => {
+		setReviewActionId( id );
+		try {
+			await post( `reviews/${ id }/status`, { status: reviewStatus } );
+			setPendingReviews( ( prev ) =>
+				prev.filter( ( item ) => item.id !== id )
+			);
+			announce(
+				reviewStatus === 'approved'
+					? 'Review approved.'
+					: 'Review rejected.'
+			);
+		} catch ( err ) {
+			announce( err.message || 'Could not update the review.' );
+		} finally {
+			setReviewActionId( 0 );
+		}
+	};
 
 	const adminUrl = ( page ) => `${ config.urls.admin }?page=${ page }`;
 	const openAdmin = ( page ) => {
@@ -570,7 +618,113 @@ export function DashboardScreen() {
 											'Preview'
 										)
 									)
-								)
+								),
+								manageAll && pendingReviews.length
+									? h(
+											'section',
+											{
+												class: 'ts-admin-card ts-dashboard__side-card',
+											},
+											h(
+												'h2',
+												{
+													class: 'ts-dashboard__side-title',
+												},
+												'Pending reviews'
+											),
+											h(
+												'ul',
+												{
+													class: 'ts-dashboard__reviews',
+												},
+												pendingReviews.map( ( item ) =>
+													h(
+														'li',
+														{
+															key: item.id,
+															class: 'ts-dashboard__review',
+														},
+														h(
+															'div',
+															{
+																class: 'ts-dashboard__review-head',
+															},
+															h(
+																'b',
+																null,
+																item.author
+															),
+															h(
+																'span',
+																{
+																	class: 'ts-dashboard__review-stars',
+																},
+																'★'.repeat(
+																	item.rating
+																)
+															)
+														),
+														h(
+															'small',
+															{
+																class: 'ts-admin__muted',
+															},
+															`for ${ item.technician }`
+														),
+														item.body
+															? h(
+																	'p',
+																	{
+																		class: 'ts-dashboard__review-body',
+																	},
+																	item.body
+																)
+															: null,
+														h(
+															'div',
+															{
+																class: 'ts-admin__actions',
+															},
+															h(
+																Button,
+																{
+																	size: 'sm',
+																	disabled:
+																		reviewActionId ===
+																		item.id,
+																	onClick:
+																		() =>
+																			moderateReview(
+																				item.id,
+																				'approved'
+																			),
+																},
+																'Approve'
+															),
+															h(
+																Button,
+																{
+																	variant:
+																		'ghost',
+																	size: 'sm',
+																	disabled:
+																		reviewActionId ===
+																		item.id,
+																	onClick:
+																		() =>
+																			moderateReview(
+																				item.id,
+																				'rejected'
+																			),
+																},
+																'Reject'
+															)
+														)
+													)
+												)
+											)
+										)
+									: null
 							)
 						)
 					)

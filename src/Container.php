@@ -199,6 +199,14 @@ final class Container {
 				$c->get( Database\Repository\ServiceRepository::class )
 			)
 		);
+		$this->set(
+			Frontend\ReceiptRoute::class,
+			static fn ( Container $c ) => new Frontend\ReceiptRoute(
+				$c->get( Database\Repository\BookingRepository::class ),
+				$c->get( Database\Repository\TechnicianRepository::class ),
+				$c->get( Database\Repository\ServiceRepository::class )
+			)
+		);
 		$this->set( Frontend\TechnicianAdminGate::class, static fn () => new Frontend\TechnicianAdminGate() );
 		$this->set( Sms\TwilioProvider::class, static fn () => new Sms\TwilioProvider() );
 		$this->set( Admin\AdminMenu::class, static fn () => new Admin\AdminMenu() );

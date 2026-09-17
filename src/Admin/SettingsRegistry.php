@@ -115,7 +115,7 @@ final class SettingsRegistry {
 			}
 		}
 
-		foreach ( array( 'stripe_publishable_key', 'bkash_app_key', 'bkash_username', 'zoom_account_id', 'zoom_client_id', 'google_client_id', 'google_meet_calendar_id', 'sms_provider', 'twilio_account_sid', 'twilio_from_number', 'default_currency', 'business_name', 'business_hours' ) as $key ) {
+		foreach ( array( 'stripe_publishable_key', 'bkash_app_key', 'bkash_username', 'zoom_account_id', 'zoom_client_id', 'google_client_id', 'google_meet_calendar_id', 'sms_provider', 'twilio_account_sid', 'twilio_from_number', 'default_currency', 'business_name', 'business_hours', 'google_review_url' ) as $key ) {
 			if ( isset( $input[ $key ] ) ) {
 				if ( SecretMasker::is_masked_setting( $key, $input[ $key ] ) ) {
 					continue;

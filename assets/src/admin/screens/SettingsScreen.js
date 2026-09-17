@@ -215,6 +215,11 @@ export function SettingsScreen() {
 								'business_hours',
 								'Business hours',
 								'Shown in the email footer, e.g. "Mon–Fri 8am–6pm". Leave blank to omit.'
+							),
+							textField(
+								'google_review_url',
+								'Google Business review link (optional)',
+								'Included in the completion email so customers can leave a review. Leave blank to omit.'
 							)
 						)
 					),

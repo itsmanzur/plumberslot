@@ -13,6 +13,7 @@ import {
 	StatusChip,
 	announce,
 	navigateTo,
+	openUrl,
 } from '../shared';
 import { ApiError, del, get, getBoot, post } from './api';
 
@@ -32,6 +33,14 @@ export function CustomerDashboard() {
 	const [ ledger, setLedger ] = useState( [] );
 	const [ busyId, setBusyId ] = useState( 0 );
 	const [ cancelTarget, setCancelTarget ] = useState( null );
+
+	// Leave-a-review form state, keyed by booking id. Kept local rather than
+	// refetching the whole dashboard on submit, so the confirmation message
+	// ("awaiting approval") can be shown in place of the form without a
+	// round trip -- has_review itself only updates on the next full load().
+	const [ reviewDrafts, setReviewDrafts ] = useState( {} );
+	const [ reviewSubmitting, setReviewSubmitting ] = useState( 0 );
+	const [ reviewJustSubmitted, setReviewJustSubmitted ] = useState( {} );
 
 	// Buy a Service Plan.
 	const [ catalog, setCatalog ] = useState( null );
@@ -350,6 +359,46 @@ export function CustomerDashboard() {
 		}
 	};
 
+	const setReviewRating = ( id, rating ) => {
+		setReviewDrafts( ( prev ) => ( {
+			...prev,
+			[ id ]: { ...( prev[ id ] || { body: '' } ), rating },
+		} ) );
+	};
+
+	const setReviewBody = ( id, body ) => {
+		setReviewDrafts( ( prev ) => ( {
+			...prev,
+			[ id ]: { ...( prev[ id ] || { rating: 0 } ), body },
+		} ) );
+	};
+
+	const submitReview = async ( row ) => {
+		const draft = reviewDrafts[ row.id ] || { rating: 0, body: '' };
+		if ( ! draft.rating ) {
+			announce( 'Pick a star rating first.' );
+			return;
+		}
+		setReviewSubmitting( row.id );
+		try {
+			await post( `bookings/${ row.id }/review`, {
+				rating: draft.rating,
+				body: draft.body || undefined,
+			} );
+			announce( 'Review submitted.' );
+			setReviewJustSubmitted( ( prev ) => ( {
+				...prev,
+				[ row.id ]: true,
+			} ) );
+		} catch ( err ) {
+			const message = err.message || 'Could not submit your review.';
+			setError( message );
+			announce( message );
+		} finally {
+			setReviewSubmitting( 0 );
+		}
+	};
+
 	if ( status === 'login' ) {
 		return h(
 			'div',
@@ -497,38 +546,17 @@ export function CustomerDashboard() {
 										{ tone: statusTone( row.status ) },
 										row.status
 									),
-									isConfirmedUpcoming( row )
-										? h(
-												'div',
-												{ class: 'ts-dash__actions' },
-												h(
-													Button,
-													{
-														variant: 'secondary',
-														size: 'sm',
-														onClick: () =>
-															openReschedule(
-																row
-															),
-													},
-													'Reschedule'
-												),
-												h(
-													Button,
-													{
-														variant: 'ghost',
-														size: 'sm',
-														disabled:
-															busyId === row.id,
-														onClick: () =>
-															setCancelTarget(
-																row
-															),
-													},
-													'Cancel'
-												)
-											)
-										: null
+									renderJobActions( row, {
+										busyId,
+										onReschedule: openReschedule,
+										onCancel: setCancelTarget,
+										reviewDrafts,
+										reviewSubmitting,
+										reviewJustSubmitted,
+										onReviewRatingChange: setReviewRating,
+										onReviewBodyChange: setReviewBody,
+										onReviewSubmit: submitReview,
+									} )
 								)
 							)
 						)
@@ -682,6 +710,146 @@ function statusTone( status ) {
 		return 'off';
 	}
 	return 'wait';
+}
+
+// A handful of clickable star characters, matching how ProfileView.js
+// already renders a *displayed* rating as plain repeated '★' characters --
+// this is the same idea made interactive, not a new star-rating library.
+function StarPicker( { value, onChange } ) {
+	return h(
+		'div',
+		{
+			class: 'ts-dash__star-picker',
+			role: 'radiogroup',
+			'aria-label': 'Rating',
+		},
+		[ 1, 2, 3, 4, 5 ].map( ( n ) =>
+			h(
+				'button',
+				{
+					type: 'button',
+					key: n,
+					class: 'ts-dash__star',
+					'aria-pressed': value >= n ? 'true' : 'false',
+					'aria-label': `${ n } star${ n === 1 ? '' : 's' }`,
+					onClick: () => onChange( n ),
+				},
+				value >= n ? '★' : '☆'
+			)
+		)
+	);
+}
+
+function renderJobActions(
+	row,
+	{
+		busyId,
+		onReschedule,
+		onCancel,
+		reviewDrafts,
+		reviewSubmitting,
+		reviewJustSubmitted,
+		onReviewRatingChange,
+		onReviewBodyChange,
+		onReviewSubmit,
+	}
+) {
+	if ( isConfirmedUpcoming( row ) ) {
+		return h(
+			'div',
+			{ class: 'ts-dash__actions' },
+			h(
+				Button,
+				{
+					variant: 'secondary',
+					size: 'sm',
+					onClick: () => onReschedule( row ),
+				},
+				'Reschedule'
+			),
+			h(
+				Button,
+				{
+					variant: 'ghost',
+					size: 'sm',
+					disabled: busyId === row.id,
+					onClick: () => onCancel( row ),
+				},
+				'Cancel'
+			)
+		);
+	}
+
+	if ( row.status !== 'completed' ) {
+		return null;
+	}
+
+	return h(
+		'div',
+		{ class: 'ts-dash__actions ts-dash__actions--completed' },
+		h(
+			Button,
+			{
+				variant: 'ghost',
+				size: 'sm',
+				onClick: () =>
+					openUrl( `/plumberslot/receipt?booking=${ row.id }`, {
+						sameOrigin: true,
+					} ),
+			},
+			'Print receipt'
+		),
+		renderReviewBlock( row, {
+			draft: reviewDrafts[ row.id ] || { rating: 0, body: '' },
+			submitting: reviewSubmitting,
+			justSubmitted: reviewJustSubmitted[ row.id ],
+			onRatingChange: onReviewRatingChange,
+			onBodyChange: onReviewBodyChange,
+			onSubmit: onReviewSubmit,
+		} )
+	);
+}
+
+function renderReviewBlock(
+	row,
+	{ draft, submitting, justSubmitted, onRatingChange, onBodyChange, onSubmit }
+) {
+	if ( justSubmitted ) {
+		return h(
+			'p',
+			{ class: 'ts-dash__meta' },
+			'Thanks — your review is awaiting approval.'
+		);
+	}
+
+	if ( row.has_review ) {
+		return h( 'p', { class: 'ts-dash__meta' }, 'Review submitted.' );
+	}
+
+	return h(
+		'div',
+		{ class: 'ts-dash__review-form' },
+		h( StarPicker, {
+			value: draft.rating,
+			onChange: ( n ) => onRatingChange( row.id, n ),
+		} ),
+		h( 'textarea', {
+			class: 'ts-dash__review-body',
+			placeholder: 'Optional comments',
+			rows: 2,
+			value: draft.body,
+			onInput: ( e ) => onBodyChange( row.id, e.target.value ),
+		} ),
+		h(
+			Button,
+			{
+				size: 'sm',
+				disabled: ! draft.rating || submitting === row.id,
+				onClick: () => onSubmit( row ),
+			},
+			submitting === row.id ? 'Submitting…' : 'Submit review'
+		)
+	);
 }
 
 function renderBuyPlan( { catalog, catalogStatus, buying, payments, onBuy } ) {

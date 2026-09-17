@@ -58,6 +58,10 @@ final class Dispatcher {
 		$this->send( 'booking_on_the_way', $booking_id );
 	}
 
+	public function booking_completed( int $booking_id ): void {
+		$this->send( 'booking_completed', $booking_id );
+	}
+
 	public function booking_cancelled( int $booking_id ): void {
 		$this->send( 'booking_cancelled', $booking_id );
 	}

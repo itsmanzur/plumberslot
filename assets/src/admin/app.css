@@ -420,6 +420,43 @@
 	font-family: var(--ts-font-mono);
 }
 
+.ts-dashboard__reviews {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--ts-sp-3);
+}
+
+.ts-dashboard__review {
+	padding: var(--ts-sp-3) 0;
+	border-bottom: 1px solid var(--ts-rule-2);
+}
+
+.ts-dashboard__review:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.ts-dashboard__review-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--ts-sp-3);
+}
+
+.ts-dashboard__review-stars {
+	color: var(--ts-amber, #d69e2e);
+	font-size: var(--ts-text-xs);
+}
+
+.ts-dashboard__review-body {
+	margin: var(--ts-sp-2) 0;
+	color: var(--ts-slate);
+	font-size: var(--ts-text-sm);
+}
+
 .ts-dashboard__booking-url {
 	margin-top: var(--ts-sp-3);
 	padding: 10px 12px;

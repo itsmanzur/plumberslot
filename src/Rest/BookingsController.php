@@ -11,6 +11,7 @@ namespace PlumberSlot\Rest;
 
 use PlumberSlot\Database\Repository\BookingRepository;
 use PlumberSlot\Database\Repository\LockRepository;
+use PlumberSlot\Database\Repository\ReviewRepository;
 use PlumberSlot\Database\Repository\SeriesRepository;
 use PlumberSlot\Database\Repository\ServiceRepository;
 use PlumberSlot\Database\Repository\TechnicianRepository;
@@ -45,6 +46,7 @@ final class BookingsController extends AbstractController {
 		private readonly CreditService $credits,
 		private readonly SlotEngine $slots,
 		private readonly PolicyService $policy,
+		private readonly ReviewRepository $reviews,
 		private readonly SeriesRepository $series = new SeriesRepository()
 	) {
 		parent::__construct( $guard );
@@ -670,6 +672,7 @@ final class BookingsController extends AbstractController {
 			'job_stage'           => (string) ( $row->job_stage ?? 'scheduled' ),
 			'meeting_ready'       => $meeting_ready && '' !== $join_url,
 			'join_url'            => $join_url,
+			'has_review'          => null !== $this->reviews->for_booking( $booking_id ),
 		);
 	}
 

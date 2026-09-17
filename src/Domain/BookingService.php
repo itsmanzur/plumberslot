@@ -484,6 +484,10 @@ final class BookingService {
 
 		AuditLog::record( 'booking.' . $status, 'booking', $booking_id );
 
+		if ( 'completed' === $status ) {
+			$this->notify->booking_completed( $booking_id );
+		}
+
 		return true;
 	}
 

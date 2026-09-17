@@ -129,6 +129,7 @@ final class EmailChannel implements ChannelInterface {
 			'booking_created'     => sprintf( /* translators: %s: date and time. */ __( 'Appointment requested for %s', 'plumberslot' ), $when ),
 			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Appointment confirmed for %s', 'plumberslot' ), $when ),
 			'booking_on_the_way'  => __( 'Your technician is on the way', 'plumberslot' ),
+			'booking_completed'   => __( 'How did it go?', 'plumberslot' ),
 			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'Appointment on %s is cancelled', 'plumberslot' ), $when ),
 			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'Appointment moved to %s', 'plumberslot' ), $when ),
 			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'Tomorrow: your appointment at %s', 'plumberslot' ), $when ),
@@ -191,6 +192,25 @@ final class EmailChannel implements ChannelInterface {
 			);
 		}
 
+		if ( 'booking_completed' === $event ) {
+			$receipt_url = home_url( '/plumberslot/receipt?booking=' . (int) $booking->id );
+			$lines[]     = sprintf(
+				'<p style="color:#555555;"><a href="%1$s">%2$s</a></p>',
+				esc_url( $receipt_url ),
+				esc_html__( 'View your receipt', 'plumberslot' )
+			);
+
+			$review_url = Settings::string( 'google_review_url', '' );
+
+			if ( '' !== $review_url ) {
+				$lines[] = sprintf(
+					'<p style="color:#555555;"><a href="%1$s">%2$s</a></p>',
+					esc_url( $review_url ),
+					esc_html__( 'Enjoyed the service? Leave us a review', 'plumberslot' )
+				);
+			}
+		}
+
 		array_push( $lines, ...$this->footer_lines() );
 
 		/**
@@ -248,6 +268,7 @@ final class EmailChannel implements ChannelInterface {
 			'booking_created'     => __( "We'll confirm this shortly.", 'plumberslot' ),
 			'booking_confirmed'   => __( "Your technician will arrive at the scheduled time. You'll get a reminder beforehand.", 'plumberslot' ),
 			'booking_on_the_way'  => __( "You'll get another update if anything changes.", 'plumberslot' ),
+			'booking_completed'   => __( 'Your receipt is below.', 'plumberslot' ),
 			'booking_rescheduled' => __( 'Your technician will arrive at the new time above.', 'plumberslot' ),
 			'reminder_24h',
 			'reminder_1h'         => __( 'Your technician will arrive at the scheduled time.', 'plumberslot' ),
@@ -310,6 +331,7 @@ final class EmailChannel implements ChannelInterface {
 		return match ( $event ) {
 			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Your appointment is confirmed for %s.', 'plumberslot' ), $when ),
 			'booking_on_the_way'  => __( 'Your technician is on the way to your appointment.', 'plumberslot' ),
+			'booking_completed'   => __( 'Your appointment is complete. We hope it went well.', 'plumberslot' ),
 			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'The appointment on %s has been cancelled. Nothing further is needed from you.', 'plumberslot' ), $when ),
 			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'The appointment has moved to %s.', 'plumberslot' ), $when ),
 			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'A reminder that your appointment is tomorrow at %s.', 'plumberslot' ), $when ),

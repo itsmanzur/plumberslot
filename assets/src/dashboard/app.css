@@ -182,6 +182,46 @@
 	gap: 8px;
 }
 
+.ts-dash__actions--completed {
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+}
+
+.ts-dash__review-form {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 6px;
+	width: 100%;
+	max-width: 220px;
+}
+
+.ts-dash__star-picker {
+	display: flex;
+	gap: 2px;
+}
+
+.ts-dash__star {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	color: var(--ts-amber, #d69e2e);
+}
+
+.ts-dash__review-body {
+	width: 100%;
+	border: 1px solid var(--ts-rule, #d8dde8);
+	border-radius: 8px;
+	padding: 6px 8px;
+	font: inherit;
+	font-size: 13px;
+	resize: vertical;
+}
+
 .ts-dash__status-row {
 	display: flex;
 	flex-wrap: wrap;
