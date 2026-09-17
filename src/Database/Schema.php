@@ -194,6 +194,7 @@ final class Schema {
 				price_minor   INT UNSIGNED    NOT NULL DEFAULT 0,
 				deposit_minor INT UNSIGNED    NOT NULL DEFAULT 0,
 				balance_minor INT UNSIGNED    NOT NULL DEFAULT 0,
+				job_stage     VARCHAR(20)     NOT NULL DEFAULT 'scheduled',
 				currency      CHAR(3)         NOT NULL DEFAULT 'USD',
 				credit_id     BIGINT UNSIGNED NULL,
 				payment_ref   VARCHAR(191)    NULL,

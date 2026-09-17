@@ -33,6 +33,7 @@ final class Migrator {
 		10 => 'step_10_service_plan_payments',
 		11 => 'step_11_recurrence_cadence',
 		12 => 'step_12_deposit_payments',
+		13 => 'step_13_job_status_tracking',
 	);
 
 	public function maybe_upgrade(): void {
@@ -173,6 +174,15 @@ final class Migrator {
 	 * charge-the-full-price-now behaviour exactly.
 	 */
 	private function step_12_deposit_payments(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * Adds `job_stage` to BOOKINGS: a one-tap status the technician updates
+	 * (scheduled / on_the_way / in_progress) while the booking's own `status`
+	 * stays 'confirmed'. Every existing booking defaults to 'scheduled'.
+	 */
+	private function step_13_job_status_tracking(): void {
 		Schema::create_all();
 	}
 }

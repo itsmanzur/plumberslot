@@ -221,6 +221,24 @@ final class BookingsController extends AbstractController {
 
 		register_rest_route(
 			self::NAMESPACE,
+			'/bookings/(?P<id>\d+)/job-status',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'job_status' ),
+				'permission_callback' => array( $this, 'can_teach' ),
+				'args'                => array(
+					'id'     => array( 'sanitize_callback' => 'absint' ),
+					'status' => array(
+						'required' => true,
+						'type'     => 'string',
+						'enum'     => array( 'scheduled', 'on_the_way', 'in_progress' ),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			'/bookings/(?P<id>\d+)/notes',
 			array(
 				'methods'             => 'POST',
@@ -645,6 +663,7 @@ final class BookingsController extends AbstractController {
 			'address_zip'         => (string) ( $row->address_zip ?? '' ),
 			'photos'              => BookingPhotos::present( $row->photos ?? null ),
 			'is_emergency'        => (bool) ( $row->is_emergency ?? false ),
+			'job_stage'           => (string) ( $row->job_stage ?? 'scheduled' ),
 			'meeting_ready'       => $meeting_ready && '' !== $join_url,
 			'join_url'            => $join_url,
 		);
@@ -672,6 +691,12 @@ final class BookingsController extends AbstractController {
 		$result = $this->bookings->mark_attendance( (int) $request['id'], (string) $request['status'] );
 
 		return is_wp_error( $result ) ? $result : $this->ok( array( 'status' => (string) $request['status'] ) );
+	}
+
+	public function job_status( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$result = $this->bookings->set_job_stage( (int) $request['id'], (string) $request['status'] );
+
+		return is_wp_error( $result ) ? $result : $this->ok( array( 'job_stage' => (string) $request['status'] ) );
 	}
 
 	public function save_notes( WP_REST_Request $request ): WP_REST_Response|WP_Error {

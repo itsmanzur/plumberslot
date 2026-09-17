@@ -20,6 +20,7 @@ use PlumberSlot\Frontend\Shortcode;
 use PlumberSlot\Frontend\TechnicianAdminGate;
 use PlumberSlot\Domain\MeetingService;
 use PlumberSlot\Frontend\JoinRoute;
+use PlumberSlot\Frontend\TrackRoute;
 use PlumberSlot\Media\PendingPhotoCleanup;
 use PlumberSlot\Meetings\MeetingCleanup;
 use PlumberSlot\Notifications\CreditExpiryReminder;
@@ -75,6 +76,7 @@ final class Plugin {
 		$this->container->get( CreditExpiryReminder::class )->register();
 		$this->container->get( MeetingService::class )->register();
 		$this->container->get( JoinRoute::class )->register();
+		$this->container->get( TrackRoute::class )->register();
 		$this->container->get( WebhookController::class )->register();
 		$this->container->get( AssetManager::class )->register();
 		$this->container->get( Shortcode::class )->register();

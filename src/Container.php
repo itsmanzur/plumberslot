@@ -191,6 +191,14 @@ final class Container {
 				$c->get( Meetings\ProviderRegistry::class )
 			)
 		);
+		$this->set(
+			Frontend\TrackRoute::class,
+			static fn ( Container $c ) => new Frontend\TrackRoute(
+				$c->get( Database\Repository\BookingRepository::class ),
+				$c->get( Database\Repository\TechnicianRepository::class ),
+				$c->get( Database\Repository\ServiceRepository::class )
+			)
+		);
 		$this->set( Frontend\TechnicianAdminGate::class, static fn () => new Frontend\TechnicianAdminGate() );
 		$this->set( Admin\AdminMenu::class, static fn () => new Admin\AdminMenu() );
 		$this->set( Admin\SettingsRegistry::class, static fn () => new Admin\SettingsRegistry() );

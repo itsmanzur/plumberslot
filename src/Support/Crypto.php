@@ -90,4 +90,19 @@ final class Crypto {
 
 		return hash_equals( $expected, $signature );
 	}
+
+	/**
+	 * A durable tracking link for a booking -- unlike signed_join_url(), this
+	 * never expires; it stays valid for the booking's whole lifetime, verified
+	 * by TrackRoute against the booking's own meeting_token.
+	 */
+	public static function track_url( int $booking_id, string $token ): string {
+		return add_query_arg(
+			array(
+				'ts_booking' => $booking_id,
+				'ts_token'   => $token,
+			),
+			home_url( '/plumberslot/track' )
+		);
+	}
 }

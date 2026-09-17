@@ -174,6 +174,19 @@ final class BookingRepository extends AbstractRepository implements BookingOccup
 		);
 	}
 
+	public function set_job_stage( int $id, string $stage ): bool {
+		return (bool) $this->db->update(
+			$this->table(),
+			array(
+				'job_stage'  => $stage,
+				'updated_at' => $this->now(),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+	}
+
 	/**
 	 * Store the provider-supplied meeting reference and a fresh random token
 	 * used to sign the join URL. Both are set in one round-trip.

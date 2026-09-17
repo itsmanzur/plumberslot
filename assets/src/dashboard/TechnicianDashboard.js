@@ -95,6 +95,23 @@ export function TechnicianDashboard() {
 		}
 	};
 
+	const setStage = async ( id, stage ) => {
+		setBusyId( id );
+		try {
+			await post( `bookings/${ id }/job-status`, { status: stage } );
+			announce(
+				stage === 'on_the_way'
+					? 'Marked on the way.'
+					: 'Marked in progress.'
+			);
+			await load();
+		} catch ( err ) {
+			setError( err.message );
+		} finally {
+			setBusyId( 0 );
+		}
+	};
+
 	const saveNote = async ( id ) => {
 		setBusyId( id );
 		try {
@@ -190,8 +207,10 @@ export function TechnicianDashboard() {
 							description:
 								'When customers book you, they appear here.',
 						} )
-					: jobs.map( ( row ) =>
-							h(
+					: jobs.map( ( row ) => {
+							const stageLabel = jobStageLabel( row.job_stage );
+
+							return h(
 								'article',
 								{
 									key: row.id,
@@ -214,10 +233,69 @@ export function TechnicianDashboard() {
 									)
 								),
 								h(
-									StatusChip,
-									{ tone: statusTone( row.status ) },
-									row.status
+									'div',
+									{ class: 'ts-dash__status-row' },
+									h(
+										StatusChip,
+										{ tone: statusTone( row.status ) },
+										row.status
+									),
+									stageLabel
+										? h(
+												StatusChip,
+												{
+													tone:
+														row.job_stage ===
+														'in_progress'
+															? 'booked'
+															: 'open',
+												},
+												stageLabel
+											)
+										: null
 								),
+								row.status === 'confirmed'
+									? h(
+											'div',
+											{ class: 'ts-dash__actions' },
+											row.job_stage !== 'on_the_way' &&
+												row.job_stage !== 'in_progress'
+												? h(
+														Button,
+														{
+															variant:
+																'secondary',
+															disabled:
+																busyId ===
+																row.id,
+															onClick: () =>
+																setStage(
+																	row.id,
+																	'on_the_way'
+																),
+														},
+														'On my way'
+													)
+												: null,
+											row.job_stage !== 'in_progress'
+												? h(
+														Button,
+														{
+															variant: 'ghost',
+															disabled:
+																busyId ===
+																row.id,
+															onClick: () =>
+																setStage(
+																	row.id,
+																	'in_progress'
+																),
+														},
+														'Arrived / start job'
+													)
+												: null
+										)
+									: null,
 								h(
 									'label',
 									{ class: 'ts-dash__note-field' },
@@ -244,8 +322,8 @@ export function TechnicianDashboard() {
 										'Save note'
 									)
 								)
-							)
-						),
+							);
+						} ),
 				h( 'h2', null, 'Attendance due' ),
 				attendanceDue.length === 0
 					? h( EmptyState, {
@@ -365,4 +443,14 @@ function hasJobEnded( endUtc ) {
 	);
 
 	return Number.isFinite( timestamp ) && timestamp <= Date.now();
+}
+
+function jobStageLabel( jobStage ) {
+	if ( jobStage === 'on_the_way' ) {
+		return 'On the way';
+	}
+	if ( jobStage === 'in_progress' ) {
+		return 'In progress';
+	}
+	return '';
 }

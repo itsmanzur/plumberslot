@@ -25,6 +25,9 @@ defined( 'ABSPATH' ) || exit;
 
 final class BookingService {
 
+	/** @var list<string> */
+	private const JOB_STAGES = array( 'scheduled', 'on_the_way', 'in_progress' );
+
 	public function __construct(
 		private readonly BookingRepository $bookings,
 		private readonly LockRepository $locks,
@@ -480,6 +483,41 @@ final class BookingService {
 		}
 
 		AuditLog::record( 'booking.' . $status, 'booking', $booking_id );
+
+		return true;
+	}
+
+	/**
+	 * Technician-only, one-tap job status update: scheduled -> on_the_way ->
+	 * in_progress. Only meaningful while the booking's own `status` is
+	 * 'confirmed' -- once attendance is recorded, `status` itself already
+	 * conveys completed/no_show and this stage is no longer advanced.
+	 */
+	public function set_job_stage( int $booking_id, string $stage ): bool|WP_Error {
+		if ( ! in_array( $stage, self::JOB_STAGES, true ) ) {
+			return new WP_Error( 'plumberslot_bad_status', __( 'Invalid job status.', 'plumberslot' ), array( 'status' => 422 ) );
+		}
+
+		$booking = $this->bookings->find( $booking_id );
+		if ( ! $booking ) {
+			return new WP_Error( 'plumberslot_not_found', '', array( 'status' => 404 ) );
+		}
+
+		if ( 'confirmed' !== (string) $booking->status ) {
+			return new WP_Error(
+				'plumberslot_invalid_transition',
+				__( 'Job status can only be updated for a confirmed appointment.', 'plumberslot' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$this->bookings->set_job_stage( $booking_id, $stage );
+		Cache::forget_technician( (int) $booking->technician_id );
+		AuditLog::record( 'booking.job_stage', 'booking', $booking_id, array( 'stage' => $stage ) );
+
+		if ( 'on_the_way' === $stage ) {
+			$this->notify->booking_on_the_way( $booking_id );
+		}
 
 		return true;
 	}

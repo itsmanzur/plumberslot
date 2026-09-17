@@ -128,6 +128,7 @@ final class EmailChannel implements ChannelInterface {
 		return match ( $event ) {
 			'booking_created'     => sprintf( /* translators: %s: date and time. */ __( 'Appointment requested for %s', 'plumberslot' ), $when ),
 			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Appointment confirmed for %s', 'plumberslot' ), $when ),
+			'booking_on_the_way'  => __( 'Your technician is on the way', 'plumberslot' ),
 			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'Appointment on %s is cancelled', 'plumberslot' ), $when ),
 			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'Appointment moved to %s', 'plumberslot' ), $when ),
 			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'Tomorrow: your appointment at %s', 'plumberslot' ), $when ),
@@ -139,6 +140,8 @@ final class EmailChannel implements ChannelInterface {
 	/**
 	 * The join link is a signed, expiring URL rather than the raw meeting URL,
 	 * so a forwarded email cannot let a stranger walk into a live video estimate.
+	 *
+	 * @param object{id:int,meeting_ref:?string,meeting_token:?string,address_line1:?string} $booking Booking row.
 	 */
 	private function body( string $event, string $name, string $when, object $booking ): string {
 		$join = $booking->meeting_ref
@@ -176,6 +179,15 @@ final class EmailChannel implements ChannelInterface {
 				'<p><a href="%s">%s</a></p>',
 				esc_url( $join ),
 				esc_html__( 'Join your video estimate', 'plumberslot' )
+			);
+		}
+
+		if ( in_array( $event, array( 'booking_confirmed', 'booking_on_the_way' ), true ) && ! empty( $booking->meeting_token ) ) {
+			$track_url = Crypto::track_url( (int) $booking->id, (string) $booking->meeting_token );
+			$lines[]   = sprintf(
+				'<p style="color:#555555;"><a href="%1$s">%2$s</a></p>',
+				esc_url( $track_url ),
+				esc_html__( 'Track your appointment', 'plumberslot' )
 			);
 		}
 
@@ -235,6 +247,7 @@ final class EmailChannel implements ChannelInterface {
 		return match ( $event ) {
 			'booking_created'     => __( "We'll confirm this shortly.", 'plumberslot' ),
 			'booking_confirmed'   => __( "Your technician will arrive at the scheduled time. You'll get a reminder beforehand.", 'plumberslot' ),
+			'booking_on_the_way'  => __( "You'll get another update if anything changes.", 'plumberslot' ),
 			'booking_rescheduled' => __( 'Your technician will arrive at the new time above.', 'plumberslot' ),
 			'reminder_24h',
 			'reminder_1h'         => __( 'Your technician will arrive at the scheduled time.', 'plumberslot' ),
@@ -296,6 +309,7 @@ final class EmailChannel implements ChannelInterface {
 	private function sentence( string $event, string $when ): string {
 		return match ( $event ) {
 			'booking_confirmed'   => sprintf( /* translators: %s: date and time. */ __( 'Your appointment is confirmed for %s.', 'plumberslot' ), $when ),
+			'booking_on_the_way'  => __( 'Your technician is on the way to your appointment.', 'plumberslot' ),
 			'booking_cancelled'   => sprintf( /* translators: %s: date and time. */ __( 'The appointment on %s has been cancelled. Nothing further is needed from you.', 'plumberslot' ), $when ),
 			'booking_rescheduled' => sprintf( /* translators: %s: date and time. */ __( 'The appointment has moved to %s.', 'plumberslot' ), $when ),
 			'reminder_24h'        => sprintf( /* translators: %s: date and time. */ __( 'A reminder that your appointment is tomorrow at %s.', 'plumberslot' ), $when ),
