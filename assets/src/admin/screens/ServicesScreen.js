@@ -19,6 +19,9 @@ const emptyForm = () => ( {
 	price_major: '',
 	is_free_estimate: false,
 	is_emergency_available: false,
+	deposit_type: 'none',
+	deposit_major: '',
+	deposit_percent: '',
 	status: 'active',
 } );
 
@@ -92,6 +95,7 @@ export function ServicesScreen() {
 
 	const openEdit = ( row ) => {
 		setEditingId( row.id );
+		const depositType = row.deposit_type || 'none';
 		setForm( {
 			name: row.name || '',
 			category: row.category || '',
@@ -99,6 +103,15 @@ export function ServicesScreen() {
 			price_major: String( ( Number( row.price_minor ) || 0 ) / 100 ),
 			is_free_estimate: Boolean( row.is_free_estimate ),
 			is_emergency_available: Boolean( row.is_emergency_available ),
+			deposit_type: depositType,
+			deposit_major:
+				depositType === 'fixed'
+					? String( ( Number( row.deposit_value ) || 0 ) / 100 )
+					: '',
+			deposit_percent:
+				depositType === 'percent'
+					? String( Number( row.deposit_value ) || 0 )
+					: '',
 			status: row.status || 'active',
 		} );
 		setModal( 'edit' );
@@ -118,6 +131,8 @@ export function ServicesScreen() {
 			price_minor: majorToMinor( form.price_major ),
 			is_free_estimate: Boolean( form.is_free_estimate ),
 			is_emergency_available: Boolean( form.is_emergency_available ),
+			deposit_type: form.deposit_type,
+			deposit_value: depositValueFor( form ),
 			status: form.status === 'inactive' ? 'inactive' : 'active',
 		};
 		try {
@@ -222,7 +237,7 @@ export function ServicesScreen() {
 				? h( EmptyState, {
 						title: 'No services yet',
 						description:
-							'Add what you teach — name, length, and price. Parents pick one when they book.',
+							'Add what you offer — name, length, and price. Customers pick one when they book.',
 						actionLabel: 'Add service',
 						onAction: openCreate,
 					} )
@@ -394,6 +409,49 @@ export function ServicesScreen() {
 					( v ) => setForm( { ...form, price_major: v } ),
 					'number'
 				),
+				h(
+					'label',
+					{ class: 'ts-admin-field' },
+					h( 'span', null, 'Deposit' ),
+					h(
+						'select',
+						{
+							value: form.deposit_type,
+							onChange: ( event ) =>
+								setForm( {
+									...form,
+									deposit_type: event.target.value,
+								} ),
+						},
+						h(
+							'option',
+							{ value: 'none' },
+							'None — pay in full at booking'
+						),
+						h( 'option', { value: 'fixed' }, 'Fixed amount' ),
+						h(
+							'option',
+							{ value: 'percent' },
+							'Percentage of price'
+						)
+					)
+				),
+				form.deposit_type === 'fixed'
+					? field(
+							`Deposit amount (${ currency })`,
+							form.deposit_major,
+							( v ) => setForm( { ...form, deposit_major: v } ),
+							'number'
+						)
+					: null,
+				form.deposit_type === 'percent'
+					? field(
+							'Deposit percentage (0–100)',
+							form.deposit_percent,
+							( v ) => setForm( { ...form, deposit_percent: v } ),
+							'number'
+						)
+					: null,
 				h( Toggle, {
 					label: 'Offer as a free estimate',
 					explanation:
@@ -448,7 +506,7 @@ export function ServicesScreen() {
 				onPrimary: confirmDelete,
 			},
 			deleteTarget
-				? `Remove “${ deleteTarget.name }”? Parents will no longer see it when booking.`
+				? `Remove “${ deleteTarget.name }”? Customers will no longer see it when booking.`
 				: ''
 		)
 	);
@@ -460,6 +518,20 @@ function majorToMinor( value ) {
 		return 0;
 	}
 	return Math.round( n * 100 );
+}
+
+function depositValueFor( form ) {
+	if ( form.deposit_type === 'fixed' ) {
+		return majorToMinor( form.deposit_major );
+	}
+	if ( form.deposit_type === 'percent' ) {
+		const n = Number( form.deposit_percent );
+		if ( ! Number.isFinite( n ) || n < 0 ) {
+			return 0;
+		}
+		return Math.min( 100, Math.round( n ) );
+	}
+	return 0;
 }
 
 function formatMoney( minor, currency ) {

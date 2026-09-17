@@ -141,6 +141,7 @@ final class ServiceRepository extends AbstractRepository {
 			'price_minor'            => 0,
 			'is_free_estimate'       => 0,
 			'is_emergency_available' => 0,
+			'deposit_value'          => 0,
 			'sort_order'             => 0,
 		) as $field => $default ) {
 			if ( ! $include_defaults && ! array_key_exists( $field, $data ) ) {
@@ -156,6 +157,11 @@ final class ServiceRepository extends AbstractRepository {
 
 		if ( isset( $values['is_emergency_available'] ) ) {
 			$values['is_emergency_available'] = min( 1, $values['is_emergency_available'] );
+		}
+
+		if ( $include_defaults || array_key_exists( 'deposit_type', $data ) ) {
+			$deposit_type           = sanitize_key( (string) ( $data['deposit_type'] ?? 'none' ) );
+			$values['deposit_type'] = in_array( $deposit_type, array( 'none', 'fixed', 'percent' ), true ) ? $deposit_type : 'none';
 		}
 
 		if ( $include_defaults || array_key_exists( 'status', $data ) ) {

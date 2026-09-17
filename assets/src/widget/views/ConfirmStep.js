@@ -47,6 +47,9 @@ export function ConfirmStep( {
 
 	const price = service?.is_free_estimate ? 0 : service?.price_minor || 0;
 	const useCredit = payMethod === 'package';
+	const hasDeposit =
+		service?.deposit_type && service.deposit_type !== 'none' && price > 0;
+	const depositPreview = hasDeposit ? previewSplit( service, price ) : null;
 
 	const payOptions = useMemo(
 		() => buildPayOptions( boot.payments, technician.display_name ),
@@ -234,7 +237,7 @@ export function ConfirmStep( {
 				if (
 					gateway &&
 					! useCredit &&
-					( result.price_minor || 0 ) > 0
+					( result.deposit_minor || 0 ) > 0
 				) {
 					announce( 'Redirecting to payment…' );
 					const payment = await post( 'payments/start', {
@@ -338,7 +341,25 @@ export function ConfirmStep( {
 						technician.meeting_provider
 					) } · link after confirm`
 				),
-				row( 'Total', priceLabel, true )
+				depositPreview
+					? [
+							row(
+								'Due now',
+								money(
+									depositPreview.deposit,
+									service?.currency || technician.currency
+								)
+							),
+							row(
+								'Due on arrival',
+								money(
+									depositPreview.balance,
+									service?.currency || technician.currency
+								),
+								true
+							),
+						]
+					: row( 'Total', priceLabel, true )
 			),
 			h(
 				'label',
@@ -508,7 +529,8 @@ export function ConfirmStep( {
 					service,
 					technician,
 					seriesOn,
-					seriesCount
+					seriesCount,
+					depositPreview
 				)
 			),
 		]
@@ -707,7 +729,8 @@ function confirmLabel(
 	service,
 	technician,
 	seriesOn = false,
-	seriesCount = 1
+	seriesCount = 1,
+	depositPreview = null
 ) {
 	if ( ! seriesOn && seconds <= 0 ) {
 		return 'Refresh hold';
@@ -715,9 +738,14 @@ function confirmLabel(
 	if ( busy ) {
 		return 'Booking…';
 	}
-	const amount = money( price, service?.currency || technician.currency );
+	const currency = service?.currency || technician.currency;
+	const amount = money( price, currency );
 	if ( seriesOn ) {
 		return `Book ${ seriesCount } appointments · ${ amount } each`;
+	}
+	if ( depositPreview ) {
+		const depositAmountLabel = money( depositPreview.deposit, currency );
+		return `Confirm · ${ depositAmountLabel } now`;
 	}
 	if ( price > 0 ) {
 		return `Confirm · ${ amount }`;
@@ -761,6 +789,28 @@ const CADENCE_OPTS = [
 	{ value: 13, label: 'Quarterly' },
 	{ value: 26, label: 'Every 6 months' },
 ];
+
+/**
+ * Client-side mirror of Support\Deposits::split() -- for display only, before
+ * the booking exists. The server computes and stores the authoritative split
+ * at creation time regardless of what this preview shows.
+ *
+ * @param {Object} service Selected service, with deposit_type/deposit_value.
+ * @param {number} price   Full price in minor units.
+ */
+function previewSplit( service, price ) {
+	let deposit;
+	if ( service.deposit_type === 'fixed' ) {
+		deposit = Math.min( Number( service.deposit_value ) || 0, price );
+	} else {
+		const percent = Math.min(
+			100,
+			Math.max( 0, Number( service.deposit_value ) || 0 )
+		);
+		deposit = Math.min( Math.round( ( price * percent ) / 100 ), price );
+	}
+	return { deposit, balance: price - deposit };
+}
 
 function gatewayFor( payMethod, payments = {} ) {
 	if ( payMethod === 'bkash' && payments.bkash ) {

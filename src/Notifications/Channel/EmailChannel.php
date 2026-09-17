@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace PlumberSlot\Notifications\Channel;
 
 use PlumberSlot\Support\Crypto;
+use PlumberSlot\Support\Money;
 use PlumberSlot\Support\Settings;
 use PlumberSlot\Support\Time;
 
@@ -154,6 +155,12 @@ final class EmailChannel implements ChannelInterface {
 			$lines[] = sprintf( '<p style="color:#555555;">%s</p>', esc_html( $expect ) );
 		}
 
+		$deposit_note = $this->deposit_note( $event, $booking );
+
+		if ( '' !== $deposit_note ) {
+			$lines[] = sprintf( '<p style="color:#555555;">%s</p>', esc_html( $deposit_note ) );
+		}
+
 		$address_line1 = trim( (string) ( $booking->address_line1 ?? '' ) );
 
 		if ( '' !== $address_line1 ) {
@@ -233,6 +240,34 @@ final class EmailChannel implements ChannelInterface {
 			'reminder_1h'         => __( 'Your technician will arrive at the scheduled time.', 'plumberslot' ),
 			default               => '',
 		};
+	}
+
+	/**
+	 * When a booking was only partly paid online, a calm one-line reminder of
+	 * what was already paid as a deposit and what is still due on arrival --
+	 * shown only on the confirmation email, and only when there is a balance
+	 * left, so a full-price booking's email is unchanged.
+	 */
+	private function deposit_note( string $event, object $booking ): string {
+		if ( 'booking_confirmed' !== $event ) {
+			return '';
+		}
+
+		$balance = (int) ( $booking->balance_minor ?? 0 );
+
+		if ( $balance <= 0 ) {
+			return '';
+		}
+
+		$currency = (string) ( $booking->currency ?? 'USD' );
+		$deposit  = (int) ( $booking->deposit_minor ?? 0 );
+
+		return sprintf(
+			/* translators: 1: deposit amount already paid, 2: balance due on arrival. */
+			__( 'A deposit of %1$s has been paid. %2$s is due on arrival.', 'plumberslot' ),
+			Money::format( $deposit, $currency ),
+			Money::format( $balance, $currency )
+		);
 	}
 
 	/**

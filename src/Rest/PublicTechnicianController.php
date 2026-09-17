@@ -181,7 +181,7 @@ final class PublicTechnicianController extends AbstractController {
 	 * technicians surfaces as one bookable entry.
 	 *
 	 * @param list<object> $technicians Active technician rows.
-	 * @return list<array{id:int,name:string,category:string|null,duration_min:int,price_minor:int,currency:string,is_free_estimate:bool,is_emergency_available:bool,technician_ids:list<int>}>
+	 * @return list<array{id:int,name:string,category:string|null,duration_min:int,price_minor:int,currency:string,is_free_estimate:bool,is_emergency_available:bool,deposit_type:string,deposit_value:int,technician_ids:list<int>}>
 	 */
 	private function aggregate_services( array $technicians ): array {
 		$groups = array();
@@ -204,6 +204,8 @@ final class PublicTechnicianController extends AbstractController {
 					'currency'               => (string) $technician->currency,
 					'is_free_estimate'       => (bool) $service->is_free_estimate,
 					'is_emergency_available' => (bool) $service->is_emergency_available,
+					'deposit_type'           => (string) $service->deposit_type,
+					'deposit_value'          => (int) $service->deposit_value,
 				);
 			}
 		}
@@ -237,6 +239,8 @@ final class PublicTechnicianController extends AbstractController {
 				'currency'               => $representative['currency'],
 				'is_free_estimate'       => $representative['is_free_estimate'],
 				'is_emergency_available' => $representative['is_emergency_available'],
+				'deposit_type'           => $representative['deposit_type'],
+				'deposit_value'          => $representative['deposit_value'],
 				'technician_ids'         => $technician_ids,
 			);
 		}
@@ -288,6 +292,8 @@ final class PublicTechnicianController extends AbstractController {
 				'currency'               => (string) $technician->currency,
 				'is_free_estimate'       => (bool) $service->is_free_estimate,
 				'is_emergency_available' => (bool) $service->is_emergency_available,
+				'deposit_type'           => (string) $service->deposit_type,
+				'deposit_value'          => (int) $service->deposit_value,
 			);
 		}
 

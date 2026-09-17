@@ -72,7 +72,7 @@ final class PaymentService {
 			);
 		}
 
-		$amount   = (int) $booking->price_minor;
+		$amount   = (int) $booking->deposit_minor;
 		$currency = (string) $booking->currency;
 
 		if ( $amount <= 0 ) {
@@ -280,13 +280,13 @@ final class PaymentService {
 
 		// Server-side amount/currency check — client cannot underpay.
 		if ( 'paid' === $status && isset( $event['amount_minor'] ) && (int) $event['amount_minor'] > 0 ) {
-			if ( (int) $event['amount_minor'] < (int) $booking->price_minor ) {
+			if ( (int) $event['amount_minor'] < (int) $booking->deposit_minor ) {
 				AuditLog::record(
 					'payment.underpay_rejected',
 					'booking',
 					$booking_id,
 					array(
-						'expected' => (int) $booking->price_minor,
+						'expected' => (int) $booking->deposit_minor,
 						'got'      => (int) $event['amount_minor'],
 					)
 				);
@@ -325,7 +325,7 @@ final class PaymentService {
 						'booking_id'   => $booking_id,
 						'gateway'      => $gateway_id,
 						'reference'    => $reference,
-						'amount_minor' => (int) $booking->price_minor,
+						'amount_minor' => (int) $booking->deposit_minor,
 						'currency'     => (string) $booking->currency,
 						'status'       => 'paid',
 						'idempotency'  => $key,
@@ -479,6 +479,10 @@ final class PaymentService {
 			return new WP_Error( 'plumberslot_gateway_unavailable', '', array( 'status' => 422 ) );
 		}
 
+		// Refunds the amount actually captured (payment->amount_minor), which is
+		// now the deposit rather than the full price when one was configured --
+		// this already handles deposit-only refunds correctly without any
+		// change, since it never referenced booking->price_minor.
 		$idem = 'ts_refund_' . $booking_id . '_' . (int) $payment->id;
 		$done = $gateway->refund( (string) $payment->reference, (int) $payment->amount_minor, $idem );
 

@@ -68,6 +68,16 @@ final class ServicesController extends AbstractController {
 							'type'    => 'boolean',
 							'default' => false,
 						),
+						'deposit_type'           => array(
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_key',
+							'default'           => 'none',
+						),
+						'deposit_value'          => array(
+							'type'              => 'integer',
+							'sanitize_callback' => 'absint',
+							'default'           => 0,
+						),
 						'category'               => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -160,6 +170,8 @@ final class ServicesController extends AbstractController {
 				'price_minor'            => (int) $request['price_minor'],
 				'is_free_estimate'       => $request['is_free_estimate'] ? 1 : 0,
 				'is_emergency_available' => $request['is_emergency_available'] ? 1 : 0,
+				'deposit_type'           => (string) ( $request['deposit_type'] ?? 'none' ),
+				'deposit_value'          => (int) ( $request['deposit_value'] ?? 0 ),
 				'category'               => (string) ( $request['category'] ?? '' ),
 				'status'                 => (string) ( $request['status'] ?? 'active' ),
 			)
@@ -244,6 +256,8 @@ final class ServicesController extends AbstractController {
 			'currency'               => $technician ? (string) $technician->currency : 'USD',
 			'is_free_estimate'       => (bool) $row->is_free_estimate,
 			'is_emergency_available' => (bool) $row->is_emergency_available,
+			'deposit_type'           => (string) $row->deposit_type,
+			'deposit_value'          => (int) $row->deposit_value,
 			'status'                 => (string) $row->status,
 			'sort_order'             => (int) $row->sort_order,
 		);

@@ -248,10 +248,14 @@ final class DashboardController extends AbstractController {
 			$end        = new \DateTimeImmutable( (string) $row->end_utc, new \DateTimeZone( 'UTC' ) );
 			$local      = $start->setTimezone( new \DateTimeZone( $tz ) );
 			$local_end  = $end->setTimezone( new \DateTimeZone( $tz ) );
+			$balance    = (int) $row->balance_minor;
+			$paid       = ! empty( $row->payment_ref ) || 0 === (int) $row->price_minor;
 			$payment    = ! empty( $row->credit_id )
 				? __( 'Credit used', 'plumberslot' )
-				: ( ! empty( $row->payment_ref ) || 0 === (int) $row->price_minor
-					? ( 0 === (int) $row->price_minor ? __( 'Free', 'plumberslot' ) : __( 'Paid', 'plumberslot' ) )
+				: ( $paid
+					? ( 0 === (int) $row->price_minor
+						? __( 'Free', 'plumberslot' )
+						: ( $balance > 0 ? __( 'Deposit paid', 'plumberslot' ) : __( 'Paid', 'plumberslot' ) ) )
 					: __( 'Due', 'plumberslot' ) );
 			$next_up[]  = array(
 				'id'            => $booking_id,
@@ -265,6 +269,7 @@ final class DashboardController extends AbstractController {
 					? $local->format( 'H:i' ) . ' – ' . $local_end->format( 'H:i' )
 					: $local->format( 'D H:i' ),
 				'payment'       => $payment,
+				'balance_minor' => $balance,
 				'payment_tone'  => __( 'Due', 'plumberslot' ) === $payment ? 'wait' : ( __( 'Credit used', 'plumberslot' ) === $payment ? 'idle' : 'ok' ),
 				'meeting_ready' => ! empty( $row->meeting_ref ),
 				'join_url'      => ( ! empty( $row->meeting_ref ) && ! empty( $row->meeting_token ) )

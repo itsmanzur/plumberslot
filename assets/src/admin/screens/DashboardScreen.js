@@ -424,7 +424,17 @@ export function DashboardScreen() {
 																		tone: row.payment_tone,
 																	},
 																	row.payment
-																)
+																),
+																row.balance_minor >
+																	0
+																	? h(
+																			'small',
+																			{
+																				class: 'ts-dashboard__balance-due',
+																			},
+																			`Balance due: ${ formatMoney( row.balance_minor, data.tiles?.currency ) }`
+																		)
+																	: null
 															),
 															h(
 																'td',

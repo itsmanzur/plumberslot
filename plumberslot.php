@@ -22,7 +22,7 @@ namespace PlumberSlot;
 defined( 'ABSPATH' ) || exit;
 
 const VERSION     = '0.1.0';
-const DB_VERSION  = 11;
+const DB_VERSION  = 12;
 const PLUGIN_FILE = __FILE__;
 const MIN_PHP     = '8.1';
 const MIN_WP      = '6.4';

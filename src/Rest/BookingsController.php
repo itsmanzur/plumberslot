@@ -829,6 +829,10 @@ final class BookingsController extends AbstractController {
 			$price = (int) $technician->hourly_rate_minor;
 		}
 
+		$split         = \PlumberSlot\Support\Deposits::split( $service, $price );
+		$deposit_minor = $split['deposit_minor'];
+		$balance_minor = $split['balance_minor'];
+
 		// Currency lives on the technician; services inherit it and clients never set it.
 		$currency = (string) $technician->currency;
 
@@ -853,6 +857,8 @@ final class BookingsController extends AbstractController {
 				'technician_tz'  => (string) $technician->timezone,
 				'customer_tz'    => (string) ( $request['timezone'] ?? $technician->timezone ),
 				'price_minor'    => $price,
+				'deposit_minor'  => $deposit_minor,
+				'balance_minor'  => $balance_minor,
 				'currency'       => $currency,
 				'credit_id'      => $credit_id,
 				'consume_credit' => null !== $credit_id,
@@ -887,6 +893,8 @@ final class BookingsController extends AbstractController {
 				'end_utc'             => $booking ? (string) $booking->end_utc : null,
 				'duration_min'        => $duration,
 				'price_minor'         => $price,
+				'deposit_minor'       => $deposit_minor,
+				'balance_minor'       => $balance_minor,
 				'currency'            => $currency,
 				'payment'             => $credit_id ? 'credit' : ( 0 === $price ? 'free' : 'unpaid' ),
 				'service'             => $service ? (string) $service->name : '',

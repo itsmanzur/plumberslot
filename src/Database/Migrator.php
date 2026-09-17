@@ -32,6 +32,7 @@ final class Migrator {
 		9  => 'step_9_emergency_booking',
 		10 => 'step_10_service_plan_payments',
 		11 => 'step_11_recurrence_cadence',
+		12 => 'step_12_deposit_payments',
 	);
 
 	public function maybe_upgrade(): void {
@@ -161,6 +162,17 @@ final class Migrator {
 	 * behaviour because the column default is 1.
 	 */
 	private function step_11_recurrence_cadence(): void {
+		Schema::create_all();
+	}
+
+	/**
+	 * Adds deposit config to SERVICES (`deposit_type`, `deposit_value`) and the
+	 * computed split to BOOKINGS (`deposit_minor`, `balance_minor`). Every
+	 * existing service defaults to `deposit_type = 'none'`, so every existing
+	 * and newly-created booking with no deposit configured keeps today's
+	 * charge-the-full-price-now behaviour exactly.
+	 */
+	private function step_12_deposit_payments(): void {
 		Schema::create_all();
 	}
 }
