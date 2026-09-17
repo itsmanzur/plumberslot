@@ -1,3 +1,21 @@
+<!--
+  PlumberSlot sales/demo page — built for Elementor.
+
+  Structure: every <section data-ps="..."> block below is self-contained —
+  it has no CSS or JS that depends on which section comes before or after it
+  (all styling is class/id-based, never positional; all script logic looks
+  elements up by id, never by DOM order). That means in Elementor you can:
+    - drag-reorder these sections freely (as native Elementor sections/HTML
+      widgets), and
+    - insert a new Elementor section between any two of them,
+  without breaking the booking demo, the feature tabs, the FAQ, or the nav.
+
+  The one-time GLOBAL block (fonts + design tokens + base reset + shared
+  behavior script) lives once, at the top of <head> and the bottom of
+  <body> — if you split this file into multiple Elementor HTML widgets,
+  keep that block in exactly one of them (e.g. a widget at the very top or
+  bottom of the page); every other widget only needs its own <section> markup.
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,6 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
+  /* ============ GLOBAL — include once ============ */
   :root{
     --ink:#141b2d; --ink-2:#3c4759; --slate:#6a7488; --mute:#98a1b2;
     --rule:#e4e7ee; --rule-2:#f0f2f6; --paper:#f8f9fb; --card:#fff;
@@ -52,47 +71,107 @@
   .icon-badge{
     width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
     background:var(--primary-wash); color:var(--primary); flex-shrink:0;
+    transition:transform .18s ease, background .18s ease, color .18s ease;
   }
-  section{padding-block:88px;}
-  input[type=text]{border:1.5px solid var(--rule); border-radius:9px; padding:10px 12px; font-size:14px; font-family:var(--font-body); color:var(--ink); width:100%;}
+  .card:hover .icon-badge{background:var(--primary); color:#fff; transform:translateY(-2px);}
+  .card{transition:box-shadow .18s ease, transform .18s ease, border-color .18s ease;}
+  .card:hover{box-shadow:var(--shadow-lg); transform:translateY(-3px); border-color:#d7dced;}
+  section[data-ps]{padding-block:88px;}
+  input[type=text]{border:1.5px solid var(--rule); border-radius:9px; padding:10px 12px; font-size:14px; font-family:var(--font-body); color:var(--ink); width:100%; transition:border-color .15s ease;}
   input[type=text]:focus{outline:2px solid var(--primary); outline-offset:1px;}
   [hidden]{display:none !important;}
+
+  /* reveal-on-scroll (shared) */
+  [data-reveal]{opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease;}
+  [data-reveal].is-visible{opacity:1; transform:none;}
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal]{transition:none; opacity:1; transform:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* nav */
+  .ps-navlink{color:var(--ink-2); position:relative; padding-block:4px;}
+  .ps-navlink::after{content:"";position:absolute; left:0; right:100%; bottom:-3px; height:2px; background:var(--primary); transition:right .2s ease;}
+  .ps-navlink:hover::after, .ps-navlink[data-active="true"]::after{right:0;}
+  .ps-navlink[data-active="true"]{color:var(--ink); font-weight:600;}
+  .ps-burger{display:none; background:none; border:1px solid var(--rule); border-radius:8px; width:38px; height:38px; align-items:center; justify-content:center; cursor:pointer;}
+  .ps-burger span, .ps-burger span::before, .ps-burger span::after{content:""; display:block; width:18px; height:2px; background:var(--ink); position:relative; transition:transform .2s ease, opacity .2s ease;}
+  .ps-burger span::before{position:absolute; top:-6px;}
+  .ps-burger span::after{position:absolute; top:6px;}
+  .ps-mobile-panel{display:grid; grid-template-rows:0fr; transition:grid-template-rows .25s ease; border-bottom:1px solid var(--rule); background:var(--paper);}
+  .ps-mobile-panel.open{grid-template-rows:1fr;}
+  .ps-mobile-panel > div{overflow:hidden;}
+  .ps-mobile-panel a{display:block; padding:12px 32px; font-size:14.5px; font-weight:500; color:var(--ink-2); border-top:1px solid var(--rule-2);}
+
+  /* feature tabs */
+  #tabNav{position:relative;}
+  #tabUnderline{position:absolute; bottom:0; height:2.5px; background:var(--primary); transition:left .22s ease, width .22s ease;}
+  .ps-tab{background:none; border:none; padding:10px 16px 12px; font-family:var(--font-body); font-weight:600; font-size:14px; cursor:pointer; color:var(--mute);}
+  .ps-tab[aria-selected="true"]{color:var(--ink);}
+  .ps-tab:focus-visible{outline:2px solid var(--primary); outline-offset:2px; border-radius:4px;}
+
+  /* faq */
+  .faq-item{display:grid; grid-template-rows:0fr; transition:grid-template-rows .25s ease;}
+  .faq-item.open{grid-template-rows:1fr;}
+  .faq-item > .faq-body-outer{overflow:hidden;}
+  .faq-q{cursor:pointer; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; background:none; border:none; width:100%; text-align:left; font:inherit;}
+  .faq-symbol{transition:transform .25s ease;}
+  .faq-item.open .faq-symbol{transform:rotate(45deg);}
+
+  /* demo steps */
+  .demo-step{transition:opacity .18s ease, transform .18s ease;}
+  .demo-step.leaving{opacity:0; transform:translateX(-8px);}
+  .demo-step.entering{opacity:0; transform:translateX(8px);}
+
+  .ps-copy-btn{cursor:pointer; background:none; border:none; color:var(--primary); font-size:11px; font-family:var(--font-mono); font-weight:600;}
+
   @media (max-width:720px){
     .wrap{padding-inline:20px;}
-    section{padding-block:56px;}
+    section[data-ps]{padding-block:56px;}
   }
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr !important;}
     .feature-grid{grid-template-columns:1fr !important;}
     .nav-links{display:none !important;}
+    .ps-burger{display:flex !important;}
   }
 </style>
 </head>
 <body>
 
-  <!-- ============ NAV ============ -->
-  <div style="position:sticky; top:0; z-index:40; background:rgba(248,249,251,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--rule)">
+  <!-- ===== SECTION: nav (data-ps="nav") ===== -->
+  <section data-ps="nav" style="padding-block:0; position:sticky; top:0; z-index:40; background:rgba(248,249,251,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--rule)">
     <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; height:72px; gap:24px;">
       <div style="display:flex; align-items:center; gap:10px;">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="7" fill="#2f4ba8"/><path d="M8 15V9.5C8 8.12 9.12 7 10.5 7H12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M16 9V14.5C16 15.88 14.88 17 13.5 17H12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="16.5" r="1.6" fill="#fff"/><circle cx="16" cy="7.5" r="1.6" fill="#fff"/></svg>
         <span style="font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--ink); letter-spacing:-0.01em;">PlumberSlot</span>
       </div>
       <div class="nav-links" style="display:flex; align-items:center; gap:28px; font-size:14px; font-weight:500;">
-        <a href="#demo" style="color:var(--ink-2)">Live demo</a>
-        <a href="#features" style="color:var(--ink-2)">Features</a>
-        <a href="#how" style="color:var(--ink-2)">How it works</a>
-        <a href="#compare" style="color:var(--ink-2)">Why PlumberSlot</a>
-        <a href="#faq" style="color:var(--ink-2)">FAQ</a>
+        <a href="#demo" class="ps-navlink" data-nav="demo">Live demo</a>
+        <a href="#features" class="ps-navlink" data-nav="features">Features</a>
+        <a href="#how" class="ps-navlink" data-nav="how">How it works</a>
+        <a href="#compare" class="ps-navlink" data-nav="compare">Why PlumberSlot</a>
+        <a href="#faq" class="ps-navlink" data-nav="faq">FAQ</a>
       </div>
-      <a href="#get" class="btn btn-primary btn-sm">Get PlumberSlot free</a>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="#get" class="btn btn-primary btn-sm">Get PlumberSlot free</a>
+        <button class="ps-burger" id="psBurger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+      </div>
     </div>
-  </div>
+    <div class="ps-mobile-panel" id="psMobilePanel"><div>
+      <a href="#demo">Live demo</a>
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#compare">Why PlumberSlot</a>
+      <a href="#faq">FAQ</a>
+    </div></div>
+  </section>
 
-  <!-- ============ HERO ============ -->
-  <section style="padding-top:76px; padding-bottom:64px; overflow:hidden; position:relative;">
-    <div style="position:absolute; inset:0 0 auto 0; height:520px; background:radial-gradient(60% 60% at 80% 0%, var(--primary-wash), transparent 70%);"></div>
+  <!-- ===== SECTION: hero (data-ps="hero") ===== -->
+  <section data-ps="hero" id="psHero" style="padding-top:76px; padding-bottom:64px; overflow:hidden; position:relative;">
+    <div id="heroGlow" style="position:absolute; inset:0 0 auto 0; height:520px; background:radial-gradient(60% 60% at 80% 0%, var(--primary-wash), transparent 70%); transition:background-position .3s ease;"></div>
     <div class="wrap hero-grid" style="position:relative; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;">
-      <div>
+      <div data-reveal>
         <span class="eyebrow">Free WordPress plugin · No per-technician fees</span>
         <h1 style="font-size:clamp(2.4rem,4.4vw,3.4rem); line-height:1.04; margin-top:20px;">Built for the van, not the salon chair.</h1>
         <p style="font-size:18px; color:var(--slate); max-width:52ch; margin-top:18px;">
@@ -109,8 +188,8 @@
         </div>
       </div>
 
-      <div style="position:relative;">
-        <div class="card" style="padding:22px; max-width:380px; margin-left:auto; position:relative; z-index:2;">
+      <div style="position:relative;" data-reveal>
+        <div class="card" id="heroCard" style="padding:22px; max-width:380px; margin-left:auto; position:relative; z-index:2; transition:transform .25s ease;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:16px;">
             <div style="width:7px; height:7px; border-radius:99px; background:var(--primary)"></div>
             <div style="width:7px; height:7px; border-radius:99px; background:var(--rule)"></div>
@@ -160,60 +239,57 @@
     </div>
   </section>
 
-  <!-- ============ INTERACTIVE DEMO ============ -->
-  <section id="demo" style="background:var(--ink); color:#fff; border-radius:32px; margin-inline:16px; padding-block:76px;">
-    <div class="wrap" style="text-align:center; max-width:680px;">
+  <!-- ===== SECTION: demo (data-ps="demo") ===== -->
+  <section data-ps="demo" id="demo" style="background:var(--ink); color:#fff; border-radius:32px; margin-inline:16px; padding-block:76px;">
+    <div class="wrap" style="text-align:center; max-width:680px;" data-reveal>
       <span class="eyebrow" style="background:rgba(255,255,255,.08); color:var(--highlight);">Click through it yourself</span>
       <h2 style="color:#fff; font-size:clamp(1.8rem,3vw,2.4rem); margin-top:16px;">This is the actual booking flow</h2>
       <p style="color:#b7bdcc; font-size:16px; margin-top:12px;">No fake screenshots — pick a service, a time, type a real address, and confirm. This is exactly what a customer sees on your site.</p>
     </div>
 
     <div class="wrap" style="margin-top:44px; display:flex; justify-content:center;">
-      <div style="width:100%; max-width:460px;">
+      <div style="width:100%; max-width:460px;" data-reveal>
 
         <div style="display:flex; align-items:center; gap:4px; margin-bottom:22px; padding:0 4px;" id="rail"></div>
         <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#7c8399; margin:-14px 2px 20px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.04em;">
           <span>Service</span><span>Time</span><span>Address</span><span>Confirm</span>
         </div>
 
-        <div style="background:#fff; border-radius:20px; padding:26px; color:var(--ink-2); min-height:400px; box-shadow:0 30px 70px -20px rgb(0 0 0/45%);">
+        <div style="background:#fff; border-radius:20px; padding:26px; color:var(--ink-2); min-height:400px; box-shadow:0 30px 70px -20px rgb(0 0 0/45%); overflow:hidden;">
 
-          <!-- STEP 0: SERVICE -->
-          <div id="demoStep0">
+          <div id="demoStep0" class="demo-step">
             <h3 style="font-size:18px; margin-bottom:14px;">What do you want to work on?</h3>
             <div style="display:flex; flex-direction:column; gap:9px;" id="serviceList"></div>
             <button id="btnStep0Next" class="btn btn-primary" style="width:100%; margin-top:20px;" disabled>Choose a time →</button>
           </div>
 
-          <!-- STEP 1: TIME -->
-          <div id="demoStep1" hidden>
+          <div id="demoStep1" class="demo-step" hidden>
             <h3 style="font-size:18px; margin-bottom:2px;">When works for you?</h3>
             <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px;">Showing the soonest opening across every technician.</p>
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;" id="slotList"></div>
             <p style="font-size:11.5px; color:var(--mute); margin-top:10px;">Greyed slot is already held by another customer.</p>
             <div style="display:flex; gap:10px; margin-top:16px;">
-              <button class="btn btn-ghost" style="flex:1;" onclick="goStep(0)">← Back</button>
-              <button id="btnStep1Next" class="btn btn-primary" style="flex:2;" disabled onclick="goStep(2)">Continue →</button>
+              <button class="btn btn-ghost" style="flex:1;" data-go="0">← Back</button>
+              <button id="btnStep1Next" class="btn btn-primary" style="flex:2;" disabled data-go="2">Continue →</button>
             </div>
           </div>
 
-          <!-- STEP 2: ADDRESS -->
-          <div id="demoStep2" hidden>
+          <div id="demoStep2" class="demo-step" hidden>
             <h3 style="font-size:18px; margin-bottom:2px;">Where is the job?</h3>
             <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">So the technician knows exactly where to go.</p>
             <div style="display:flex; flex-direction:column; gap:12px;">
               <label style="display:flex; flex-direction:column; gap:5px;">
                 <span style="font-size:12px; font-weight:600; color:var(--ink-2);">Street address</span>
-                <input type="text" id="addrStreet" placeholder="123 Main St" oninput="checkAddr()">
+                <input type="text" id="addrStreet" placeholder="123 Main St">
               </label>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <label style="display:flex; flex-direction:column; gap:5px;">
                   <span style="font-size:12px; font-weight:600; color:var(--ink-2);">City</span>
-                  <input type="text" id="addrCity" placeholder="Springfield" oninput="checkAddr()">
+                  <input type="text" id="addrCity" placeholder="Springfield">
                 </label>
                 <label style="display:flex; flex-direction:column; gap:5px;">
                   <span style="font-size:12px; font-weight:600; color:var(--ink-2);">ZIP</span>
-                  <input type="text" id="addrZip" placeholder="90210" oninput="checkAddr()">
+                  <input type="text" id="addrZip" placeholder="90210">
                 </label>
               </div>
               <label style="display:flex; align-items:flex-start; gap:8px; margin-top:2px;">
@@ -222,13 +298,12 @@
               </label>
             </div>
             <div style="display:flex; gap:10px; margin-top:18px;">
-              <button class="btn btn-ghost" style="flex:1;" onclick="goStep(1)">← Back</button>
-              <button id="btnStep2Next" class="btn btn-primary" style="flex:2;" disabled onclick="goStep(3)">Review booking →</button>
+              <button class="btn btn-ghost" style="flex:1;" data-go="1">← Back</button>
+              <button id="btnStep2Next" class="btn btn-primary" style="flex:2;" disabled data-go="3">Review booking →</button>
             </div>
           </div>
 
-          <!-- STEP 3: CONFIRM -->
-          <div id="demoStep3" hidden>
+          <div id="demoStep3" class="demo-step" hidden>
             <h3 style="font-size:18px; margin-bottom:14px;">Confirm and book</h3>
             <div style="border:1px solid var(--rule); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
               <div style="display:flex; justify-content:space-between; font-size:13.5px;"><span style="color:var(--mute);">Service</span><span id="confService" style="font-weight:600; color:var(--ink);">—</span></div>
@@ -238,21 +313,23 @@
               <div style="display:flex; justify-content:space-between; font-size:14.5px;"><span style="color:var(--ink);">Total</span><span id="confPrice" class="mono" style="font-weight:700; color:var(--ink);">—</span></div>
             </div>
             <div style="display:flex; gap:10px; margin-top:18px;">
-              <button class="btn btn-ghost" style="flex:1;" onclick="goStep(2)">← Back</button>
-              <button class="btn btn-primary" style="flex:2;" onclick="goStep(4)">Confirm booking</button>
+              <button class="btn btn-ghost" style="flex:1;" data-go="2">← Back</button>
+              <button class="btn btn-primary" style="flex:2;" data-go="4">Confirm booking</button>
             </div>
           </div>
 
-          <!-- STEP 4: DONE -->
-          <div id="demoStep4" hidden>
+          <div id="demoStep4" class="demo-step" hidden>
             <div style="text-align:center; padding:20px 0;">
               <div style="width:52px; height:52px; border-radius:99px; background:var(--ok-wash); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13l4.5 4.5L19 7" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </div>
               <h3 style="font-size:19px;">Booked.</h3>
               <p style="font-size:13.5px; color:var(--slate); margin-top:6px;">A confirmation email is on its way, with your technician's name, the job address, and a reminder 24 hours before.</p>
-              <div style="border:1px dashed var(--rule); border-radius:12px; padding:12px; margin-top:16px; font-family:var(--font-mono); font-size:11.5px; color:var(--mute);">PS-104829</div>
-              <button class="btn btn-ghost" style="margin-top:18px;" onclick="resetDemo()">↺ Start over</button>
+              <div style="border:1px dashed var(--rule); border-radius:12px; padding:12px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span class="mono" style="font-size:11.5px; color:var(--mute);" id="confRefText">PS-104829</span>
+                <button class="ps-copy-btn" id="btnCopyRef" type="button">Copy</button>
+              </div>
+              <button class="btn btn-ghost" style="margin-top:18px;" id="btnResetDemo">↺ Start over</button>
             </div>
           </div>
 
@@ -261,40 +338,40 @@
     </div>
   </section>
 
-  <!-- ============ FEATURES ============ -->
-  <section id="features">
+  <!-- ===== SECTION: features (data-ps="features") ===== -->
+  <section data-ps="features" id="features">
     <div class="wrap">
-      <div style="max-width:620px; margin-bottom:44px;">
+      <div style="max-width:620px; margin-bottom:44px;" data-reveal>
         <span class="eyebrow">Everything, in one free plugin</span>
         <h2 style="font-size:clamp(1.9rem,3vw,2.5rem); margin-top:16px;">Sixteen features, zero feature-gating</h2>
         <p style="color:var(--slate); font-size:16px; margin-top:12px;">No "Pro" upsell hiding the features you actually need. Everything below ships in the free plugin.</p>
       </div>
 
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; border-bottom:1px solid var(--rule); padding-bottom:0;" id="tabNav"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; border-bottom:1px solid var(--rule); padding-bottom:0; position:relative;" id="tabNav" role="tablist"><div id="tabUnderline"></div></div>
 
-      <div class="feature-grid" id="tabPanels" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;"></div>
+      <div class="feature-grid" id="tabPanels" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;" role="tabpanel"></div>
     </div>
   </section>
 
-  <!-- ============ HOW IT WORKS ============ -->
-  <section id="how" style="background:var(--card); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <!-- ===== SECTION: how (data-ps="how") ===== -->
+  <section data-ps="how" id="how" style="background:var(--card); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
     <div class="wrap">
-      <div style="max-width:560px; margin-bottom:44px;">
+      <div style="max-width:560px; margin-bottom:44px;" data-reveal>
         <span class="eyebrow">Setup</span>
         <h2 style="font-size:clamp(1.9rem,3vw,2.5rem); margin-top:16px;">Live in about ninety seconds</h2>
       </div>
       <div class="feature-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px;">
-        <div>
+        <div data-reveal>
           <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--primary); margin-bottom:10px;">01</div>
           <h4 style="font-size:16.5px;">Install and run the setup wizard</h4>
           <p style="font-size:14px; color:var(--slate); margin-top:8px;">Four short steps. PlumberSlot seeds a few starter services — Drain Cleaning, Water Heater, Leak Repair, Free Estimate — so the booking page isn't blank on day one.</p>
         </div>
-        <div>
+        <div data-reveal>
           <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--primary); margin-bottom:10px;">02</div>
           <h4 style="font-size:16.5px;">Add your technicians and hours</h4>
           <p style="font-size:14px; color:var(--slate); margin-top:8px;">Each technician paints their own weekly availability. Set your service area, connect Stripe or bKash if you take online payment.</p>
         </div>
-        <div>
+        <div data-reveal>
           <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--primary); margin-bottom:10px;">03</div>
           <h4 style="font-size:16.5px;">Drop the block on any page</h4>
           <p style="font-size:14px; color:var(--slate); margin-top:8px;">The PlumberSlot block or a plain shortcode. Share the link — customers can book without ever calling.</p>
@@ -303,15 +380,15 @@
     </div>
   </section>
 
-  <!-- ============ COMPARISON ============ -->
-  <section id="compare">
+  <!-- ===== SECTION: compare (data-ps="compare") ===== -->
+  <section data-ps="compare" id="compare">
     <div class="wrap">
-      <div style="max-width:640px; margin-bottom:36px;">
+      <div style="max-width:640px; margin-bottom:36px;" data-reveal>
         <span class="eyebrow">The honest comparison</span>
         <h2 style="font-size:clamp(1.9rem,3vw,2.5rem); margin-top:16px;">Booking plugins built for a salon chair, not a service van</h2>
         <p style="color:var(--slate); font-size:16px; margin-top:12px;">The popular WordPress booking plugins are good at appointments. None of them were built around a job that happens at someone else's address.</p>
       </div>
-      <div class="card" style="overflow-x:auto;">
+      <div class="card" style="overflow-x:auto;" data-reveal>
         <table style="width:100%; border-collapse:collapse; min-width:640px;">
           <thead>
             <tr style="border-bottom:1.5px solid var(--rule);">
@@ -326,10 +403,10 @@
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->
-  <section id="get">
+  <!-- ===== SECTION: cta (data-ps="cta") ===== -->
+  <section data-ps="cta" id="get">
     <div class="wrap">
-      <div class="card" style="padding:56px; text-align:center; background:linear-gradient(155deg, var(--ink) 0%, #1f2842 100%); border:none;">
+      <div class="card" style="padding:56px; text-align:center; background:linear-gradient(155deg, var(--ink) 0%, #1f2842 100%); border:none;" data-reveal>
         <span class="eyebrow" style="background:rgba(255,255,255,.08); color:var(--highlight);">Free. No catches.</span>
         <h2 style="color:#fff; font-size:clamp(1.9rem,3vw,2.5rem); margin-top:18px; max-width:600px; margin-inline:auto;">No monthly SaaS fee. No per-technician seat. Your bookings live in your own database.</h2>
         <p style="color:#b7bdcc; font-size:15.5px; margin-top:14px; max-width:520px; margin-inline:auto;">PlumberSlot is a complete, self-hosted WordPress plugin — not a rebranded generic booking tool with a plumbing coat of paint.</p>
@@ -340,17 +417,19 @@
     </div>
   </section>
 
-  <!-- ============ FAQ ============ -->
-  <section id="faq" style="padding-top:20px;">
+  <!-- ===== SECTION: faq (data-ps="faq") ===== -->
+  <section data-ps="faq" id="faq" style="padding-top:20px;">
     <div class="wrap" style="max-width:760px;">
-      <span class="eyebrow">Questions</span>
-      <h2 style="font-size:clamp(1.7rem,2.6vw,2.1rem); margin-top:16px; margin-bottom:32px;">Frequently asked</h2>
-      <div style="display:flex; flex-direction:column; gap:10px;" id="faqList"></div>
+      <div data-reveal>
+        <span class="eyebrow">Questions</span>
+        <h2 style="font-size:clamp(1.7rem,2.6vw,2.1rem); margin-top:16px; margin-bottom:32px;">Frequently asked</h2>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;" id="faqList" data-reveal></div>
     </div>
   </section>
 
-  <!-- ============ FOOTER ============ -->
-  <footer style="border-top:1px solid var(--rule); margin-top:40px;">
+  <!-- ===== SECTION: footer (data-ps="footer") ===== -->
+  <footer data-ps="footer" style="padding-block:0; border-top:1px solid var(--rule); margin-top:40px;">
     <div class="wrap" style="padding-block:36px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
       <div style="display:flex; align-items:center; gap:9px;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="7" fill="#2f4ba8"/><path d="M8 15V9.5C8 8.12 9.12 7 10.5 7H12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M16 9V14.5C16 15.88 14.88 17 13.5 17H12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="16.5" r="1.6" fill="#fff"/><circle cx="16" cy="7.5" r="1.6" fill="#fff"/></svg>
@@ -361,6 +440,11 @@
   </footer>
 
 <script>
+(function(){
+"use strict";
+const $ = (id) => document.getElementById(id);
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 // ---------- data ----------
 const services = [
   { id: 1, name: 'Drain Cleaning', desc: '60 min · Repair', price: '$150', kind: 'plain' },
@@ -431,14 +515,67 @@ function icoPerson(){return '<svg width="22" height="22" viewBox="0 0 24 24" fil
 function icoBars(){return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';}
 function icoMail(){return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';}
 
-// ---------- state ----------
-let demoStep = 0, demoService = null, demoSlot = null, activeTab = 0, faqOpen = -1;
-
 function el(html){ const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
 
-// ---------- demo: service list ----------
+// ============ NAV: mobile burger + scroll-spy (works with any section order) ============
+(function initNav(){
+  const burger = $('psBurger'), panel = $('psMobilePanel');
+  if (burger && panel){
+    burger.addEventListener('click', () => {
+      const open = panel.classList.toggle('open');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      panel.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    }));
+  }
+
+  const navLinks = Array.from(document.querySelectorAll('.ps-navlink[data-nav]'));
+  if (!navLinks.length || !('IntersectionObserver' in window)) return;
+  const targets = navLinks
+    .map(a => ({ link: a, section: document.getElementById(a.dataset.nav) }))
+    .filter(t => t.section);
+  if (!targets.length) return;
+
+  const setActive = (id) => navLinks.forEach(a => a.dataset.active = (a.dataset.nav === id) ? 'true' : 'false');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+  targets.forEach(t => io.observe(t.section));
+})();
+
+// ============ scroll-reveal (shared, order-independent: finds every [data-reveal] in the document) ============
+(function initReveal(){
+  const items = document.querySelectorAll('[data-reveal]');
+  if (!items.length) return;
+  if (reduceMotion || !('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('is-visible')); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting){ entry.target.classList.add('is-visible'); io.unobserve(entry.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  items.forEach(i => io.observe(i));
+})();
+
+// ============ hero: light cursor parallax on the glow (self-contained to hero section) ============
+(function initHeroParallax(){
+  const hero = $('psHero'), glow = $('heroGlow'), card = $('heroCard');
+  if (!hero || !glow || reduceMotion) return;
+  hero.addEventListener('mousemove', (e) => {
+    const r = hero.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * 100;
+    const py = ((e.clientY - r.top) / r.height) * 100;
+    glow.style.backgroundPosition = px + '% ' + py + '%';
+    if (card) card.style.transform = 'translate(' + ((px-50)/60) + 'px,' + ((py-50)/60) + 'px)';
+  });
+  hero.addEventListener('mouseleave', () => { if (card) card.style.transform = ''; });
+})();
+
+// ============ demo: state ============
+let demoStep = 0, demoService = null, demoSlot = null;
+
 function renderServices(){
-  const wrap = document.getElementById('serviceList');
+  const wrap = $('serviceList');
+  if (!wrap) return;
   wrap.innerHTML = '';
   services.forEach(s => {
     const selected = demoService === s.id;
@@ -451,15 +588,17 @@ function renderServices(){
       </div>
       <span class="mono" style="font-weight:600; color:${priceColor}; font-size:13.5px; flex-shrink:0; margin-left:10px;">${s.price}</span>
     </div>`);
-    card.addEventListener('click', () => { demoService = s.id; renderServices(); renderRail(); document.getElementById('btnStep0Next').disabled = false; });
+    card.addEventListener('click', () => {
+      demoService = s.id; renderServices(); renderRail();
+      const btn = $('btnStep0Next'); if (btn) btn.disabled = false;
+    });
     wrap.appendChild(card);
   });
 }
-document.getElementById('btnStep0Next').addEventListener('click', () => { if (demoService !== null) goStep(1); });
 
-// ---------- demo: slots ----------
 function renderSlots(){
-  const wrap = document.getElementById('slotList');
+  const wrap = $('slotList');
+  if (!wrap) return;
   wrap.innerHTML = '';
   slotTimes.forEach((time, i) => {
     const held = i === HELD_INDEX;
@@ -468,14 +607,17 @@ function renderSlots(){
     if (held) { bgColor = '#f0f2f6'; textColor = '#98a1b2'; }
     else if (selected) { borderColor = '#2f4ba8'; bgColor = '#2f4ba8'; textColor = '#fff'; }
     const btn = el(`<button class="mono" style="padding:11px 4px; border-radius:10px; font-size:12.5px; font-weight:600; cursor:${held?'not-allowed':'pointer'}; border-width:1.5px; border-style:solid; border-color:${borderColor}; background:${bgColor}; color:${textColor};" ${held?'disabled':''}>${time}</button>`);
-    if (!held) btn.addEventListener('click', () => { demoSlot = i; renderSlots(); renderRail(); document.getElementById('btnStep1Next').disabled = false; });
+    if (!held) btn.addEventListener('click', () => {
+      demoSlot = i; renderSlots(); renderRail();
+      const next = $('btnStep1Next'); if (next) next.disabled = false;
+    });
     wrap.appendChild(btn);
   });
 }
 
-// ---------- demo: rail ----------
 function renderRail(){
-  const rail = document.getElementById('rail');
+  const rail = $('rail');
+  if (!rail) return;
   rail.innerHTML = '';
   for (let n = 0; n < 4; n++){
     const done = demoStep > n, current = demoStep === n;
@@ -491,56 +633,111 @@ function renderRail(){
   }
 }
 
-function checkAddr(){
-  const ok = document.getElementById('addrStreet').value.trim() && document.getElementById('addrCity').value.trim() && document.getElementById('addrZip').value.trim();
-  document.getElementById('btnStep2Next').disabled = !ok;
+function addrValues(){
+  return {
+    street: ($('addrStreet') && $('addrStreet').value.trim()) || '',
+    city: ($('addrCity') && $('addrCity').value.trim()) || '',
+    zip: ($('addrZip') && $('addrZip').value.trim()) || '',
+  };
 }
+function checkAddr(){
+  const a = addrValues();
+  const btn = $('btnStep2Next');
+  if (btn) btn.disabled = !(a.street && a.city && a.zip);
+}
+['addrStreet','addrCity','addrZip'].forEach(id => { const n = $(id); if (n) n.addEventListener('input', checkAddr); });
 
 function goStep(n){
   if (n === 1 && demoService === null) return;
   if (n === 2 && demoSlot === null) return;
   if (n === 3){
-    const ok = document.getElementById('addrStreet').value.trim() && document.getElementById('addrCity').value.trim() && document.getElementById('addrZip').value.trim();
-    if (!ok) return;
+    const a = addrValues();
+    if (!(a.street && a.city && a.zip)) return;
     const svc = services.find(s => s.id === demoService);
-    document.getElementById('confService').textContent = svc ? svc.name : '—';
-    document.getElementById('confSlot').textContent = demoSlot !== null ? ('Today · ' + slotTimes[demoSlot]) : '—';
-    const street = document.getElementById('addrStreet').value.trim();
-    const city = document.getElementById('addrCity').value.trim();
-    const zip = document.getElementById('addrZip').value.trim();
-    document.getElementById('confAddr').textContent = [street, city].filter(Boolean).join(', ') + (zip ? (' ' + zip) : '');
-    document.getElementById('confPrice').textContent = svc ? svc.price : '—';
+    if ($('confService')) $('confService').textContent = svc ? svc.name : '—';
+    if ($('confSlot')) $('confSlot').textContent = demoSlot !== null ? ('Today · ' + slotTimes[demoSlot]) : '—';
+    if ($('confAddr')) $('confAddr').textContent = [a.street, a.city].filter(Boolean).join(', ') + (a.zip ? (' ' + a.zip) : '');
+    if ($('confPrice')) $('confPrice').textContent = svc ? svc.price : '—';
   }
-  for (let i = 0; i <= 4; i++) document.getElementById('demoStep'+i).hidden = (i !== n);
-  demoStep = n;
-  renderRail();
-}
 
+  const current = document.querySelector('.demo-step:not([hidden])');
+  const next = $('demoStep' + n);
+  if (!next) return;
+
+  const swap = () => {
+    for (let i = 0; i <= 4; i++){ const s = $('demoStep'+i); if (s) s.hidden = (i !== n); }
+    demoStep = n;
+    renderRail();
+    if (!reduceMotion && next){
+      next.classList.add('entering');
+      requestAnimationFrame(() => requestAnimationFrame(() => next.classList.remove('entering')));
+    }
+  };
+
+  if (!reduceMotion && current && current !== next){
+    current.classList.add('leaving');
+    setTimeout(swap, 120);
+  } else {
+    swap();
+  }
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-go]');
+  if (t) goStep(parseInt(t.dataset.go, 10));
+});
+const btnStep0Next = $('btnStep0Next');
+if (btnStep0Next) btnStep0Next.addEventListener('click', () => { if (demoService !== null) goStep(1); });
+
+const btnCopyRef = $('btnCopyRef');
+if (btnCopyRef) btnCopyRef.addEventListener('click', () => {
+  const text = ($('confRefText') && $('confRefText').textContent) || 'PS-104829';
+  const done = () => { btnCopyRef.textContent = 'Copied ✓'; setTimeout(() => { btnCopyRef.textContent = 'Copy'; }, 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done);
+  else done();
+});
+
+const btnResetDemo = $('btnResetDemo');
+if (btnResetDemo) btnResetDemo.addEventListener('click', resetDemo);
 function resetDemo(){
   demoStep = 0; demoService = null; demoSlot = null;
-  document.getElementById('addrStreet').value = '';
-  document.getElementById('addrCity').value = '';
-  document.getElementById('addrZip').value = '';
-  document.getElementById('btnStep0Next').disabled = true;
-  document.getElementById('btnStep1Next').disabled = true;
-  document.getElementById('btnStep2Next').disabled = true;
+  ['addrStreet','addrCity','addrZip'].forEach(id => { const n = $(id); if (n) n.value = ''; });
+  ['btnStep0Next','btnStep1Next','btnStep2Next'].forEach(id => { const n = $(id); if (n) n.disabled = true; });
   renderServices(); renderSlots();
   goStep(0);
 }
 
-// ---------- feature tabs ----------
+// ============ feature tabs (with sliding underline + arrow-key nav) ============
+let activeTab = 0;
 function renderTabs(){
-  const nav = document.getElementById('tabNav');
-  nav.innerHTML = '';
-  tabDefs.forEach(t => {
+  const nav = $('tabNav');
+  if (!nav) return;
+  const underline = $('tabUnderline');
+  nav.querySelectorAll('.ps-tab').forEach(b => b.remove());
+  tabDefs.forEach((t, i) => {
     const active = activeTab === t.id;
-    const b = el(`<button style="background:none; border:none; border-bottom-width:2.5px; border-bottom-style:solid; border-bottom-color:${active?'#2f4ba8':'transparent'}; padding:10px 16px 12px; font-family:var(--font-body); font-weight:600; font-size:14px; cursor:pointer; color:${active?'var(--ink)':'var(--mute)'};">${t.label}</button>`);
+    const b = el(`<button class="ps-tab" role="tab" aria-selected="${active}" tabindex="${active?'0':'-1'}">${t.label}</button>`);
     b.addEventListener('click', () => { activeTab = t.id; renderTabs(); renderPanels(); });
+    b.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      const nextTab = tabDefs[(i + dir + tabDefs.length) % tabDefs.length];
+      activeTab = nextTab.id; renderTabs(); renderPanels();
+      const btn = nav.querySelectorAll('.ps-tab')[nextTab.id]; if (btn) btn.focus();
+    });
     nav.appendChild(b);
+  });
+  requestAnimationFrame(() => {
+    const activeBtn = Array.from(nav.querySelectorAll('.ps-tab')).find(b => b.getAttribute('aria-selected') === 'true');
+    if (activeBtn && underline){
+      underline.style.left = activeBtn.offsetLeft + 'px';
+      underline.style.width = activeBtn.offsetWidth + 'px';
+    }
   });
 }
 function renderPanels(){
-  const wrap = document.getElementById('tabPanels');
+  const wrap = $('tabPanels');
+  if (!wrap) return;
   wrap.innerHTML = '';
   const tab = tabDefs.find(t => t.id === activeTab);
   tab.items.forEach(it => {
@@ -552,34 +749,41 @@ function renderPanels(){
   });
 }
 
-// ---------- comparison ----------
+// ============ comparison ============
 function renderCompare(){
-  const body = document.getElementById('compareBody');
+  const body = $('compareBody');
+  if (!body) return;
   body.innerHTML = '';
   compareRows.forEach(row => {
-    body.appendChild(el(`<tr style="border-bottom:1px solid var(--rule-2);">
+    body.appendChild(el(`<tr style="border-bottom:1px solid var(--rule-2); transition:background .15s ease;">
       <td style="padding:15px 18px; font-size:14px; color:var(--ink); font-weight:500;">${row.label}</td>
       <td style="padding:15px 18px; text-align:center;"><span style="font-size:12px; font-weight:700; color:var(--ok); background:var(--ok-wash); padding:4px 10px; border-radius:99px;">${row.us}</span></td>
       <td style="padding:15px 18px; text-align:center; font-size:13px; color:var(--mute);">${row.them}</td>
     </tr>`));
   });
+  body.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('mouseenter', () => tr.style.background = 'var(--paper)');
+    tr.addEventListener('mouseleave', () => tr.style.background = '');
+  });
 }
 
-// ---------- faq ----------
+// ============ faq (smooth height animation, no JS height-measuring needed) ============
+let faqOpen = -1;
 function renderFaq(){
-  const wrap = document.getElementById('faqList');
+  const wrap = $('faqList');
+  if (!wrap) return;
   wrap.innerHTML = '';
   faqs.forEach((f, i) => {
     const open = faqOpen === i;
-    const card = el(`<div class="card" style="padding:0; overflow:hidden;">
-      <div style="cursor:pointer; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px;">
+    const item = el(`<div class="card faq-item${open?' open':''}" style="padding:0; overflow:visible;">
+      <button class="faq-q" type="button" aria-expanded="${open}">
         <span style="font-weight:600; color:var(--ink); font-size:14.5px;">${f.q}</span>
-        <span class="mono" style="color:var(--primary); font-size:16px; flex-shrink:0;">${open?'−':'+'}</span>
-      </div>
-      ${open ? `<div style="padding:0 20px 18px; font-size:14px; color:var(--slate); line-height:1.65;">${f.a}</div>` : ''}
+        <span class="mono faq-symbol" style="color:var(--primary); font-size:16px; flex-shrink:0;">+</span>
+      </button>
+      <div class="faq-body-outer"><div style="padding:0 20px 18px; font-size:14px; color:var(--slate); line-height:1.65;">${f.a}</div></div>
     </div>`);
-    card.firstElementChild.addEventListener('click', () => { faqOpen = open ? -1 : i; renderFaq(); });
-    wrap.appendChild(card);
+    item.querySelector('.faq-q').addEventListener('click', () => { faqOpen = open ? -1 : i; renderFaq(); });
+    wrap.appendChild(item);
   });
 }
 
@@ -591,6 +795,7 @@ renderTabs();
 renderPanels();
 renderCompare();
 renderFaq();
+})();
 </script>
 </body>
 </html>
