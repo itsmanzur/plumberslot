@@ -20,7 +20,7 @@
     "check": "npm run lint:js && npm run lint:css && npm run test:unit:js && npm run build && npm run test:budget && npm run test:e2e:list"
   },
   "dependencies": {
-    "preact": "^10.29.7"
+    "preact": "^11.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",
